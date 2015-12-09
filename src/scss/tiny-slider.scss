@@ -1,21 +1,21 @@
-@mixin tiny-slider($child){
-  position: relative;
-  &:after {
-    content: '';
-    display: table;
-    clear: both;
+// tiny
+.tiny {
+  &-slider { overflow: hidden; }
+  &-animate { transition: left 0.3s; }
+  &-container {
+    position: relative;
+    left: 0;
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+    > .item {
+      float: left;
+      box-sizing: border-box;
+    }
   }
-  > #{$child} {
-    float: left;
-    box-sizing: border-box;
+  &-prev, &-next, &-dot {
+    cursor: pointer;
   }
-}
-.tiny-slider {
-  overflow: hidden;
-}
-.tiny-animate {
-  transition: left 0.3s;
-}
-.slider {
-  @include tiny-slider('div');
 }
