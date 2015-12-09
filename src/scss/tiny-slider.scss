@@ -1,0 +1,21 @@
+@mixin tiny-slider($child){
+  position: relative;
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+  > #{$child} {
+    float: left;
+    box-sizing: border-box;
+  }
+}
+.tiny-slider {
+  overflow: hidden;
+}
+.tiny-animate {
+  transition: left 0.3s;
+}
+.slider {
+  @include tiny-slider('div');
+}

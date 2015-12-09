@@ -1,2 +1,5 @@
 .sass-cache
 *.css.map
+*.sublime-project
+*.sublime-workspace
+*.codekit
