@@ -35,17 +35,6 @@ function eventListen(t, fn, o) {
   }
 }
 
-function onNavClick (container, index, items, childrenLength, dir) {
-  index += dir;
-  if (index === childrenLength) {
-    index = 0;
-  } else if (index === -1) {
-    index = childrenLength - 1;
-  }
-
-  container.style.left = - (100 * index / items) + '%';
-}
-
 function tinySlider(options) {
   // make sure container is a list
   var containers = (options.container.length === undefined) ? [options.container] : options.container;
@@ -68,40 +57,25 @@ function tinySliderCore(options) {
     hasDots: true,
     navText: ['prev', 'next'],
     loop: true,
+    index: 0,
     callback: false,
   }, options || {});
 
   this.container = options.container;
   this.children = this.container.querySelectorAll(options.child);
-  this.childrenLength = this.children.length;
+  this.childrenLength = options.childrenLength = this.children.length;
   this.items = options.items;
   this.hasNav = options.hasNav;
   this.hasDots = options.hasDots;
   this.navText = options.navText;
   this.loop = options.loop;
-  this.index = 0;
+  this.index = options.index;
 
   this.init();
 
-  // this.eventListen = function (t, fn, o) {
-  //   o = o || window;
-  //   var e = t+Math.round(Math.random()*99999999);
-  //   if ( o.attachEvent ) {
-  //     o['e'+e] = fn;
-  //     o[e] = function(){
-  //         o['e'+e]( window.event );
-  //     };
-  //     o.attachEvent( 'on'+t, o[e] );
-  //   }else{
-  //     o.addEventListener( t, fn, false );
-  //   }
-  // }
-
-  // this.onNavClick(1);
-  this.next.onclick = function () {
-    // alert(this.innerHTML);
-    tinySliderCore.prototype.onNavClick(1);
-  }
+  var tinyFn = this;
+  eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
+  eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
 }
 
 tinySliderCore.prototype = {
@@ -166,15 +140,15 @@ tinySliderCore.prototype = {
     }
   },
 
-  onNavClick: function (dir) {
-    this.index += dir;
-    if (this.index === this.childrenLength) {
-      this.index = 0;
-    } else if (this.index === -1) {
-      this.index = this.childrenLength - 1;
+  onNavClick: function (obj, dir) {
+    obj.index += dir;
+    if (obj.index === obj.childrenLength) {
+      obj.index = 0;
+    } else if (obj.index === -1) {
+      obj.index = obj.childrenLength - 1;
     }
 
-    this.container.style.left = - (100 * this.index / this.items) + '%';
+    obj.container.style.left = - (100 * obj.index / obj.items) + '%';
   }
   // new: function () {
   // },
