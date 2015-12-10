@@ -23,24 +23,36 @@ function tinySliderCore(options) {
     navText: ['prev', 'next'],
     loop: true,
     index: 0,
+    responsive: {
+      500: 2,
+      800: 3,
+    },
     callback: false,
   }, options || {});
 
   this.container = options.container;
   this.child = options.child;
-  this.children = this.container.querySelectorAll(options.child);
-  this.childrenLength = this.childrenLengthCloned = options.childrenLength = this.children.length;
-  this.items = options.items;
+  this.children = this.container.querySelectorAll(this.child);
+  this.childrenLength = this.childrenUpdatedLength = options.childrenLength = this.children.length;
   this.hasNav = options.hasNav;
   this.hasDots = options.hasDots;
   this.navText = options.navText;
   this.loop = options.loop;
   this.byPage = options.byPage;
   this.index = options.index;
+  this.responsive = options.responsive; 
+  this.bp = (this.responsive && typeof(this.responsive) === 'object') ? Object.keys(this.responsive) : false;
+  this.vals = (this.responsive && typeof(this.responsive) === 'object') ? getMapValues(this.responsive, this.bp) : false;
+  this.itemsMax = (this.vals.length !== undefined) ? Math.max.apply(Math, this.vals) : this.items;
+  this.items = getItem (this.bp, this.vals, options.items);
 
   this.init();
 
   var tinyFn = this;
+  windowResize(function () {
+    tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
+    tinyFn.updateContainer(tinyFn);
+  });
   eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
   eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
 }
@@ -64,6 +76,21 @@ tinySliderCore.prototype = {
       parent.appendChild(wrapper);
     }
 
+    // add dots
+    if (this.hasDots) {
+      var dots = div.cloneNode(true),
+      dot = div.cloneNode(true);
+      dots.className = 'tiny-dots';
+      dot.className = 'tiny-dot';
+
+      for (var i = this.childrenLength - 1; i >= 0; i--) {
+        var dotClone = (i > 0) ? dot.cloneNode(true) : dot;
+        dots.appendChild(dotClone);
+      }
+      wrapper.appendChild(dots);
+      this.dots = dots.querySelectorAll('.tiny-dot');
+    }
+
     // add nav
     if (this.hasNav) {
       var nav = div.cloneNode(true),
@@ -85,82 +112,65 @@ tinySliderCore.prototype = {
       this.next = next;
     }
 
-    // add dots
-    if (this.hasDots) {
-      var dots = div.cloneNode(true),
-      dot = div.cloneNode(true);
-      dots.className = 'tiny-dots';
-      dot.className = 'tiny-dot';
-
-      for (var i = this.childrenLength - 1; i >= 0; i--) {
-        var dotClone = (i > 0) ? dot.cloneNode(true) : dot;
-        dots.appendChild(dotClone);
-      }
-      wrapper.appendChild(dots);
-      this.dots = dots.querySelectorAll('.tiny-dot');
-    }
-
     // clone items
     if (this.loop) {
-      for (var i = 0; i < this.childrenLength; i++) {
-        var allItems = this.container.querySelectorAll(this.child),
-            firstItemClone = allItems[i].cloneNode(true);
+      for (var i = 0; i < this.itemsMax; i++) {
+        var cloneFirst = this.children[i].cloneNode(true),
+            cloneLast = this.children[this.children.length - 1 - i].cloneNode(true),
+            first = this.container.querySelectorAll(this.child)[0];
 
-        this.container.appendChild(firstItemClone);
+        this.container.appendChild(cloneFirst);
+        this.container.insertBefore(cloneLast, first);
       }
-      this.childrenLengthCloned = this.childrenLength * 2;
+
+      this.childrenUpdatedLength = this.container.querySelectorAll(this.child).length;
       this.children = this.container.querySelectorAll(this.child);
-      this.container.style.marginLeft = - (this.childrenLength * 100 / this.items) + '%';
     } 
 
     // calculate width
-    this.container.style.width = (this.childrenLengthCloned * 100 / this.items) + '%';
-    for (var i = 0; i < this.childrenLengthCloned; i++) {
-      this.children[i].style.width = (100 / this.childrenLengthCloned) + '%';
+    for (var i = 0; i < this.childrenUpdatedLength; i++) {
+      this.children[i].style.width = (100 / this.childrenUpdatedLength) + '%';
     }
+
+    this.updateContainer(this);
+  },
+
+  updateContainer: function (obj) {
+    if (obj.loop) {
+      obj.container.style.marginLeft = - (obj.itemsMax * 100 / obj.items) + '%';
+    } 
+    obj.container.style.width = (obj.childrenUpdatedLength * 100 / obj.items) + '%';
   },
 
   onNavClick: function (obj, dir) {
     addClass(obj.container, 'tiny-animate');
-    if (obj.byPage) { dir = dir * obj.items }
 
-    obj.index += dir;
-    obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+    if (obj.byPage) { 
+      dir = dir * obj.items;
+    } else {
+      obj.index += dir;
 
-    if (obj.index >= (obj.childrenLength - obj.items) || obj.index <= -1) {
-      setTimeout(function () {
-        tinySliderCore.prototype.onUpdate(obj, dir);
-      }, 300);
+      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
     }
+
+    setTimeout(function () {
+      tinySliderCore.prototype.fallback(obj, dir);
+    }, 300);
   },
 
-  onUpdate: function (obj, dir) {
+  fallback: function (obj, dir) {
     removeClass(obj.container, 'tiny-animate');
 
     if (obj.byPage) {
-      for (var i = 0; i < obj.items; i++) {
-        var allItems = obj.container.querySelectorAll(obj.child),
-            firstItem = allItems[0],
-            lastItem = allItems[obj.childrenLengthCloned - 1];
-        if (dir === -1) {
-          obj.container.insertBefore(lastItem, firstItem);
-        } else if (dir === 1) {
-          obj.container.appendChild(firstItem);
-        }
-      }
     } else {
-      var allItems = obj.container.querySelectorAll(obj.child),
-          firstItem = allItems[0],
-          lastItem = allItems[obj.childrenLengthCloned - 1];
-      if (dir === -1) {
-        obj.container.insertBefore(lastItem, firstItem);
-      } else if (dir === 1) {
-        obj.container.appendChild(firstItem);
+      if (obj.index <= - obj.itemsMax) {
+        obj.index += obj.childrenLength;
+      } else if (obj.index >= obj.childrenLength + obj.itemsMax - obj.items) {
+        obj.index -= obj.childrenLength;
       }
-    }
 
-    obj.index = (obj.index === -1) ? 0 : (obj.childrenLength - obj.items - 1);
-    obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+    }
   },
 
   // new: function () {
@@ -171,6 +181,5 @@ tinySliderCore.prototype = {
 
 tinySlider({
   container: document.querySelector('.slider'),
-  items: 2,
   byPage: false
 });
