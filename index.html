@@ -16,34 +16,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <!-- favicons -->
-  <link rel="shortcut icon" href="img/favicon.ico">
-  <link rel="shortcut icon" href="img/favicon.png">
-
-  <!-- Prerendering pages: be careful with this option -->
-  <!-- <link rel="prerender" href="http://css-tricks.com"> -->
-
-  <!-- Subresources:  -->
-  <!-- Identify the resources that are the highest priority and should be requested before prefetched items -->
-  <!-- <link rel="subresource" href="styles.css"> -->
-  
-  <!-- Prefetch DNS for external assets -->
-  <!-- <link href="https://fontastic.s3.amazonaws.com" rel="dns-prefetch"> -->
-
-  <!-- Preconnect for dynamic request URLs -->
-  <!-- <link href='https://fonts.gstatic.com' rel='preconnect' crossorigin> -->
-  
-  <!-- Prefetch Resourses -->
-  <!-- <link href="sprite.png" rel="prefetch"> -->
-  <!-- <link href="webfont.woff" rel="prefetch"> -->
-  <!-- <link href="http://mydomain.com/my-next-page.htm" rel="prerender"> -->
   <style>
     body {
       font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
     }
     .container {
       max-width: 800px;
-      margin: 30px auto;
+      margin: 0 auto;
     }
     p { 
       font-size: 14px;
@@ -87,42 +66,41 @@
     }
     .tiny-active { background: #999; }
   </style>
-  <!-- css -->
   <link rel="stylesheet" href="assets/css/tiny-slider.css">
 </head>
 <body>
 
 <div class="container">
   <div class="slider">
-    <div class="item">
+    <div>
       <div class="img img-1">1</div>
       <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus sed harum quaerat dicta cum tempora modi assumenda porro perferendis. Alias.</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-2">2</div>
       <p>Blanditiis sapiente tempora corrupti incidunt iste nemo beatae! Cumque repellendus suscipit velit eveniet obcaecati incidunt ex voluptate sint excepturi a!</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-3">3</div>
       <p>At possimus dolorum eligendi repellat cumque obcaecati deleniti doloribus quod, dolore odio maiores necessitatibus eum, excepturi repellendus facilis facere ad!</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-4">4</div>
       <p>Cumque facilis amet eos nulla adipisci, beatae, ut dolorum officia nobis ducimus, inventore repellendus debitis minus culpa rerum obcaecati aspernatur.</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-5">5</div>
       <p>Sint ad, praesentium est delectus quo quos dolorum odio alias pariatur quia eveniet consequuntur cupiditate magnam sit dolores possimus. Sed.</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-6">6</div>
       <p>Neque accusamus inventore rerum aspernatur distinctio beatae fugiat voluptatem sed, nesciunt corrupti expedita adipisci molestias, consequatur, vitae consectetur sunt quisquam.</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-7">7</div>
       <p>Quis deserunt quo sequi qui fugiat nobis minus quasi laudantium, excepturi nostrum, labore porro consectetur sunt repudiandae modi. Vitae, tenetur.</p>
     </div>
-    <div class="item">
+    <div>
       <div class="img img-8">8</div>
       <p>Laborum officiis, magnam, eos possimus aliquam reiciendis odit alias nulla odio, ipsa expedita, placeat neque repellendus architecto ut quam consequuntur.</p>
     </div>
@@ -130,5 +108,13 @@
 </div>
 
 <script src="assets/js/tiny-slider.js"></script>
+<script type="text/javascript">
+  tinySlider({
+    container: document.querySelector('.slider'),
+    slideByPage: false,
+    loop: false,
+    keyboard: true,
+  });
+</script>
 </body>
 </html>

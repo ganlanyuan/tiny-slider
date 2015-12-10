@@ -1,5 +1,119 @@
-// @codekit-prepend "helper.js"
+/**
+ * tiny-slider
+ * @version 0.0.0
+ * @author William Lin
+ * @license The MIT License (MIT)
+ **/
 
+// *** helpers *** //
+// extend
+function extend() {
+  var obj, name, copy,
+  target = arguments[0] || {},
+  i = 1,
+  length = arguments.length;
+
+  for (; i < length; i++) {
+    if ((obj = arguments[i]) !== null) {
+      for (name in obj) {
+        copy = obj[name];
+
+        if (target === copy) { 
+          continue; 
+        } else if (copy !== undefined) {
+          target[name] = copy;
+        }
+      }
+    }
+  }
+  return target;
+}
+
+// add event listener
+function addEvent(o, t, fn) {
+  o = o || window;
+  var e = t+Math.round(Math.random()*99999999);
+  if ( o.attachEvent ) {
+    o['e'+e] = fn;
+    o[e] = function(){
+      o['e'+e]( window.event );
+    };
+    o.attachEvent( 'on'+t, o[e] );
+  }else{
+    o.addEventListener( t, fn, false );
+  }
+}
+
+// handle classes
+function addClass(el, name) {
+  var name = ' ' + name;
+  if(el.className.indexOf(name) === -1) {
+    el.className += name;
+  }
+}
+function removeClass(el, name) {
+  var name = ' ' + name;
+  if(el.className.indexOf(name) !== -1) {
+    el.className = el.className.replace(name, '');
+  }
+}
+
+// Object.keys polyfill
+if (!Object.keys) Object.keys = function(o) {
+  if (o !== Object(o))
+    throw new TypeError('Object.keys called on a non-object');
+  var k=[],p;
+  for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
+    return k;
+}
+
+// Object.values similar function
+function getMapValues (obj, keys) {
+  var values = [];
+  for (var i = 0; i < keys.length; i++) {
+    var pro = keys[i];
+    values.push(obj[pro]);
+  }
+  return values;
+}
+
+// get window width
+function getWindowWidth () {
+  var d = document, w = window,
+  winW = w.innerWidth || d.documentElement.clientWidth || d.body.clientWidth;
+  return winW;  
+}
+
+// get responsive value
+function getItem (keys, values, def) {
+  var ww = getWindowWidth();
+
+  if (keys.length !== undefined && values !== undefined && keys.length === values.length) {
+    if (ww < keys[0]) {
+      return def;
+    } else if (ww >= keys[keys.length - 1]) {
+      return values[values.length - 1];
+    } else {
+      for (var i = 0; i < keys.length - 1; i++) {
+        if (ww >= keys[i] && ww <= keys[i+1]) {
+          return values[i];
+        }
+      }
+    }
+  }
+}
+
+// get supported property
+function getSupportedProp(proparray){
+  var root = document.documentElement;
+  for (var i=0; i<proparray.length; i++){
+    if (proparray[i] in root.style){
+      return proparray[i];
+    }
+  }
+}
+
+// *** tiny-slider start *** //
 var tdProp = getSupportedProp(['transitionDuration', 'MozTransitionDuration', 'WebkitTransitionDuration']);
 
 function tinySlider(options) {
@@ -16,39 +130,35 @@ function tinySlider(options) {
 function tinySliderCore(options) {
   options = extend({ 
     container: document.querySelector('.tiny-slider'),
-    child: '.item',
-    mode: 'carousel',
     items: 1,
     slideByPage: false,
-    speed: 250,
     hasNav: true,
-    hasDots: true,
     navText: ['prev', 'next'],
+    hasDots: true,
+    keyboard: false,
     loop: true,
+    speed: 250,
     autoplay: false,
     autoplayTimeout: 5000,
     autoplayDirection: 'forward',
-    index: 0,
     responsive: {
       500: 2,
       800: 3,
     },
-    callback: false,
   }, options || {});
 
   this.container = options.container;
-  this.child = options.child;
-  this.children = this.container.querySelectorAll(this.child);
+  this.children = this.container.children;
   this.childrenLength = this.childrenUpdatedLength = options.childrenLength = this.children.length;
   this.hasNav = options.hasNav;
-  this.hasDots = options.hasDots;
   this.navText = options.navText;
+  this.hasDots = options.hasDots;
+  this.keyboard = options.keyboard;
   this.loop = options.loop;
   this.autoplay = options.autoplay;
   this.autoplayTimeout = options.autoplayTimeout;
   this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
   this.slideByPage = options.slideByPage;
-  this.index = options.index;
   this.responsive = options.responsive; 
   this.bp = (this.responsive && typeof(this.responsive) === 'object') ? Object.keys(this.responsive) : false;
   this.vals = (this.responsive && typeof(this.responsive) === 'object') ? getMapValues(this.responsive, this.bp) : false;
@@ -56,6 +166,7 @@ function tinySliderCore(options) {
   this.items = getItem (this.bp, this.vals, options.items);
   this.speed = (this.slideByPage) ? options.speed * this.items : options.speed;
   this.animating = false;
+  this.index = 0;
 
   if (this.childrenLength >= this.itemsMax) {
 
@@ -66,7 +177,7 @@ function tinySliderCore(options) {
 
     // on window resize
     var updateIt;
-    windowResize(function () {
+    addEvent(window, 'resize', function () {
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
         // update after resize done
@@ -78,19 +189,31 @@ function tinySliderCore(options) {
     });
 
     // on nav click
-    eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
-    eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
+    addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
+    addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
+
+    // on key down
+    if (this.keyboard) {
+      addEvent(document, 'keydown', function (e) {
+        e = e || window.event;
+        if (e.keyCode === 37) {
+          tinySliderCore.prototype.onNavClick(tinyFn, -1);
+        } else if (e.keyCode === 39) {
+          tinySliderCore.prototype.onNavClick(tinyFn, 1);
+        }
+      });
+    }
 
     // on dot click
     for (var i = 0; i < this.dots.length; i++) {
-      eventListen('click', function (e) { 
+      addEvent(this.dots[i], 'click', function (e) { 
         var index;
         for (var i = 0; i < tinyFn.dots.length; i++) {
           target = (e.currentTarget) ? e.currentTarget : e.srcElement;
           if (tinyFn.dots[i] === target) { index = i; }
         }
         tinySliderCore.prototype.onDotClick(tinyFn, index); 
-      }, this.dots[i]);
+      });
     };
 
     // autoplay
@@ -136,7 +259,6 @@ tinySliderCore.prototype = {
       }
       wrapper.appendChild(dots);
       this.dots = dots.querySelectorAll('.tiny-dot');
-      // addClass(this.dots[0], 'tiny-active');
     }
 
     // add nav
@@ -164,15 +286,15 @@ tinySliderCore.prototype = {
     if (this.loop) {
       for (var i = 0; i < this.itemsMax; i++) {
         var cloneFirst = this.children[i].cloneNode(true),
-            cloneLast = this.children[this.children.length - 1 - i].cloneNode(true),
-            first = this.container.querySelectorAll(this.child)[0];
+        cloneLast = this.children[this.children.length - 1 - i].cloneNode(true),
+        first = this.container.children[0];
 
         this.container.appendChild(cloneFirst);
         this.container.insertBefore(cloneLast, first);
       }
 
-      this.childrenUpdatedLength = this.container.querySelectorAll(this.child).length;
-      this.children = this.container.querySelectorAll(this.child);
+      this.childrenUpdatedLength = this.container.children.length;
+      this.children = this.container.children;
     } 
 
     // calculate width
@@ -195,7 +317,7 @@ tinySliderCore.prototype = {
 
   updateDots: function (obj) {
     var dotCount = Math.ceil(obj.childrenLength / obj.items),
-        dots = obj.dots;
+    dots = obj.dots;
     for (var i = 0; i < dots.length; i++) {
       (i < dotCount) ? removeClass(dots[i], 'tiny-hide') : addClass(dots[i], 'tiny-hide');
     }
@@ -203,7 +325,7 @@ tinySliderCore.prototype = {
 
   updateDotsStatus: function (obj) {
     var current, absIndex = obj.index, dots = obj.dots,
-        dotCount = Math.ceil(obj.childrenLength / obj.items);
+    dotCount = Math.ceil(obj.childrenLength / obj.items);
 
     if (absIndex < 0) {
       absIndex += obj.childrenLength;
@@ -257,7 +379,7 @@ tinySliderCore.prototype = {
     if (tdProp) { obj.container.style[tdProp] = '0s'; }
 
     var leftEdge = (obj.slideByPage) ? obj.index < - (obj.itemsMax - obj.items) : obj.index <= - obj.itemsMax,
-        rightEdge = (obj.slideByPage) ? obj.index > (obj.childrenLength + obj.itemsMax - obj.items * 2 - 1) : obj.index >= (obj.childrenLength + obj.itemsMax - obj.items);
+    rightEdge = (obj.slideByPage) ? obj.index > (obj.childrenLength + obj.itemsMax - obj.items * 2 - 1) : obj.index >= (obj.childrenLength + obj.itemsMax - obj.items);
 
     if (leftEdge) { obj.index += obj.childrenLength; }
     if (rightEdge) { obj.index -= obj.childrenLength; }
@@ -287,9 +409,3 @@ tinySliderCore.prototype = {
   },
 
 };
-
-tinySlider({
-  container: document.querySelector('.slider'),
-  slideByPage: false,
-  loop: false,
-});
