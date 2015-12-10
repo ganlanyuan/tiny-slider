@@ -55,7 +55,7 @@ if (!Object.keys) Object.keys = function(o) {
     throw new TypeError('Object.keys called on a non-object');
   var k=[],p;
   for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
-  return k;
+    return k;
 }
 
 function getMapValues (obj, keys) {
@@ -85,7 +85,7 @@ function windowResize (fn) {
 
 function getItem (keys, values, def) {
   var ww = getWindowWidth();
-  
+
   if (keys.length !== undefined && values !== undefined && keys.length === values.length) {
     if (ww < keys[0]) {
       return def;
@@ -103,7 +103,19 @@ function getItem (keys, values, def) {
   };
 }
 
+function getSupportedProp(proparray){
+  var root = document.documentElement;
+  for (var i=0; i<proparray.length; i++){
+    if (proparray[i] in root.style){
+      return proparray[i];
+    }
+  }
+}
+
+
 // @codekit-prepend "helper.js"
+
+var tdProp = getSupportedProp(['transitionDuration', 'MozTransitionDuration', 'WebkitTransitionDuration']);
 
 function tinySlider(options) {
   // make sure container is a list
@@ -122,11 +134,15 @@ function tinySliderCore(options) {
     child: '.item',
     mode: 'carousel',
     items: 1,
-    byPage: false,
+    slideByPage: false,
+    speed: 250,
     hasNav: true,
     hasDots: true,
     navText: ['prev', 'next'],
     loop: true,
+    autoplay: false,
+    autoplayTimeout: 5000,
+    autoplayDirection: 'forward',
     index: 0,
     responsive: {
       500: 2,
@@ -143,28 +159,50 @@ function tinySliderCore(options) {
   this.hasDots = options.hasDots;
   this.navText = options.navText;
   this.loop = options.loop;
-  this.byPage = options.byPage;
+  this.autoplay = options.autoplay;
+  this.autoplayTimeout = options.autoplayTimeout;
+  this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
+  this.slideByPage = options.slideByPage;
   this.index = options.index;
   this.responsive = options.responsive; 
   this.bp = (this.responsive && typeof(this.responsive) === 'object') ? Object.keys(this.responsive) : false;
   this.vals = (this.responsive && typeof(this.responsive) === 'object') ? getMapValues(this.responsive, this.bp) : false;
   this.itemsMax = (this.vals.length !== undefined) ? Math.max.apply(Math, this.vals) : this.items;
   this.items = getItem (this.bp, this.vals, options.items);
+  this.speed = (this.slideByPage) ? options.speed * this.items : options.speed;
+  this.animating = false;
 
-  this.init();
+  if (this.childrenLength >= this.itemsMax) {
 
-  var tinyFn = this;
-  windowResize(function () {
-    tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
-    tinyFn.updateContainer(tinyFn);
-  });
-  eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
-  eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
+    this.init();
+
+    var tinyFn = this;
+    var updateIt;
+    windowResize(function () {
+      clearTimeout(updateIt);
+      updateIt = setTimeout(function () {
+        // update after resize done
+        tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
+        tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
+        tinyFn.updateContainer(tinyFn);
+      }, 100);
+    });
+    eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
+    eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
+
+    if (this.autoplay) { 
+      setInterval(function () {
+        tinySliderCore.prototype.onNavClick(tinyFn, tinyFn.autoplayDirection);
+      }, tinyFn.autoplayTimeout);
+    }
+  } else {
+    throw new TypeError('items are not enough to show on 1 page');
+  }
 }
 
 tinySliderCore.prototype = {
   init: function () {
-    addClass(this.container, 'tiny-container');
+    addClass(this.container, 'tiny-content');
 
     // wrap slider with ".tiny-slider"
     var parent = this.container.parentNode,
@@ -245,47 +283,51 @@ tinySliderCore.prototype = {
       obj.container.style.marginLeft = - (obj.itemsMax * 100 / obj.items) + '%';
     } 
     obj.container.style.width = (obj.childrenUpdatedLength * 100 / obj.items) + '%';
+    obj.container.style.left = - (100 * obj.index / obj.items) + '%';
   },
 
   onNavClick: function (obj, dir) {
-    addClass(obj.container, 'tiny-animate');
+    if (!obj.animating) {
+      if (tdProp) { 
+        obj.container.style[tdProp] = (obj.speed / 1000) + 's'; 
+        obj.animating = true;
+      }
+      if (obj.slideByPage) { dir = dir * obj.items; }
 
-    if (obj.byPage) { 
-      dir = dir * obj.items;
-    } else {
       obj.index += dir;
-
-      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
-    }
-
-    setTimeout(function () {
-      tinySliderCore.prototype.fallback(obj, dir);
-    }, 300);
-  },
-
-  fallback: function (obj, dir) {
-    removeClass(obj.container, 'tiny-animate');
-
-    if (obj.byPage) {
-    } else {
-      if (obj.index <= - obj.itemsMax) {
-        obj.index += obj.childrenLength;
-      } else if (obj.index >= obj.childrenLength + obj.itemsMax - obj.items) {
-        obj.index -= obj.childrenLength;
+      if (!obj.loop) {
+        obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
       }
 
       obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+
+      if (obj.loop) {
+        setTimeout(function () { 
+          tinySliderCore.prototype.fallback(obj, dir);
+          obj.animating = false;
+        }, obj.speed);
+      }
     }
   },
 
-  // new: function () {
-  // },
-  // new2: function () {
-  // }
+  fallback: function (obj, dir) {
+    if (tdProp) { obj.container.style[tdProp] = '0s'; }
+
+    var leftEdge = (obj.slideByPage) ? obj.index < - (obj.itemsMax - obj.items) : obj.index <= - obj.itemsMax,
+        rightEdge = (obj.slideByPage) ? obj.index > (obj.childrenLength + obj.itemsMax - obj.items * 2 - 1) : obj.index >= (obj.childrenLength + obj.itemsMax - obj.items);
+
+    if (leftEdge) { obj.index += obj.childrenLength; }
+    if (rightEdge) { obj.index -= obj.childrenLength; }
+
+    obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+  },
+
 };
 
 tinySlider({
   container: document.querySelector('.slider'),
-  byPage: false
+  slideByPage: true,
+  loop: true,
+  autoplay: true,
 });
 

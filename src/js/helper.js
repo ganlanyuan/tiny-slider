@@ -55,7 +55,7 @@ if (!Object.keys) Object.keys = function(o) {
     throw new TypeError('Object.keys called on a non-object');
   var k=[],p;
   for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
-  return k;
+    return k;
 }
 
 function getMapValues (obj, keys) {
@@ -85,7 +85,7 @@ function windowResize (fn) {
 
 function getItem (keys, values, def) {
   var ww = getWindowWidth();
-  
+
   if (keys.length !== undefined && values !== undefined && keys.length === values.length) {
     if (ww < keys[0]) {
       return def;
@@ -101,4 +101,13 @@ function getItem (keys, values, def) {
   } else {
     throw new TypeError('Keys and values are not arrays or they have different length');
   };
+}
+
+function getSupportedProp(proparray){
+  var root = document.documentElement;
+  for (var i=0; i<proparray.length; i++){
+    if (proparray[i] in root.style){
+      return proparray[i];
+    }
+  }
 }

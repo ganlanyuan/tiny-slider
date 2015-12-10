@@ -1,10 +1,11 @@
 // tiny
 .tiny {
   &-slider { overflow: hidden; }
-  &-animate { transition: left 0.3s; }
-  &-container {
+  &-content {
     position: relative;
     left: 0;
+    -webkit-transition: left 0s;
+    transition: left 0s;
     &:after {
       content: '';
       display: table;
