@@ -174,9 +174,12 @@ function tinySliderCore(options) {
 
   if (this.childrenLength >= this.itemsMax) {
 
+    // on initialize
     this.init();
 
     var tinyFn = this;
+
+    // on window resize
     var updateIt;
     windowResize(function () {
       clearTimeout(updateIt);
@@ -185,11 +188,27 @@ function tinySliderCore(options) {
         tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
         tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
         tinyFn.updateContainer(tinyFn);
+        tinyFn.updateDots(tinyFn);
       }, 100);
     });
+
+    // on nav click
     eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); }, this.next);
     eventListen('click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); }, this.prev);
 
+    // on dot click
+    for (var i = 0; i < this.dots.length; i++) {
+      eventListen('click', function (e) { 
+        var index;
+        for (var i = 0; i < tinyFn.dots.length; i++) {
+          target = (e.currentTarget) ? e.currentTarget : e.srcElement;
+          if (tinyFn.dots[i] === target) { index = i; }
+        }
+        tinySliderCore.prototype.onDotClick(tinyFn, index); 
+      }, this.dots[i]);
+    };
+
+    // autoplay
     if (this.autoplay) { 
       setInterval(function () {
         tinySliderCore.prototype.onNavClick(tinyFn, tinyFn.autoplayDirection);
@@ -232,6 +251,7 @@ tinySliderCore.prototype = {
       }
       wrapper.appendChild(dots);
       this.dots = dots.querySelectorAll('.tiny-dot');
+      // addClass(this.dots[0], 'tiny-active');
     }
 
     // add nav
@@ -276,6 +296,8 @@ tinySliderCore.prototype = {
     }
 
     this.updateContainer(this);
+    this.updateDots(this);
+    this.updateDotsStatus(this);
   },
 
   updateContainer: function (obj) {
@@ -284,6 +306,38 @@ tinySliderCore.prototype = {
     } 
     obj.container.style.width = (obj.childrenUpdatedLength * 100 / obj.items) + '%';
     obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+  },
+
+  updateDots: function (obj) {
+    var dotCount = Math.ceil(obj.childrenLength / obj.items),
+        dots = obj.dots;
+    for (var i = 0; i < dots.length; i++) {
+      (i < dotCount) ? removeClass(dots[i], 'tiny-hide') : addClass(dots[i], 'tiny-hide');
+    }
+  },
+
+  updateDotsStatus: function (obj) {
+    var current, absIndex = obj.index, dots = obj.dots,
+        dotCount = Math.ceil(obj.childrenLength / obj.items);
+
+    if (absIndex < 0) {
+      absIndex += obj.childrenLength;
+    } else if (absIndex >= obj.childrenLength) {
+      absIndex -= obj.childrenLength;
+    }
+
+    current = Math.floor(absIndex / obj.items);
+    // non-loop & reach the end
+    if (!obj.loop) {
+      var re=/^-?[0-9]+$/, whole = re.test(obj.childrenLength / obj.items);
+      if(!whole && obj.index === obj.childrenLength - obj.items) {
+        current += 1;
+      }
+    }
+
+    for (var i = 0; i < dotCount; i++) {
+      (i === current) ? addClass(dots[i], 'tiny-active') : removeClass(dots[i], 'tiny-active');
+    }
   },
 
   onNavClick: function (obj, dir) {
@@ -304,9 +358,13 @@ tinySliderCore.prototype = {
       if (obj.loop) {
         setTimeout(function () { 
           tinySliderCore.prototype.fallback(obj, dir);
-          obj.animating = false;
         }, obj.speed);
       }
+
+      setTimeout(function () { 
+        tinySliderCore.prototype.updateDotsStatus(obj);
+        obj.animating = false;
+      }, obj.speed);
     }
   },
 
@@ -322,12 +380,32 @@ tinySliderCore.prototype = {
     obj.container.style.left = - (100 * obj.index / obj.items) + '%';
   },
 
+  onDotClick: function (obj, index) {
+    if (!obj.animating) {
+      if (tdProp) {
+        obj.container.style[tdProp] = (obj.speed / 1000) + 's'; 
+        obj.animating = true;
+      }
+
+      obj.index = index * obj.items;
+      if (!obj.loop) {
+        obj.index = Math.min(obj.index, obj.childrenLength - obj.items); 
+      }
+
+      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+
+      setTimeout(function () { 
+        tinySliderCore.prototype.updateDotsStatus(obj);
+        obj.animating = false;
+      }, obj.speed);
+    }
+  },
+
 };
 
 tinySlider({
   container: document.querySelector('.slider'),
-  slideByPage: true,
-  loop: true,
-  autoplay: true,
+  slideByPage: false,
+  loop: false,
 });
 
