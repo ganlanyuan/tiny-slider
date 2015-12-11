@@ -3,15 +3,27 @@ Pure tiny javascript slider for all purposes, inspired by [Owl Carousel](http://
 [demo](http://creatiointl.org/gallery/william/tiny-slider/)
 
 ### Install
+via bower
+```
+bower install tiny-slider
+```
+via npm
+```
+npm install tiny-slider
+```
 
 ### Usage
+Include `tiny-slider.js` in your html, then call `tinySlider`.
 ```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  slideByPage: false,
-  loop: false,
-  keyboard: true
-});
+<script src="path/to/tiny-slider.js"></script>
+<script>
+  tinySlider({
+    container: document.querySelector('.slider'),
+    slideByPage: false,
+    loop: false,
+    keyboard: true
+  });
+</script>
 ```
 
 ### Default setting
@@ -30,5 +42,5 @@ options = {
   autoplayDirection: 'forward',
   loop: true,
   responsive: false
-}
+};
 ```

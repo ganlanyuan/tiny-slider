@@ -1,0 +1,23 @@
+{
+  "name": "tiny-slider",
+  "version": "0.0.0",
+  "description": "Pure tiny javascript slider for all purposes.",
+  "main": "tiny-slider.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ganlanyuan/tiny-slider.git"
+  },
+  "keywords": [
+    "tiny",
+    "slider"
+  ],
+  "author": "William Lin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ganlanyuan/tiny-slider/issues"
+  },
+  "homepage": "https://github.com/ganlanyuan/tiny-slider#readme"
+}
