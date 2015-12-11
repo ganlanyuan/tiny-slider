@@ -3,6 +3,7 @@
  * @version 0.0.0
  * @author William Lin
  * @license The MIT License (MIT)
+ * @todo lazyload
  **/
 
 ;(function (tinySliderJS) {
@@ -36,10 +37,7 @@
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
       loop: true,
-      responsive: {
-        500: 2,
-        800: 3,
-      },
+      responsive: false,
     }, options || {});
 
     tiny.container = options.container;
@@ -55,7 +53,7 @@
     tiny.loop = options.loop;
     tiny.slideByPage = options.slideByPage;
     tiny.responsive = options.responsive; 
-    
+
     tiny.bp = (tiny.responsive && typeof(tiny.responsive) === 'object') ? Object.keys(tiny.responsive) : false;
     tiny.vals = (tiny.responsive && typeof(tiny.responsive) === 'object') ? getMapValues(tiny.responsive, tiny.bp) : false;
     tiny.itemsMax = (tiny.vals.length !== undefined) ? Math.max.apply(Math, tiny.vals) : tiny.items;
@@ -77,9 +75,9 @@
           // update after resize done
           tiny.items = getItem (tiny.bp, tiny.vals, options.items);
           tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
-          tiny.updateContainer();
-          tiny.updateDots();
-          tiny.updateDotsStatus();
+          tinySliderCore.prototype.updateContainer();
+          tinySliderCore.prototype.updateDots();
+          tinySliderCore.prototype.updateDotsStatus();
         }, 100);
       });
 
@@ -426,4 +424,4 @@
   }
 
   return tinySlider;
-})
+});

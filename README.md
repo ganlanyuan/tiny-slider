@@ -1,5 +1,5 @@
 # tiny-slider
-Pure javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 12K uncompressed, 7K compressed.   
+Pure tiny javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 12K uncompressed, 7K compressed.   
 [demo](http://creatiointl.org/gallery/william/tiny-slider/)
 
 ### Install
@@ -17,21 +17,18 @@ tinySlider({
 ### Default setting
 ```javascript
 options = { 
-  container: document.querySelector('.tiny-slider'),
+  container: document.querySelector('.slider'),
   items: 1,
   slideByPage: false,
   hasNav: true,
   navText: ['prev', 'next'],
   hasDots: true,
   keyboard: false,
-  loop: true,
   speed: 250,
   autoplay: false,
   autoplayTimeout: 5000,
   autoplayDirection: 'forward',
-  responsive: {
-    500: 2,
-    800: 3,
-  }
+  loop: true,
+  responsive: false
 }
 ```

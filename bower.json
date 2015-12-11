@@ -1,0 +1,22 @@
+{
+  "name": "tiny-slider",
+  "homepage": "https://github.com/ganlanyuan/tiny-slider",
+  "authors": [
+    "WilliamLin <ganlanyuan@gmail.com>"
+  ],
+  "description": "Pure tiny javascript slider for all purposes.",
+  "main": "src/",
+  "moduleType": [],
+  "keywords": [
+    "slider",
+    "tiny"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
