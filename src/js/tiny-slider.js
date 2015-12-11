@@ -139,6 +139,7 @@
     options = extend({ 
       container: document.querySelector('.slider'),
       items: 1,
+      fixedWidth: false,
       slideByPage: false,
       hasNav: true,
       navText: ['prev', 'next'],
@@ -155,6 +156,7 @@
     this.container = options.container;
     this.children = this.container.children;
     this.childrenLength = this.childrenUpdatedLength = options.childrenLength = this.children.length;
+    this.fixedWidth = options.fixedWidth;
     this.hasNav = options.hasNav;
     this.navText = options.navText;
     this.hasDots = options.hasDots;
@@ -162,9 +164,9 @@
     this.autoplay = options.autoplay;
     this.autoplayTimeout = options.autoplayTimeout;
     this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
-    this.loop = options.loop;
+    this.loop = (this.fixedWidth) ? false : options.loop;
     this.slideByPage = options.slideByPage;
-    this.responsive = options.responsive; 
+    this.responsive = (this.fixedWidth) ? false : options.responsive; 
 
     this.bp = (this.responsive && typeof(this.responsive) === 'object') ? Object.keys(this.responsive) : false;
     this.vals = (this.responsive && typeof(this.responsive) === 'object') ? getMapValues(this.responsive, this.bp) : false;
@@ -320,8 +322,9 @@
       } 
 
       // calculate width
+      var childWidth = (this.fixedWidth) ? this.fixedWidth + 'px' : (100 / this.childrenUpdatedLength) + '%';
       for (var b = 0; b < this.childrenUpdatedLength; b++) {
-        this.children[b].style.width = (100 / this.childrenUpdatedLength) + '%';
+        this.children[b].style.width = childWidth;
       }
 
       this.updateContainer(this);
@@ -338,13 +341,17 @@
         obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
       }
 
-      obj.container.style.width = (obj.childrenUpdatedLength * 100 / obj.items) + '%';
-      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+      var containerWidth = (obj.fixedWidth) ? obj.fixedWidth * obj.childrenUpdatedLength + 'px' : (obj.childrenUpdatedLength * 100 / obj.items) + '%';
+      var containerLeft = (obj.fixedWidth) ? - (obj.fixedWidth * obj.index) + 'px' : - (100 * obj.index / obj.items) + '%';
+      obj.container.style.width = containerWidth;
+      obj.container.style.left = containerLeft;
     },
 
     updateDots: function (obj) {
-      var dotCount = Math.ceil(obj.childrenLength / obj.items),
-      dots = obj.dots;
+      var vw = obj.container.parentNode.offsetWidth;
+      var dotCount = (obj.fixedWidth) ? Math.ceil((obj.childrenUpdatedLength * obj.fixedWidth) / vw) : Math.ceil(obj.childrenLength / obj.items),
+          dots = obj.dots;
+
       for (var i = 0; i < dots.length; i++) {
         if (i < dotCount) {
           removeClass(dots[i], 'tiny-hide');
@@ -355,8 +362,11 @@
     },
 
     updateDotsStatus: function (obj) {
-      var current, absIndex = obj.index, dots = obj.dots,
-      dotCount = Math.ceil(obj.childrenLength / obj.items);
+      var vw = obj.container.parentNode.offsetWidth;
+      var current, 
+          absIndex = obj.index, 
+          dots = obj.dots,
+          dotCount = (obj.fixedWidth) ? Math.ceil((obj.childrenUpdatedLength * obj.fixedWidth) / vw) : Math.ceil(obj.childrenLength / obj.items);
 
       if (absIndex < 0) {
         absIndex += obj.childrenLength;
@@ -364,7 +374,7 @@
         absIndex -= obj.childrenLength;
       }
 
-      current = Math.floor(absIndex / obj.items);
+      current = (obj.fixedWidth) ? Math.ceil((absIndex * obj.fixedWidth) / vw): Math.floor(absIndex / obj.items);
       // non-loop & reach the end
       if (!obj.loop) {
         var re=/^-?[0-9]+$/, whole = re.test(obj.childrenLength / obj.items);
@@ -395,7 +405,14 @@
           obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
         }
 
-        obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+        var containerLeft;
+        if (obj.fixedWidth) {
+          containerLeft = obj.fixedWidthGetContainerLeft(obj);
+        } else {
+          containerLeft = - (100 * obj.index / obj.items) + '%';
+        }
+
+        obj.container.style.left = containerLeft;
 
         if (obj.loop) {
           setTimeout(function () { 
@@ -410,6 +427,16 @@
       }
     },
 
+    fixedWidthGetContainerLeft: function (obj) {
+      var vw = obj.container.parentNode.offsetWidth;
+
+      if ((obj.index * obj.fixedWidth + vw) > (obj.childrenUpdatedLength - 1) * obj.fixedWidth) {
+        return - (obj.childrenUpdatedLength * obj.fixedWidth - vw) + 'px';
+      } else {
+        return - (obj.fixedWidth * obj.index) + 'px';
+      }
+    },
+
     navClickFallback: function (obj) {
       if (tdProp) { obj.container.style[tdProp] = '0s'; }
 
@@ -419,7 +446,8 @@
       if (leftEdge) { obj.index += obj.childrenLength; }
       if (rightEdge) { obj.index -= obj.childrenLength; }
 
-      obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+      var containerLeft = (obj.fixedWidth) ? - (obj.fixedWidth * obj.index) + 'px' : - (100 * obj.index / obj.items) + '%';
+      obj.container.style.left = containerLeft;
     },
 
     onDotClick: function (obj, index) {
@@ -429,12 +457,24 @@
           obj.animating = true;
         }
 
-        obj.index = index * obj.items;
-        if (!obj.loop) {
-          obj.index = Math.min(obj.index, obj.childrenLength - obj.items); 
+        if (obj.fixedWidth) {
+          var vw = obj.container.parentNode.offsetWidth;
+          obj.index = index * Math.floor(vw / obj.fixedWidth);
+        } else {
+          obj.index = index * obj.items;
+          if (!obj.loop) {
+            obj.index = Math.min(obj.index, obj.childrenLength - obj.items); 
+          }
         }
 
-        obj.container.style.left = - (100 * obj.index / obj.items) + '%';
+        var containerLeft;
+        if (obj.fixedWidth) {
+          containerLeft = obj.fixedWidthGetContainerLeft(obj);
+        } else {
+          containerLeft = - (100 * obj.index / obj.items) + '%';
+        }
+
+        obj.container.style.left = containerLeft;
 
         setTimeout(function () { 
           if (obj.hasDots) { tinySliderCore.prototype.updateDotsStatus(obj); }

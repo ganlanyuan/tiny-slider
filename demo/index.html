@@ -123,6 +123,51 @@ tinySlider({
     </code></pre>
   </section>
   <section>
+    <h2>fixed width</h2>
+    <div class="fixed-width">
+      <div>
+        <div class="img img-1">1</div>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus sed harum quaerat dicta cum tempora modi assumenda porro perferendis. Alias.</p>
+      </div>
+      <div>
+        <div class="img img-2">2</div>
+        <p>Blanditiis sapiente tempora corrupti incidunt iste nemo beatae! Cumque repellendus suscipit velit eveniet obcaecati incidunt ex voluptate sint excepturi a!</p>
+      </div>
+      <div>
+        <div class="img img-3">3</div>
+        <p>At possimus dolorum eligendi repellat cumque obcaecati deleniti doloribus quod, dolore odio maiores necessitatibus eum, excepturi repellendus facilis facere ad!</p>
+      </div>
+      <div>
+        <div class="img img-4">4</div>
+        <p>Cumque facilis amet eos nulla adipisci, beatae, ut dolorum officia nobis ducimus, inventore repellendus debitis minus culpa rerum obcaecati aspernatur.</p>
+      </div>
+      <div>
+        <div class="img img-5">5</div>
+        <p>Sint ad, praesentium est delectus quo quos dolorum odio alias pariatur quia eveniet consequuntur cupiditate magnam sit dolores possimus. Sed.</p>
+      </div>
+      <div>
+        <div class="img img-6">6</div>
+        <p>Neque accusamus inventore rerum aspernatur distinctio beatae fugiat voluptatem sed, nesciunt corrupti expedita adipisci molestias, consequatur, vitae consectetur sunt quisquam.</p>
+      </div>
+      <div>
+        <div class="img img-7">7</div>
+        <p>Quis deserunt quo sequi qui fugiat nobis minus quasi laudantium, excepturi nostrum, labore porro consectetur sunt repudiandae modi. Vitae, tenetur.</p>
+      </div>
+      <div>
+        <div class="img img-8">8</div>
+        <p>Laborum officiis, magnam, eos possimus aliquam reiciendis odit alias nulla odio, ipsa expedita, placeat neque repellendus architecto ut quam consequuntur.</p>
+      </div>
+    </div>
+    <pre><code class="language-javascript">
+var fixedWidth = document.querySelector('.fixed-width');
+
+tinySlider({
+  container: fixedWidth,
+  fixedWidth: 300
+});
+    </code></pre>
+  </section>
+  <section>
     <h2>non loop</h2>
     <div class="non-loop">
       <div>
@@ -315,6 +360,7 @@ tinySlider({
 <script type="text/javascript">
   var d = document,
       responsive = d.querySelector('.responsive'),
+      fixedWidth = d.querySelector('.fixed-width'),
       nonLoop = d.querySelector('.non-loop'),
       slideByPage = d.querySelector('.slide-by-page'),
       autoplay = d.querySelector('.autoplay'),
@@ -326,6 +372,11 @@ tinySlider({
       500: 2,
       800: 3,
     }
+  });
+
+  tinySlider({
+    container: fixedWidth,
+    fixedWidth: 200
   });
 
   tinySlider({
