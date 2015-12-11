@@ -56,7 +56,7 @@
 
     tiny.bp = (tiny.responsive && typeof(tiny.responsive) === 'object') ? Object.keys(tiny.responsive) : false;
     tiny.vals = (tiny.responsive && typeof(tiny.responsive) === 'object') ? getMapValues(tiny.responsive, tiny.bp) : false;
-    tiny.itemsMax = (tiny.vals.length !== undefined) ? Math.max.apply(Math, tiny.vals) : tiny.items;
+    tiny.itemsMax = (tiny.vals.length !== undefined) ? Math.max.apply(Math, tiny.vals) : options.items;
     tiny.items = getItem (tiny.bp, tiny.vals, options.items);
     tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
     tiny.animating = false;
