@@ -112,8 +112,12 @@
   tinySlider({
     container: document.querySelector('.slider'),
     slideByPage: false,
-    loop: false,
+    loop: true,
     keyboard: true,
+    responsive: {
+      500: 2,
+      800: 3,
+    },
   });
 </script>
 </body>
