@@ -78,14 +78,18 @@
           tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
           tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
           tinySliderCore.prototype.updateContainer(tinyFn);
-          tinySliderCore.prototype.updateDots(tinyFn);
-          tinySliderCore.prototype.updateDotsStatus(tinyFn);
+          if (tinyFn.hasDots) {
+            tinySliderCore.prototype.updateDots(tinyFn);
+            tinySliderCore.prototype.updateDotsStatus(tinyFn);
+          }
         }, 100);
       });
 
       // on nav click
-      addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
-      addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
+      if (this.hasNav) {
+        addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
+        addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
+      }
 
       // on key down
       if (this.keyboard) {
@@ -100,16 +104,18 @@
       }
 
       // on dot click
-      for (var i = 0; i < this.dots.length; i++) {
-        addEvent(this.dots[i], 'click', function (e) { 
-          var index;
-          for (var i = 0; i < tinyFn.dots.length; i++) {
-            target = (e.currentTarget) ? e.currentTarget : e.srcElement;
-            if (tinyFn.dots[i] === target) { index = i; }
-          }
-          tinySliderCore.prototype.onDotClick(tinyFn, index); 
-        });
-      };
+      if (this.hasDots) {
+        for (var i = 0; i < this.dots.length; i++) {
+          addEvent(this.dots[i], 'click', function (e) { 
+            var index;
+            for (var i = 0; i < tinyFn.dots.length; i++) {
+              target = (e.currentTarget) ? e.currentTarget : e.srcElement;
+              if (tinyFn.dots[i] === target) { index = i; }
+            }
+            tinySliderCore.prototype.onDotClick(tinyFn, index); 
+          });
+        }
+      }
 
       // autoplay
       if (this.autoplay) { 
@@ -207,8 +213,10 @@
       }
 
       this.updateContainer(this);
-      this.updateDots(this);
-      this.updateDotsStatus(this);
+      if (this.hasDots) {
+        this.updateDots(this);
+        this.updateDotsStatus(this);
+      }
     },
 
     updateContainer: function (obj) {
@@ -276,7 +284,7 @@
         }
 
         setTimeout(function () { 
-          tinySliderCore.prototype.updateDotsStatus(obj);
+          if (obj.hasDots) { tinySliderCore.prototype.updateDotsStatus(obj); }
           obj.animating = false;
         }, obj.speed);
       }
@@ -309,7 +317,7 @@
         obj.container.style.left = - (100 * obj.index / obj.items) + '%';
 
         setTimeout(function () { 
-          tinySliderCore.prototype.updateDotsStatus(obj);
+          if (obj.hasDots) { tinySliderCore.prototype.updateDotsStatus(obj); }
           obj.animating = false;
         }, obj.speed);
       }
@@ -429,5 +437,4 @@
 
   return tinySlider;
 });
-
 
