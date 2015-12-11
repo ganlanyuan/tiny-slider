@@ -185,6 +185,7 @@ function tinySliderCore(options) {
         tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
         tinyFn.updateContainer(tinyFn);
         tinyFn.updateDots(tinyFn);
+        tinyFn.updateDotsStatus(tinyFn);
       }, 100);
     });
 
@@ -310,7 +311,10 @@ tinySliderCore.prototype = {
   updateContainer: function (obj) {
     if (obj.loop) {
       obj.container.style.marginLeft = - (obj.itemsMax * 100 / obj.items) + '%';
-    } 
+    } else {
+      obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
+    }
+
     obj.container.style.width = (obj.childrenUpdatedLength * 100 / obj.items) + '%';
     obj.container.style.left = - (100 * obj.index / obj.items) + '%';
   },
