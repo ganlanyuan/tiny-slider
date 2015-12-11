@@ -1,6 +1,7 @@
 # tiny-slider
 Pure tiny javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 12K uncompressed, 7K compressed.   
-[demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)
+[demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)   
+[changelog](https://github.com/ganlanyuan/tiny-slider/blob/master/changelog.md)  
 
 ### Install
 via bower
