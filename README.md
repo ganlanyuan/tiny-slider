@@ -14,6 +14,7 @@ npm install tiny-slider
 ```
 ### Features
 + responsive
++ fixed width
 + loop
 + slide by page
 + autoplay
@@ -45,16 +46,17 @@ There is no option for `padding`, but you can add it by css
 options = { 
   container: document.querySelector('.slider'),
   items: 1,
+  fixedWidth: false,
   slideByPage: false,
-  hasNav: true,
+  nav: true,
   navText: ['prev', 'next'],
-  hasDots: true,
-  keyboard: false,
+  dots: true,
+  arrowKeys: false,
   speed: 250,
   autoplay: false,
   autoplayTimeout: 5000,
   autoplayDirection: 'forward',
   loop: true,
-  responsive: false
+  responsive: false,
 };
 ```
