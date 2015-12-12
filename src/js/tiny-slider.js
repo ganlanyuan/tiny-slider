@@ -140,6 +140,7 @@
       container: document.querySelector('.slider'),
       items: 1,
       fixedWidth: false,
+      maxContainerWidth: false,
       slideByPage: false,
       nav: true,
       navText: ['prev', 'next'],
@@ -164,7 +165,7 @@
     this.autoplay = options.autoplay;
     this.autoplayTimeout = options.autoplayTimeout;
     this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
-    this.loop = (this.fixedWidth) ? false : options.loop;
+    this.loop = options.loop;
     this.slideByPage = options.slideByPage;
     this.responsive = (this.fixedWidth) ? false : options.responsive; 
 
@@ -175,6 +176,16 @@
     this.speed = (this.slideByPage) ? options.speed * this.items : options.speed;
     this.animating = false;
     this.index = 0;
+
+    // fixed width
+    if (this.fixedWidth) {
+      this.items = Math.floor(this.container.parentNode.offsetWidth / this.fixedWidth);
+      if (options.maxContainerWidth) {
+        this.itemsMax = Math.ceil(options.maxContainerWidth / this.fixedWidth);
+      } else {
+        this.loop = false;
+      }
+    } 
 
     if (this.childrenLength >= this.itemsMax) {
 
@@ -189,7 +200,7 @@
         clearTimeout(updateIt);
         updateIt = setTimeout(function () {
           // update after resize done
-          tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
+          tinyFn.items = (tinyFn.fixedWidth) ? Math.floor(tinyFn.container.parentNode.offsetWidth / tinyFn.fixedWidth) : getItem (tinyFn.bp, tinyFn.vals, options.items);
           tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
           tinySliderCore.prototype.updateContainer(tinyFn);
           if (tinyFn.dots) {
@@ -335,23 +346,22 @@
 
     updateContainer: function (obj) {
       if (obj.loop) {
-        obj.container.style.marginLeft = - (obj.itemsMax * 100 / obj.items) + '%';
+        var marginLeft = (obj.fixedWidth) ? - (obj.itemsMax * obj.fixedWidth) + 'px' : - (obj.itemsMax * 100 / obj.items) + '%';
+
+        obj.container.style.marginLeft = marginLeft;
       } else {
-        var vw = obj.container.parentNode.offsetWidth,
-            items = (obj.fixedWidth) ? Math.ceil(vw / obj.fixedWidth) : obj.items;
-        obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - items)); 
+        obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
       }
 
       var containerWidth = (obj.fixedWidth) ? obj.fixedWidth * obj.childrenUpdatedLength + 'px' : (obj.childrenUpdatedLength * 100 / obj.items) + '%';
       var containerLeft = (obj.fixedWidth) ? obj.fixedWidthGetContainerLeft(obj) : - (100 * obj.index / obj.items) + '%';
+
       obj.container.style.width = containerWidth;
       obj.container.style.left = containerLeft;
     },
 
     updateDots: function (obj) {
-      var vw = obj.container.parentNode.offsetWidth,
-          items = Math.floor(vw / obj.fixedWidth),
-          dotCount = (obj.fixedWidth) ? Math.ceil(obj.childrenUpdatedLength / items) : Math.ceil(obj.childrenLength / obj.items),
+      var dotCount = Math.ceil(obj.childrenLength / obj.items),
           dots = obj.allDots;
 
       for (var i = 0; i < dots.length; i++) {
@@ -364,24 +374,16 @@
     },
 
     updateDotsStatus: function (obj) {
-      var vw = obj.container.parentNode.offsetWidth,
-          items = Math.floor(vw / obj.fixedWidth),
-          current, 
-          absIndex = obj.index, 
+      var current, 
+          absIndex = obj.getAbsIndex(obj), 
           dots = obj.allDots,
-          dotCount = (obj.fixedWidth) ? Math.ceil(obj.childrenUpdatedLength / items) : Math.ceil(obj.childrenLength / obj.items);
-
-      if (absIndex < 0) {
-        absIndex += obj.childrenLength;
-      } else if (absIndex >= obj.childrenLength) {
-        absIndex -= obj.childrenLength;
-      }
+          dotCount = Math.ceil(obj.childrenLength / obj.items);
 
       if (obj.fixedWidth) {
-        if ((absIndex + items + 1) >= obj.childrenUpdatedLength) {
+        if ((absIndex + obj.items + 1) >= obj.childrenUpdatedLength) {
           current = dotCount - 1;
         } else {
-          current = Math.floor((absIndex / items));
+          current = Math.floor((absIndex / obj.items));
         }
       } else {
         current = Math.floor(absIndex / obj.items);
@@ -414,9 +416,7 @@
 
         obj.index += dir;
         if (!obj.loop) {
-          var vw = obj.container.parentNode.offsetWidth,
-              items = (obj.fixedWidth) ? Math.ceil(vw / obj.fixedWidth) : obj.items;
-          obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - items)); 
+          obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
         }
 
         var containerLeft = (obj.fixedWidth) ? obj.fixedWidthGetContainerLeft(obj) : - (100 * obj.index / obj.items) + '%';
@@ -436,23 +436,47 @@
     },
 
     fixedWidthGetContainerLeft: function (obj) {
-      var vw = obj.container.parentNode.offsetWidth;
+      var absIndex = obj.getAbsIndex(obj),
+          vw = obj.container.parentNode.offsetWidth;
 
-      if ((obj.index * obj.fixedWidth + vw) > (obj.childrenUpdatedLength - 1) * obj.fixedWidth) {
+      if ((absIndex + obj.items + 1) >= obj.childrenUpdatedLength) {
         return - (obj.childrenUpdatedLength * obj.fixedWidth - vw) + 'px';
       } else {
         return - (obj.fixedWidth * obj.index) + 'px';
       }
     },
 
+    getAbsIndex: function (obj) {
+      var absIndex = obj.index;
+
+      if (absIndex < 0) {
+        absIndex += obj.childrenLength;
+      } else if (absIndex >= obj.childrenLength) {
+        absIndex -= obj.childrenLength;
+      }
+
+      return absIndex;
+    },
+
     navClickFallback: function (obj) {
       if (tdProp) { obj.container.style[tdProp] = '0s'; }
 
-      var leftEdge = (obj.slideByPage) ? obj.index < - (obj.itemsMax - obj.items) : obj.index <= - obj.itemsMax,
-      rightEdge = (obj.slideByPage) ? obj.index > (obj.childrenLength + obj.itemsMax - obj.items * 2 - 1) : obj.index >= (obj.childrenLength + obj.itemsMax - obj.items);
+      var reachLeftEdge = 
+            (obj.slideByPage) ? 
+            obj.index < - (obj.itemsMax - obj.items) : 
+            obj.index <= - obj.itemsMax,
+          reachRightEdge = 
+            (obj.slideByPage) ? 
+            obj.index > (obj.childrenLength + obj.itemsMax - obj.items * 2 - 1) : 
+            obj.index >= (obj.childrenLength + obj.itemsMax - obj.items);
 
-      if (leftEdge) { obj.index += obj.childrenLength; }
-      if (rightEdge) { obj.index -= obj.childrenLength; }
+      // fix fixed width      
+      if (obj.fixedWidth && obj.itemsMax && !obj.slideByPage) {
+        reachRightEdge = obj.index >= (obj.childrenLength + obj.itemsMax - obj.items - 1);
+      }
+
+      if (reachLeftEdge) { obj.index += obj.childrenLength; }
+      if (reachRightEdge) { obj.index -= obj.childrenLength; }
 
       var containerLeft = (obj.fixedWidth) ? - (obj.fixedWidth * obj.index) + 'px' : - (100 * obj.index / obj.items) + '%';
       obj.container.style.left = containerLeft;
@@ -465,23 +489,9 @@
           obj.animating = true;
         }
 
-        if (obj.fixedWidth) {
-          var vw = obj.container.parentNode.offsetWidth;
-          obj.index = index * Math.floor(vw / obj.fixedWidth);
-        } else {
-          obj.index = index * obj.items;
-          if (!obj.loop) {
-            obj.index = Math.min(obj.index, obj.childrenLength - obj.items); 
-          }
-        }
+        obj.index = (obj.loop) ? index * obj.items : Math.min(obj.index, obj.childrenLength - obj.items);
 
-        var containerLeft;
-        if (obj.fixedWidth) {
-          containerLeft = obj.fixedWidthGetContainerLeft(obj);
-        } else {
-          containerLeft = - (100 * obj.index / obj.items) + '%';
-        }
-
+        var containerLeft = (obj.fixedWidth) ? obj.fixedWidthGetContainerLeft(obj) : - (100 * obj.index / obj.items) + '%';
         obj.container.style.left = containerLeft;
 
         setTimeout(function () { 

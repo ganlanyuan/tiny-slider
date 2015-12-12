@@ -46,6 +46,7 @@ options = {
   container: document.querySelector('.slider'),
   items: 1,
   fixedWidth: false,
+  maxContainerWidth: false,
   slideByPage: false,
   nav: true,
   navText: ['prev', 'next'],
