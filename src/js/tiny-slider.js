@@ -125,6 +125,7 @@
   }
   var tdProp = getSupportedProp(['transitionDuration', 'MozTransitionDuration', 'WebkitTransitionDuration']);
 
+  // *** tinySlider *** //
   function tinySlider(options) {
     var containers = (options.container.length === undefined) ? [options.container] : options.container;
 
@@ -187,69 +188,77 @@
       }
     } 
 
-    if (this.childrenLength >= this.itemsMax) {
+    // if childrenLength are less than items
+    if (this.childrenLength < this.itemsMax) {
+      this.itemsMax = this.childrenLength;
+    }
+    if (this.childrenLength < this.items) {
+      this.items = this.childrenLength;
+    }
 
-      // on initialize
-      this.init();
+    // on initialize
+    this.init();
 
-      var tinyFn = this;
+    var tinyFn = this;
 
-      // on window resize
-      var updateIt;
-      addEvent(window, 'resize', function () {
-        clearTimeout(updateIt);
-        updateIt = setTimeout(function () {
-          // update after resize done
-          tinyFn.items = (tinyFn.fixedWidth) ? Math.floor(tinyFn.container.parentNode.offsetWidth / tinyFn.fixedWidth) : getItem (tinyFn.bp, tinyFn.vals, options.items);
-          tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
-          tinySliderCore.prototype.updateContainer(tinyFn);
-          if (tinyFn.dots) {
-            tinySliderCore.prototype.updateDots(tinyFn);
-            tinySliderCore.prototype.updateDotsStatus(tinyFn);
-          }
-        }, 100);
+    // on window resize
+    var updateIt;
+    addEvent(window, 'resize', function () {
+      // update after resize done
+      clearTimeout(updateIt);
+      updateIt = setTimeout(function () {
+        tinyFn.items = (tinyFn.fixedWidth) ? Math.floor(tinyFn.container.parentNode.offsetWidth / tinyFn.fixedWidth) : getItem (tinyFn.bp, tinyFn.vals, options.items);
+        // if childrenLength are less than items
+        if (tinyFn.childrenLength < tinyFn.items) {
+          tinyFn.items = tinyFn.childrenLength;
+        }
+        tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
+
+        tinySliderCore.prototype.updateContainer(tinyFn);
+        if (tinyFn.dots) {
+          tinySliderCore.prototype.updateDots(tinyFn);
+          tinySliderCore.prototype.updateDotsStatus(tinyFn);
+        }
+      }, 100);
+    });
+
+    // on nav click
+    if (this.nav) {
+      addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
+      addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
+    }
+
+    // on key down
+    if (this.arrowKeys) {
+      addEvent(document, 'keydown', function (e) {
+        e = e || window.event;
+        if (e.keyCode === 37) {
+          tinySliderCore.prototype.onNavClick(tinyFn, -1);
+        } else if (e.keyCode === 39) {
+          tinySliderCore.prototype.onNavClick(tinyFn, 1);
+        }
       });
+    }
 
-      // on nav click
-      if (this.nav) {
-        addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
-        addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
-      }
-
-      // on key down
-      if (this.arrowKeys) {
-        addEvent(document, 'keydown', function (e) {
-          e = e || window.event;
-          if (e.keyCode === 37) {
-            tinySliderCore.prototype.onNavClick(tinyFn, -1);
-          } else if (e.keyCode === 39) {
-            tinySliderCore.prototype.onNavClick(tinyFn, 1);
+    // on dot click
+    if (this.dots) {
+      for (var i = 0; i < this.allDots.length; i++) {
+        addEvent(this.allDots[i], 'click', function (e) { 
+          var index;
+          for (var i = 0; i < tinyFn.allDots.length; i++) {
+            var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
+            if (tinyFn.allDots[i] === target) { index = i; }
           }
+          tinySliderCore.prototype.onDotClick(tinyFn, index); 
         });
       }
+    }
 
-      // on dot click
-      if (this.dots) {
-        for (var i = 0; i < this.allDots.length; i++) {
-          addEvent(this.allDots[i], 'click', function (e) { 
-            var index;
-            for (var i = 0; i < tinyFn.allDots.length; i++) {
-              var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
-              if (tinyFn.allDots[i] === target) { index = i; }
-            }
-            tinySliderCore.prototype.onDotClick(tinyFn, index); 
-          });
-        }
-      }
-
-      // autoplay
-      if (this.autoplay) { 
-        setInterval(function () {
-          tinySliderCore.prototype.onNavClick(tinyFn, tinyFn.autoplayDirection);
-        }, tinyFn.autoplayTimeout);
-      }
-    } else {
-      throw new TypeError('items are not enough to show on 1 page');
+    // autoplay
+    if (this.autoplay) { 
+      setInterval(function () {
+        tinySliderCore.prototype.onNavClick(tinyFn, tinyFn.autoplayDirection);
+      }, tinyFn.autoplayTimeout);
     }
   }
 

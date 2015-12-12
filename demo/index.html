@@ -309,8 +309,8 @@ tinySlider({
     </code></pre>
   </section>
   <section>
-    <h2>keyboard driving</h2>
-    <div class="keyboard">
+    <h2>arrow keys</h2>
+    <div class="arrow-keys">
       <div>
         <div class="img img-1">1</div>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus sed harum quaerat dicta cum tempora modi assumenda porro perferendis. Alias.</p>
@@ -345,12 +345,12 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var keyboard = document.querySelector('.keyboard');
+var arrowKeys = document.querySelector('.arrow-keys');
 
 tinySlider({
-  container: keyboard,
+  container: arrowKeys,
   items: 3,
-  keyboard: true
+  arrowKeys: true
 });
     </code></pre>
   </section>
@@ -365,7 +365,7 @@ tinySlider({
       nonLoop = d.querySelector('.non-loop'),
       slideByPage = d.querySelector('.slide-by-page'),
       autoplay = d.querySelector('.autoplay'),
-      keyboard = d.querySelector('.keyboard');
+      arrowKeys = d.querySelector('.arrow-keys');
 
   tinySlider({
     container: responsive,
@@ -402,7 +402,7 @@ tinySlider({
   });
 
   tinySlider({
-    container: keyboard,
+    container: arrowKeys,
     items: 3,
     arrowKeys: true
   });

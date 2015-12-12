@@ -1,5 +1,6 @@
 # tiny-slider
-Pure tiny javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 12K uncompressed, 7K compressed.   
+Pure tiny javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 16K uncompressed, 8K compressed.    
+Works well on morden browsers and IE8+.   
 [demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)   
 [changelog](https://github.com/ganlanyuan/tiny-slider/blob/master/changelog.md)  
 
@@ -18,7 +19,7 @@ npm install tiny-slider
 + loop
 + slide by page
 + autoplay
-+ keyboard driving
++ arrow keys driving
 
 ### Usage
 Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
@@ -28,17 +29,94 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
 <script>
   tinySlider({
     container: document.querySelector('.slider'),
-    slideByPage: false,
-    arrowKeys: true
+    items: 3,
+    slideByPage: true,
+    autoplay: true
   });
 </script>
 ```
-##### Padding
+##### Responsive
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 1,
+  responsive: {
+    500: 2,
+    800: 3,
+  }
+});
+```
+
+##### Fixed width items
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  fixedWidth: 200,
+  maxContainerWidth: 900
+});
+```
+
+##### Non-loop
+Default is loop.
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  loop: false
+});
+```
+
+##### Slide by page
+Default setting is slide by item.
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  slideByPage: true
+});
+```
+
+##### Autoplay
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  autoplay: true,
+  autoplayDirection: 'forward',
+  speed: 300,
+  autoplayTimeout: 3000
+});
+```
+
+##### Arrow keys
+Run slider by pressing left or right arrow key.
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  arrowKeys: true
+});
+```
+
+##### * Padding
 There is no option for `padding`, but you can add it by css 
 ```css
 .tiny-slider { margin-right: -10px; }
 .your-slider > div { padding-right: 10px; }
 ``` 
+
+##### * Non-javascirpt fallback
+```css
+.no-js .your-slider { 
+  overflow-x: auto; 
+  white-space: nowrap; /* make child elements stay in one row */
+}
+.no-js .your-slider > div { 
+  float: none; /* reset float */
+  display: inline-block;
+  white-space: normal; /* reset white-space */
+}
+```
 
 ### Default setting
 ```javascript
