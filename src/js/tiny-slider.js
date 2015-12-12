@@ -141,10 +141,10 @@
       items: 1,
       fixedWidth: false,
       slideByPage: false,
-      hasNav: true,
+      nav: true,
       navText: ['prev', 'next'],
-      hasDots: true,
-      keyboard: false,
+      dots: true,
+      arrowKeys: false,
       speed: 250,
       autoplay: false,
       autoplayTimeout: 5000,
@@ -157,10 +157,10 @@
     this.children = this.container.children;
     this.childrenLength = this.childrenUpdatedLength = options.childrenLength = this.children.length;
     this.fixedWidth = options.fixedWidth;
-    this.hasNav = options.hasNav;
+    this.nav = options.nav;
     this.navText = options.navText;
-    this.hasDots = options.hasDots;
-    this.keyboard = options.keyboard;
+    this.dots = options.dots;
+    this.arrowKeys = options.arrowKeys;
     this.autoplay = options.autoplay;
     this.autoplayTimeout = options.autoplayTimeout;
     this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
@@ -192,7 +192,7 @@
           tinyFn.items = getItem (tinyFn.bp, tinyFn.vals, options.items);
           tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
           tinySliderCore.prototype.updateContainer(tinyFn);
-          if (tinyFn.hasDots) {
+          if (tinyFn.dots) {
             tinySliderCore.prototype.updateDots(tinyFn);
             tinySliderCore.prototype.updateDotsStatus(tinyFn);
           }
@@ -200,13 +200,13 @@
       });
 
       // on nav click
-      if (this.hasNav) {
+      if (this.nav) {
         addEvent(this.next, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, 1); });
         addEvent(this.prev, 'click', function () { tinySliderCore.prototype.onNavClick(tinyFn, -1); });
       }
 
       // on key down
-      if (this.keyboard) {
+      if (this.arrowKeys) {
         addEvent(document, 'keydown', function (e) {
           e = e || window.event;
           if (e.keyCode === 37) {
@@ -218,13 +218,13 @@
       }
 
       // on dot click
-      if (this.hasDots) {
-        for (var i = 0; i < this.dots.length; i++) {
-          addEvent(this.dots[i], 'click', function (e) { 
+      if (this.dots) {
+        for (var i = 0; i < this.allDots.length; i++) {
+          addEvent(this.allDots[i], 'click', function (e) { 
             var index;
-            for (var i = 0; i < tinyFn.dots.length; i++) {
+            for (var i = 0; i < tinyFn.allDots.length; i++) {
               var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
-              if (tinyFn.dots[i] === target) { index = i; }
+              if (tinyFn.allDots[i] === target) { index = i; }
             }
             tinySliderCore.prototype.onDotClick(tinyFn, index); 
           });
@@ -263,9 +263,8 @@
       }
 
       // add dots
-      if (this.hasDots) {
-        var dots = div.cloneNode(true),
-        dot = div.cloneNode(true);
+      if (this.dots) {
+        var dots = div.cloneNode(true), dot = div.cloneNode(true);
         dots.className = 'tiny-dots';
         dot.className = 'tiny-dot';
 
@@ -274,11 +273,11 @@
           dots.appendChild(dotClone);
         }
         wrapper.appendChild(dots);
-        this.dots = dots.querySelectorAll('.tiny-dot');
+        this.allDots = dots.querySelectorAll('.tiny-dot');
       }
 
       // add nav
-      if (this.hasNav) {
+      if (this.nav) {
         var nav = div.cloneNode(true),
         prev = div.cloneNode(true),
         next = div.cloneNode(true);
@@ -328,7 +327,7 @@
       }
 
       this.updateContainer(this);
-      if (this.hasDots) {
+      if (this.dots) {
         this.updateDots(this);
         this.updateDotsStatus(this);
       }
@@ -338,19 +337,22 @@
       if (obj.loop) {
         obj.container.style.marginLeft = - (obj.itemsMax * 100 / obj.items) + '%';
       } else {
-        obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
+        var vw = obj.container.parentNode.offsetWidth,
+            items = (obj.fixedWidth) ? Math.ceil(vw / obj.fixedWidth) : obj.items;
+        obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - items)); 
       }
 
       var containerWidth = (obj.fixedWidth) ? obj.fixedWidth * obj.childrenUpdatedLength + 'px' : (obj.childrenUpdatedLength * 100 / obj.items) + '%';
-      var containerLeft = (obj.fixedWidth) ? - (obj.fixedWidth * obj.index) + 'px' : - (100 * obj.index / obj.items) + '%';
+      var containerLeft = (obj.fixedWidth) ? obj.fixedWidthGetContainerLeft(obj) : - (100 * obj.index / obj.items) + '%';
       obj.container.style.width = containerWidth;
       obj.container.style.left = containerLeft;
     },
 
     updateDots: function (obj) {
-      var vw = obj.container.parentNode.offsetWidth;
-      var dotCount = (obj.fixedWidth) ? Math.ceil((obj.childrenUpdatedLength * obj.fixedWidth) / vw) : Math.ceil(obj.childrenLength / obj.items),
-          dots = obj.dots;
+      var vw = obj.container.parentNode.offsetWidth,
+          items = Math.floor(vw / obj.fixedWidth),
+          dotCount = (obj.fixedWidth) ? Math.ceil(obj.childrenUpdatedLength / items) : Math.ceil(obj.childrenLength / obj.items),
+          dots = obj.allDots;
 
       for (var i = 0; i < dots.length; i++) {
         if (i < dotCount) {
@@ -362,11 +364,12 @@
     },
 
     updateDotsStatus: function (obj) {
-      var vw = obj.container.parentNode.offsetWidth;
-      var current, 
+      var vw = obj.container.parentNode.offsetWidth,
+          items = Math.floor(vw / obj.fixedWidth),
+          current, 
           absIndex = obj.index, 
-          dots = obj.dots,
-          dotCount = (obj.fixedWidth) ? Math.ceil((obj.childrenUpdatedLength * obj.fixedWidth) / vw) : Math.ceil(obj.childrenLength / obj.items);
+          dots = obj.allDots,
+          dotCount = (obj.fixedWidth) ? Math.ceil(obj.childrenUpdatedLength / items) : Math.ceil(obj.childrenLength / obj.items);
 
       if (absIndex < 0) {
         absIndex += obj.childrenLength;
@@ -374,7 +377,16 @@
         absIndex -= obj.childrenLength;
       }
 
-      current = (obj.fixedWidth) ? Math.ceil((absIndex * obj.fixedWidth) / vw): Math.floor(absIndex / obj.items);
+      if (obj.fixedWidth) {
+        if ((absIndex + items + 1) >= obj.childrenUpdatedLength) {
+          current = dotCount - 1;
+        } else {
+          current = Math.floor((absIndex / items));
+        }
+      } else {
+        current = Math.floor(absIndex / obj.items);
+      }
+
       // non-loop & reach the end
       if (!obj.loop) {
         var re=/^-?[0-9]+$/, whole = re.test(obj.childrenLength / obj.items);
@@ -402,16 +414,12 @@
 
         obj.index += dir;
         if (!obj.loop) {
-          obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - obj.items)); 
+          var vw = obj.container.parentNode.offsetWidth,
+              items = (obj.fixedWidth) ? Math.ceil(vw / obj.fixedWidth) : obj.items;
+          obj.index = Math.max(0, Math.min(obj.index, obj.childrenLength - items)); 
         }
 
-        var containerLeft;
-        if (obj.fixedWidth) {
-          containerLeft = obj.fixedWidthGetContainerLeft(obj);
-        } else {
-          containerLeft = - (100 * obj.index / obj.items) + '%';
-        }
-
+        var containerLeft = (obj.fixedWidth) ? obj.fixedWidthGetContainerLeft(obj) : - (100 * obj.index / obj.items) + '%';
         obj.container.style.left = containerLeft;
 
         if (obj.loop) {
@@ -421,7 +429,7 @@
         }
 
         setTimeout(function () { 
-          if (obj.hasDots) { tinySliderCore.prototype.updateDotsStatus(obj); }
+          if (obj.dots) { tinySliderCore.prototype.updateDotsStatus(obj); }
           obj.animating = false;
         }, obj.speed);
       }
@@ -477,7 +485,14 @@
         obj.container.style.left = containerLeft;
 
         setTimeout(function () { 
-          if (obj.hasDots) { tinySliderCore.prototype.updateDotsStatus(obj); }
+          for (var i = 0; i < obj.allDots.length; i++) {
+            if (i === index) {
+              addClass(obj.allDots[i], 'tiny-active');
+            } else {
+              removeClass(obj.allDots[i], 'tiny-active');
+            }
+          }
+
           obj.animating = false;
         }, obj.speed);
       }
