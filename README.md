@@ -29,8 +29,7 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
   tinySlider({
     container: document.querySelector('.slider'),
     slideByPage: false,
-    loop: false,
-    keyboard: true
+    arrowKeys: true
   });
 </script>
 ```
@@ -38,7 +37,7 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
 There is no option for `padding`, but you can add it by css 
 ```css
 .tiny-slider { margin-right: -10px; }
-.slider > div { padding-right: 10px; }
+.your-slider > div { padding-right: 10px; }
 ``` 
 
 ### Default setting
