@@ -22,6 +22,7 @@
       max-width: 900px;
       margin: 0 auto;
     }
+    pre[class*="language-"] > code[data-language] { overflow: auto !important; }
     section { margin: 50px 0; }
     h1 { font-size: 45px; }
     h2 { text-transform: capitalize; }
@@ -402,7 +403,7 @@ tinySlider({
   tinySlider({
     container: keyboard,
     items: 3,
-    keyboard: true
+    arrowKeys: true
   });
 
 </script>
