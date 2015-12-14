@@ -192,3 +192,8 @@ There is no option for `padding`, but you can add it by css
 }
 ```
 
+## Todo
++ add status classes
++ lazyload
++ mobile gesture support
+
