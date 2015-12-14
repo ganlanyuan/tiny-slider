@@ -157,6 +157,7 @@
       slideByPage: false,
       nav: true,
       navText: ['prev', 'next'],
+      navContainer: false,
       dots: true,
       dotsContainer: false,
       arrowKeys: false,
@@ -175,6 +176,7 @@
     this.fw = options.fixedWidth;
     this.nav = options.nav;
     this.navText = options.navText;
+    this.navContainer = options.navContainer;
     this.dots = options.dots;
     this.dotsContainer = options.dotsContainer;
     this.arrowKeys = options.arrowKeys;
@@ -318,23 +320,29 @@
 
       // add nav
       if (this.nav) {
-        var nav = div.cloneNode(true),
-        prev = div.cloneNode(true),
-        next = div.cloneNode(true);
-        nav.className = 'tiny-nav';
-        prev.className = 'tiny-prev';
-        next.className = 'tiny-next';
+        if (this.navContainer) {
+          var nav = this.navContainer.children;
+          this.prev = nav[0];
+          this.next = nav[1];
+        } else {
+          var nav = div.cloneNode(true),
+          prev = div.cloneNode(true),
+          next = div.cloneNode(true);
+          nav.className = 'tiny-nav';
+          prev.className = 'tiny-prev';
+          next.className = 'tiny-next';
 
-        if (this.navText.length === 2) {
-          prev.innerHTML = this.navText[0];
-          next.innerHTML = this.navText[1];
+          if (this.navText.length === 2) {
+            prev.innerHTML = this.navText[0];
+            next.innerHTML = this.navText[1];
+          }
+          nav.appendChild(prev);
+          nav.appendChild(next);
+          wrapper.appendChild(nav);
+
+          this.prev = prev;
+          this.next = next;
         }
-        nav.appendChild(prev);
-        nav.appendChild(next);
-        wrapper.appendChild(nav);
-
-        this.prev = prev;
-        this.next = next;
       }
 
       // clone items

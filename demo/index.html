@@ -47,6 +47,7 @@
     .img-6 { background: #D65B5B; background: hsl(0, 60%, 60%); }
     .img-7 { background: #D6995B; background: hsl(30, 60%, 60%); }
     .img-8 { background: #705BD6; background: hsl(250, 60%, 60%); }
+    .controls { position: relative; }
     .thumbnails { 
       margin: 20px 0;
       text-align: center;
@@ -55,6 +56,20 @@
     .thumbnails li.tiny-active { background: none; }
     .thumbnails li img { border: 5px solid #fff; }
     .thumbnails li.tiny-active img { border-color: #E75FCB; }
+    .slider-nav { text-align: center; }
+    .slider-nav li {
+      display: block;
+      position: absolute;
+      top: 50%;
+      margin-top: -25px;
+      font-size: 30px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .slider-nav li:nth-child(1) { left: 0; }
+    .slider-nav li:nth-child(2) { right: 0; }
+    .slider-nav li:hover { background: #f2f2f2; }
     .tiny-nav { text-align: center; }
     .tiny-prev, .tiny-next {
       display: inline-block;
@@ -179,8 +194,8 @@ tinySlider({
     </code></pre>
   </section>
   <section>
-    <h2>Customize dots</h2>
-    <ul class="customize-dots">
+    <h2>Customize</h2>
+    <ul class="customize">
       <li>
         <div><img src="images/1.jpg" alt=""></div>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus sed harum quaerat dicta cum tempora modi assumenda porro perferendis. Alias.</p>
@@ -214,18 +229,24 @@ tinySlider({
         <p>Laborum officiis, magnam, eos possimus aliquam reiciendis odit alias nulla odio, ipsa expedita, placeat neque repellendus architecto ut quam consequuntur.</p>
       </li>
     </ul>
-    <ul class="thumbnails">
-      <li><img src="images/sm/1.jpg" alt=""></li>
-      <li><img src="images/sm/2.jpg" alt=""></li>
-      <li><img src="images/sm/3.jpg" alt=""></li>
-      <li><img src="images/sm/4.jpg" alt=""></li>
-      <li><img src="images/sm/5.jpg" alt=""></li>
-      <li><img src="images/sm/6.jpg" alt=""></li>
-      <li><img src="images/sm/7.jpg" alt=""></li>
-      <li><img src="images/sm/8.jpg" alt=""></li>
-    </ul>
+    <div class="controls">
+      <ul class="thumbnails">
+        <li><img src="images/sm/1.jpg" alt=""></li>
+        <li><img src="images/sm/2.jpg" alt=""></li>
+        <li><img src="images/sm/3.jpg" alt=""></li>
+        <li><img src="images/sm/4.jpg" alt=""></li>
+        <li><img src="images/sm/5.jpg" alt=""></li>
+        <li><img src="images/sm/6.jpg" alt=""></li>
+        <li><img src="images/sm/7.jpg" alt=""></li>
+        <li><img src="images/sm/8.jpg" alt=""></li>
+      </ul>
+      <ul class="slider-nav">
+        <li>〈</li>
+        <li>〉</li>
+      </ul>
+    </div>
     <pre><code class="language-javascript">
-var customizedots = document.querySelector('.customize-dots');
+var customizedots = document.querySelector('.customize');
 
 tinySlider({
   container: customizedots,
@@ -431,7 +452,7 @@ tinySlider({
       nonLoop = d.querySelector('.non-loop'),
       slideByPage = d.querySelector('.slide-by-page'),
       autoplay = d.querySelector('.autoplay'),
-      customizedots = d.querySelector('.customize-dots'),
+      customizedots = d.querySelector('.customize'),
       arrowKeys = d.querySelector('.arrow-keys');
 
   tinySlider({
@@ -451,6 +472,7 @@ tinySlider({
   tinySlider({
     container: customizedots,
     items: 3,
+    navContainer: document.querySelector('.slider-nav'),
     dotsContainer: document.querySelector('.thumbnails')
   });
 

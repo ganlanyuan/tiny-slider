@@ -1,7 +1,7 @@
 #Changelog
 
 #### v0.2.0
-+ Added: `dotsContainer`, now you can use customized dots (e.g. thumbnails).
++ Added: `navContainer` and `dotsContainer`, now you can use customized nav and dots.
 + Improved: now the transition speed is based on how far it's translated.
 + Fixed: an position issue while `sliderByPage` is turned on, if the last dot is clicked and followed by a `next` button clicking.
 

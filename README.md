@@ -32,6 +32,7 @@ options = {
   slideByPage: false,
   nav: true,
   navText: ['prev', 'next'],
+  navContainer: false,
   dots: true,
   dotsContainer: false,
   arrowKeys: false,
@@ -117,7 +118,11 @@ tinySlider({
   <div></div>
 </div>
 
-<!-- customized dots -->
+<!-- customized nav & dots -->
+<div class="slider-nav">
+  <div></div>
+  <div></div>
+</div>
 <div class="thumbnails">
   <div></div>
   <div></div>
@@ -130,6 +135,7 @@ tinySlider({
 tinySlider({
   container: document.querySelector('.slider'),
   items: 3,
+  navContainer: document.querySelector('.slider-nav'),
   dotsContainer: document.querySelector('.thumbnails')
 });
 ```
