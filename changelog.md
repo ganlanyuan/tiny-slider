@@ -1,5 +1,11 @@
 #Changelog
 
+#### v0.2.1
++ Fixed: some syntax issue.
++ Fixed: dots' status updating delay on non-transition browsers.
++ Fixed: little gap between sliders in IE by changing percent unit to 'px'.
++ Fixed: customized dots are unclickable in IE because of `event target` doesn't work properly.
+
 #### v0.2.0
 + Added: `navContainer` and `dotsContainer`, now you can use customized nav and dots.
 + Improved: now the transition speed is based on how far it's translated.

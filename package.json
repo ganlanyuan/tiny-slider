@@ -1,6 +1,6 @@
 {
   "name": "tiny-slider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Pure tiny javascript slider for all purposes.",
   "main": "tiny-slider.js",
   "scripts": {
