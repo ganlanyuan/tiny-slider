@@ -180,7 +180,7 @@
     this.dots = options.dots;
     this.dotsContainer = options.dotsContainer;
     this.arrowKeys = options.arrowKeys;
-    this.speed = options.speed;
+    this.speed = (!tdProp) ? 0 : options.speed;
     this.autoplay = options.autoplay;
     this.autoplayTimeout = options.autoplayTimeout;
     this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
