@@ -231,18 +231,18 @@
         }
         tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
 
-        TinySliderCore.prototype.updateContainer(tinyFn);
+        tinyFn.updateContainer(tinyFn);
         if (tinyFn.dots && !tinyFn.dotsContainer) {
-          TinySliderCore.prototype.updateDots(tinyFn);
-          TinySliderCore.prototype.updateDotsStatus(tinyFn);
+          tinyFn.updateDots(tinyFn);
+          tinyFn.updateDotsStatus(tinyFn);
         }
       }, 100);
     });
 
     // on nav click
     if (this.nav) {
-      addEvent(this.next, 'click', function () { TinySliderCore.prototype.onNavClick(tinyFn, 1); });
-      addEvent(this.prev, 'click', function () { TinySliderCore.prototype.onNavClick(tinyFn, -1); });
+      addEvent(this.next, 'click', function () { tinyFn.onNavClick(tinyFn, 1); });
+      addEvent(this.prev, 'click', function () { tinyFn.onNavClick(tinyFn, -1); });
     }
 
     // on key down
@@ -250,9 +250,9 @@
       addEvent(document, 'keydown', function (e) {
         e = e || window.event;
         if (e.keyCode === 37) {
-          TinySliderCore.prototype.onNavClick(tinyFn, -1);
+          tinyFn.onNavClick(tinyFn, -1);
         } else if (e.keyCode === 39) {
-          TinySliderCore.prototype.onNavClick(tinyFn, 1);
+          tinyFn.onNavClick(tinyFn, 1);
         }
       });
     }
@@ -260,21 +260,14 @@
     // on dot click
     if (this.dots) {
       for (var i = 0; i < this.allDots.length; i++) {
-        addEvent(this.allDots[i], 'click', function (e) {
-          var index;
-          for (var i = 0; i < tinyFn.allDots.length; i++) {
-            var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
-            if (tinyFn.allDots[i] === target) { index = i; }
-          }
-          TinySliderCore.prototype.onDotClick(tinyFn, index);
-        });
+        addEvent(this.allDots[i], 'click', this.getDotIndex(this));
       }
     }
 
     // autoplay
     if (this.autoplay) {
       setInterval(function () {
-        TinySliderCore.prototype.onNavClick(tinyFn, tinyFn.autoplayDirection);
+        tinyFn.onNavClick(tinyFn, tinyFn.autoplayDirection);
       }, tinyFn.autoplayTimeout);
     }
   }
@@ -320,22 +313,24 @@
 
       // add nav
       if (this.nav) {
+        var nav;
         if (this.navContainer) {
-          var nav = this.navContainer.children;
+          nav = this.navContainer.children;
           this.prev = nav[0];
           this.next = nav[1];
         } else {
-          var nav = div.cloneNode(true),
-          prev = div.cloneNode(true),
-          next = div.cloneNode(true);
+          nav = div.cloneNode(true);
+          var prev = div.cloneNode(true),
+              next = div.cloneNode(true);
+
           nav.className = 'tiny-nav';
           prev.className = 'tiny-prev';
           next.className = 'tiny-next';
-
           if (this.navText.length === 2) {
             prev.innerHTML = this.navText[0];
             next.innerHTML = this.navText[1];
           }
+
           nav.appendChild(prev);
           nav.appendChild(next);
           wrapper.appendChild(nav);
@@ -468,12 +463,12 @@
 
         if (obj.loop) {
           setTimeout(function () {
-            TinySliderCore.prototype.clickFallback(obj);
+            obj.clickFallback(obj);
           }, obj.speed * obj.indexGap);
         }
 
         setTimeout(function () {
-          if (obj.dots) { TinySliderCore.prototype.updateDotsStatus(obj); }
+          if (obj.dots) { obj.updateDotsStatus(obj); }
           obj.animating = false;
         }, obj.speed * obj.indexGap);
       }
@@ -525,6 +520,17 @@
       obj.container.style.left = containerLeft;
     },
 
+    getDotIndex: function (obj) {
+      return function (e) {
+        var index;
+        for (var i = 0; i < obj.allDots.length; i++) {
+          var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
+          if (obj.allDots[i] === target) { index = i; }
+        }
+        obj.onDotClick(obj, index);
+      };
+    },
+
     onDotClick: function (obj, index) {
       if (!obj.animating) {
         var prevIndex = obj.index;
@@ -557,7 +563,7 @@
             }
           }
 
-          TinySliderCore.prototype.clickFallback(obj);
+          obj.clickFallback(obj);
           obj.animating = false;
         }, obj.speed * obj.indexGap);
       }
