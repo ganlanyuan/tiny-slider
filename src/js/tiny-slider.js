@@ -50,15 +50,21 @@
 
   // handle classes
   function addClass(el, name) {
-    var newName = ' ' + name;
-    if(el.className.indexOf(newName) === -1) {
-      el.className += newName;
+    var names = (typeof(name) === 'string') ? [name] : name;
+    for (var i = 0; i < names.length; i++) {
+      var newName = ' ' + names[i];
+      if(el.className.indexOf(newName) === -1) {
+        el.className += newName;
+      }
     }
   }
   function removeClass(el, name) {
-    var newName = ' ' + name;
-    if(el.className.indexOf(newName) !== -1) {
-      el.className = el.className.replace(newName, '');
+    var names = (typeof(name) === 'string') ? [name] : name;
+    for (var i = 0; i < names.length; i++) {
+      var newName = ' ' + names[i];
+      if(el.className.indexOf(newName) !== -1) {
+        el.className = el.className.replace(newName, '');
+      }
     }
   }
 
@@ -172,7 +178,7 @@
     // cl: childrenLength, cul: childrenUpdatedLength
     this.container = options.container;
     this.children = this.container.children;
-    this.cl = this.cul = options.cl = this.children.length;
+    this.cl = this.cul = this.children.length;
     this.fw = options.fixedWidth;
     this.nav = options.nav;
     this.navText = options.navText;
@@ -235,8 +241,8 @@
         tinyFn.makeLayout(tinyFn);
         tinyFn.move(tinyFn);
         if (tinyFn.dots && !tinyFn.dotsContainer) {
-          tinyFn.updateDots(tinyFn);
-          tinyFn.updateDotsStatus(tinyFn);
+          tinyFn.displayDots(tinyFn);
+          tinyFn.dotsActive(tinyFn);
         }
       }, 100);
     });
@@ -367,9 +373,10 @@
 
       this.makeLayout(this);
       this.move(this);
+      this.itemCurrent(this);
       if (this.dots && !this.dotsContainer) {
-        this.updateDots(this);
-        this.updateDotsStatus(this);
+        this.displayDots(this);
+        this.dotsActive(this);
       }
     },
 
@@ -426,7 +433,36 @@
       };
     },
 
-    updateDots: function (el) {
+    itemCurrent: function (el) {
+      for (var i = 0; i < el.cul; i++) {
+        removeClass(el.children[i], 'tiny-current');
+      }
+      var currentIndex = (el.loop) ? el.index + el.itemsMax : el.index;
+      addClass(el.children[currentIndex], 'tiny-current');
+    },
+
+    addStatus: function (el, dir) {
+      if (!el.slideByPage && !el.fw) {
+        var current = (el.loop) ? el.index + el.itemsMax : el.index;
+        if (dir === -1) {
+          addClass(el.children[current], 'tiny-left-in');
+          addClass(el.children[current + el.items], 'tiny-right-out');
+        } else {
+          addClass(el.children[current - 1], 'tiny-left-out');
+          addClass(el.children[current + el.items - 1], 'tiny-right-in');
+        }
+      }
+    },
+
+    removeStatus: function (el) {
+      if (!el.slideByPage && !el.fw) {
+        for (var i = 0; i < el.cul; i++) {
+          removeClass(el.children[i], ['tiny-left-in', 'tiny-left-out', 'tiny-right-in', 'tiny-right-out']);
+        }
+      }
+    },
+
+    displayDots: function (el) {
       var dotCount = Math.ceil(el.cl / el.items),
           dots = el.allDots;
 
@@ -439,7 +475,7 @@
       }
     },
 
-    updateDotsStatus: function (el) {
+    dotsActive: function (el) {
       var current,
           absIndex = el.getAbsIndex(el),
           dots = el.allDots,
@@ -490,17 +526,15 @@
         if (tdProp) {
           el.container.style[tdProp] = (el.speed * gap / 1000) + 's';
           el.animating = true;
+          el.addStatus(el, dir);
         }
         el.move(el);
 
-        if (el.loop) {
-          setTimeout(function () {
-            el.clickFallback(el);
-          }, el.speed * gap);
-        }
-
         setTimeout(function () {
-          if (el.dots) { el.updateDotsStatus(el); }
+          if (el.loop) { el.clickFallback(el); }
+          if (el.dots) { el.dotsActive(el); }
+          if (tdProp) { el.removeStatus(el); }
+          el.itemCurrent(el);
           el.animating = false;
         }, el.speed * gap);
       }
@@ -559,6 +593,7 @@
           }
 
           el.clickFallback(el);
+          el.itemCurrent(el);
           el.animating = false;
         }, el.speed * gap);
       }
