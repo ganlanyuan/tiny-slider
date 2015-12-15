@@ -61,14 +61,16 @@
       display: block;
       position: absolute;
       top: 50%;
-      margin-top: -25px;
-      font-size: 30px;
-      padding: 5px 10px;
+      height: 60px;
+      line-height: 60px;
+      margin-top: -30px;
+      padding: 0 15px;
       cursor: pointer;
       transition: background 0.3s;
     }
-    .slider-nav li:nth-child(1) { left: 0; }
-    .slider-nav li:nth-child(2) { right: 0; }
+    .slider-nav li img { display: inline-block; vertical-align: middle; }
+    .slider-nav .prev { left: 0; }
+    .slider-nav .next { right: 0; }
     .slider-nav li:hover { background: #f2f2f2; }
     .tiny-nav { text-align: center; }
     .tiny-prev, .tiny-next {
@@ -241,8 +243,8 @@ tinySlider({
         <li><img src="images/sm/8.jpg" alt=""></li>
       </ul>
       <ul class="slider-nav">
-        <li>〈</li>
-        <li>〉</li>
+        <li class="prev"><img src="images/angle-left.png" alt=""></li>
+        <li class="next"><img src="images/angle-right.png" alt=""></li>
       </ul>
     </div>
     <pre><code class="language-javascript">

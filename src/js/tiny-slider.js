@@ -385,9 +385,43 @@
       }
     },
 
+    // get fixed-width item container left
+    getFCL: function (el) {
+      var absIndex = el.getAbsIndex(el),
+          vw = el.container.parentNode.offsetWidth;
+
+      if ((absIndex + el.items + 1) >= el.cul) {
+        return - (el.cul * el.fw - vw);
+      } else {
+        return - (el.fw * el.index);
+      }
+    },
+
     move: function (el) {
-      var containerLeft = (el.fw) ? el.fwGetContainerLeft(el) : - el.itemWidth * el.index;
+      var containerLeft = (el.fw) ? el.getFCL(el) : - el.itemWidth * el.index;
       el.container.style.left = containerLeft + 'px';
+    },
+
+    getAbsIndex: function (el) {
+      var absIndex = el.index;
+
+      if (absIndex < 0) {
+        absIndex += el.cl;
+      } else if (absIndex >= el.cl) {
+        absIndex -= el.cl;
+      }
+
+      return absIndex;
+    },
+
+    getDotIndex: function (el) {
+      return function () {
+        var index;
+        for (var i = 0; i < el.allDots.length; i++) {
+          if (el.allDots[i] === this) { index = i; }
+        }
+        el.onDotClick(el, index);
+      };
     },
 
     updateDots: function (el) {
@@ -450,9 +484,9 @@
           el.index = Math.max(0, Math.min(el.index, el.cl - el.items));
         }
 
-        el.indexGap = Math.abs(el.index - prevIndex);
+        gap = Math.abs(el.index - prevIndex);
         if (tdProp) {
-          el.container.style[tdProp] = (el.speed * el.indexGap / 1000) + 's';
+          el.container.style[tdProp] = (el.speed * gap / 1000) + 's';
           el.animating = true;
         }
         el.move(el);
@@ -460,37 +494,14 @@
         if (el.loop) {
           setTimeout(function () {
             el.clickFallback(el);
-          }, el.speed * el.indexGap);
+          }, el.speed * gap);
         }
 
         setTimeout(function () {
           if (el.dots) { el.updateDotsStatus(el); }
           el.animating = false;
-        }, el.speed * el.indexGap);
+        }, el.speed * gap);
       }
-    },
-
-    fwGetContainerLeft: function (el) {
-      var absIndex = el.getAbsIndex(el),
-          vw = el.container.parentNode.offsetWidth;
-
-      if ((absIndex + el.items + 1) >= el.cul) {
-        return - (el.cul * el.fw - vw);
-      } else {
-        return - (el.fw * el.index);
-      }
-    },
-
-    getAbsIndex: function (el) {
-      var absIndex = el.index;
-
-      if (absIndex < 0) {
-        absIndex += el.cl;
-      } else if (absIndex >= el.cl) {
-        absIndex -= el.cl;
-      }
-
-      return absIndex;
     },
 
     clickFallback: function (el) {
@@ -515,17 +526,6 @@
       el.container.style.left = - el.itemWidth * el.index + 'px';
     },
 
-    getDotIndex: function (el) {
-      return function (e) {
-        var index;
-        for (var i = 0; i < el.allDots.length; i++) {
-          var target = (e.currentTarget) ? e.currentTarget : e.srcElement;
-          if (el.allDots[i] === target) { index = i; }
-        }
-        el.onDotClick(el, index);
-      };
-    },
-
     onDotClick: function (el, index) {
       if (!el.animating) {
         var prevIndex = el.index;
@@ -540,9 +540,9 @@
           }
         }
 
-        el.indexGap = Math.abs(el.index - prevIndex);
+        gap = Math.abs(el.index - prevIndex);
         if (tdProp) {
-          el.container.style[tdProp] = (el.speed * el.indexGap / 1000) + 's';
+          el.container.style[tdProp] = (el.speed * gap / 1000) + 's';
           el.animating = true;
         }
         el.move(el);
@@ -558,7 +558,7 @@
 
           el.clickFallback(el);
           el.animating = false;
-        }, el.speed * el.indexGap);
+        }, el.speed * gap);
       }
     },
 
