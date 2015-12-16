@@ -373,7 +373,7 @@
 
       this.makeLayout(this);
       this.move(this);
-      this.itemCurrent(this);
+      this.itemActive(this);
       if (this.dots && !this.dotsContainer) {
         this.displayDots(this);
         this.dotsActive(this);
@@ -433,12 +433,15 @@
       };
     },
 
-    itemCurrent: function (el) {
+    itemActive: function (el) {
       for (var i = 0; i < el.cul; i++) {
-        removeClass(el.children[i], 'tiny-current');
+        removeClass(el.children[i], ['tiny-current', 'tiny-visible']);
       }
-      var currentIndex = (el.loop) ? el.index + el.itemsMax : el.index;
-      addClass(el.children[currentIndex], 'tiny-current');
+      var current = (el.loop) ? el.index + el.itemsMax : el.index;
+      for (var i = current; i < (current + el.items); i++) {
+        addClass(el.children[i], 'tiny-visible');
+      }
+      addClass(el.children[current], 'tiny-current');
     },
 
     addStatus: function (el, dir) {
@@ -534,7 +537,7 @@
           if (el.loop) { el.clickFallback(el); }
           if (el.dots) { el.dotsActive(el); }
           if (tdProp) { el.removeStatus(el); }
-          el.itemCurrent(el);
+          el.itemActive(el);
           el.animating = false;
         }, el.speed * gap);
       }
@@ -593,7 +596,7 @@
           }
 
           el.clickFallback(el);
-          el.itemCurrent(el);
+          el.itemActive(el);
           el.animating = false;
         }, el.speed * gap);
       }
