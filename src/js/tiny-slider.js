@@ -1,8 +1,9 @@
 /**
  * tiny-slider
- * @version 0.2.1
+ * @version 0.2.2
  * @author William Lin
  * @license The MIT License (MIT)
+ * @github https://github.com/ganlanyuan/tiny-slider/
  **/
 ;(function (tinySliderJS) {
   window.tinySlider = tinySliderJS();

@@ -1,5 +1,8 @@
 #Changelog
 
+#### v0.2.2
++ Improved: add `tiny-current`, `tiny-visible` classes to current item and visible items.
+
 #### v0.2.1
 + Fixed: some syntax issue.
 + Fixed: dots' status updating delay on non-transition browsers.
