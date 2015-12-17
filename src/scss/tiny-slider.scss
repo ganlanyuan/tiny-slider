@@ -4,8 +4,8 @@
   &-content {
     position: relative;
     left: 0;
-    -webkit-transition: transform 0s, left 0s;
-    transition: transform 0s, left 0s;
+    -webkit-transition: transform 0s;
+    transition: transform 0s;
     &:after {
       content: '';
       display: table;
