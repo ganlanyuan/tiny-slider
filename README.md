@@ -1,5 +1,5 @@
 # tiny-slider
-Pure javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/). 8K compressed.    
+Pure javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
 [demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)   
 [changelog](https://github.com/ganlanyuan/tiny-slider/blob/master/changelog.md)  

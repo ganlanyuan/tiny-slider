@@ -17,8 +17,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
   <style>
-    li { list-style: none; }
-    ul, ol, li { margin: 0; padding: 0; }
     body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
     .container {
       max-width: 900px;
@@ -47,31 +45,6 @@
     .img-6 { background: #D65B5B; background: hsl(0, 60%, 60%); }
     .img-7 { background: #D6995B; background: hsl(30, 60%, 60%); }
     .img-8 { background: #705BD6; background: hsl(250, 60%, 60%); }
-    .controls { position: relative; }
-    .thumbnails { 
-      margin: 20px 0;
-      text-align: center;
-    }
-    .thumbnails li { display: inline-block; cursor: pointer; }
-    .thumbnails li.tiny-active { background: none; }
-    .thumbnails li img { border: 5px solid #fff; }
-    .thumbnails li.tiny-active img { border-color: #E75FCB; }
-    .slider-nav { text-align: center; }
-    .slider-nav li {
-      display: block;
-      position: absolute;
-      top: 50%;
-      height: 60px;
-      line-height: 60px;
-      margin-top: -30px;
-      padding: 0 15px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .slider-nav li img { display: inline-block; vertical-align: middle; }
-    .slider-nav .prev { left: 0; }
-    .slider-nav .next { right: 0; }
-    .slider-nav li:hover { background: #f2f2f2; }
     .tiny-nav { text-align: center; }
     .tiny-prev, .tiny-next {
       display: inline-block;
@@ -94,9 +67,6 @@
       background: #ddd;
     }
     .tiny-active { background: #999; }
-    /*.tiny-current, */
-    /*.tiny-left-in, .tiny-right-in { outline: 1px solid #E75FCB; }*/
-    /*.tiny-left-out, .tiny-right-out { outline: 1px solid #2BE7E5; }*/
   </style>
   <link href="prism/prism.css" rel="stylesheet">
   <link rel="stylesheet" href="../src/css/tiny-slider.css">
@@ -195,69 +165,6 @@ var fixedWidth = document.querySelector('.fixed-width');
 tinySlider({
   container: fixedWidth,
   fixedWidth: 300
-});
-    </code></pre>
-  </section>
-  <section>
-    <h2>Customize</h2>
-    <ul class="customize">
-      <li>
-        <div><img src="images/1.jpg" alt=""></div>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus sed harum quaerat dicta cum tempora modi assumenda porro perferendis. Alias.</p>
-      </li>
-      <li>
-        <div><img src="images/2.jpg" alt=""></div>
-        <p>Blanditiis sapiente tempora corrupti incidunt iste nemo beatae! Cumque repellendus suscipit velit eveniet obcaecati incidunt ex voluptate sint excepturi a!</p>
-      </li>
-      <li>
-        <div><img src="images/3.jpg" alt=""></div>
-        <p>At possimus dolorum eligendi repellat cumque obcaecati deleniti doloribus quod, dolore odio maiores necessitatibus eum, excepturi repellendus facilis facere ad!</p>
-      </li>
-      <li>
-        <div><img src="images/4.jpg" alt=""></div>
-        <p>Cumque facilis amet eos nulla adipisci, beatae, ut dolorum officia nobis ducimus, inventore repellendus debitis minus culpa rerum obcaecati aspernatur.</p>
-      </li>
-      <li>
-        <div><img src="images/5.jpg" alt=""></div>
-        <p>Sint ad, praesentium est delectus quo quos dolorum odio alias pariatur quia eveniet consequuntur cupiditate magnam sit dolores possimus. Sed.</p>
-      </li>
-      <li>
-        <div><img src="images/6.jpg" alt=""></div>
-        <p>Neque accusamus inventore rerum aspernatur distinctio beatae fugiat voluptatem sed, nesciunt corrupti expedita adipisci molestias, consequatur, vitae consectetur sunt quisquam.</p>
-      </li>
-      <li>
-        <div><img src="images/7.jpg" alt=""></div>
-        <p>Quis deserunt quo sequi qui fugiat nobis minus quasi laudantium, excepturi nostrum, labore porro consectetur sunt repudiandae modi. Vitae, tenetur.</p>
-      </li>
-      <li>
-        <div><img src="images/8.jpg" alt=""></div>
-        <p>Laborum officiis, magnam, eos possimus aliquam reiciendis odit alias nulla odio, ipsa expedita, placeat neque repellendus architecto ut quam consequuntur.</p>
-      </li>
-    </ul>
-    <div class="controls">
-      <ul class="thumbnails">
-        <li><img src="images/sm/1.jpg" alt=""></li>
-        <li><img src="images/sm/2.jpg" alt=""></li>
-        <li><img src="images/sm/3.jpg" alt=""></li>
-        <li><img src="images/sm/4.jpg" alt=""></li>
-        <li><img src="images/sm/5.jpg" alt=""></li>
-        <li><img src="images/sm/6.jpg" alt=""></li>
-        <li><img src="images/sm/7.jpg" alt=""></li>
-        <li><img src="images/sm/8.jpg" alt=""></li>
-      </ul>
-      <ul class="slider-nav">
-        <li class="prev"><img src="images/angle-left.png" alt=""></li>
-        <li class="next"><img src="images/angle-right.png" alt=""></li>
-      </ul>
-    </div>
-    <pre><code class="language-javascript">
-var customizedots = document.querySelector('.customize');
-
-tinySlider({
-  container: customizedots,
-  items: 3,
-  navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails')
 });
     </code></pre>
   </section>
@@ -458,7 +365,6 @@ tinySlider({
       nonLoop = d.querySelector('.non-loop'),
       slideByPage = d.querySelector('.slide-by-page'),
       autoplay = d.querySelector('.autoplay'),
-      customizedots = d.querySelector('.customize'),
       arrowKeys = d.querySelector('.arrow-keys');
 
   tinySlider({
@@ -473,13 +379,6 @@ tinySlider({
     container: fixedWidth,
     fixedWidth: 200,
     maxContainerWidth: 900
-  });
-
-  tinySlider({
-    container: customizedots,
-    items: 3,
-    navContainer: document.querySelector('.slider-nav'),
-    dotsContainer: document.querySelector('.thumbnails')
   });
 
   tinySlider({

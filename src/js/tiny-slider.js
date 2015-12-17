@@ -138,7 +138,8 @@
       }
     }
   }
-  var tdProp = getSupportedProp(['transitionDuration', 'MozTransitionDuration', 'WebkitTransitionDuration']);
+  var getTD = getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
+      getTransform = getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform']);
 
   // *** tinySlider *** //
   function tinySlider(options) {
@@ -187,7 +188,7 @@
     this.dots = options.dots;
     this.dotsContainer = options.dotsContainer;
     this.arrowKeys = options.arrowKeys;
-    this.speed = (!tdProp) ? 0 : options.speed;
+    this.speed = (!getTD) ? 0 : options.speed;
     this.autoplay = options.autoplay;
     this.autoplayTimeout = options.autoplayTimeout;
     this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
@@ -409,7 +410,11 @@
 
     move: function (el) {
       var containerLeft = (el.fw) ? el.getFCL(el) : - el.itemWidth * el.index;
-      el.container.style.left = containerLeft + 'px';
+      if (getTransform) {
+        el.container.style[getTransform] = 'translateX(' + containerLeft + 'px)';
+      } else {
+        el.container.style.left = containerLeft + 'px';
+      }
     },
 
     getAbsIndex: function (el) {
@@ -439,8 +444,8 @@
         removeClass(el.children[i], ['tiny-current', 'tiny-visible']);
       }
       var current = (el.loop) ? el.index + el.itemsMax : el.index;
-      for (var i = current; i < (current + el.items); i++) {
-        addClass(el.children[i], 'tiny-visible');
+      for (var j = current; j < (current + el.items); j++) {
+        addClass(el.children[j], 'tiny-visible');
       }
       addClass(el.children[current], 'tiny-current');
     },
@@ -526,9 +531,9 @@
           el.index = Math.max(0, Math.min(el.index, el.cl - el.items));
         }
 
-        gap = Math.abs(el.index - prevIndex);
-        if (tdProp) {
-          el.container.style[tdProp] = (el.speed * gap / 1000) + 's';
+        var gap = Math.abs(el.index - prevIndex);
+        if (getTD) {
+          el.container.style[getTD] = (el.speed * gap / 1000) + 's';
           el.animating = true;
           el.addStatus(el, dir);
         }
@@ -537,7 +542,7 @@
         setTimeout(function () {
           if (el.loop) { el.clickFallback(el); }
           if (el.dots) { el.dotsActive(el); }
-          if (tdProp) { el.removeStatus(el); }
+          if (getTD) { el.removeStatus(el); }
           el.itemActive(el);
           el.animating = false;
         }, el.speed * gap);
@@ -562,8 +567,13 @@
       if (reachLeftEdge) { el.index += el.cl; }
       if (reachRightEdge) { el.index -= el.cl; }
 
-      if (tdProp) { el.container.style[tdProp] = '0s'; }
-      el.container.style.left = - el.itemWidth * el.index + 'px';
+      if (getTD) { el.container.style[getTD] = '0s'; }
+      var containerLeft = - el.itemWidth * el.index;
+      if (getTransform) {
+        el.container.style[getTransform] = 'translateX(' + containerLeft + 'px)';
+      } else {
+        el.container.style.left = containerLeft + 'px';
+      }
     },
 
     onDotClick: function (el, index) {
@@ -580,9 +590,9 @@
           }
         }
 
-        gap = Math.abs(el.index - prevIndex);
-        if (tdProp) {
-          el.container.style[tdProp] = (el.speed * gap / 1000) + 's';
+        var gap = Math.abs(el.index - prevIndex);
+        if (getTD) {
+          el.container.style[getTD] = (el.speed * gap / 1000) + 's';
           el.animating = true;
         }
         el.move(el);
