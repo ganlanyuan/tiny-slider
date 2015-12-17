@@ -16,8 +16,6 @@
       box-sizing: border-box;
     }
   }
-  &-prev, &-next, &-dot {
-    cursor: pointer;
-  }
+  &-prev, &-next, &-dot { cursor: pointer; }
   &-hide { display: none; }
 }
