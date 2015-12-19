@@ -145,14 +145,14 @@
   function tinySlider(options) {
     var containers;
 
-    if (options.container !== null) {
-      containers = (options.container.length === undefined) ? [options.container] : options.container;
+    if (!options.container) { return; }
+    containers = (options.container.length === undefined) ? [options.container] : options.container;
 
-      for (var i = 0; i < containers.length; i++) {
-        var newOptions = options;
-        newOptions.container = containers[i];
-        var a = new TinySliderCore(newOptions);
-      }
+    for (var i = 0; i < containers.length; i++) {
+      var newOptions = options;
+      newOptions.container = containers[i];
+
+      var a = new TinySliderCore(newOptions);
     }
   }
 
@@ -214,17 +214,13 @@
     }
 
     // if cl are less than items
-    if (this.cl < this.itemsMax) {
-      this.itemsMax = this.cl;
-    }
-    if (this.cl < this.items) {
-      this.items = this.cl;
-    }
+    this.itemsMax = Math.min(this.cl, this.itemsMax);
+    this.items = Math.min(this.cl, this.items);
 
     // on initialize
     this.init();
 
-    var tinyFn = this;
+    var tiny = this;
 
     // on window resize
     var updateIt;
@@ -232,27 +228,25 @@
       // update after resize done
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
-        tinyFn.items = (tinyFn.fw) ? Math.floor(tinyFn.container.parentNode.offsetWidth / tinyFn.fw) : getItem(tinyFn.bp, tinyFn.vals, options.items);
+        tiny.items = (tiny.fw) ? Math.floor(tiny.container.parentNode.offsetWidth / tiny.fw) : getItem(tiny.bp, tiny.vals, options.items);
         // if cl are less than items
-        if (tinyFn.cl < tinyFn.items) {
-          tinyFn.items = tinyFn.cl;
-        }
-        tinyFn.speed = (tinyFn.slideByPage) ? options.speed * tinyFn.items : options.speed;
+        tiny.items = Math.min(tiny.cl, tiny.items);
+        tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
 
-        // tinyFn.container.parentNode.style.width = '';
-        tinyFn.makeLayout(tinyFn);
-        tinyFn.move(tinyFn);
-        if (tinyFn.dots && !tinyFn.dotsContainer) {
-          tinyFn.displayDots(tinyFn);
-          tinyFn.dotsActive(tinyFn);
+        // tiny.container.parentNode.style.width = '';
+        tiny.makeLayout(tiny);
+        tiny.move(tiny);
+        if (tiny.dots && !tiny.dotsContainer) {
+          tiny.displayDots(tiny);
+          tiny.dotsActive(tiny);
         }
       }, 100);
     });
 
     // on nav click
     if (this.nav) {
-      addEvent(this.next, 'click', function () { tinyFn.onNavClick(tinyFn, 1); });
-      addEvent(this.prev, 'click', function () { tinyFn.onNavClick(tinyFn, -1); });
+      addEvent(this.next, 'click', function () { tiny.onNavClick(tiny, 1); });
+      addEvent(this.prev, 'click', function () { tiny.onNavClick(tiny, -1); });
     }
 
     // on key down
@@ -260,9 +254,9 @@
       addEvent(document, 'keydown', function (e) {
         e = e || window.event;
         if (e.keyCode === 37) {
-          tinyFn.onNavClick(tinyFn, -1);
+          tiny.onNavClick(tiny, -1);
         } else if (e.keyCode === 39) {
-          tinyFn.onNavClick(tinyFn, 1);
+          tiny.onNavClick(tiny, 1);
         }
       });
     }
@@ -277,8 +271,8 @@
     // autoplay
     if (this.autoplay) {
       setInterval(function () {
-        tinyFn.onNavClick(tinyFn, tinyFn.autoplayDirection);
-      }, tinyFn.autoplayTimeout);
+        tiny.onNavClick(tiny, tiny.autoplayDirection);
+      }, tiny.autoplayTimeout);
     }
   }
 
