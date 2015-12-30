@@ -17,7 +17,7 @@ npm install tiny-slider
 + responsive
 + fixed width
 + loop
-+ customize dots
++ customize nav / dots
 + slide by page
 + autoplay
 + arrow keys driving
