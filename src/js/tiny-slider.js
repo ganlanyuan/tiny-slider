@@ -223,7 +223,19 @@
     this.bp = getMapKeys(this.responsive);
     this.vals = getMapValues(this.responsive, this.bp);
     this.itemsMax = (this.vals.length !== undefined) ? Math.max.apply(Math, this.vals) : options.items;
-    this.items = getItem(this.bp, this.vals, options.items);
+    this.items = (!this.fw) ? getItem(this.bp, this.vals, options.items) : Math.floor(this.container.parentNode.offsetWidth / this.fw);
+
+    // fixed width
+    if (this.fw && options.maxContainerWidth) {
+      this.itemsMax = Math.ceil(options.maxContainerWidth / this.fw);
+    } else {
+      this.loop = false;
+    }
+
+    // if cl are less than items
+    this.itemsMax = Math.min(this.cl, this.itemsMax);
+    this.items = Math.min(this.cl, this.items);
+    this.dotsCount = (this.dotsContainer) ? this.cl : Math.ceil(this.cl / this.items);
     this.animating = false;
     this.index = 0;
 
@@ -254,20 +266,6 @@
     //   }
     // }
 
-    // fixed width
-    if (this.fw) {
-      this.items = Math.floor(this.container.parentNode.offsetWidth / this.fw);
-      if (options.maxContainerWidth) {
-        this.itemsMax = Math.ceil(options.maxContainerWidth / this.fw);
-      } else {
-        this.loop = false;
-      }
-    }
-
-    // if cl are less than items
-    this.itemsMax = Math.min(this.cl, this.itemsMax);
-    this.items = Math.min(this.cl, this.items);
-
     // on initialize
     this.init();
 
@@ -282,14 +280,16 @@
         tiny.items = (tiny.fw) ? Math.floor(tiny.container.parentNode.offsetWidth / tiny.fw) : getItem(tiny.bp, tiny.vals, options.items);
         // if cl are less than items
         tiny.items = Math.min(tiny.cl, tiny.items);
+        tiny.dotsCount = (tiny.dotsContainer) ? tiny.cl : Math.ceil(tiny.cl / tiny.items);
         tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
 
         // tiny.container.parentNode.style.width = '';
         tiny.makeLayout(tiny);
-        tiny.move(tiny);
+        tiny.translate(tiny);
         if (tiny.dots && !tiny.dotsContainer) {
           tiny.displayDots(tiny);
-          tiny.dotsActive(tiny);
+          var current = tiny.getDotCurrent(tiny);
+          tiny.dotActive(tiny, current);
         }
       }, 100);
     });
@@ -419,11 +419,12 @@
       }
 
       this.makeLayout(this);
-      this.move(this);
+      this.translate(this);
       this.itemActive(this);
       if (this.dots && !this.dotsContainer) {
         this.displayDots(this);
-        this.dotsActive(this);
+        var current = this.getDotCurrent(this);
+        this.dotActive(this, current);
       }
     },
 
@@ -441,13 +442,75 @@
       }
     },
 
-    move: function (el) {
+    getAbsIndex: function (el) {
+      if (el.index < 0) {
+        return el.index + el.cl;
+      } else if (el.index >= el.cl) {
+        return el.index - el.cl;
+      } else {
+        return el.index;
+      }
+    },
+
+    setTD: function (el, indexGap) {
+      if (!getTD) { return; }
+      el.container.style[getTD] = (el.speed * indexGap / 1000) + 's';
+      el.animating = true;
+    },
+
+    getDotCurrent: function (el) {
+      var current = (el.dotsContainer) ? el.getAbsIndex(el) : Math.floor(el.getAbsIndex(el) / el.items);
+
+      // non-loop & reach the edge
+      if (!el.loop && !el.dotsContainer) {
+        var re=/^-?[0-9]+$/, integer = re.test(el.cl / el.items);
+        if(!integer && el.index === el.cl - el.items) {
+          current += 1;
+        }
+      }
+
+      return current;
+    },
+
+    itemActive: function (el) {
+      var current = (el.loop) ? el.index + el.itemsMax : el.index;
+      for (var i = 0; i < el.cul; i++) {
+        if (i === current) {
+          addClass(el.children[i], ['tiny-current', 'tiny-visible']);
+        } else if (i > current && i < current + el.items) {
+          addClass(el.children[i], 'tiny-visible');
+        } else {
+          removeClass(el.children[i], ['tiny-current', 'tiny-visible']);
+        }
+      }
+    },
+
+    displayDots: function (el) {
+      for (var i = 0; i < el.allDots.length; i++) {
+        if (i < el.dotsCount) {
+          removeClass(el.allDots[i], 'tiny-hide');
+        } else {
+          addClass(el.allDots[i], 'tiny-hide');
+        }
+      }
+    },
+
+    dotActive: function (el, current) {
+      for (var i = 0; i < el.dotsCount; i++) {
+        if (i === current) {
+          addClass(el.allDots[i], 'tiny-active');
+        } else {
+          removeClass(el.allDots[i], 'tiny-active');
+        }
+      }
+    },
+
+    translate: function (el) {
       var vw = el.container.parentNode.offsetWidth, translateX;
 
-      if (el.fw && !el.loop && el.getAbsIndex(el) + el.items >= el.cul) {
-        translateX = - (el.cul * el.fw - vw);
-      } else {
-        translateX = - el.itemWidth * el.index;
+      translateX = - el.itemWidth * el.index;
+      if (el.fw && !el.loop) {
+        translateX = Math.max( translateX, - (el.cul * el.itemWidth - vw) );
       }
 
       if (getTransform) {
@@ -457,13 +520,46 @@
       }
     },
 
-    getAbsIndex: function (el) {
-      if (el.index < 0) {
-        return el.index + el.cl;
-      } else if (el.index >= el.cl) {
-        return el.index - el.cl;
-      } else {
-        return el.index;
+    fallback: function (el) {
+      if (!el.loop) { return; }
+
+      var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
+          reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
+
+      // fix fixed-width
+      if (el.fw && el.itemsMax && !el.slideByPage) {
+        reachRightEdge = el.index >= (el.cl + el.itemsMax - el.items - 1);
+      }
+
+      if (reachLeftEdge) { el.index += el.cl; }
+      if (reachRightEdge) { el.index -= el.cl; }
+
+      if (getTD) { el.container.style[getTD] = '0s'; }
+      el.translate(el);
+    },
+
+    onNavClick: function (el, dir) {
+      if (!el.animating) {
+        var index, indexGap;
+
+        dir = (el.slideByPage) ? dir * el.items : dir;
+        indexGap = Math.abs(dir);
+        index = el.index + dir;
+        el.index = (el.loop) ? index : Math.max(0, Math.min(index, el.cl - el.items));
+
+        el.setTD(el, indexGap);
+        el.translate(el);
+
+        setTimeout(function () {
+          el.fallback(el);
+          el.itemActive(el);
+          if (el.dots) {
+            var current = el.getDotCurrent(el);
+            el.dotActive(el, current); 
+          }
+
+          el.animating = false;
+        }, el.speed * indexGap);
       }
     },
 
@@ -477,115 +573,6 @@
       };
     },
 
-    itemActive: function (el) {
-      for (var i = 0; i < el.cul; i++) {
-        removeClass(el.children[i], ['tiny-current', 'tiny-visible']);
-      }
-      var current = (el.loop) ? el.index + el.itemsMax : el.index;
-      for (var j = current; j < (current + el.items); j++) {
-        addClass(el.children[j], 'tiny-visible');
-      }
-      addClass(el.children[current], 'tiny-current');
-    },
-
-    displayDots: function (el) {
-      var dotCount = Math.ceil(el.cl / el.items),
-      dots = el.allDots;
-
-      for (var i = 0; i < dots.length; i++) {
-        if (i < dotCount) {
-          removeClass(dots[i], 'tiny-hide');
-        } else {
-          addClass(dots[i], 'tiny-hide');
-        }
-      }
-    },
-
-    dotsActive: function (el) {
-      var current,
-      absIndex = el.getAbsIndex(el),
-      dotCount = (el.dotsContainer) ? el.cl : Math.ceil(el.cl / el.items);
-
-      if (el.dotsContainer) {
-        current = absIndex;
-      } else {
-        if (el.fw) {
-          if ((absIndex + el.items + 1) >= el.cul) {
-            current = dotCount - 1;
-          } else {
-            current = Math.floor((absIndex / el.items));
-          }
-        } else {
-          current = Math.floor(absIndex / el.items);
-        }
-      }
-
-      // non-loop & reach the end
-      if (!el.loop && !el.dotsContainer) {
-        var re=/^-?[0-9]+$/, whole = re.test(el.cl / el.items);
-        if(!whole && el.index === el.cl - el.items) {
-          current += 1;
-        }
-      }
-
-      for (var i = 0; i < dotCount; i++) {
-        if (i === current) {
-          addClass(el.allDots[i], 'tiny-active');
-        } else {
-          removeClass(el.allDots[i], 'tiny-active');
-        }
-      }
-    },
-
-    clickFallback: function (el) {
-      var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
-          reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
-
-      // fix fixed-width
-      if (el.fw && el.itemsMax && !el.slideByPage) {
-        reachRightEdge = el.index >= (el.cl + el.itemsMax - el.items - 1);
-      }
-
-      if (reachLeftEdge) { el.index += el.cl; }
-      if (reachRightEdge) { el.index -= el.cl; }
-
-      if (getTD) { el.container.style[getTD] = '0s'; }
-      var containerLeft = - el.itemWidth * el.index;
-      if (getTransform) {
-        el.container.style[getTransform] = 'translate3d(' + containerLeft + 'px, 0, 0)';
-      } else {
-        el.container.style.left = containerLeft + 'px';
-      }
-    },
-
-    setTD: function (el, indexGap) {
-      if (getTD) {
-        el.container.style[getTD] = (el.speed * indexGap / 1000) + 's';
-        el.animating = true;
-      }
-    },
-
-    onNavClick: function (el, dir) {
-      if (!el.animating) {
-        var index, indexGap;
-
-        dir = (el.slideByPage) ? dir * el.items : dir;
-        indexGap = Math.abs(dir);
-        index = el.index + dir;
-        el.index = (el.loop) ? index : Math.max(0, Math.min(index, el.cl - el.items));
-
-        el.setTD(el, indexGap);
-        el.move(el);
-
-        setTimeout(function () {
-          if (el.loop) { el.clickFallback(el); }
-          if (el.dots) { el.dotsActive(el); }
-          el.itemActive(el);
-          el.animating = false;
-        }, el.speed * indexGap);
-      }
-    },
-
     onDotClick: function (el, ind) {
       if (!el.animating) {
         var index, indexGap;
@@ -596,18 +583,13 @@
         el.index = index;
 
         el.setTD(el, indexGap);
-        el.move(el);
+        el.translate(el);
 
         setTimeout(function () { 
-          for (var i = 0; i < el.allDots.length; i++) {
-            if (i === ind) {
-              addClass(el.allDots[i], 'tiny-active');
-            } else {
-              removeClass(el.allDots[i], 'tiny-active');
-            }
-          }
-          el.clickFallback(el);
+          el.fallback(el);
           el.itemActive(el);
+          el.dotActive(el, ind);
+
           el.animating = false;
         }, el.speed * indexGap);
       }
@@ -667,7 +649,7 @@
     //         }
     //       }
     //       el.index = Math.max(0, Math.min(el.index, el.cl - 1));
-    //       el.move(el);
+    //       el.translate(el);
           
     //       setTimeout(function () {
     //         el.animating = false;
