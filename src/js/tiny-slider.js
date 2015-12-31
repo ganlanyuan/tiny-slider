@@ -8,37 +8,9 @@
  ;(function (tinySliderJS) {
   window.tinySlider = tinySliderJS();
 })(function () {
-  'usr strict';
+  'use strict';
 
   // *** helper functions *** //
-  if (!Function.prototype.bind) {
-    Function.prototype.bind = function(oThis) {
-      if (typeof this !== 'function') {
-        // closest thing possible to the ECMAScript 5
-        // internal IsCallable function
-        throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-      }
-
-      var aArgs   = Array.prototype.slice.call(arguments, 1),
-          fToBind = this,
-          fNOP    = function() {},
-          fBound  = function() {
-            return fToBind.apply(this instanceof fNOP
-                   ? this
-                   : oThis,
-                   aArgs.concat(Array.prototype.slice.call(arguments)));
-          };
-
-      if (this.prototype) {
-        // native functions don't have a prototype
-        fNOP.prototype = this.prototype; 
-      }
-      fBound.prototype = new fNOP();
-
-      return fBound;
-    };
-  }
-  
   // extend
   function extend() {
     var obj, name, copy,
@@ -156,7 +128,7 @@
 
   // get window width
   function getWindowWidth () {
-    return winW = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
   }
 
   // get responsive value
@@ -469,37 +441,30 @@
       }
     },
 
-    // get fixed-width item container left
-    getFCL: function (el) {
-      var absIndex = el.getAbsIndex(el),
-      vw = el.container.parentNode.offsetWidth;
-
-      if ((absIndex + el.items + 1) >= el.cul) {
-        return - (el.cul * el.fw - vw);
-      } else {
-        return - (el.fw * el.index);
-      }
-    },
-
     move: function (el) {
-      var containerLeft = (el.fw) ? el.getFCL(el) : - el.itemWidth * el.index;
-      if (getTransform) {
-        el.container.style[getTransform] = 'translate3d(' + containerLeft + 'px, 0, 0)';
+      var vw = el.container.parentNode.offsetWidth, translateX;
+
+      if (el.fw && !el.loop && el.getAbsIndex(el) + el.items >= el.cul) {
+        translateX = - (el.cul * el.fw - vw);
       } else {
-        el.container.style.left = containerLeft + 'px';
+        translateX = - el.itemWidth * el.index;
+      }
+
+      if (getTransform) {
+        el.container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+      } else {
+        el.container.style.left = translateX + 'px';
       }
     },
 
     getAbsIndex: function (el) {
-      var absIndex = el.index;
-
-      if (absIndex < 0) {
-        absIndex += el.cl;
-      } else if (absIndex >= el.cl) {
-        absIndex -= el.cl;
+      if (el.index < 0) {
+        return el.index + el.cl;
+      } else if (el.index >= el.cl) {
+        return el.index - el.cl;
+      } else {
+        return el.index;
       }
-
-      return absIndex;
     },
 
     fireDotClick: function (el) {
@@ -523,27 +488,6 @@
       addClass(el.children[current], 'tiny-current');
     },
 
-    addStatus: function (el, dir) {
-      if (!el.slideByPage && !el.fw) {
-        var current = (el.loop) ? el.index + el.itemsMax : el.index;
-        if (dir === -1) {
-          addClass(el.children[current], 'tiny-left-in');
-          addClass(el.children[current + el.items], 'tiny-right-out');
-        } else {
-          addClass(el.children[current - 1], 'tiny-left-out');
-          addClass(el.children[current + el.items - 1], 'tiny-right-in');
-        }
-      }
-    },
-
-    removeStatus: function (el) {
-      if (!el.slideByPage && !el.fw) {
-        for (var i = 0; i < el.cul; i++) {
-          removeClass(el.children[i], ['tiny-left-in', 'tiny-left-out', 'tiny-right-in', 'tiny-right-out']);
-        }
-      }
-    },
-
     displayDots: function (el) {
       var dotCount = Math.ceil(el.cl / el.items),
       dots = el.allDots;
@@ -560,7 +504,6 @@
     dotsActive: function (el) {
       var current,
       absIndex = el.getAbsIndex(el),
-      dots = el.allDots,
       dotCount = (el.dotsContainer) ? el.cl : Math.ceil(el.cl / el.items);
 
       if (el.dotsContainer) {
@@ -587,50 +530,16 @@
 
       for (var i = 0; i < dotCount; i++) {
         if (i === current) {
-          addClass(dots[i], 'tiny-active');
+          addClass(el.allDots[i], 'tiny-active');
         } else {
-          removeClass(dots[i], 'tiny-active');
+          removeClass(el.allDots[i], 'tiny-active');
         }
-      }
-    },
-
-    onNavClick: function (el, dir) {
-      if (!el.animating) {
-        var prevIndex = el.index;
-
-        if (el.slideByPage) { dir = dir * el.items; }
-        el.index += dir;
-        if (!el.loop) {
-          el.index = Math.max(0, Math.min(el.index, el.cl - el.items));
-        }
-
-        var gap = Math.abs(el.index - prevIndex);
-        if (getTD) {
-          el.container.style[getTD] = (el.speed * gap / 1000) + 's';
-          el.animating = true;
-          el.addStatus(el, dir);
-        }
-        el.move(el);
-
-        setTimeout(function () {
-          if (el.loop) { el.clickFallback(el); }
-          if (el.dots) { el.dotsActive(el); }
-          if (getTD) { el.removeStatus(el); }
-          el.itemActive(el);
-          el.animating = false;
-        }, el.speed * gap);
       }
     },
 
     clickFallback: function (el) {
-      var reachLeftEdge =
-      (el.slideByPage) ?
-      el.index < - (el.itemsMax - el.items) :
-      el.index <= - el.itemsMax,
-      reachRightEdge =
-      (el.slideByPage) ?
-      el.index > (el.cl + el.itemsMax - el.items * 2 - 1) :
-      el.index >= (el.cl + el.itemsMax - el.items);
+      var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
+          reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
 
       // fix fixed-width
       if (el.fw && el.itemsMax && !el.slideByPage) {
@@ -649,40 +558,58 @@
       }
     },
 
-    onDotClick: function (el, index) {
+    setTD: function (el, indexGap) {
+      if (getTD) {
+        el.container.style[getTD] = (el.speed * indexGap / 1000) + 's';
+        el.animating = true;
+      }
+    },
+
+    onNavClick: function (el, dir) {
       if (!el.animating) {
-        var prevIndex = el.index;
+        var index, indexGap;
 
-        if (el.loop) {
-          el.index = (el.dotsContainer) ? index : index * el.items;
-        } else {
-          if (el.dotsContainer) {
-            el.index = Math.min(index, el.cl - el.items);
-          } else {
-            el.index = Math.min(index * el.items, el.cl - el.items);
-          }
-        }
+        dir = (el.slideByPage) ? dir * el.items : dir;
+        indexGap = Math.abs(dir);
+        index = el.index + dir;
+        el.index = (el.loop) ? index : Math.max(0, Math.min(index, el.cl - el.items));
 
-        var gap = Math.abs(el.index - prevIndex);
-        if (getTD) {
-          el.container.style[getTD] = (el.speed * gap / 1000) + 's';
-          el.animating = true;
-        }
+        el.setTD(el, indexGap);
+        el.move(el);
+
+        setTimeout(function () {
+          if (el.loop) { el.clickFallback(el); }
+          if (el.dots) { el.dotsActive(el); }
+          el.itemActive(el);
+          el.animating = false;
+        }, el.speed * indexGap);
+      }
+    },
+
+    onDotClick: function (el, ind) {
+      if (!el.animating) {
+        var index, indexGap;
+
+        index = (el.dotsContainer) ? ind : ind * el.items;
+        index = (el.loop) ? index : Math.min(index, el.cl - el.items);
+        indexGap = Math.abs(index - el.index);
+        el.index = index;
+
+        el.setTD(el, indexGap);
         el.move(el);
 
         setTimeout(function () { 
           for (var i = 0; i < el.allDots.length; i++) {
-            if (i === index) {
+            if (i === ind) {
               addClass(el.allDots[i], 'tiny-active');
             } else {
               removeClass(el.allDots[i], 'tiny-active');
             }
           }
-
           el.clickFallback(el);
           el.itemActive(el);
           el.animating = false;
-        }, el.speed * gap);
+        }, el.speed * indexGap);
       }
     },
 
