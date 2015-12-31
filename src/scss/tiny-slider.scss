@@ -1,6 +1,24 @@
 // tiny
 .tiny {
-  &-slider { overflow: hidden; }
+  &-slider {
+    overflow: hidden;
+    &.ms-touch {
+      overflow-x: scroll;
+      overflow-y: hidden;
+      
+      -ms-overflow-style: none;
+      /* Hides the scrollbar. */
+      
+      -ms-scroll-chaining: none;
+      /* Prevents Metro from swiping to the next tab or app. */
+      
+      -ms-scroll-snap-type: mandatory;
+      /* Forces a snap scroll behavior on your images. */
+      
+      -ms-scroll-snap-points-x: snapInterval(0%, 100%);
+      /* Defines the y and x intervals to snap to when scrolling. */
+    }
+  }
   &-content {
     position: relative;
     left: 0;
@@ -18,4 +36,11 @@
   }
   &-prev, &-next, &-dot { cursor: pointer; }
   &-hide { display: none; }
+  &-lazy {
+    -webkit-transition: opacity 0.6s;
+    transition: opacity 0.6s;
+    opacity: 0.6;
+    &.loaded { opacity: 1; }
+    // .no-js & { display: none; }
+  }
 }
