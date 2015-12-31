@@ -228,7 +228,7 @@
     // fixed width
     if (this.fw && options.maxContainerWidth) {
       this.itemsMax = Math.ceil(options.maxContainerWidth / this.fw);
-    } else {
+    } else if (this.fw) {
       this.loop = false;
     }
 
@@ -284,13 +284,13 @@
         tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
 
         // tiny.container.parentNode.style.width = '';
+        tiny.setDotCurrent(tiny);
         tiny.makeLayout(tiny);
         tiny.translate(tiny);
         if (tiny.dots && !tiny.dotsContainer) {
           tiny.displayDots(tiny);
-          var current = tiny.getDotCurrent(tiny);
-          tiny.dotActive(tiny, current);
-        }
+          tiny.dotActive(tiny);
+          }
       }, 100);
     });
 
@@ -418,13 +418,13 @@
         this.children = this.container.children;
       }
 
+      this.setDotCurrent(this);
       this.makeLayout(this);
       this.translate(this);
       this.itemActive(this);
       if (this.dots && !this.dotsContainer) {
         this.displayDots(this);
-        var current = this.getDotCurrent(this);
-        this.dotActive(this, current);
+        this.dotActive(this);
       }
     },
 
@@ -458,18 +458,16 @@
       el.animating = true;
     },
 
-    getDotCurrent: function (el) {
-      var current = (el.dotsContainer) ? el.getAbsIndex(el) : Math.floor(el.getAbsIndex(el) / el.items);
+    setDotCurrent: function (el) {
+      el.dotCurrent = (el.dotsContainer) ? el.getAbsIndex(el) : Math.floor(el.getAbsIndex(el) / el.items);
 
       // non-loop & reach the edge
       if (!el.loop && !el.dotsContainer) {
         var re=/^-?[0-9]+$/, integer = re.test(el.cl / el.items);
         if(!integer && el.index === el.cl - el.items) {
-          current += 1;
+          el.dotCurrent += 1;
         }
       }
-
-      return current;
     },
 
     itemActive: function (el) {
@@ -495,9 +493,9 @@
       }
     },
 
-    dotActive: function (el, current) {
+    dotActive: function (el) {
       for (var i = 0; i < el.dotsCount; i++) {
-        if (i === current) {
+        if (i === el.dotCurrent) {
           addClass(el.allDots[i], 'tiny-active');
         } else {
           removeClass(el.allDots[i], 'tiny-active');
@@ -550,12 +548,12 @@
         el.setTD(el, indexGap);
         el.translate(el);
 
+        el.setDotCurrent(el);
         setTimeout(function () {
           el.fallback(el);
           el.itemActive(el);
           if (el.dots) {
-            var current = el.getDotCurrent(el);
-            el.dotActive(el, current); 
+            el.dotActive(el); 
           }
 
           el.animating = false;
@@ -585,10 +583,11 @@
         el.setTD(el, indexGap);
         el.translate(el);
 
+        el.dotCurrent = ind;
         setTimeout(function () { 
           el.fallback(el);
           el.itemActive(el);
-          el.dotActive(el, ind);
+          el.dotActive(el);
 
           el.animating = false;
         }, el.speed * indexGap);
