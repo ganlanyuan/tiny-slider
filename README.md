@@ -212,6 +212,4 @@ There is no option for `padding`, but you can add it by css
 ```
 
 ## Todo
-+ lazyload
-+ mobile gesture support
 
