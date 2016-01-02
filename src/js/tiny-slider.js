@@ -1,6 +1,6 @@
 /**
  * tiny-slider
- * @version 0.2.2
+ * @version 0.3.0
  * @author William Lin
  * @license The MIT License (MIT)
  * @github https://github.com/ganlanyuan/tiny-slider/
@@ -164,34 +164,6 @@
   var getTD = getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
       getTransform = getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
-  // lazy load
-  var viewport = {}, offset = 0;
-  viewport.top = 0 - offset;
-  viewport.left = 0 - offset;
-
-  function saveViewportOffset(offset) {
-    viewport.bottom = (window.innerHeight || document.documentElement.clientHeight) + offset;
-    viewport.right = (window.innerWidth || document.documentElement.clientWidth) + offset;
-  }
-  saveViewportOffset(offset);
-  addEvent(window, 'resize', function () { saveViewportOffset(offset); });
-
-  function elementInView(el) {
-    var rect = el.getBoundingClientRect();
-    return (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
-  }
-
-  function lazyLoad (el) {
-    var imgs = el.querySelectorAll('.tiny-lazy');
-    if (!imgs) { return; }
-    for (var i = 0; i < imgs.length; i++) {
-      if (elementInView(imgs[i]) && imgs[i].className.indexOf('loaded') === -1) {
-        imgs[i].src = imgs[i].getAttribute('data-src');
-        imgs[i].className += ' loaded';
-      }
-    }
-  }
-
   // *** tinySlider *** //
   function tinySlider(options) {
     var containers;
@@ -226,6 +198,8 @@
       autoplayDirection: 'forward',
       loop: true,
       responsive: false,
+      lazyload: false,
+      offset: 0,
       touch: true,
     }, options || {});
 
@@ -247,12 +221,13 @@
     this.loop = options.loop;
     this.slideByPage = options.slideByPage;
     this.responsive = (this.fw) ? false : options.responsive;
+    this.lazyload = options.lazyload;
+    this.touch = options.touch;
 
     this.bp = getMapKeys(this.responsive);
     this.vals = getMapValues(this.responsive, this.bp);
     this.itemsMax = (this.vals.length !== undefined) ? Math.max.apply(Math, this.vals) : options.items;
     this.items = (!this.fw) ? getItem(this.bp, this.vals, options.items) : Math.floor(this.container.parentNode.offsetWidth / this.fw);
-    // console.log(this.items);
 
     // fixed width
     if (this.fw && options.maxContainerWidth) {
@@ -265,10 +240,20 @@
     this.itemsMax = Math.min(this.cl, this.itemsMax);
     this.items = Math.min(this.cl, this.items);
     this.dotsCount = (this.dotsContainer) ? this.cl : Math.ceil(this.cl / this.items);
+    
     this.animating = false;
     this.index = 0;
 
-    if (options.touch) {
+    if (this.lazyload) {
+      this.offset = options.offset;
+      this.viewport = {};
+      this.sliderRect = {};
+      this.viewport.top = 0 - this.offset;
+      this.viewport.left = 0 - this.offset;
+      this.inview = false;
+    }
+
+    if (this.touch) {
       this.startX = 0;
       this.startY = 0;
       this.translateX = 0;
@@ -315,11 +300,21 @@
           tiny.displayDots(tiny);
           tiny.dotActive(tiny);
         }
-        lazyLoad(tiny.container);
+        if (tiny.lazyload) {
+          tiny.saveViewport(tiny);
+          tiny.sliderInView(tiny);
+          tiny.lazyLoad(tiny);
+        }
       }, 100);
     });
+
+    // on window scroll
     addEvent(window, 'scroll', function () {
-      lazyLoad(tiny.container);
+      if (tiny.lazyload) {
+        tiny.saveViewport(tiny);
+        tiny.sliderInView(tiny);
+        tiny.lazyLoad(tiny);
+      }
     })
 
     // on nav click
@@ -493,7 +488,12 @@
         this.displayDots(this);
         this.dotActive(this);
       }
-      lazyLoad(this.container);
+
+      if (this.lazyload) {
+        this.saveViewport(this);
+        this.sliderInView(this);
+        this.lazyLoad(this);
+      }
     },
 
     makeLayout: function (el) {
@@ -588,7 +588,7 @@
       el.fallback(el);
       el.itemActive(el);
       el.dotActive(el);
-      lazyLoad(el.container);
+      el.lazyLoad(el);
 
       el.animating = false;
     },
@@ -638,6 +638,39 @@
         setTimeout(function () { 
           el.update(el);
         }, el.speed * indexGap);
+      }
+    },
+
+    saveViewport: function (el) {
+      el.viewport.bottom = document.documentElement.clientHeight + el.offset;
+      el.viewport.right = document.documentElement.clientWidth + el.offset;
+    },
+
+    sliderInView: function (el) {
+      var rect = el.container.parentNode.getBoundingClientRect();
+      el.sliderRect.left = rect.left;
+      el.sliderRect.right = rect.right;
+      el.sliderRect.top = rect.top;
+      el.sliderRect.bottom = rect.bottom;
+
+      el.inview = (rect.right > el.viewport.left && rect.bottom > el.viewport.top && rect.left < el.viewport.right && rect.top < el.viewport.bottom);
+    },
+
+    elementInView: function (el, viewport) {
+      var rect = el.getBoundingClientRect();
+      return (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
+    },
+
+    lazyLoad: function (el) {
+      if (!el.inview) { return; }
+
+      var imgs = el.container.querySelectorAll('.tiny-lazy');
+      if (!imgs) { return; }
+      for (var i = 0; i < imgs.length; i++) {
+        if (el.elementInView(imgs[i], el.sliderRect) && imgs[i].className.indexOf('loaded') === -1) {
+          imgs[i].src = imgs[i].getAttribute('data-src');
+          imgs[i].className += ' loaded';
+        }
       }
     },
 

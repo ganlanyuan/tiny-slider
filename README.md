@@ -17,10 +17,12 @@ npm install tiny-slider
 + responsive
 + fixed width
 + loop
-+ customize nav / dots
 + slide by page
++ customize nav / dots
 + autoplay
-+ arrow keys driving
++ lazyload
++ touch support
++ arrow keys
 
 ## Default setting
 ```javascript
@@ -42,6 +44,9 @@ options = {
   autoplayDirection: 'forward',
   loop: true,
   responsive: false,
+  lazyload: false,
+  offset: 0,
+  touch: true
 };
 ```
 ## Usage
@@ -108,14 +113,9 @@ tinySlider({
   loop: false
 });
 ```
-#### Customize dots
+#### Customize
 ```html
 <div class="slider">
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
 </div>
 
 <!-- customized nav & dots -->
@@ -137,6 +137,25 @@ tinySlider({
   items: 3,
   navContainer: document.querySelector('.slider-nav'),
   dotsContainer: document.querySelector('.thumbnails')
+});
+```
+
+#### Lazyload
+Add a placeholder image to the image `src` attribute, save the real image sourse in the `data-src` attribute, then add class `tiny-lazy`. 
+```html
+<div class="slider">
+  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
+  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
+  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
+  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
+  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
+</div>
+```
+```javascript
+tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  lazyload: true
 });
 ```
 
