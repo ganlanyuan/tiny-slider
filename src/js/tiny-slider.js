@@ -56,29 +56,70 @@
   }
 
   // handle classes
-  function hasClass(el, className) {
-    return (' ' + el.className + ' ').indexOf(' ' + className + ' ') !== -1;
-  }
+  var containsClass = function (elm, className) {
+    if (document.documentElement.classList) {
+      containsClass = function (elm, className) {
+        return elm.classList.contains(className);
+      };
+    } else {
+      containsClass = function (elm, className) {
+        if (!elm || !elm.className) { return false; }
+        var re = new RegExp('(^|\\s)' + className + '(\\s|$)');
+        return elm.className.match(re);
+      };
+    }
+    return containsClass(elm, className);
+  };
 
-  function addClass(el, name) {
-    var names = (Array.isArray(name)) ? name : [name];
-    
-    for (var i = 0; i < names.length; i++) {
-      if (!hasClass(el, names[i])) {
-        el.className = el.className + ' ' + names[i];
+  var addClass = function (elm, className) {
+    if (document.documentElement.classList) {
+      addClass = function (elm, className) {
+        elm.classList.add(className);
+      };
+    } else {
+      addClass = function (elm, className) {
+        if (!elm) { return false; }
+        if (!containsClass(elm, className)) {
+          elm.className += (elm.className ? " " : "") + className;
+        }
+      };
+    }
+    addClass(elm, className);
+  };
+
+  var removeClass = function (elm, className) {
+    if (document.documentElement.classList) {
+      removeClass = function (elm, className) {
+        elm.classList.remove(className);
+      };
+    } else {
+      removeClass = function (elm, className) {
+        if (!elm || !elm.className) { return false; }
+        var regexp = new RegExp("(^|\\s)" + className + "(\\s|$)", "g");
+        elm.className = elm.className.replace(regexp, "$2");
+      };
+    }
+    removeClass(elm, className);
+  };
+
+  var toggleClass = function (elm, className) {
+    if (document.documentElement.classList) {
+      toggleClass = function (elm, className) {
+        return elm.classList.toggle(className);
+      }
+    } else {
+      toggleClass = function (elm, className) {
+        if (containsClass(elm, className)) {
+          removeClass(elm, className);
+          return false;
+        } else {
+          addClass(elm, className);
+          return true;
+        }
       }
     }
-  }
-
-  function removeClass(el, name) {
-    var names = (Array.isArray(name)) ? name : [name];
-
-    for (var i = 0; i < names.length; i++) {
-      if (hasClass(el, names[i])) {
-        el.className = el.className.replace(' ' + names[i], '');
-      }
-    }
-  }
+    return toggleClass(elm, className);
+  };
 
   function toDegree (angle) {
     return angle * (180 / Math.PI);
@@ -162,7 +203,7 @@
     }
   }
   var getTD = getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-      getTransform = getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
+  getTransform = getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
   // *** tinySlider *** //
   function tinySlider(options) {
@@ -381,16 +422,17 @@
     },
 
     init: function () {
-      addClass(this.container, 'tiny-content');
+      var container = this.container,
+          parent = container.parentNode,
+          sibling = container.nextSibling;
+
+      addClass(container, 'tiny-content');
 
       // wrap slider with ".tiny-slider"
-      var parent = this.container.parentNode,
-      sibling = this.container.nextSibling;
-
       var div = document.createElement('div'),
       wrapper = div.cloneNode(true);
       wrapper.className = 'tiny-slider';
-      wrapper.appendChild(this.container);
+      wrapper.appendChild(container);
 
       if (sibling) {
         parent.insertBefore(wrapper, sibling);
@@ -414,14 +456,18 @@
           this.allDots = this.dotsContainer.children;
           addClass(this.allDots[0], 'tiny-active');
         } else {
-          var dots = div.cloneNode(true), dot = div.cloneNode(true);
+          var dots = div.cloneNode(true), 
+              dot = div.cloneNode(true);
           dots.className = 'tiny-dots';
           dot.className = 'tiny-dot';
 
-          for (var i = this.cl - 1; i >= 0; i--) {
-            var dotClone = (i > 0) ? dot.cloneNode(true) : dot;
-            dots.appendChild(dotClone);
-          }
+          var that = this;
+          (function () {
+            for (var i = that.cl - 1; i >= 0; i--) {
+              var dotClone = (i > 0) ? dot.cloneNode(true) : dot;
+              dots.appendChild(dotClone);
+            }
+          })();
           wrapper.appendChild(dots);
           this.allDots = dots.querySelectorAll('.tiny-dot');
         }
@@ -460,23 +506,31 @@
       if (this.loop) {
         var before = [], after = [], first = this.container.children[0];
 
-        for (var j = 0; j < this.itemsMax; j++) {
-          var cloneFirst = this.children[j].cloneNode(true),
-          cloneLast = this.children[this.children.length - 1 - j].cloneNode(true);
+        var that = this;
+        (function () {
+          for (var i = 0; i < that.itemsMax; i++) {
+            var cloneFirst = that.children[i].cloneNode(true),
+            cloneLast = that.children[that.children.length - 1 - i].cloneNode(true);
 
-          before.push(cloneFirst);
-          after.push(cloneLast);
-        }
+            before.push(cloneFirst);
+            after.push(cloneLast);
+          }
+        })();
 
-        for (var g = 0; g < before.length; g++) {
-          this.container.appendChild(before[g]);
-        }
-        for (var a = after.length - 1; a >= 0; a--) {
-          this.container.insertBefore(after[a], first);
-        }
+        (function () {
+          for (var i = 0; i < before.length; i++) {
+            container.appendChild(before[i]);
+          }
+        })();
 
-        this.cul = this.container.children.length;
-        this.children = this.container.children;
+        (function () {
+          for (var i = after.length - 1; i >= 0; i--) {
+            container.insertBefore(after[i], first);
+          }
+        })();
+
+        this.cul = container.children.length;
+        this.children = container.children;
       }
 
       this.setDotCurrent(this);
@@ -519,12 +573,14 @@
       var current = (el.loop) ? el.index + el.itemsMax : el.index;
       for (var i = 0; i < el.cul; i++) {
         if (i === current) {
-          addClass(el.children[i], ['tiny-current', 'tiny-visible']);
+          addClass(el.children[i], 'tiny-current');
+          addClass(el.children[i], 'tiny-visible');
         } else if (i > current && i < current + el.items) {
           removeClass(el.children[i], 'tiny-current');
           addClass(el.children[i], 'tiny-visible');
         } else {
-          removeClass(el.children[i], ['tiny-current', 'tiny-visible']);
+          removeClass(el.children[i], 'tiny-current');
+          removeClass(el.children[i], 'tiny-visible');
         }
       }
     },
@@ -570,7 +626,7 @@
       if (!el.loop) { return; }
 
       var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
-          reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
+      reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
 
       // fix fixed-width
       if (el.fw && el.itemsMax && !el.slideByPage) {
@@ -695,7 +751,7 @@
           if (getTD) { el.container.style[getTD] = '0s'; }
 
           var min = (!el.loop) ? - (el.cl - el.items) * el.itemWidth : - (el.cl + el.itemsMax - el.items) * el.itemWidth,
-              max = (!el.loop) ? 0 : el.itemsMax * el.itemWidth;
+          max = (!el.loop) ? 0 : el.itemsMax * el.itemWidth;
 
           if (!el.loop && el.fw) { min = - (el.cl * el.itemWidth - el.container.parentNode.offsetWidth); }
 
@@ -724,8 +780,8 @@
           el.translateX = - el.index * el.itemWidth + el.distX;
 
           var index,
-              min = (!el.loop) ? 0 : -el.itemsMax,
-              max = (!el.loop) ? el.cl - el.items : el.cl + el.itemsMax - el.items;
+          min = (!el.loop) ? 0 : -el.itemsMax,
+          max = (!el.loop) ? el.cl - el.items : el.cl + el.itemsMax - el.items;
 
           index = - (el.translateX / el.itemWidth);
           index = (el.distX < 0) ? Math.ceil(index) : Math.floor(index);

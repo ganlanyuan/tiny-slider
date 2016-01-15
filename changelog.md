@@ -1,5 +1,9 @@
 #Changelog
 
+#### v0.3.1 beta
++ Improved: performance.
++ Improved: classList related functions.
+
 #### v0.3.0
 + Added: `lazyload` for images.
 + Added: touch support for touch devices.
