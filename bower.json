@@ -8,7 +8,7 @@
   "description": "Pure tiny javascript slider for all purposes.",
   "main": [
     "src/css/tiny-slider.css",
-    "src/js/tiny-slider.min.js",
+    "src/js/tiny-slider.min.js"
   ],
   "moduleType": [],
   "keywords": [
