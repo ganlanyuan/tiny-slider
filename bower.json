@@ -6,7 +6,10 @@
     "WilliamLin <ganlanyuan@gmail.com>"
   ],
   "description": "Pure tiny javascript slider for all purposes.",
-  "main": "src/",
+  "main": [
+    "src/css/tiny-slider.css",
+    "src/js/tiny-slider.min.js",
+  ],
   "moduleType": [],
   "keywords": [
     "slider",
