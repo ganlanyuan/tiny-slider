@@ -1,6 +1,6 @@
 #Changelog
 
-#### v0.3.1 beta
+#### v0.3.1
 + Improved: performance.
 + Improved: classList related functions.
 
