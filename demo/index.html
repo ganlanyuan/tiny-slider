@@ -148,10 +148,8 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-var responsive = document.querySelector('.responsive');
-
 tinySlider({
-  container: responsive,
+  container: '.responsive',
   responsive: {
     500: 2,
     800: 3,
@@ -196,11 +194,11 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var fixedWidth = document.querySelector('.fixed-width');
-
 tinySlider({
-  container: fixedWidth,
-  fixedWidth: 300
+  container: '.fixed-width',
+  fixedWidth: 200,
+  maxContainerWidth: 900,
+  loop: false
 });
     </code></pre>
   </section>
@@ -257,13 +255,12 @@ tinySlider({
       </ul>
     </div>
     <pre><code class="language-javascript">
-var customizedots = document.querySelector('.customize');
-
 tinySlider({
-  container: customizedots,
+  container: '.customize',
   items: 3,
   navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails')
+  dotContainer: document.querySelector('.thumbnails'),
+  lazyload: true
 });
     </code></pre>
   </section>
@@ -304,10 +301,8 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var nonLoop = document.querySelector('.non-loop');
-
 tinySlider({
-  container: nonLoop,
+  container: '.non-loop',
   items: 3,
   loop: false
 });
@@ -350,10 +345,8 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var slideByPage = document.querySelector('.slide-by-page');
-
 tinySlider({
-  container: slideByPage,
+  container: '.slide-by-page',
   items: 3,
   slideByPage: true
 });
@@ -396,10 +389,8 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var autoplay = document.querySelector('.autoplay');
-
 tinySlider({
-  container: autoplay,
+  container: '.autoplay',
   items: 3,
   autoplay: true,
   speed: 300,
@@ -444,10 +435,8 @@ tinySlider({
       </div>
     </div>
     <pre><code class="language-javascript">
-var arrowKeys = document.querySelector('.arrow-keys');
-
 tinySlider({
-  container: arrowKeys,
+  container: '.arrow-keys',
   items: 3,
   arrowKeys: true
 });
@@ -456,8 +445,8 @@ tinySlider({
 </div>
 
 <script src="prism/prism.js"></script>
-<script src="https://raw.githubusercontent.com/ganlanyuan/go-native/master/dist/go-native.ie8.js"></script>
-<script src="https://raw.githubusercontent.com/ganlanyuan/go-native/master/dist/go-native.js"></script>
+<script src="js/go-native.ie8.js"></script>
+<script src="js/go-native.js"></script>
 <script src="../src/js/tiny-slider.js"></script>
 <script type="text/javascript">
   tinySlider({

@@ -23,7 +23,7 @@
     return angle * (180 / Math.PI);
   }
 
-  function panDir(angle, range) {
+  function getPanDir(angle, range) {
     if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
       return 'horizontal';
     } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
@@ -33,19 +33,19 @@
     }
   }
 
-  function getMapKeys (el) {
-    if (el && typeof(el) === 'object') {
-      return Object.keys(el);
+  function getMapKeys (obj) {
+    if (obj && typeof(obj) === 'object') {
+      return Object.keys(obj);
     } else {
       return false;
     }
   }
-  function getMapValues (el, keys) {
-    if (el && typeof(el) === 'object') {
+  function getMapValues (obj, keys) {
+    if (obj && typeof(obj) === 'object') {
       var values = [];
       for (var i = 0; i < keys.length; i++) {
         var pro = keys[i];
-        values.push(el[pro]);
+        values.push(obj[pro]);
       }
       return values;
     } else {
@@ -79,6 +79,9 @@
       getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
   // *** tinySlider *** //
+  // check options.container
+  // if it's a NodeList, run slider for each Node
+  // if it's null, return
   function tinySlider(options) {
     var containers = document.querySelectorAll(options.container);
     if (containers.length === 0) { return; }
@@ -90,6 +93,8 @@
     }
   }
 
+  // Core function:
+  // all slider functions run here
   function TinySliderCore(options) {
     options = gn.extend({
       container: '.slider',
@@ -115,94 +120,107 @@
     }, options || {});
 
     // cl: childrenLength, cul: childrenUpdatedLength
-    this.container = options.container;
-    this.children = this.container.children;
-    this.cl = this.cul = this.children.length;
-    this.fw = options.fixedWidth;
-    this.nav = options.nav;
-    this.navText = options.navText;
-    this.navContainer = options.navContainer;
-    this.dots = options.dots;
-    this.dotContainer = options.dotContainer;
-    this.arrowKeys = options.arrowKeys;
-    this.speed = (!getTD) ? 0 : options.speed;
-    this.autoplay = options.autoplay;
-    this.autoplayTimeout = options.autoplayTimeout;
-    this.autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1;
-    this.loop = options.loop;
-    this.slideByPage = options.slideByPage;
-    this.responsive = (this.fw) ? false : options.responsive;
-    this.lazyload = options.lazyload;
-    this.touch = options.touch;
+    var that = this;
 
-    this.bp = getMapKeys(this.responsive);
-    this.vals = getMapValues(this.responsive, this.bp);
-    this.itemsMax = (this.vals.length !== undefined) ? Math.max.apply(Math, this.vals) : options.items;
-    this.items = (!this.fw) ? getItem(this.bp, this.vals, options.items) : Math.floor(this.container.parentNode.offsetWidth / this.fw);
+    var 
+        container = options.container,
+        children = container.children,
+        slideCount = children.length,
+        slideCountUpdated = children.length,
+        fixedWidth = options.fixedWidth,
+        nav = options.nav,
+        navText = options.navText,
+        navContainer = options.navContainer,
+        dots = options.dots,
+        dotContainer = options.dotContainer,
+        arrowKeys = options.arrowKeys,
+        speed = (!getTD) ? 0 : options.speed,
+        autoplay = options.autoplay,
+        autoplayTimeout = options.autoplayTimeout,
+        autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
+        loop = options.loop,
+        slideByPage = options.slideByPage,
+        responsive = (fixedWidth) ? false : options.responsive,
+        lazyload = options.lazyload,
+        touch = options.touch,
+
+        bp = getMapKeys(responsive),
+        vals = getMapValues(responsive, bp),
+        itemsMax = (vals.length !== undefined) ? Math.max.apply(Math, vals) : options.items,
+        items = (!fixedWidth) ? getItem(bp, vals, options.items) : Math.floor(container.parentNode.offsetWidth / fixedWidth);
 
     // fixed width
-    if (this.fw && options.maxContainerWidth) {
-      this.itemsMax = Math.ceil(options.maxContainerWidth / this.fw);
-    } else if (this.fw) {
-      this.loop = false;
+    if (fixedWidth && options.maxContainerWidth) {
+      itemsMax = Math.ceil(options.maxContainerWidth / fixedWidth);
+    } else if (fixedWidth) {
+      loop = false;
     }
 
-    // if cl are less than items
-    this.itemsMax = Math.min(this.cl, this.itemsMax);
-    this.items = Math.min(this.cl, this.items);
-    this.dotsCount = (this.dotContainer) ? this.cl : Math.ceil(this.cl / this.items);
+    // if slideCount are less than items
+    itemsMax = Math.min(slideCount, itemsMax);
+    items = Math.min(slideCount, items);
+
+    var
+        itemWidth,
+        allDots;
+
+    var dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
+    var dotCurrent;
     
-    this.animating = false;
-    this.index = 0;
+    var animating = false;
+    var index = 0;
+    var prev;
+    var next;
 
-    if (this.lazyload) {
-      this.offset = options.offset;
-      this.viewport = {};
-      this.sliderRect = {};
-      this.viewport.top = 0 - this.offset;
-      this.viewport.left = 0 - this.offset;
-      this.inview = false;
+    if (lazyload) {
+      var offset = options.offset;
+      var viewport = {};
+      var sliderRect = {};
+      var inview = false;
+      viewport.top = 0 - offset;
+      viewport.left = 0 - offset;
     }
 
-    if (this.touch) {
-      this.startX = 0;
-      this.startY = 0;
-      this.translateX = 0;
-      this.distX = 0;
-      this.distY = 0;
-      this.rt = 0;
-      this.panDir = false;
-      this.run = false;
-      this.animating = false;
-      this.slideEventAdded = false;
+    if (touch) {
+      var 
+        startX = 0,
+        startY = 0,
+        translateX = 0,
+        distX = 0,
+        distY = 0,
+        rt = 0,
+        panDir = false,
+        run = false,
+        animating = false,
+        slideEventAdded = false;
 
     }
 
 
-    this.getAbsIndex = function (el) {
-      if (el.index < 0) {
-        return el.index + el.cl;
-      } else if (el.index >= el.cl) {
-        return el.index - el.cl;
+    this.getAbsIndex = function () {
+      if (index < 0) {
+        return index + slideCount;
+      } else if (index >= slideCount) {
+        return index - slideCount;
       } else {
-        return el.index;
+        return index;
       }
     };
 
-    this.setTransitionDuration = function (el, indexGap) {
+    this.setTransitionDuration = function (indexGap) {
       if (!getTD) { return; }
-      el.container.style[getTD] = (el.speed * indexGap / 1000) + 's';
-      el.animating = true;
+      container.style[getTD] = (speed * indexGap / 1000) + 's';
+      animating = true;
     };
 
-    this.setDotCurrent = function (el) {
-      el.dotCurrent = (el.dotContainer) ? el.getAbsIndex(el) : Math.floor(el.getAbsIndex(el) / el.items);
+    this.setDotCurrent = function () {
+      dotCurrent = (dotContainer) ? this.getAbsIndex() : Math.floor(this.getAbsIndex() / items);
 
       // non-loop & reach the edge
-      if (!el.loop && !el.dotContainer) {
-        var re=/^-?[0-9]+$/, integer = re.test(el.cl / el.items);
-        if(!integer && el.index === el.cl - el.items) {
-          el.dotCurrent += 1;
+      if (!loop && !dotContainer) {
+        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
+        if(!integer && index === slideCount - items) {
+          dotCurrent += 1;
         }
       }
     };
@@ -213,306 +231,304 @@
     // 3. add dots and nav if needed, set allDots, prev, next
     // 4. clone items for loop if needed, update childrenCount
     this.init = function () {
-      this.container.classList.add('tiny-content');
+      container.classList.add('tiny-content');
 
       // wrap slider with ".tiny-slider"
       var sliderWrapper = document.createElement('div');
       sliderWrapper.className = 'tiny-slider';
-      gn.wrap(this.container, sliderWrapper);
+      gn.wrap(container, sliderWrapper);
 
       // for IE10
       if (navigator.msMaxTouchPoints) {
         sliderWrapper.classList.add('ms-touch');
 
-        var that = this;
         sliderWrapper.addEventListener('scroll', function () {
-          if (getTD) { that.container.style[getTD] = '0s'; }
-          that.container.style.transform = 'translate3d(-' + - that.container.scrollLeft() + 'px,0,0)';
+          if (getTD) { container.style[getTD] = '0s'; }
+          container.style.transform = 'translate3d(-' + - container.scrollLeft() + 'px,0,0)';
         });
       }
 
       // add dots
-      if (this.dots) {
-        if (this.dotContainer) {
-          this.allDots = this.dotContainer.children;
-          this.allDots[0].classList.add('tiny-active');
+      if (dots) {
+        if (dotContainer) {
+          allDots = dotContainer.children;
+          allDots[0].classList.add('tiny-active');
         } else {
           var dotHtml = '';
-          for (var i = this.cl; i--;) {
+          for (var i = slideCount; i--;) {
             dotHtml += '<div class="tiny-dot"></div>';
           }
           dotHtml = '<div class="tiny-dots">' + dotHtml + '</div>';
           gn.append(sliderWrapper, dotHtml);
 
-          this.allDots = sliderWrapper.querySelectorAll('.tiny-dot');
+          allDots = sliderWrapper.querySelectorAll('.tiny-dot');
         }
       }
 
       // add nav
-      if (this.nav) {
-        if (this.navContainer) {
-          this.prev = this.navContainer.firstElementChild;
-          this.next = this.navContainer.lastElementChild;
+      if (nav) {
+        if (navContainer) {
+          prev = navContainer.firstElementChild;
+          next = navContainer.lastElementChild;
         } else {
-          gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + this.navText[0] + '</div><div class="tiny-next">' + this.navText[1] + '</div></div>');
+          gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + navText[0] + '</div><div class="tiny-next">' + navText[1] + '</div></div>');
 
-          this.prev = sliderWrapper.querySelector('.tiny-prev');
-          this.next = sliderWrapper.querySelector('.tiny-next');
+          prev = sliderWrapper.querySelector('.tiny-prev');
+          next = sliderWrapper.querySelector('.tiny-next');
         }
       }
 
       // clone items
-      if (this.loop) {
+      if (loop) {
         var fragmentBefore = document.createDocumentFragment(), 
             fragmentAfter = document.createDocumentFragment(); 
 
-        for (var j = this.itemsMax; j--;) {
+        for (var j = itemsMax; j--;) {
           var 
-              cloneFirst = this.children[j].cloneNode(true),
-              cloneLast = this.children[this.children.length - 1 - j].cloneNode(true);
+              cloneFirst = children[j].cloneNode(true),
+              cloneLast = children[children.length - 1 - j].cloneNode(true);
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
           fragmentAfter.insertBefore(cloneLast, fragmentAfter.firstChild);
         }
 
-        this.container.appendChild(fragmentBefore);
-        this.container.insertBefore(fragmentAfter, this.container.firstChild);
+        container.appendChild(fragmentBefore);
+        container.insertBefore(fragmentAfter, container.firstChild);
 
-        this.cul = this.container.children.length;
-        this.children = this.container.children;
+        slideCountUpdated = container.children.length;
+        children = container.children;
       }
 
-      var tiny = this;
-      this.setDotCurrent(this);
-      this.makeLayout(this);
-      this.setSnapInterval(this);
-      this.translate(this);
-      this.itemActive(this);
-      if (this.nav) {
-        this.disableNav(this);
-        this.next.addEventListener('click', function () { tiny.onNavClick(tiny, 1); });
-        this.prev.addEventListener('click', function () { tiny.onNavClick(tiny, -1); });
+      this.setDotCurrent();
+      this.makeLayout();
+      this.setSnapInterval();
+      this.translate();
+      this.itemActive();
+      if (nav) {
+        this.disableNav();
+        next.addEventListener('click', function () { that.onNavClick(1); });
+        prev.addEventListener('click', function () { that.onNavClick(-1); });
       }
 
-      if (this.dots) {
-        if (!this.dotContainer) {
-          this.displayDots(this);
-          this.dotActive(this);
+      if (dots) {
+        if (!dotContainer) {
+          this.displayDots();
+          this.dotActive();
         }
-        for (var i = 0; i < this.allDots.length; i++) {
-          this.allDots[i].addEventListener('click', this.fireDotClick(this));
+        for (var a = 0; a < allDots.length; a++) {
+          allDots[a].addEventListener('click', this.fireDotClick());
         }
       }
 
 
-      if (this.lazyload) {
-        this.saveViewport(this);
-        this.sliderInView(this);
-        this.lazyLoad(this);
+      if (lazyload) {
+        this.saveViewport();
+        this.sliderInView();
+        this.lazyLoad();
       }
 
-      if (this.arrowKeys) {
+      if (arrowKeys) {
         document.addEventListener('keydown', function (e) {
           e = e || window.event;
           if (e.keyCode === 37) {
-            tiny.onNavClick(tiny, -1);
+            that.onNavClick(-1);
           } else if (e.keyCode === 39) {
-            tiny.onNavClick(tiny, 1);
+            that.onNavClick(1);
           }
         });
       }
 
-      if (this.autoplay) {
+      if (autoplay) {
         setInterval(function () {
-          tiny.onNavClick(tiny, tiny.autoplayDirection);
-        }, tiny.autoplayTimeout);
+          that.onNavClick(autoplayDirection);
+        }, autoplayTimeout);
       }
 
-      if (this.touch) {
-        var panFn = this;
-        if (!this.slideEventAdded && this.container.addEventListener) {
-          this.container.addEventListener('touchstart', panFn.onPanStart(panFn), false);
-          this.container.addEventListener('touchmove', panFn.onPanMove(panFn), false);
-          this.container.addEventListener('touchend', panFn.onPanEnd(panFn), false);
-          this.container.addEventListener('touchcancel', panFn.onPanEnd(panFn), false);
+      if (touch) {
+        if (!slideEventAdded && container.addEventListener) {
+          container.addEventListener('touchstart', that.onPanStart(), false);
+          container.addEventListener('touchmove', that.onPanMove(), false);
+          container.addEventListener('touchend', that.onPanEnd(), false);
+          container.addEventListener('touchcancel', that.onPanEnd(), false);
 
-          this.slideEventAdded = true;
+          slideEventAdded = true;
         }
       }
     };
 
-    this.makeLayout = function (el) {
-      el.itemWidth = (el.fw) ? el.fw : el.container.parentNode.offsetWidth / el.items;
-      el.container.style.width = el.itemWidth * el.cul + 'px';
-      for (var b = 0; b < el.cul; b++) {
-        el.children[b].style.width = el.itemWidth + 'px';
+    this.makeLayout = function () {
+      itemWidth = (fixedWidth) ? fixedWidth : container.parentNode.offsetWidth / items;
+      container.style.width = itemWidth * slideCountUpdated + 'px';
+      for (var b = 0; b < slideCountUpdated; b++) {
+        children[b].style.width = itemWidth + 'px';
       }
 
-      if (el.loop) {
-        var marginLeft = - (el.itemsMax * el.itemWidth);
-        el.container.style.marginLeft = marginLeft + 'px';
+      if (loop) {
+        var marginLeft = - (itemsMax * itemWidth);
+        container.style.marginLeft = marginLeft + 'px';
       }
     };
 
-    this.setSnapInterval = function (el) {
+    this.setSnapInterval = function () {
       if (!navigator.msMaxTouchPoints) { return; }
-      el.container.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + el.itemWidth + ')';
+      container.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + itemWidth + ')';
     };
 
-    this.itemActive = function (el) {
-      var current = (el.loop) ? el.index + el.itemsMax : el.index;
-      for (var i = 0; i < el.cul; i++) {
+    this.itemActive = function () {
+      var current = (loop) ? index + itemsMax : index;
+      for (var i = 0; i < slideCountUpdated; i++) {
         if (i === current) {
-          el.children[i].classList.add('tiny-current', 'tiny-visible');
-        } else if (i > current && i < current + el.items) {
-          el.children[i].classList.remove('tiny-current');
-          el.children[i].classList.add('tiny-visible');
+          children[i].classList.add('tiny-current', 'tiny-visible');
+        } else if (i > current && i < current + items) {
+          children[i].classList.remove('tiny-current');
+          children[i].classList.add('tiny-visible');
         } else {
-          el.children[i].classList.remove('tiny-current', 'tiny-visible');
+          children[i].classList.remove('tiny-current', 'tiny-visible');
         }
       }
     };
 
-    this.disableNav = function (el) {
-      if (el.loop) { return; }
-      if (el.index === 0) {
-        el.prev.classList.add('disabled');
+    this.disableNav = function () {
+      if (loop) { return; }
+      if (index === 0) {
+        prev.classList.add('disabled');
       } else {
-        el.prev.classList.remove('disabled');
+        prev.classList.remove('disabled');
       }
-      if (el.index === el.cl - el.items) {
-        el.next.classList.add('disabled');
+      if (index === slideCount - items) {
+        next.classList.add('disabled');
       } else {
-        el.next.classList.remove('disabled');
+        next.classList.remove('disabled');
       }
     };
 
-    this.displayDots = function (el) {
-      for (var i = 0; i < el.allDots.length; i++) {
-        if (i < el.dotsCount) {
-          el.allDots[i].classList.remove('tiny-hide');
+    this.displayDots = function () {
+      for (var i = 0; i < allDots.length; i++) {
+        if (i < dotsCount) {
+          allDots[i].classList.remove('tiny-hide');
         } else {
-          el.allDots[i].classList.add('tiny-hide');
+          allDots[i].classList.add('tiny-hide');
         }
       }
     };
 
-    this.dotActive = function (el) {
-      if (!el.dots) { return; }
+    this.dotActive = function () {
+      if (!dots) { return; }
 
-      for (var i = 0; i < el.dotsCount; i++) {
-        if (i === el.dotCurrent) {
-          el.allDots[i].classList.add('tiny-active');
+      for (var i = 0; i < dotsCount; i++) {
+        if (i === dotCurrent) {
+          allDots[i].classList.add('tiny-active');
         } else {
-          el.allDots[i].classList.remove('tiny-active');
+          allDots[i].classList.remove('tiny-active');
         }
       }
     };
 
-    this.translate = function (el) {
-      var vw = el.container.parentNode.offsetWidth, translateX;
+    this.translate = function () {
+      var vw = container.parentNode.offsetWidth;
 
-      translateX = - el.itemWidth * el.index;
-      if (el.fw && !el.loop) {
-        translateX = Math.max( translateX, - (el.cul * el.itemWidth - vw) );
+      translateX = - itemWidth * index;
+      if (fixedWidth && !loop) {
+        translateX = Math.max( translateX, - (slideCountUpdated * itemWidth - vw) );
       }
 
       if (getTransform) {
-        el.container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+        container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
       } else {
-        el.container.style.left = translateX + 'px';
+        container.style.left = translateX + 'px';
       }
     };
 
-    this.fallback = function (el) {
-      if (!el.loop) { return; }
+    this.fallback = function () {
+      if (!loop) { return; }
 
-      var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
-          reachRightEdge = (el.slideByPage) ? el.index > (el.cl + el.itemsMax - el.items * 2 - 1) : el.index >= (el.cl + el.itemsMax - el.items);
+      var reachLeftEdge = (slideByPage) ? index < - (itemsMax - items) : index <= - itemsMax,
+          reachRightEdge = (slideByPage) ? index > (slideCount + itemsMax - items * 2 - 1) : index >= (slideCount + itemsMax - items);
 
       // fix fixed-width
-      if (el.fw && el.itemsMax && !el.slideByPage) {
-        reachRightEdge = el.index >= (el.cl + el.itemsMax - el.items - 1);
+      if (fixedWidth && itemsMax && !slideByPage) {
+        reachRightEdge = index >= (slideCount + itemsMax - items - 1);
       }
 
-      if (reachLeftEdge) { el.index += el.cl; }
-      if (reachRightEdge) { el.index -= el.cl; }
+      if (reachLeftEdge) { index += slideCount; }
+      if (reachRightEdge) { index -= slideCount; }
 
-      if (getTD) { el.container.style[getTD] = '0s'; }
-      el.translate(el);
+      if (getTD) { container.style[getTD] = '0s'; }
+      this.translate();
     };
 
-    this.update = function (el) {
-      el.fallback(el);
-      el.itemActive(el);
-      el.disableNav(el);
-      el.dotActive(el);
-      el.lazyLoad(el);
+    this.update = function () {
+      this.fallback();
+      this.itemActive();
+      this.disableNav();
+      this.dotActive();
+      this.lazyLoad();
 
-      el.animating = false;
+      animating = false;
     };
 
-    this.onNavClick = function (el, dir) {
-      if (!el.animating) {
-        var index, indexGap;
+    this.onNavClick = function (dir) {
+      if (!animating) {
+        var indexTem, indexGap;
 
-        dir = (el.slideByPage) ? dir * el.items : dir;
+        dir = (slideByPage) ? dir * items : dir;
         indexGap = Math.abs(dir);
-        index = el.index + dir;
-        el.index = (el.loop) ? index : Math.max(0, Math.min(index, el.cl - el.items));
+        indexTem = index + dir;
+        index = (loop) ? indexTem : Math.max(0, Math.min(indexTem, slideCount - items));
 
-        el.setTransitionDuration(el, indexGap);
-        el.translate(el);
+        this.setTransitionDuration(indexGap);
+        this.translate();
 
-        el.setDotCurrent(el);
+        this.setDotCurrent();
         setTimeout(function () {
-          el.update(el);
-        }, el.speed * indexGap);
+          that.update();
+        }, speed * indexGap);
       }
     };
 
-    this.fireDotClick = function (el) {
+    this.fireDotClick = function () {
       return function () {
-        var index;
-        for (var i = 0; i < el.allDots.length; i++) {
-          if (el.allDots[i] === this) { index = i; }
+        var dotIndex;
+        for (var i = 0; i < allDots.length; i++) {
+          if (allDots[i] === this) { dotIndex = i; }
         }
-        el.onDotClick(el, index);
+        that.onDotClick(dotIndex);
       };
     };
 
-    this.onDotClick = function (el, ind) {
-      if (!el.animating) {
-        var index, indexGap;
+    this.onDotClick = function (ind) {
+      if (!animating) {
+        var indexTem, indexGap;
 
-        index = (el.dotContainer) ? ind : ind * el.items;
-        index = (el.loop) ? index : Math.min(index, el.cl - el.items);
-        indexGap = Math.abs(index - el.index);
-        el.index = index;
+        indexTem = (dotContainer) ? ind : ind * items;
+        indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
+        indexGap = Math.abs(indexTem - index);
+        index = indexTem;
 
-        el.setTransitionDuration(el, indexGap);
-        el.translate(el);
+        this.setTransitionDuration(indexGap);
+        this.translate();
 
-        el.dotCurrent = ind;
+        dotCurrent = ind;
+
         setTimeout(function () { 
-          el.update(el);
-        }, el.speed * indexGap);
+          that.update();
+        }, speed * indexGap);
       }
     };
 
-    this.saveViewport = function (el) {
-      el.viewport.bottom = document.documentElement.clientHeight + el.offset;
-      el.viewport.right = document.documentElement.clientWidth + el.offset;
+    this.saveViewport = function () {
+      viewport.bottom = document.documentElement.clientHeight + offset;
+      viewport.right = document.documentElement.clientWidth + offset;
     };
 
-    this.sliderInView = function (el) {
-      var rect = el.container.parentNode.getBoundingClientRect();
-      el.sliderRect.left = rect.left;
-      el.sliderRect.right = rect.right;
-      el.sliderRect.top = rect.top;
-      el.sliderRect.bottom = rect.bottom;
+    this.sliderInView = function () {
+      var rect = container.parentNode.getBoundingClientRect();
+      sliderRect.left = rect.left;
+      sliderRect.right = rect.right;
+      sliderRect.top = rect.top;
+      sliderRect.bottom = rect.bottom;
 
-      el.inview = (rect.right > el.viewport.left && rect.bottom > el.viewport.top && rect.left < el.viewport.right && rect.top < el.viewport.bottom);
+      inview = (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
     };
 
     this.elementInView = function (el, viewport) {
@@ -520,51 +536,51 @@
       return (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
     };
 
-    this.lazyLoad = function (el) {
-      if (!el.inview) { return; }
+    this.lazyLoad = function () {
+      if (!inview) { return; }
 
-      var imgs = el.container.querySelectorAll('.tiny-lazy');
+      var imgs = container.querySelectorAll('.tiny-lazy');
       if (!imgs) { return; }
       for (var i = 0; i < imgs.length; i++) {
-        if (el.elementInView(imgs[i], el.sliderRect) && imgs[i].className.indexOf('loaded') === -1) {
+        if (this.elementInView(imgs[i], sliderRect) && imgs[i].className.indexOf('loaded') === -1) {
           imgs[i].src = imgs[i].getAttribute('data-src');
           imgs[i].className += ' loaded';
         }
       }
     };
 
-    this.onPanStart = function (el) {
+    this.onPanStart = function () {
       return function (e) {
         var touchObj = e.changedTouches[0];
-        el.startX = parseInt(touchObj.clientX);
-        el.startY = parseInt(touchObj.clientY);
+        startX = parseInt(touchObj.clientX);
+        startY = parseInt(touchObj.clientY);
       };
     };
 
-    this.onPanMove = function (el) {
+    this.onPanMove = function () {
       return function (e) {
         var touchObj = e.changedTouches[0];
-        el.distX = parseInt(touchObj.clientX) - el.startX;
-        el.distY = parseInt(touchObj.clientY) - el.startY;
-        el.rt = toDegree(Math.atan2(el.distY, el.distX));
-        el.panDir = panDir(el.rt, 15);
+        distX = parseInt(touchObj.clientX) - startX;
+        distY = parseInt(touchObj.clientY) - startY;
+        rt = toDegree(Math.atan2(distY, distX));
+        panDir = getPanDir(rt, 15);
 
-        if (el.panDir === 'horizontal' && el.animating === false) { el.run = true; }
-        if (el.run) {
-          if (getTD) { el.container.style[getTD] = '0s'; }
+        if (panDir === 'horizontal' && animating === false) { run = true; }
+        if (run) {
+          if (getTD) { container.style[getTD] = '0s'; }
 
-          var min = (!el.loop) ? - (el.cl - el.items) * el.itemWidth : - (el.cl + el.itemsMax - el.items) * el.itemWidth,
-              max = (!el.loop) ? 0 : el.itemsMax * el.itemWidth;
+          var min = (!loop) ? - (slideCount - items) * itemWidth : - (slideCount + itemsMax - items) * itemWidth,
+              max = (!loop) ? 0 : itemsMax * itemWidth;
 
-          if (!el.loop && el.fw) { min = - (el.cl * el.itemWidth - el.container.parentNode.offsetWidth); }
+          if (!loop && fixedWidth) { min = - (slideCount * itemWidth - container.parentNode.offsetWidth); }
 
-          el.translateX = - el.index * el.itemWidth + el.distX;
-          el.translateX = Math.max(min, Math.min( el.translateX, max));
+          translateX = - index * itemWidth + distX;
+          translateX = Math.max(min, Math.min( translateX, max));
 
           if (getTransform) {
-            el.container.style[getTransform] = 'translate3d(' + el.translateX + 'px, 0, 0)';
+            container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
           } else {
-            el.container.style.left = el.translateX + 'px';
+            container.style.left = translateX + 'px';
           }
 
           e.preventDefault();
@@ -572,32 +588,32 @@
       };
     };
 
-    this.onPanEnd = function (el) {
+    this.onPanEnd = function () {
       return function (e) {
         var touchObj = e.changedTouches[0];
-        el.distX = parseInt(touchObj.clientX) - el.startX;
+        distX = parseInt(touchObj.clientX) - startX;
 
-        if (el.run && el.distX !== 0) {
+        if (run && distX !== 0) {
           e.preventDefault();
-          el.run = false;
-          el.translateX = - el.index * el.itemWidth + el.distX;
+          run = false;
+          translateX = - index * itemWidth + distX;
 
-          var index,
-              min = (!el.loop) ? 0 : -el.itemsMax,
-              max = (!el.loop) ? el.cl - el.items : el.cl + el.itemsMax - el.items;
+          var indexTem,
+              min = (!loop) ? 0 : -itemsMax,
+              max = (!loop) ? slideCount - items : slideCount + itemsMax - items;
 
-          index = - (el.translateX / el.itemWidth);
-          index = (el.distX < 0) ? Math.ceil(index) : Math.floor(index);
-          index = Math.max(min, Math.min(index, max));
-          el.index = index;
+          indexTem = - (translateX / itemWidth);
+          indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
+          indexTem = Math.max(min, Math.min(indexTem, max));
+          index = indexTem;
 
-          el.setTransitionDuration(el, 1);
-          el.translate(el);
+          that.setTransitionDuration(1);
+          that.translate();
 
-          el.setDotCurrent(el);
+          that.setDotCurrent();
           setTimeout(function () {
-            el.update(el);
-          }, el.speed);
+            that.update();
+          }, speed);
         }
       };
     };
@@ -608,40 +624,40 @@
     this.init();
 
     // on window resize
-    var tiny = this, updateIt;
+    var updateIt;
     window.addEventListener('resize', function () {
       // update after resize done
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
-        tiny.items = (tiny.fw) ? Math.floor(tiny.container.parentNode.offsetWidth / tiny.fw) : getItem(tiny.bp, tiny.vals, options.items);
-        // if cl are less than items
-        tiny.items = Math.min(tiny.cl, tiny.items);
-        tiny.dotsCount = (tiny.dotContainer) ? tiny.cl : Math.ceil(tiny.cl / tiny.items);
-        tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
+        items = (fixedWidth) ? Math.floor(container.parentNode.offsetWidth / fixedWidth) : getItem(bp, vals, options.items);
+        // if slideCount are less than items
+        items = Math.min(slideCount, items);
+        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
+        speed = (slideByPage) ? options.speed * items : options.speed;
 
-        // tiny.container.parentNode.style.width = '';
-        tiny.setDotCurrent(tiny);
-        tiny.makeLayout(tiny);
-        tiny.setSnapInterval(tiny);
-        tiny.translate(tiny);
-        if (tiny.dots && !tiny.dotContainer) {
-          tiny.displayDots(tiny);
-          tiny.dotActive(tiny);
+        // container.parentNode.style.width = '';
+        that.setDotCurrent();
+        that.makeLayout();
+        that.setSnapInterval();
+        that.translate();
+        if (dots && !dotContainer) {
+          that.displayDots();
+          that.dotActive();
         }
-        if (tiny.lazyload) {
-          tiny.saveViewport(tiny);
-          tiny.sliderInView(tiny);
-          tiny.lazyLoad(tiny);
+        if (lazyload) {
+          that.saveViewport();
+          that.sliderInView();
+          that.lazyLoad();
         }
       }, 100);
     });
 
     // on window scroll
     window.addEventListener('scroll', function () {
-      if (tiny.lazyload) {
-        tiny.saveViewport(tiny);
-        tiny.sliderInView(tiny);
-        tiny.lazyLoad(tiny);
+      if (lazyload) {
+        that.saveViewport();
+        that.sliderInView();
+        that.lazyLoad();
       }
     });
   }
