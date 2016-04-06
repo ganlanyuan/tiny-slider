@@ -45,7 +45,6 @@ options = {
   loop: true,
   responsive: false,
   lazyload: false,
-  offset: 0,
   touch: true
 };
 ```

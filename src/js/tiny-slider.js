@@ -54,25 +54,7 @@
   }
 
   // get responsive value
-  function getItem (keys, values, def) {
-    var ww = document.documentElement.clientWidth;
-
-    if (keys.length !== undefined && values !== undefined && keys.length === values.length) {
-      if (ww < keys[0]) {
-        return def;
-      } else if (ww >= keys[keys.length - 1]) {
-        return values[values.length - 1];
-      } else {
-        for (var i = 0; i < keys.length - 1; i++) {
-          if (ww >= keys[i] && ww <= keys[i+1]) {
-            return values[i];
-          }
-        }
-      }
-    } else {
-      return def;
-    }
-  }
+  
 
   // get supported property
   var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
@@ -115,13 +97,11 @@
       loop: true,
       responsive: false,
       lazyload: false,
-      offset: 0,
       touch: true,
     }, options || {});
 
-    var that = this;
 
-    var 
+    var that = this,
         slideContainer = options.container,
         slideItems = slideContainer.children,
         slideCount = slideItems.length,
@@ -137,98 +117,93 @@
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
-        loop = options.loop,
+        loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         slideByPage = options.slideByPage,
         responsive = (fixedWidth) ? false : options.responsive,
         lazyload = options.lazyload,
-        touch = options.touch,
+        touch = options.touch;
 
-        bp = getMapKeys(responsive),
-        vals = getMapValues(responsive, bp),
-        itemsMax = (vals.length !== undefined) ? Math.max.apply(Math, vals) : options.items,
-        items = (!fixedWidth) ? getItem(bp, vals, options.items) : Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth);
+    // get items & itemsMax
+    var bpKeys = getMapKeys(responsive),
+        bpVals = getMapValues(responsive, bpKeys);
 
-    // fixed width
-    if (fixedWidth && options.maxContainerWidth) {
-      itemsMax = Math.ceil(options.maxContainerWidth / fixedWidth);
-    } else if (fixedWidth) {
-      loop = false;
-    }
+    this.getItems = function () {
+      var itemsTem;
 
-    // if slideCount are less than items
-    itemsMax = Math.min(slideCount, itemsMax);
-    items = Math.min(slideCount, items);
+      if (!fixedWidth) {
+        var ww = document.documentElement.clientWidth;
 
-    var
-        itemWidth,
-        allDots;
-
-    var dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
-    var dotCurrent;
-    
-    var animating = false;
-    var index = 0;
-    var current;
-    var prev;
-    var next;
-
-    if (lazyload) {
-      var offset = options.offset;
-      var viewport = {};
-      var sliderRect = {};
-      var inview = false;
-      viewport.top = 0 - offset;
-      viewport.left = 0 - offset;
-    }
-
-    if (touch) {
-      var 
-        startX = 0,
-        startY = 0,
-        translateX = 0,
-        distX = 0,
-        distY = 0,
-        rt = 0,
-        panDir = false,
-        run = false,
-        animating = false,
-        slideEventAdded = false;
-
-    }
-
-
-    this.getAbsIndex = function () {
-      if (index < 0) {
-        return index + slideCount;
-      } else if (index >= slideCount) {
-        return index - slideCount;
+        if (bpKeys.length !== undefined && bpVals !== undefined && bpKeys.length === bpVals.length) {
+          if (ww < bpKeys[0]) {
+            itemsTem = options.items;
+          } else if (ww >= bpKeys[bpKeys.length - 1]) {
+            itemsTem = bpVals[bpVals.length - 1];
+          } else {
+            for (var i = 0; i < bpKeys.length - 1; i++) {
+              if (ww >= bpKeys[i] && ww <= bpKeys[i+1]) {
+                itemsTem = bpVals[i];
+              }
+            }
+          }
+        } else {
+          itemsTem = options.items;
+        }
       } else {
-        return index;
+        itemsTem = Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth);
       }
+
+      return Math.min(slideCount, itemsTem);
     };
 
-    this.setTransitionDuration = function (indexGap) {
-      if (!getTD) { return; }
-      slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
-      animating = true;
-    };
+    this.getItemsMax = function () {
+      var itemsMaxTem;
 
-    this.setDotCurrent = function () {
-      dotCurrent = (dotContainer) ? this.getAbsIndex() : Math.floor(this.getAbsIndex() / items);
-
-      // non-loop & reach the edge
-      if (!loop && !dotContainer) {
-        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
-        if(!integer && index === slideCount - items) {
-          dotCurrent += 1;
+      if (!fixedWidth) {
+        itemsMaxTem = (bpVals.length !== undefined) ? Math.max.apply(Math, bpVals) : options.items;
+      } else {
+        if (options.maxContainerWidth) {
+          itemsMaxTem = Math.ceil(options.maxContainerWidth / fixedWidth);
+        } else {
+          itemsMaxTem = false;
         }
       }
+
+      if (itemsMaxTem) {
+        return Math.min(slideCount, itemsMaxTem);
+      } else {
+        return itemsMaxTem;
+      }
     };
+
+    var allDots,
+        prevButton,
+        nextButton,
+        itemWidth,
+        itemsMax = this.getItemsMax(),
+        items = this.getItems(),
+        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items),
+        dotCurrent,
+        index = 0,
+        animating = false,
+        current;
+
+    if (touch) {
+      var startX = 0,
+          startY = 0,
+          translateX = 0,
+          distX = 0,
+          distY = 0,
+          rt = 0,
+          panDir = false,
+          run = false,
+          animating = false,
+          slideEventAdded = false;
+    }
 
     // initialize:
     // 1. add .tiny-content to container
     // 2. wrap container with .tiny-slider
-    // 3. add dots and nav if needed, set allDots, prev, next
+    // 3. add dots and nav if needed, set allDots, prevButton, nextButton
     // 4. clone items for loop if needed, update childrenCount
     this.init = function () {
       slideContainer.classList.add('tiny-content');
@@ -268,13 +243,13 @@
       // add nav
       if (nav) {
         if (navContainer) {
-          prev = navContainer.firstElementChild;
-          next = navContainer.lastElementChild;
+          prevButton = navContainer.firstElementChild;
+          nextButton = navContainer.lastElementChild;
         } else {
           gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + navText[0] + '</div><div class="tiny-next">' + navText[1] + '</div></div>');
 
-          prev = sliderWrapper.querySelector('.tiny-prev');
-          next = sliderWrapper.querySelector('.tiny-next');
+          prevButton = sliderWrapper.querySelector('.tiny-prev');
+          nextButton = sliderWrapper.querySelector('.tiny-next');
         }
       }
 
@@ -289,7 +264,7 @@
               cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
-          fragmentAfter.insertBefore(cloneLast, fragmentAfter.firstChild);
+          fragmentAfter.appendChild(cloneLast);
         }
 
         slideContainer.appendChild(fragmentBefore);
@@ -306,8 +281,8 @@
       this.itemActive();
       if (nav) {
         this.disableNav();
-        next.addEventListener('click', function () { that.onNavClick(1); });
-        prev.addEventListener('click', function () { that.onNavClick(-1); });
+        nextButton.addEventListener('click', function () { that.onNavClick(1); });
+        prevButton.addEventListener('click', function () { that.onNavClick(-1); });
       }
 
       if (dots) {
@@ -354,6 +329,34 @@
       }
     };
 
+    this.getAbsIndex = function () {
+      if (index < 0) {
+        return index + slideCount;
+      } else if (index >= slideCount) {
+        return index - slideCount;
+      } else {
+        return index;
+      }
+    };
+
+    this.setTransitionDuration = function (indexGap) {
+      if (!getTD) { return; }
+      slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
+      animating = true;
+    };
+
+    this.setDotCurrent = function () {
+      dotCurrent = (dotContainer) ? this.getAbsIndex() : Math.floor(this.getAbsIndex() / items);
+
+      // non-loop & reach the edge
+      if (!loop && !dotContainer) {
+        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
+        if(!integer && index === slideCount - items) {
+          dotCurrent += 1;
+        }
+      }
+    };
+
     this.makeLayout = function () {
       itemWidth = (fixedWidth) ? fixedWidth : slideContainer.parentNode.offsetWidth / items;
       slideContainer.style.width = itemWidth * slideCountUpdated + 'px';
@@ -393,14 +396,14 @@
     this.disableNav = function () {
       if (loop) { return; }
       if (index === 0) {
-        prev.classList.add('disabled');
+        prevButton.classList.add('disabled');
       } else {
-        prev.classList.remove('disabled');
+        prevButton.classList.remove('disabled');
       }
       if (index === slideCount - items) {
-        next.classList.add('disabled');
+        nextButton.classList.add('disabled');
       } else {
-        next.classList.remove('disabled');
+        nextButton.classList.remove('disabled');
       }
     };
 
@@ -611,9 +614,7 @@
       // update after resize done
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
-        items = (fixedWidth) ? Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth) : getItem(bp, vals, options.items);
-        // if slideCount are less than items
-        items = Math.min(slideCount, items);
+        items = that.getItems();
         dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
         speed = (slideByPage) ? options.speed * items : options.speed;
 
