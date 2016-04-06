@@ -176,63 +176,10 @@
       this.animating = false;
       this.slideEventAdded = false;
 
-      var panFn = this;
-      if (!this.slideEventAdded && this.container.addEventListener) {
-        this.container.addEventListener('touchstart', panFn.onPanStart(panFn), false);
-        this.container.addEventListener('touchmove', panFn.onPanMove(panFn), false);
-        this.container.addEventListener('touchend', panFn.onPanEnd(panFn), false);
-        this.container.addEventListener('touchcancel', panFn.onPanEnd(panFn), false);
-
-        this.slideEventAdded = true;
-      }
     }
 
-    // on initialize
-    this.init();
 
-    // on window resize
-    var tiny = this, updateIt;
-    window.addEventListener('resize', function () {
-      // update after resize done
-      clearTimeout(updateIt);
-      updateIt = setTimeout(function () {
-        tiny.items = (tiny.fw) ? Math.floor(tiny.container.parentNode.offsetWidth / tiny.fw) : getItem(tiny.bp, tiny.vals, options.items);
-        // if cl are less than items
-        tiny.items = Math.min(tiny.cl, tiny.items);
-        tiny.dotsCount = (tiny.dotContainer) ? tiny.cl : Math.ceil(tiny.cl / tiny.items);
-        tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
-
-        // tiny.container.parentNode.style.width = '';
-        tiny.setDotCurrent(tiny);
-        tiny.makeLayout(tiny);
-        tiny.setSnapInterval(tiny);
-        tiny.translate(tiny);
-        if (tiny.dots && !tiny.dotContainer) {
-          tiny.displayDots(tiny);
-          tiny.dotActive(tiny);
-        }
-        if (tiny.lazyload) {
-          tiny.saveViewport(tiny);
-          tiny.sliderInView(tiny);
-          tiny.lazyLoad(tiny);
-        }
-      }, 100);
-    });
-
-    // on window scroll
-    window.addEventListener('scroll', function () {
-      if (tiny.lazyload) {
-        tiny.saveViewport(tiny);
-        tiny.sliderInView(tiny);
-        tiny.lazyLoad(tiny);
-      }
-    });
-  }
-
-  // *** prototype *** //
-  TinySliderCore.prototype = {
-
-    getAbsIndex: function (el) {
+    this.getAbsIndex = function (el) {
       if (el.index < 0) {
         return el.index + el.cl;
       } else if (el.index >= el.cl) {
@@ -240,15 +187,15 @@
       } else {
         return el.index;
       }
-    },
+    };
 
-    setTransitionDuration: function (el, indexGap) {
+    this.setTransitionDuration = function (el, indexGap) {
       if (!getTD) { return; }
       el.container.style[getTD] = (el.speed * indexGap / 1000) + 's';
       el.animating = true;
-    },
+    };
 
-    setDotCurrent: function (el) {
+    this.setDotCurrent = function (el) {
       el.dotCurrent = (el.dotContainer) ? el.getAbsIndex(el) : Math.floor(el.getAbsIndex(el) / el.items);
 
       // non-loop & reach the edge
@@ -258,14 +205,14 @@
           el.dotCurrent += 1;
         }
       }
-    },
+    };
 
     // initialize:
     // 1. add .tiny-content to container
     // 2. wrap container with .tiny-slider
     // 3. add dots and nav if needed, set allDots, prev, next
     // 4. clone items for loop if needed, update childrenCount
-    init: function () {
+    this.init = function () {
       this.container.classList.add('tiny-content');
 
       // wrap slider with ".tiny-slider"
@@ -380,9 +327,21 @@
           tiny.onNavClick(tiny, tiny.autoplayDirection);
         }, tiny.autoplayTimeout);
       }
-    },
 
-    makeLayout: function (el) {
+      if (this.touch) {
+        var panFn = this;
+        if (!this.slideEventAdded && this.container.addEventListener) {
+          this.container.addEventListener('touchstart', panFn.onPanStart(panFn), false);
+          this.container.addEventListener('touchmove', panFn.onPanMove(panFn), false);
+          this.container.addEventListener('touchend', panFn.onPanEnd(panFn), false);
+          this.container.addEventListener('touchcancel', panFn.onPanEnd(panFn), false);
+
+          this.slideEventAdded = true;
+        }
+      }
+    };
+
+    this.makeLayout = function (el) {
       el.itemWidth = (el.fw) ? el.fw : el.container.parentNode.offsetWidth / el.items;
       el.container.style.width = el.itemWidth * el.cul + 'px';
       for (var b = 0; b < el.cul; b++) {
@@ -393,14 +352,14 @@
         var marginLeft = - (el.itemsMax * el.itemWidth);
         el.container.style.marginLeft = marginLeft + 'px';
       }
-    },
+    };
 
-    setSnapInterval: function (el) {
+    this.setSnapInterval = function (el) {
       if (!navigator.msMaxTouchPoints) { return; }
       el.container.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + el.itemWidth + ')';
-    },
+    };
 
-    itemActive: function (el) {
+    this.itemActive = function (el) {
       var current = (el.loop) ? el.index + el.itemsMax : el.index;
       for (var i = 0; i < el.cul; i++) {
         if (i === current) {
@@ -412,9 +371,9 @@
           el.children[i].classList.remove('tiny-current', 'tiny-visible');
         }
       }
-    },
+    };
 
-    disableNav: function (el) {
+    this.disableNav = function (el) {
       if (el.loop) { return; }
       if (el.index === 0) {
         el.prev.classList.add('disabled');
@@ -426,9 +385,9 @@
       } else {
         el.next.classList.remove('disabled');
       }
-    },
+    };
 
-    displayDots: function (el) {
+    this.displayDots = function (el) {
       for (var i = 0; i < el.allDots.length; i++) {
         if (i < el.dotsCount) {
           el.allDots[i].classList.remove('tiny-hide');
@@ -436,9 +395,9 @@
           el.allDots[i].classList.add('tiny-hide');
         }
       }
-    },
+    };
 
-    dotActive: function (el) {
+    this.dotActive = function (el) {
       if (!el.dots) { return; }
 
       for (var i = 0; i < el.dotsCount; i++) {
@@ -448,9 +407,9 @@
           el.allDots[i].classList.remove('tiny-active');
         }
       }
-    },
+    };
 
-    translate: function (el) {
+    this.translate = function (el) {
       var vw = el.container.parentNode.offsetWidth, translateX;
 
       translateX = - el.itemWidth * el.index;
@@ -463,9 +422,9 @@
       } else {
         el.container.style.left = translateX + 'px';
       }
-    },
+    };
 
-    fallback: function (el) {
+    this.fallback = function (el) {
       if (!el.loop) { return; }
 
       var reachLeftEdge = (el.slideByPage) ? el.index < - (el.itemsMax - el.items) : el.index <= - el.itemsMax,
@@ -481,9 +440,9 @@
 
       if (getTD) { el.container.style[getTD] = '0s'; }
       el.translate(el);
-    },
+    };
 
-    update: function (el) {
+    this.update = function (el) {
       el.fallback(el);
       el.itemActive(el);
       el.disableNav(el);
@@ -491,9 +450,9 @@
       el.lazyLoad(el);
 
       el.animating = false;
-    },
+    };
 
-    onNavClick: function (el, dir) {
+    this.onNavClick = function (el, dir) {
       if (!el.animating) {
         var index, indexGap;
 
@@ -510,9 +469,9 @@
           el.update(el);
         }, el.speed * indexGap);
       }
-    },
+    };
 
-    fireDotClick: function (el) {
+    this.fireDotClick = function (el) {
       return function () {
         var index;
         for (var i = 0; i < el.allDots.length; i++) {
@@ -520,9 +479,9 @@
         }
         el.onDotClick(el, index);
       };
-    },
+    };
 
-    onDotClick: function (el, ind) {
+    this.onDotClick = function (el, ind) {
       if (!el.animating) {
         var index, indexGap;
 
@@ -539,14 +498,14 @@
           el.update(el);
         }, el.speed * indexGap);
       }
-    },
+    };
 
-    saveViewport: function (el) {
+    this.saveViewport = function (el) {
       el.viewport.bottom = document.documentElement.clientHeight + el.offset;
       el.viewport.right = document.documentElement.clientWidth + el.offset;
-    },
+    };
 
-    sliderInView: function (el) {
+    this.sliderInView = function (el) {
       var rect = el.container.parentNode.getBoundingClientRect();
       el.sliderRect.left = rect.left;
       el.sliderRect.right = rect.right;
@@ -554,14 +513,14 @@
       el.sliderRect.bottom = rect.bottom;
 
       el.inview = (rect.right > el.viewport.left && rect.bottom > el.viewport.top && rect.left < el.viewport.right && rect.top < el.viewport.bottom);
-    },
+    };
 
-    elementInView: function (el, viewport) {
+    this.elementInView = function (el, viewport) {
       var rect = el.getBoundingClientRect();
       return (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
-    },
+    };
 
-    lazyLoad: function (el) {
+    this.lazyLoad = function (el) {
       if (!el.inview) { return; }
 
       var imgs = el.container.querySelectorAll('.tiny-lazy');
@@ -572,17 +531,17 @@
           imgs[i].className += ' loaded';
         }
       }
-    },
+    };
 
-    onPanStart: function (el) {
+    this.onPanStart = function (el) {
       return function (e) {
         var touchObj = e.changedTouches[0];
         el.startX = parseInt(touchObj.clientX);
         el.startY = parseInt(touchObj.clientY);
       };
-    },
+    };
 
-    onPanMove: function (el) {
+    this.onPanMove = function (el) {
       return function (e) {
         var touchObj = e.changedTouches[0];
         el.distX = parseInt(touchObj.clientX) - el.startX;
@@ -611,9 +570,9 @@
           e.preventDefault();
         }
       };
-    },
+    };
 
-    onPanEnd: function (el) {
+    this.onPanEnd = function (el) {
       return function (e) {
         var touchObj = e.changedTouches[0];
         el.distX = parseInt(touchObj.clientX) - el.startX;
@@ -641,9 +600,51 @@
           }, el.speed);
         }
       };
-    }
+    };
 
-  };
+    
+
+    // on initialize
+    this.init();
+
+    // on window resize
+    var tiny = this, updateIt;
+    window.addEventListener('resize', function () {
+      // update after resize done
+      clearTimeout(updateIt);
+      updateIt = setTimeout(function () {
+        tiny.items = (tiny.fw) ? Math.floor(tiny.container.parentNode.offsetWidth / tiny.fw) : getItem(tiny.bp, tiny.vals, options.items);
+        // if cl are less than items
+        tiny.items = Math.min(tiny.cl, tiny.items);
+        tiny.dotsCount = (tiny.dotContainer) ? tiny.cl : Math.ceil(tiny.cl / tiny.items);
+        tiny.speed = (tiny.slideByPage) ? options.speed * tiny.items : options.speed;
+
+        // tiny.container.parentNode.style.width = '';
+        tiny.setDotCurrent(tiny);
+        tiny.makeLayout(tiny);
+        tiny.setSnapInterval(tiny);
+        tiny.translate(tiny);
+        if (tiny.dots && !tiny.dotContainer) {
+          tiny.displayDots(tiny);
+          tiny.dotActive(tiny);
+        }
+        if (tiny.lazyload) {
+          tiny.saveViewport(tiny);
+          tiny.sliderInView(tiny);
+          tiny.lazyLoad(tiny);
+        }
+      }, 100);
+    });
+
+    // on window scroll
+    window.addEventListener('scroll', function () {
+      if (tiny.lazyload) {
+        tiny.saveViewport(tiny);
+        tiny.sliderInView(tiny);
+        tiny.lazyLoad(tiny);
+      }
+    });
+  }
 
   return tinySlider;
 });
