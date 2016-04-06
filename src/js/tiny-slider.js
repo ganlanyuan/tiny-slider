@@ -541,7 +541,7 @@
       if (this.nav) {
         this.disableNav(this);
       }
-      
+
       if (this.dots && !this.dotsContainer) {
         this.displayDots(this);
         this.dotActive(this);
@@ -592,14 +592,14 @@
     disableNav: function (el) {
       if (el.loop) { return; }
       if (el.index === 0) {
-        el.prev.classList.add('disabled');
+        addClass(el.prev, 'disabled');
       } else {
-        el.prev.classList.remove('disabled');
+        removeClass(el.prev, 'disabled');
       }
       if (el.index === el.cl - el.items) {
-        el.next.classList.add('disabled');
+        addClass(el.next, 'disabled');
       } else {
-        el.next.classList.remove('disabled');
+        removeClass(el.next, 'disabled');
       }
     },
 
