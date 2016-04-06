@@ -119,14 +119,13 @@
       touch: true,
     }, options || {});
 
-    // cl: childrenLength, cul: childrenUpdatedLength
     var that = this;
 
     var 
-        container = options.container,
-        children = container.children,
-        slideCount = children.length,
-        slideCountUpdated = children.length,
+        slideContainer = options.container,
+        slideItems = slideContainer.children,
+        slideCount = slideItems.length,
+        slideCountUpdated = slideItems.length,
         fixedWidth = options.fixedWidth,
         nav = options.nav,
         navText = options.navText,
@@ -147,7 +146,7 @@
         bp = getMapKeys(responsive),
         vals = getMapValues(responsive, bp),
         itemsMax = (vals.length !== undefined) ? Math.max.apply(Math, vals) : options.items,
-        items = (!fixedWidth) ? getItem(bp, vals, options.items) : Math.floor(container.parentNode.offsetWidth / fixedWidth);
+        items = (!fixedWidth) ? getItem(bp, vals, options.items) : Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth);
 
     // fixed width
     if (fixedWidth && options.maxContainerWidth) {
@@ -210,7 +209,7 @@
 
     this.setTransitionDuration = function (indexGap) {
       if (!getTD) { return; }
-      container.style[getTD] = (speed * indexGap / 1000) + 's';
+      slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
       animating = true;
     };
 
@@ -232,20 +231,20 @@
     // 3. add dots and nav if needed, set allDots, prev, next
     // 4. clone items for loop if needed, update childrenCount
     this.init = function () {
-      container.classList.add('tiny-content');
+      slideContainer.classList.add('tiny-content');
 
       // wrap slider with ".tiny-slider"
       var sliderWrapper = document.createElement('div');
       sliderWrapper.className = 'tiny-slider';
-      gn.wrap(container, sliderWrapper);
+      gn.wrap(slideContainer, sliderWrapper);
 
       // for IE10
       if (navigator.msMaxTouchPoints) {
         sliderWrapper.classList.add('ms-touch');
 
         sliderWrapper.addEventListener('scroll', function () {
-          if (getTD) { container.style[getTD] = '0s'; }
-          container.style.transform = 'translate3d(-' + - container.scrollLeft() + 'px,0,0)';
+          if (getTD) { slideContainer.style[getTD] = '0s'; }
+          slideContainer.style.transform = 'translate3d(-' + - slideContainer.scrollLeft() + 'px,0,0)';
         });
       }
 
@@ -286,18 +285,18 @@
 
         for (var j = itemsMax; j--;) {
           var 
-              cloneFirst = children[j].cloneNode(true),
-              cloneLast = children[children.length - 1 - j].cloneNode(true);
+              cloneFirst = slideItems[j].cloneNode(true),
+              cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
           fragmentAfter.insertBefore(cloneLast, fragmentAfter.firstChild);
         }
 
-        container.appendChild(fragmentBefore);
-        container.insertBefore(fragmentAfter, container.firstChild);
+        slideContainer.appendChild(fragmentBefore);
+        slideContainer.insertBefore(fragmentAfter, slideContainer.firstChild);
 
-        slideCountUpdated = container.children.length;
-        children = container.children;
+        slideCountUpdated = slideContainer.children.length;
+        slideItems = slideContainer.children;
       }
 
       this.setDotCurrent();
@@ -344,11 +343,11 @@
       }
 
       if (touch) {
-        if (!slideEventAdded && container.addEventListener) {
-          container.addEventListener('touchstart', that.onPanStart(), false);
-          container.addEventListener('touchmove', that.onPanMove(), false);
-          container.addEventListener('touchend', that.onPanEnd(), false);
-          container.addEventListener('touchcancel', that.onPanEnd(), false);
+        if (!slideEventAdded && slideContainer.addEventListener) {
+          slideContainer.addEventListener('touchstart', that.onPanStart(), false);
+          slideContainer.addEventListener('touchmove', that.onPanMove(), false);
+          slideContainer.addEventListener('touchend', that.onPanEnd(), false);
+          slideContainer.addEventListener('touchcancel', that.onPanEnd(), false);
 
           slideEventAdded = true;
         }
@@ -356,33 +355,37 @@
     };
 
     this.makeLayout = function () {
-      itemWidth = (fixedWidth) ? fixedWidth : container.parentNode.offsetWidth / items;
-      container.style.width = itemWidth * slideCountUpdated + 'px';
+      itemWidth = (fixedWidth) ? fixedWidth : slideContainer.parentNode.offsetWidth / items;
+      slideContainer.style.width = itemWidth * slideCountUpdated + 'px';
       for (var b = 0; b < slideCountUpdated; b++) {
-        children[b].style.width = itemWidth + 'px';
+        slideItems[b].style.width = itemWidth + 'px';
       }
 
       if (loop) {
         var marginLeft = - (itemsMax * itemWidth);
-        container.style.marginLeft = marginLeft + 'px';
+        slideContainer.style.marginLeft = marginLeft + 'px';
       }
     };
 
     this.setSnapInterval = function () {
       if (!navigator.msMaxTouchPoints) { return; }
-      container.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + itemWidth + ')';
+      slideContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + itemWidth + ')';
     };
 
     this.itemActive = function () {
       current = (loop) ? index + itemsMax : index;
-      for (var i = 0; i < slideCountUpdated; i++) {
-        if (i === current) {
-          children[i].classList.add('tiny-current', 'tiny-visible');
-        } else if (i > current && i < current + items) {
-          children[i].classList.remove('tiny-current');
-          children[i].classList.add('tiny-visible');
+      for (var i = slideCountUpdated; i--;) {
+        if (i < current || i >= current + items) {
+          if (slideItems[i].classList.contains('tiny-visible')) {
+            slideItems[i].classList.remove('tiny-current', 'tiny-visible');
+          }
+        } else if (i === current) {
+          slideItems[i].classList.add('tiny-current', 'tiny-visible');
         } else {
-          children[i].classList.remove('tiny-current', 'tiny-visible');
+          if (!slideItems[i].classList.contains('tiny-visible')) {
+            slideItems[i].classList.remove('tiny-current');
+            slideItems[i].classList.add('tiny-visible');
+          }
         }
       }
     };
@@ -424,7 +427,7 @@
     };
 
     this.translate = function () {
-      var vw = container.parentNode.offsetWidth;
+      var vw = slideContainer.parentNode.offsetWidth;
 
       translateX = - itemWidth * index;
       if (fixedWidth && !loop) {
@@ -432,9 +435,9 @@
       }
 
       if (getTransform) {
-        container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+        slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
       } else {
-        container.style.left = translateX + 'px';
+        slideContainer.style.left = translateX + 'px';
       }
     };
 
@@ -452,7 +455,7 @@
       if (reachLeftEdge) { index += slideCount; }
       if (reachRightEdge) { index -= slideCount; }
 
-      if (getTD) { container.style[getTD] = '0s'; }
+      if (getTD) { slideContainer.style[getTD] = '0s'; }
       this.translate();
     };
 
@@ -516,9 +519,9 @@
     };
 
     this.lazyLoad = function () {
-      if (!gn.isInViewport(container)) { return; }
+      if (!gn.isInViewport(slideContainer)) { return; }
 
-      var imgs = container.querySelectorAll('.tiny-visible .tiny-lazy');
+      var imgs = slideContainer.querySelectorAll('.tiny-visible .tiny-lazy');
       if (!imgs.length === 0) { return; }
       for (var i = 0, len = imgs.length; i < len; i++) {
         if (!imgs[i].classList.contains('loaded')) {
@@ -546,20 +549,20 @@
 
         if (panDir === 'horizontal' && animating === false) { run = true; }
         if (run) {
-          if (getTD) { container.style[getTD] = '0s'; }
+          if (getTD) { slideContainer.style[getTD] = '0s'; }
 
           var min = (!loop) ? - (slideCount - items) * itemWidth : - (slideCount + itemsMax - items) * itemWidth,
               max = (!loop) ? 0 : itemsMax * itemWidth;
 
-          if (!loop && fixedWidth) { min = - (slideCount * itemWidth - container.parentNode.offsetWidth); }
+          if (!loop && fixedWidth) { min = - (slideCount * itemWidth - slideContainer.parentNode.offsetWidth); }
 
           translateX = - index * itemWidth + distX;
           translateX = Math.max(min, Math.min( translateX, max));
 
           if (getTransform) {
-            container.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+            slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
           } else {
-            container.style.left = translateX + 'px';
+            slideContainer.style.left = translateX + 'px';
           }
 
           e.preventDefault();
@@ -608,7 +611,7 @@
       // update after resize done
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
-        items = (fixedWidth) ? Math.floor(container.parentNode.offsetWidth / fixedWidth) : getItem(bp, vals, options.items);
+        items = (fixedWidth) ? Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth) : getItem(bp, vals, options.items);
         // if slideCount are less than items
         items = Math.min(slideCount, items);
         dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
