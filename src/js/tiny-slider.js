@@ -169,6 +169,7 @@
     
     var animating = false;
     var index = 0;
+    var current;
     var prev;
     var next;
 
@@ -322,8 +323,6 @@
 
 
       if (lazyload) {
-        this.saveViewport();
-        this.sliderInView();
         this.lazyLoad();
       }
 
@@ -375,7 +374,7 @@
     };
 
     this.itemActive = function () {
-      var current = (loop) ? index + itemsMax : index;
+      current = (loop) ? index + itemsMax : index;
       for (var i = 0; i < slideCountUpdated; i++) {
         if (i === current) {
           children[i].classList.add('tiny-current', 'tiny-visible');
@@ -516,35 +515,15 @@
       }
     };
 
-    this.saveViewport = function () {
-      viewport.bottom = document.documentElement.clientHeight + offset;
-      viewport.right = document.documentElement.clientWidth + offset;
-    };
-
-    this.sliderInView = function () {
-      var rect = container.parentNode.getBoundingClientRect();
-      sliderRect.left = rect.left;
-      sliderRect.right = rect.right;
-      sliderRect.top = rect.top;
-      sliderRect.bottom = rect.bottom;
-
-      inview = (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
-    };
-
-    this.elementInView = function (el, viewport) {
-      var rect = el.getBoundingClientRect();
-      return (rect.right > viewport.left && rect.bottom > viewport.top && rect.left < viewport.right && rect.top < viewport.bottom);
-    };
-
     this.lazyLoad = function () {
-      if (!inview) { return; }
+      if (!gn.isInViewport(container)) { return; }
 
-      var imgs = container.querySelectorAll('.tiny-lazy');
-      if (!imgs) { return; }
-      for (var i = 0; i < imgs.length; i++) {
-        if (this.elementInView(imgs[i], sliderRect) && imgs[i].className.indexOf('loaded') === -1) {
+      var imgs = container.querySelectorAll('.tiny-visible .tiny-lazy');
+      if (!imgs.length === 0) { return; }
+      for (var i = 0, len = imgs.length; i < len; i++) {
+        if (!imgs[i].classList.contains('loaded')) {
           imgs[i].src = imgs[i].getAttribute('data-src');
-          imgs[i].className += ' loaded';
+          imgs[i].classList.add('loaded');
         }
       }
     };
@@ -645,8 +624,6 @@
           that.dotActive();
         }
         if (lazyload) {
-          that.saveViewport();
-          that.sliderInView();
           that.lazyLoad();
         }
       }, 100);
@@ -655,8 +632,6 @@
     // on window scroll
     window.addEventListener('scroll', function () {
       if (lazyload) {
-        that.saveViewport();
-        that.sliderInView();
         that.lazyLoad();
       }
     });
