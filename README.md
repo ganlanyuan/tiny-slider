@@ -27,7 +27,7 @@ npm install tiny-slider
 ## Default setting
 ```javascript
 options = {
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 1,
   fixedWidth: false,
   maxContainerWidth: false,
@@ -76,7 +76,7 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
 
 <script>
   tinySlider({
-    container: document.querySelector('.slider'),
+    container: '.slider',
     items: 3,
     slideByPage: true,
     autoplay: true
@@ -86,7 +86,7 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
 #### Responsive
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 1,
   responsive: {
     500: 2,
@@ -98,7 +98,7 @@ tinySlider({
 #### Fixed width items
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   fixedWidth: 200,
   maxContainerWidth: 900
 });
@@ -108,7 +108,7 @@ tinySlider({
 Loop is `true` by default.
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
   loop: false
 });
@@ -133,10 +133,10 @@ tinySlider({
 ```
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
-  navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails')
+  navContainer: '.slider-nav',
+  dotsContainer: '.thumbnails'
 });
 ```
 
@@ -153,7 +153,7 @@ Add a placeholder image to the image `src` attribute, save the real image sourse
 ```
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
   lazyload: true
 });
@@ -163,7 +163,7 @@ tinySlider({
 Default setting is slide by item.
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
   slideByPage: true
 });
@@ -172,7 +172,7 @@ tinySlider({
 #### Autoplay
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
   autoplay: true,
   autoplayDirection: 'forward',
@@ -185,7 +185,7 @@ tinySlider({
 Run slider by pressing left or right arrow key.
 ```javascript
 tinySlider({
-  container: document.querySelector('.slider'),
+  container: '.slider',
   items: 3,
   arrowKeys: true
 });

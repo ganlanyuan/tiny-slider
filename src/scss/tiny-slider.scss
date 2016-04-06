@@ -32,6 +32,7 @@
     > div, > li, > span, > a {
       float: left;
       box-sizing: border-box;
+      overflow: hidden;
     }
   }
   &-prev, &-next, &-dot { cursor: pointer; }
