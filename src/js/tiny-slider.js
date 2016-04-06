@@ -53,9 +53,6 @@
     }
   }
 
-  // get responsive value
-  
-
   // get supported property
   var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
       getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
@@ -121,39 +118,67 @@
         slideByPage = options.slideByPage,
         responsive = (fixedWidth) ? false : options.responsive,
         lazyload = options.lazyload,
-        touch = options.touch;
+        touch = options.touch,
+
+        allDots,
+        prevButton,
+        nextButton,
+        itemWidth,
+        itemsMax,
+        items,
+        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items),
+        dotCurrent,
+        index = 0,
+        animating = false,
+        current;
+
+    if (touch) {
+      var startX = 0,
+          startY = 0,
+          translateX = 0,
+          distX = 0,
+          distY = 0,
+          rt = 0,
+          panDir = false,
+          run = false,
+          animating = false,
+          slideEventAdded = false;
+    }
 
     // get items & itemsMax
     var bpKeys = getMapKeys(responsive),
         bpVals = getMapValues(responsive, bpKeys);
 
-    this.getItems = function () {
-      var itemsTem;
-
+    this.getItems = (function () {
       if (!fixedWidth) {
-        var ww = document.documentElement.clientWidth;
+        return function () {
+          var itemsTem;
+          var ww = document.documentElement.clientWidth;
 
-        if (bpKeys.length !== undefined && bpVals !== undefined && bpKeys.length === bpVals.length) {
-          if (ww < bpKeys[0]) {
-            itemsTem = options.items;
-          } else if (ww >= bpKeys[bpKeys.length - 1]) {
-            itemsTem = bpVals[bpVals.length - 1];
-          } else {
-            for (var i = 0; i < bpKeys.length - 1; i++) {
-              if (ww >= bpKeys[i] && ww <= bpKeys[i+1]) {
-                itemsTem = bpVals[i];
+          if (bpKeys.length !== undefined && bpVals !== undefined && bpKeys.length === bpVals.length) {
+            if (ww < bpKeys[0]) {
+              itemsTem = options.items;
+            } else if (ww >= bpKeys[bpKeys.length - 1]) {
+              itemsTem = bpVals[bpVals.length - 1];
+            } else {
+              for (var i = 0; i < bpKeys.length - 1; i++) {
+                if (ww >= bpKeys[i] && ww <= bpKeys[i+1]) {
+                  itemsTem = bpVals[i];
+                }
               }
             }
+          } else {
+            itemsTem = options.items;
           }
-        } else {
-          itemsTem = options.items;
-        }
-      } else {
-        itemsTem = Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth);
-      }
 
-      return Math.min(slideCount, itemsTem);
-    };
+          return Math.min(slideCount, itemsTem);
+        };
+      } else {
+        return function () {
+          return Math.min(slideCount, Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth));
+        };
+      }
+    })();
 
     this.getItemsMax = function () {
       var itemsMaxTem;
@@ -175,30 +200,8 @@
       }
     };
 
-    var allDots,
-        prevButton,
-        nextButton,
-        itemWidth,
-        itemsMax = this.getItemsMax(),
-        items = this.getItems(),
-        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items),
-        dotCurrent,
-        index = 0,
-        animating = false,
-        current;
-
-    if (touch) {
-      var startX = 0,
-          startY = 0,
-          translateX = 0,
-          distX = 0,
-          distY = 0,
-          rt = 0,
-          panDir = false,
-          run = false,
-          animating = false,
-          slideEventAdded = false;
-    }
+    items = this.getItems();
+    itemsMax = this.getItemsMax();
 
     // initialize:
     // 1. add .tiny-content to container
