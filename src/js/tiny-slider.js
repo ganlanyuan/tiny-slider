@@ -538,6 +538,10 @@
       this.setSnapInterval(this);
       this.translate(this);
       this.itemActive(this);
+      if (this.nav) {
+        this.disableNav(this);
+      }
+      
       if (this.dots && !this.dotsContainer) {
         this.displayDots(this);
         this.dotActive(this);
@@ -582,6 +586,20 @@
           removeClass(el.children[i], 'tiny-current');
           removeClass(el.children[i], 'tiny-visible');
         }
+      }
+    },
+
+    disableNav: function (el) {
+      if (el.loop) { return; }
+      if (el.index === 0) {
+        el.prev.classList.add('disabled');
+      } else {
+        el.prev.classList.remove('disabled');
+      }
+      if (el.index === el.cl - el.items) {
+        el.next.classList.add('disabled');
+      } else {
+        el.next.classList.remove('disabled');
       }
     },
 
@@ -643,6 +661,7 @@
     update: function (el) {
       el.fallback(el);
       el.itemActive(el);
+      el.disableNav(el);
       el.dotActive(el);
       el.lazyLoad(el);
 
