@@ -85,7 +85,7 @@
       navText: ['prev', 'next'],
       navContainer: false,
       dots: true,
-      dotContainer: false,
+      dotsContainer: false,
       arrowKeys: false,
       speed: 250,
       autoplay: false,
@@ -97,7 +97,7 @@
       touch: true,
     }, options || {});
 
-
+    // === define and set variables ===
     var that = this,
         slideContainer = options.container,
         slideItems = slideContainer.children,
@@ -106,9 +106,9 @@
         fixedWidth = options.fixedWidth,
         nav = options.nav,
         navText = options.navText,
-        navContainer = options.navContainer,
+        navContainer = (!options.navContainer) ? false : document.querySelector(options.navContainer),
         dots = options.dots,
-        dotContainer = options.dotContainer,
+        dotsContainer = (!options.dotsContainer) ? false : document.querySelector(options.dotsContainer),
         arrowKeys = options.arrowKeys,
         speed = (!getTD) ? 0 : options.speed,
         autoplay = options.autoplay,
@@ -116,21 +116,20 @@
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         slideByPage = options.slideByPage,
-        responsive = (fixedWidth) ? false : options.responsive,
         lazyload = options.lazyload,
         touch = options.touch,
 
-        allDots,
-        prevButton,
-        nextButton,
-        itemWidth,
+        slideWidth,
         itemsMax,
         items,
-        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items),
+        prevButton,
+        nextButton,
+        allDots,
+        dotsCount,
+        dotsCountVisible,
         dotCurrent,
         index = 0,
-        animating = false,
-        current;
+        animating = false;
 
     if (touch) {
       var startX = 0,
@@ -141,12 +140,12 @@
           rt = 0,
           panDir = false,
           run = false,
-          animating = false,
           slideEventAdded = false;
     }
 
-    // get items & itemsMax
-    var bpKeys = getMapKeys(responsive),
+    // get items, itemsMax, slideWidth, dotsCountVisible
+    var responsive = (fixedWidth) ? false : options.responsive,
+        bpKeys = getMapKeys(responsive),
         bpVals = getMapValues(responsive, bpKeys);
 
     this.getItems = (function () {
@@ -200,8 +199,320 @@
       }
     };
 
+    this.getSlideWidth = (function () {
+      if (fixedWidth) {
+        return function () { return fixedWidth; };
+      } else {
+        return function () { return slideContainer.parentNode.offsetWidth / items; };
+      }
+    })();
+
+    this.getDotsCount = (function () {
+      if (dotsContainer) {
+        return function () { return slideCount; };
+      } else {
+        return function () { return Math.ceil(slideCount / items); };
+      }
+    })();
+
     items = this.getItems();
     itemsMax = this.getItemsMax();
+    slideWidth = this.getSlideWidth();
+    dotsCountVisible = this.getDotsCount();
+
+    // === All private methods ===
+    // update layout:
+    // update slide container width, margin-left
+    // update slides' width
+    this.updateLayout = function () {
+      slideContainer.style.width = slideWidth * slideCountUpdated + 'px';
+      if (loop) {
+        slideContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
+      }
+      for (var b = slideCountUpdated; b--;) {
+        slideItems[b].style.width = slideWidth + 'px';
+      }
+    };
+
+    this.setTransitionDuration = function (indexGap) {
+      if (!getTD) { return; }
+      slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
+      animating = true;
+    };
+
+    // set snapInterval (for IE10)
+    this.setSnapInterval = function () {
+      if (!navigator.msMaxTouchPoints) { return; }
+      slideContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
+    };
+
+    // slide active
+    // 1. add class '.tiny-visible' to visible slides
+    // 2. add class '.tiny-current' to the first visible slide
+    // 3. remove classes '.tiny-visible' and '.tiny-current' from other slides
+    this.slideActive = function () {
+      var current = (loop) ? index + itemsMax : index;
+
+      for (var i = slideCountUpdated; i--;) {
+        if (i < current || i >= current + items) {
+          if (slideItems[i].classList.contains('tiny-visible')) {
+            slideItems[i].classList.remove('tiny-current', 'tiny-visible');
+          }
+        } else if (i === current) {
+          slideItems[i].classList.add('tiny-current', 'tiny-visible');
+        } else {
+          if (!slideItems[i].classList.contains('tiny-visible')) {
+            slideItems[i].classList.remove('tiny-current');
+            slideItems[i].classList.add('tiny-visible');
+          }
+        }
+      }
+    };
+
+    // non-loop:
+    // add class 'disabled' to nav 
+    // when reach the first/last slide
+    this.disableNav = function () {
+      if (loop) { return; }
+
+      if (index === 0) {
+        prevButton.classList.add('disabled');
+      } else {
+        prevButton.classList.remove('disabled');
+      }
+      if (index === slideCount - items) {
+        nextButton.classList.add('disabled');
+      } else {
+        nextButton.classList.remove('disabled');
+      }
+    };
+
+    this.setDotCurrent = function () {
+      var absoluteIndex = (index < 0) ? index += slideCount : (index >= slideCount) ? index -= slideCount : index;
+      dotCurrent = (dotsContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+
+      // non-loop & reach the edge
+      if (!loop && !dotsContainer) {
+        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
+        if(!integer && index === slideCount - items) {
+          dotCurrent += 1;
+        }
+      }
+    };
+
+    // show or hide extra dots.
+    // doesn't work on customized dots.
+    this.displayDots = function () {
+      if (!dots || dotsContainer) { return; }
+
+      for (var i = dotsCount; i--;) {
+        var dotTem = allDots[i];
+
+        if (i < dotsCountVisible) {
+          if (dotTem.classList.contains('tiny-hide')) {
+            dotTem.classList.remove('tiny-hide');
+          }
+        } else {
+          if (!dotTem.classList.contains('tiny-hide')) {
+            dotTem.classList.add('tiny-hide');
+          }
+        }
+      }
+    };
+
+    // add class 'tiny-active' to active dot
+    // remove this class from other dots
+    this.dotActive = function () {
+      if (!dots) { return; }
+
+      for (var i = dotsCountVisible; i--;) {
+        var dotTem = allDots[i];
+
+        if (i === dotCurrent) {
+          if (!dotTem.classList.contains('tiny-active')) {
+            dotTem.classList.add('tiny-active');
+          }
+        } else {
+          if (dotTem.classList.contains('tiny-active')) {
+            dotTem.classList.remove('tiny-active');
+          }
+        }
+      }
+    };
+
+    this.translate = function () {
+      var vw = slideContainer.parentNode.offsetWidth;
+
+      translateX = - slideWidth * index;
+      if (fixedWidth && !loop) {
+        translateX = Math.max( translateX, - (slideCountUpdated * slideWidth - vw) );
+      }
+
+      if (getTransform) {
+        slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+      } else {
+        slideContainer.style.left = translateX + 'px';
+      }
+    };
+
+    this.fallback = function () {
+      if (!loop) { return; }
+
+      var reachLeftEdge = (slideByPage) ? index < - (itemsMax - items) : index <= - itemsMax,
+          reachRightEdge = (slideByPage) ? index > (slideCount + itemsMax - items * 2 - 1) : index >= (slideCount + itemsMax - items);
+
+      // fix fixed-width
+      if (fixedWidth && itemsMax && !slideByPage) {
+        reachRightEdge = index >= (slideCount + itemsMax - items - 1);
+      }
+
+      if (reachLeftEdge) { index += slideCount; }
+      if (reachRightEdge) { index -= slideCount; }
+
+      if (getTD) { slideContainer.style[getTD] = '0s'; }
+      this.translate();
+    };
+
+    this.update = function () {
+      this.fallback();
+      this.slideActive();
+      this.disableNav();
+      this.dotActive();
+      this.lazyLoad();
+
+      animating = false;
+    };
+
+    this.onNavClick = function (dir) {
+      if (!animating) {
+        var indexTem, indexGap;
+
+        dir = (slideByPage) ? dir * items : dir;
+        indexGap = Math.abs(dir);
+        indexTem = index + dir;
+        index = (loop) ? indexTem : Math.max(0, Math.min(indexTem, slideCount - items));
+
+        this.setTransitionDuration(indexGap);
+        this.translate();
+
+        this.setDotCurrent();
+        setTimeout(function () {
+          that.update();
+        }, speed * indexGap);
+      }
+    };
+
+    this.fireDotClick = function () {
+      return function () {
+        var dotIndex;
+        for (var i = 0; i < dotsCount; i++) {
+          if (allDots[i] === this) { dotIndex = i; }
+        }
+        that.onDotClick(dotIndex);
+      };
+    };
+
+    this.onDotClick = function (ind) {
+      if (!animating) {
+        var indexTem, indexGap;
+
+        indexTem = (dotsContainer) ? ind : ind * items;
+        indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
+        indexGap = Math.abs(indexTem - index);
+        index = indexTem;
+
+        this.setTransitionDuration(indexGap);
+        this.translate();
+
+        dotCurrent = ind;
+
+        setTimeout(function () { 
+          that.update();
+        }, speed * indexGap);
+      }
+    };
+
+    this.lazyLoad = function () {
+      if (!gn.isInViewport(slideContainer)) { return; }
+
+      var imgs = slideContainer.querySelectorAll('.tiny-visible .tiny-lazy');
+      if (imgs.length === 0) { return; }
+      for (var i = 0, len = imgs.length; i < len; i++) {
+        if (!imgs[i].classList.contains('loaded')) {
+          imgs[i].src = imgs[i].getAttribute('data-src');
+          imgs[i].classList.add('loaded');
+        }
+      }
+    };
+
+    this.onPanStart = function () {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        startX = parseInt(touchObj.clientX);
+        startY = parseInt(touchObj.clientY);
+      };
+    };
+
+    this.onPanMove = function () {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        distX = parseInt(touchObj.clientX) - startX;
+        distY = parseInt(touchObj.clientY) - startY;
+        rt = toDegree(Math.atan2(distY, distX));
+        panDir = getPanDir(rt, 15);
+
+        if (panDir === 'horizontal' && animating === false) { run = true; }
+        if (run) {
+          if (getTD) { slideContainer.style[getTD] = '0s'; }
+
+          var min = (!loop) ? - (slideCount - items) * slideWidth : - (slideCount + itemsMax - items) * slideWidth,
+              max = (!loop) ? 0 : itemsMax * slideWidth;
+
+          if (!loop && fixedWidth) { min = - (slideCount * slideWidth - slideContainer.parentNode.offsetWidth); }
+
+          translateX = - index * slideWidth + distX;
+          translateX = Math.max(min, Math.min( translateX, max));
+
+          if (getTransform) {
+            slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+          } else {
+            slideContainer.style.left = translateX + 'px';
+          }
+
+          e.preventDefault();
+        }
+      };
+    };
+
+    this.onPanEnd = function () {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        distX = parseInt(touchObj.clientX) - startX;
+
+        if (run && distX !== 0) {
+          e.preventDefault();
+          run = false;
+          translateX = - index * slideWidth + distX;
+
+          var indexTem,
+              min = (!loop) ? 0 : -itemsMax,
+              max = (!loop) ? slideCount - items : slideCount + itemsMax - items;
+
+          indexTem = - (translateX / slideWidth);
+          indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
+          indexTem = Math.max(min, Math.min(indexTem, max));
+          index = indexTem;
+
+          that.setTransitionDuration(1);
+          that.translate();
+
+          that.setDotCurrent();
+          setTimeout(function () {
+            that.update();
+          }, speed);
+        }
+      };
+    };
 
     // initialize:
     // 1. add .tiny-content to container
@@ -228,8 +539,8 @@
 
       // add dots
       if (dots) {
-        if (dotContainer) {
-          allDots = dotContainer.children;
+        if (dotsContainer) {
+          allDots = dotsContainer.children;
           allDots[0].classList.add('tiny-active');
         } else {
           var dotHtml = '';
@@ -241,6 +552,7 @@
 
           allDots = sliderWrapper.querySelectorAll('.tiny-dot');
         }
+        dotsCount = allDots.length;
       }
 
       // add nav
@@ -278,30 +590,25 @@
       }
 
       this.setDotCurrent();
-      this.makeLayout();
+      this.updateLayout();
       this.setSnapInterval();
       this.translate();
-      this.itemActive();
+      this.slideActive();
       if (nav) {
         this.disableNav();
         nextButton.addEventListener('click', function () { that.onNavClick(1); });
         prevButton.addEventListener('click', function () { that.onNavClick(-1); });
       }
 
+      this.displayDots();
+      this.dotActive();
       if (dots) {
-        if (!dotContainer) {
-          this.displayDots();
-          this.dotActive();
-        }
-        for (var a = 0; a < allDots.length; a++) {
+        for (var a = 0; a < dotsCount; a++) {
           allDots[a].addEventListener('click', this.fireDotClick());
         }
       }
 
-
-      if (lazyload) {
-        this.lazyLoad();
-      }
+      if (lazyload) { this.lazyLoad(); }
 
       if (arrowKeys) {
         document.addEventListener('keydown', function (e) {
@@ -332,283 +639,7 @@
       }
     };
 
-    this.getAbsIndex = function () {
-      if (index < 0) {
-        return index + slideCount;
-      } else if (index >= slideCount) {
-        return index - slideCount;
-      } else {
-        return index;
-      }
-    };
-
-    this.setTransitionDuration = function (indexGap) {
-      if (!getTD) { return; }
-      slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
-      animating = true;
-    };
-
-    this.setDotCurrent = function () {
-      dotCurrent = (dotContainer) ? this.getAbsIndex() : Math.floor(this.getAbsIndex() / items);
-
-      // non-loop & reach the edge
-      if (!loop && !dotContainer) {
-        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
-        if(!integer && index === slideCount - items) {
-          dotCurrent += 1;
-        }
-      }
-    };
-
-    this.makeLayout = function () {
-      itemWidth = (fixedWidth) ? fixedWidth : slideContainer.parentNode.offsetWidth / items;
-      slideContainer.style.width = itemWidth * slideCountUpdated + 'px';
-      for (var b = 0; b < slideCountUpdated; b++) {
-        slideItems[b].style.width = itemWidth + 'px';
-      }
-
-      if (loop) {
-        var marginLeft = - (itemsMax * itemWidth);
-        slideContainer.style.marginLeft = marginLeft + 'px';
-      }
-    };
-
-    this.setSnapInterval = function () {
-      if (!navigator.msMaxTouchPoints) { return; }
-      slideContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + itemWidth + ')';
-    };
-
-    this.itemActive = function () {
-      current = (loop) ? index + itemsMax : index;
-      for (var i = slideCountUpdated; i--;) {
-        if (i < current || i >= current + items) {
-          if (slideItems[i].classList.contains('tiny-visible')) {
-            slideItems[i].classList.remove('tiny-current', 'tiny-visible');
-          }
-        } else if (i === current) {
-          slideItems[i].classList.add('tiny-current', 'tiny-visible');
-        } else {
-          if (!slideItems[i].classList.contains('tiny-visible')) {
-            slideItems[i].classList.remove('tiny-current');
-            slideItems[i].classList.add('tiny-visible');
-          }
-        }
-      }
-    };
-
-    this.disableNav = function () {
-      if (loop) { return; }
-      if (index === 0) {
-        prevButton.classList.add('disabled');
-      } else {
-        prevButton.classList.remove('disabled');
-      }
-      if (index === slideCount - items) {
-        nextButton.classList.add('disabled');
-      } else {
-        nextButton.classList.remove('disabled');
-      }
-    };
-
-    this.displayDots = function () {
-      for (var i = 0; i < allDots.length; i++) {
-        if (i < dotsCount) {
-          allDots[i].classList.remove('tiny-hide');
-        } else {
-          allDots[i].classList.add('tiny-hide');
-        }
-      }
-    };
-
-    this.dotActive = function () {
-      if (!dots) { return; }
-
-      for (var i = 0; i < dotsCount; i++) {
-        if (i === dotCurrent) {
-          allDots[i].classList.add('tiny-active');
-        } else {
-          allDots[i].classList.remove('tiny-active');
-        }
-      }
-    };
-
-    this.translate = function () {
-      var vw = slideContainer.parentNode.offsetWidth;
-
-      translateX = - itemWidth * index;
-      if (fixedWidth && !loop) {
-        translateX = Math.max( translateX, - (slideCountUpdated * itemWidth - vw) );
-      }
-
-      if (getTransform) {
-        slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
-      } else {
-        slideContainer.style.left = translateX + 'px';
-      }
-    };
-
-    this.fallback = function () {
-      if (!loop) { return; }
-
-      var reachLeftEdge = (slideByPage) ? index < - (itemsMax - items) : index <= - itemsMax,
-          reachRightEdge = (slideByPage) ? index > (slideCount + itemsMax - items * 2 - 1) : index >= (slideCount + itemsMax - items);
-
-      // fix fixed-width
-      if (fixedWidth && itemsMax && !slideByPage) {
-        reachRightEdge = index >= (slideCount + itemsMax - items - 1);
-      }
-
-      if (reachLeftEdge) { index += slideCount; }
-      if (reachRightEdge) { index -= slideCount; }
-
-      if (getTD) { slideContainer.style[getTD] = '0s'; }
-      this.translate();
-    };
-
-    this.update = function () {
-      this.fallback();
-      this.itemActive();
-      this.disableNav();
-      this.dotActive();
-      this.lazyLoad();
-
-      animating = false;
-    };
-
-    this.onNavClick = function (dir) {
-      if (!animating) {
-        var indexTem, indexGap;
-
-        dir = (slideByPage) ? dir * items : dir;
-        indexGap = Math.abs(dir);
-        indexTem = index + dir;
-        index = (loop) ? indexTem : Math.max(0, Math.min(indexTem, slideCount - items));
-
-        this.setTransitionDuration(indexGap);
-        this.translate();
-
-        this.setDotCurrent();
-        setTimeout(function () {
-          that.update();
-        }, speed * indexGap);
-      }
-    };
-
-    this.fireDotClick = function () {
-      return function () {
-        var dotIndex;
-        for (var i = 0; i < allDots.length; i++) {
-          if (allDots[i] === this) { dotIndex = i; }
-        }
-        that.onDotClick(dotIndex);
-      };
-    };
-
-    this.onDotClick = function (ind) {
-      if (!animating) {
-        var indexTem, indexGap;
-
-        indexTem = (dotContainer) ? ind : ind * items;
-        indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
-        indexGap = Math.abs(indexTem - index);
-        index = indexTem;
-
-        this.setTransitionDuration(indexGap);
-        this.translate();
-
-        dotCurrent = ind;
-
-        setTimeout(function () { 
-          that.update();
-        }, speed * indexGap);
-      }
-    };
-
-    this.lazyLoad = function () {
-      if (!gn.isInViewport(slideContainer)) { return; }
-
-      var imgs = slideContainer.querySelectorAll('.tiny-visible .tiny-lazy');
-      if (!imgs.length === 0) { return; }
-      for (var i = 0, len = imgs.length; i < len; i++) {
-        if (!imgs[i].classList.contains('loaded')) {
-          imgs[i].src = imgs[i].getAttribute('data-src');
-          imgs[i].classList.add('loaded');
-        }
-      }
-    };
-
-    this.onPanStart = function () {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        startX = parseInt(touchObj.clientX);
-        startY = parseInt(touchObj.clientY);
-      };
-    };
-
-    this.onPanMove = function () {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        distX = parseInt(touchObj.clientX) - startX;
-        distY = parseInt(touchObj.clientY) - startY;
-        rt = toDegree(Math.atan2(distY, distX));
-        panDir = getPanDir(rt, 15);
-
-        if (panDir === 'horizontal' && animating === false) { run = true; }
-        if (run) {
-          if (getTD) { slideContainer.style[getTD] = '0s'; }
-
-          var min = (!loop) ? - (slideCount - items) * itemWidth : - (slideCount + itemsMax - items) * itemWidth,
-              max = (!loop) ? 0 : itemsMax * itemWidth;
-
-          if (!loop && fixedWidth) { min = - (slideCount * itemWidth - slideContainer.parentNode.offsetWidth); }
-
-          translateX = - index * itemWidth + distX;
-          translateX = Math.max(min, Math.min( translateX, max));
-
-          if (getTransform) {
-            slideContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
-          } else {
-            slideContainer.style.left = translateX + 'px';
-          }
-
-          e.preventDefault();
-        }
-      };
-    };
-
-    this.onPanEnd = function () {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        distX = parseInt(touchObj.clientX) - startX;
-
-        if (run && distX !== 0) {
-          e.preventDefault();
-          run = false;
-          translateX = - index * itemWidth + distX;
-
-          var indexTem,
-              min = (!loop) ? 0 : -itemsMax,
-              max = (!loop) ? slideCount - items : slideCount + itemsMax - items;
-
-          indexTem = - (translateX / itemWidth);
-          indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
-          indexTem = Math.max(min, Math.min(indexTem, max));
-          index = indexTem;
-
-          that.setTransitionDuration(1);
-          that.translate();
-
-          that.setDotCurrent();
-          setTimeout(function () {
-            that.update();
-          }, speed);
-        }
-      };
-    };
-
-    
-
-    // on initialize
+    // === run slider ===
     this.init();
 
     // on window resize
@@ -618,18 +649,15 @@
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
         items = that.getItems();
-        dotsCount = (dotContainer) ? slideCount : Math.ceil(slideCount / items);
-        speed = (slideByPage) ? options.speed * items : options.speed;
+        slideWidth = that.getSlideWidth();
+        dotsCountVisible = that.getDotsCount();
 
-        // container.parentNode.style.width = '';
         that.setDotCurrent();
-        that.makeLayout();
+        that.updateLayout();
         that.setSnapInterval();
         that.translate();
-        if (dots && !dotContainer) {
-          that.displayDots();
-          that.dotActive();
-        }
+        that.displayDots();
+        that.dotActive();
         if (lazyload) {
           that.lazyLoad();
         }
