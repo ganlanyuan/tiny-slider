@@ -128,7 +128,6 @@
         allDots,
         dotsCount,
         dotsCountVisible,
-        dotCurrent,
         index = 0,
         animating = false,
         dotClicked = -1;
@@ -346,6 +345,9 @@
       }
     };
 
+    // make transfer after click/drag:
+    // 1. change 'transform' property for mordern browsers
+    // 2. change 'left' property for legacy browsers
     this.translate = function () {
       var vw = slideContainer.parentNode.offsetWidth;
 
@@ -361,6 +363,10 @@
       }
     };
 
+    // check index after click/drag:
+    // if viewport reach the left/right edge of slide container or
+    // there is not enough room for next transfer,
+    // transfer slide container to a new location without animation
     this.fallback = function () {
       if (!loop) { return; }
 
@@ -379,6 +385,12 @@
       this.translate();
     };
 
+    // All actions need to be done after a transfer:
+    // 1. check index
+    // 2. add classes to current/visible slide
+    // 3. disable nav buttons when reach the first/last slide in non-loop slider
+    // 4. update dots status
+    // 5. lazyload images
     this.update = function () {
       this.fallback();
       this.slideActive();
@@ -652,7 +664,6 @@
         slideWidth = that.getSlideWidth();
         dotsCountVisible = that.getDotsCount();
 
-        that.setDotCurrent();
         that.updateLayout();
         that.setSnapInterval();
         that.translate();
