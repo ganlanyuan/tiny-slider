@@ -11,6 +11,7 @@
   * extend
   * wrap
   * append
+  * indexOf
   * 
   */
 ;(function (tinySliderJS) {
@@ -288,7 +289,7 @@
     };
 
     this.setDotCurrent = function () {
-      var absoluteIndex = (index < 0) ? index += slideCount : (index >= slideCount) ? index -= slideCount : index;
+      var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
       dotCurrent = (dotsContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
 
       // non-loop & reach the edge
@@ -358,7 +359,7 @@
     this.fallback = function () {
       if (!loop) { return; }
 
-      var reachLeftEdge = (slideByPage) ? index < - (itemsMax - items) : index <= - itemsMax,
+      var reachLeftEdge = (slideByPage) ? index < (items - itemsMax) : index <= - itemsMax,
           reachRightEdge = (slideByPage) ? index > (slideCount + itemsMax - items * 2 - 1) : index >= (slideCount + itemsMax - items);
 
       // fix fixed-width
@@ -404,19 +405,16 @@
 
     this.fireDotClick = function () {
       return function () {
-        var dotIndex;
-        for (var i = 0; i < dotsCount; i++) {
-          if (allDots[i] === this) { dotIndex = i; }
-        }
-        that.onDotClick(dotIndex);
+        var dotClicked = gn.indexOf(allDots, this);
+        that.onDotClick(dotClicked);
       };
     };
 
-    this.onDotClick = function (ind) {
+    this.onDotClick = function (dotClicked) {
       if (!animating) {
         var indexTem, indexGap;
 
-        indexTem = (dotsContainer) ? ind : ind * items;
+        indexTem = (dotsContainer) ? dotClicked : dotClicked * items;
         indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
@@ -424,7 +422,7 @@
         this.setTransitionDuration(indexGap);
         this.translate();
 
-        dotCurrent = ind;
+        dotCurrent = dotClicked;
 
         setTimeout(function () { 
           that.update();
