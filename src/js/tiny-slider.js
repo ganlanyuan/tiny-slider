@@ -130,7 +130,8 @@
         dotsCountVisible,
         dotCurrent,
         index = 0,
-        animating = false;
+        animating = false,
+        dotClicked = -1;
 
     if (touch) {
       var startX = 0,
@@ -288,19 +289,6 @@
       }
     };
 
-    this.setDotCurrent = function () {
-      var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
-      dotCurrent = (dotsContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
-
-      // non-loop & reach the edge
-      if (!loop && !dotsContainer) {
-        var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
-        if(!integer && index === slideCount - items) {
-          dotCurrent += 1;
-        }
-      }
-    };
-
     // show or hide extra dots.
     // doesn't work on customized dots.
     this.displayDots = function () {
@@ -325,6 +313,23 @@
     // remove this class from other dots
     this.dotActive = function () {
       if (!dots) { return; }
+
+      var dotCurrent;
+
+      if (dotClicked === -1) {
+        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
+        dotCurrent = (dotsContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+
+        // non-loop & reach the edge
+        if (!loop && !dotsContainer) {
+          var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
+          if(!integer && index === slideCount - items) {
+            dotCurrent += 1;
+          }
+        }
+      } else {
+        dotCurrent = dotClicked;
+      }
 
       for (var i = dotsCountVisible; i--;) {
         var dotTem = allDots[i];
@@ -386,6 +391,7 @@
 
     this.onNavClick = function (dir) {
       if (!animating) {
+        dotClicked = -1;
         var indexTem, indexGap;
 
         dir = (slideByPage) ? dir * items : dir;
@@ -396,7 +402,6 @@
         this.setTransitionDuration(indexGap);
         this.translate();
 
-        this.setDotCurrent();
         setTimeout(function () {
           that.update();
         }, speed * indexGap);
@@ -405,24 +410,23 @@
 
     this.fireDotClick = function () {
       return function () {
-        var dotClicked = gn.indexOf(allDots, this);
-        that.onDotClick(dotClicked);
+        var dotIndex = gn.indexOf(allDots, this);
+        that.onDotClick(dotIndex);
       };
     };
 
-    this.onDotClick = function (dotClicked) {
+    this.onDotClick = function (dotIndex) {
       if (!animating) {
-        var indexTem, indexGap;
+        dotClicked = dotIndex;
 
-        indexTem = (dotsContainer) ? dotClicked : dotClicked * items;
+        var indexTem, indexGap;
+        indexTem = (dotsContainer) ? dotIndex : dotIndex * items;
         indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
 
         this.setTransitionDuration(indexGap);
         this.translate();
-
-        dotCurrent = dotClicked;
 
         setTimeout(function () { 
           that.update();
@@ -504,7 +508,6 @@
           that.setTransitionDuration(1);
           that.translate();
 
-          that.setDotCurrent();
           setTimeout(function () {
             that.update();
           }, speed);
@@ -587,7 +590,6 @@
         slideItems = slideContainer.children;
       }
 
-      this.setDotCurrent();
       this.updateLayout();
       this.setSnapInterval();
       this.translate();
