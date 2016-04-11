@@ -59,23 +59,7 @@
       getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
   // *** tinySlider *** //
-  // check options.container
-  // if it's a NodeList, run slider for each Node
-  // if it's null, return
   function tinySlider(options) {
-    var containers = document.querySelectorAll(options.container);
-    if (containers.length === 0) { return; }
-    for (var i = containers.length; i--;) {
-      var newOptions = options;
-      newOptions.container = containers[i];
-
-      var a = new TinySliderCore(newOptions);
-    }
-  }
-
-  // Core function:
-  // all slider functions run here
-  function TinySliderCore(options) {
     options = gn.extend({
       container: '.slider',
       items: 1,
@@ -98,6 +82,22 @@
       touch: true,
     }, options || {});
 
+    // check options.container
+    // if it's a NodeList, run slider for each Node
+    // if it's null, return
+    var containers = document.querySelectorAll(options.container);
+    if (containers.length === 0) { return; }
+    for (var i = containers.length; i--;) {
+      var newOptions = options;
+      newOptions.container = containers[i];
+
+      return new TinySliderCore(newOptions);
+    }
+  }
+
+  // Core function:
+  // all slider functions run here
+  function TinySliderCore(options) {
     // === define and set variables ===
     var that = this,
         slideContainer = options.container,
@@ -138,8 +138,6 @@
           translateX = 0,
           distX = 0,
           distY = 0,
-          rt = 0,
-          panDir = false,
           run = false,
           slideEventAdded = false;
     }
@@ -149,7 +147,7 @@
         bpKeys = getMapKeys(responsive),
         bpVals = getMapValues(responsive, bpKeys);
 
-    this.getItems = (function () {
+    var getItems = (function () {
       if (!fixedWidth) {
         return function () {
           var itemsTem;
@@ -180,7 +178,7 @@
       }
     })();
 
-    this.getItemsMax = function () {
+    var getItemsMax = function () {
       var itemsMaxTem;
 
       if (!fixedWidth) {
@@ -200,7 +198,7 @@
       }
     };
 
-    this.getSlideWidth = (function () {
+    var getSlideWidth = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth; };
       } else {
@@ -208,7 +206,7 @@
       }
     })();
 
-    this.getDotsCount = (function () {
+    var getDotsCount = (function () {
       if (dotsContainer) {
         return function () { return slideCount; };
       } else {
@@ -216,10 +214,11 @@
       }
     })();
 
-    items = this.getItems();
-    itemsMax = this.getItemsMax();
-    slideWidth = this.getSlideWidth();
-    dotsCountVisible = this.getDotsCount();
+    items = getItems();
+    itemsMax = getItemsMax();
+    slideWidth = getSlideWidth();
+    dotsCountVisible = getDotsCount();
+
 
     // === All private methods ===
     // update layout:
@@ -328,6 +327,7 @@
         }
       } else {
         dotCurrent = dotClicked;
+        dotClicked = -1;
       }
 
       for (var i = dotsCountVisible; i--;) {
@@ -403,7 +403,6 @@
 
     this.onNavClick = function (dir) {
       if (!animating) {
-        dotClicked = -1;
         var indexTem, indexGap;
 
         dir = (slideByPage) ? dir * items : dir;
@@ -472,8 +471,9 @@
         var touchObj = e.changedTouches[0];
         distX = parseInt(touchObj.clientX) - startX;
         distY = parseInt(touchObj.clientY) - startY;
-        rt = toDegree(Math.atan2(distY, distX));
-        panDir = getPanDir(rt, 15);
+
+        var rotate = toDegree(Math.atan2(distY, distX)),
+            panDir = getPanDir(rotate, 15);
 
         if (panDir === 'horizontal' && animating === false) { run = true; }
         if (run) {
@@ -660,9 +660,9 @@
       // update after resize done
       clearTimeout(updateIt);
       updateIt = setTimeout(function () {
-        items = that.getItems();
-        slideWidth = that.getSlideWidth();
-        dotsCountVisible = that.getDotsCount();
+        items = getItems();
+        slideWidth = getSlideWidth();
+        dotsCountVisible = getDotsCount();
 
         that.updateLayout();
         that.setSnapInterval();
