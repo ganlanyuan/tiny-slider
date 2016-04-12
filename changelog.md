@@ -1,8 +1,9 @@
 #Changelog
 
-#### v1.0.0
+#### v1.0.0 beta
 - Improved: `container` now is a selector, which is more convenient.
 - Removed: `offset`.
+- Totally rewrite with Module Pattern.
 
 #### v0.3.1
 - Improved: performance.

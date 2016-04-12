@@ -14,52 +14,10 @@
   * indexOf
   * 
   */
-;(function (tinySliderJS) {
-  window.tinySlider = tinySliderJS();
-})(function () {
+var tinySlider = (function () {
   'use strict';
 
-  // *** helper functions *** //
-  function toDegree (angle) {
-    return angle * (180 / Math.PI);
-  }
-
-  function getPanDir(angle, range) {
-    if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
-      return 'horizontal';
-    } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
-      return 'vertical';
-    } else {
-      return false;
-    }
-  }
-
-  function getMapKeys (obj) {
-    if (obj && typeof(obj) === 'object') {
-      return Object.keys(obj);
-    } else {
-      return false;
-    }
-  }
-  function getMapValues (obj, keys) {
-    if (obj && typeof(obj) === 'object') {
-      var values = [];
-      for (var i = 0; i < keys.length; i++) {
-        var pro = keys[i];
-        values.push(obj[pro]);
-      }
-      return values;
-    } else {
-      return false;
-    }
-  }
-
-  // get supported property
-  var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-      getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
-
-  // *** tinySlider *** //
-  function tinySlider(options) {
+  function core (options) {
     options = gn.extend({
       container: '.slider',
       items: 1,
@@ -82,34 +40,21 @@
       touch: true,
     }, options || {});
 
-    // check options.container
-    // if it's a NodeList, run slider for each Node
-    // if it's null, return
-    var containers = document.querySelectorAll(options.container);
-    if (containers.length === 0) { return; }
-    for (var i = containers.length; i--;) {
-      var newOptions = options;
-      newOptions.container = containers[i];
+    // get supported property
+    var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
+        getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
-      return new TinySliderCore(newOptions);
-    }
-  }
-
-  // Core function:
-  // all slider functions run here
-  function TinySliderCore(options) {
     // === define and set variables ===
-    var that = this,
-        slideContainer = options.container,
+    var slideContainer = options.container,
         slideItems = slideContainer.children,
         slideCount = slideItems.length,
         slideCountUpdated = slideItems.length,
         fixedWidth = options.fixedWidth,
         nav = options.nav,
         navText = options.navText,
-        navContainer = (!options.navContainer) ? false : document.querySelector(options.navContainer),
+        navContainer = (!options.navContainer) ? false : options.navContainer,
         dots = options.dots,
-        dotsContainer = (!options.dotsContainer) ? false : document.querySelector(options.dotsContainer),
+        dotsContainer = (!options.dotsContainer) ? false : options.dotsContainer,
         arrowKeys = options.arrowKeys,
         speed = (!getTD) ? 0 : options.speed,
         autoplay = options.autoplay,
@@ -219,12 +164,11 @@
     slideWidth = getSlideWidth();
     dotsCountVisible = getDotsCount();
 
-
-    // === All private methods ===
+    // === Public functions ===
     // update layout:
     // update slide container width, margin-left
     // update slides' width
-    this.updateLayout = function () {
+    function updateLayout() {
       slideContainer.style.width = slideWidth * slideCountUpdated + 'px';
       if (loop) {
         slideContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
@@ -232,25 +176,25 @@
       for (var b = slideCountUpdated; b--;) {
         slideItems[b].style.width = slideWidth + 'px';
       }
-    };
+    }
 
-    this.setTransitionDuration = function (indexGap) {
+    function setTransitionDuration(indexGap) {
       if (!getTD) { return; }
       slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
       animating = true;
-    };
+    }
 
     // set snapInterval (for IE10)
-    this.setSnapInterval = function () {
+    function setSnapInterval() {
       if (!navigator.msMaxTouchPoints) { return; }
       slideContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
-    };
+    }
 
     // slide active
     // 1. add class '.tiny-visible' to visible slides
     // 2. add class '.tiny-current' to the first visible slide
     // 3. remove classes '.tiny-visible' and '.tiny-current' from other slides
-    this.slideActive = function () {
+    function slideActive() {
       var current = (loop) ? index + itemsMax : index;
 
       for (var i = slideCountUpdated; i--;) {
@@ -267,12 +211,12 @@
           }
         }
       }
-    };
+    }
 
     // non-loop:
     // add class 'disabled' to nav 
     // when reach the first/last slide
-    this.disableNav = function () {
+    function disableNav() {
       if (loop) { return; }
 
       if (index === 0) {
@@ -285,11 +229,11 @@
       } else {
         nextButton.classList.remove('disabled');
       }
-    };
+    }
 
     // show or hide extra dots.
     // doesn't work on customized dots.
-    this.displayDots = function () {
+    function displayDots() {
       if (!dots || dotsContainer) { return; }
 
       for (var i = dotsCount; i--;) {
@@ -305,11 +249,11 @@
           }
         }
       }
-    };
+    }
 
     // add class 'tiny-active' to active dot
     // remove this class from other dots
-    this.dotActive = function () {
+    function dotActive() {
       if (!dots) { return; }
 
       var dotCurrent;
@@ -343,12 +287,12 @@
           }
         }
       }
-    };
+    }
 
     // make transfer after click/drag:
     // 1. change 'transform' property for mordern browsers
     // 2. change 'left' property for legacy browsers
-    this.translate = function () {
+    function translate() {
       var vw = slideContainer.parentNode.offsetWidth;
 
       translateX = - slideWidth * index;
@@ -361,13 +305,13 @@
       } else {
         slideContainer.style.left = translateX + 'px';
       }
-    };
+    }
 
     // check index after click/drag:
     // if viewport reach the left/right edge of slide container or
     // there is not enough room for next transfer,
     // transfer slide container to a new location without animation
-    this.fallback = function () {
+    function fallback() {
       if (!loop) { return; }
 
       var reachLeftEdge = (slideByPage) ? index < (items - itemsMax) : index <= - itemsMax,
@@ -382,8 +326,8 @@
       if (reachRightEdge) { index -= slideCount; }
 
       if (getTD) { slideContainer.style[getTD] = '0s'; }
-      this.translate();
-    };
+      translate();
+    }
 
     // All actions need to be done after a transfer:
     // 1. check index
@@ -391,17 +335,17 @@
     // 3. disable nav buttons when reach the first/last slide in non-loop slider
     // 4. update dots status
     // 5. lazyload images
-    this.update = function () {
-      this.fallback();
-      this.slideActive();
-      this.disableNav();
-      this.dotActive();
-      this.lazyLoad();
+    function update() {
+      fallback();
+      slideActive();
+      disableNav();
+      dotActive();
+      lazyLoad();
 
       animating = false;
-    };
+    }
 
-    this.onNavClick = function (dir) {
+    function onNavClick(dir) {
       if (!animating) {
         var indexTem, indexGap;
 
@@ -410,23 +354,23 @@
         indexTem = index + dir;
         index = (loop) ? indexTem : Math.max(0, Math.min(indexTem, slideCount - items));
 
-        this.setTransitionDuration(indexGap);
-        this.translate();
+        setTransitionDuration(indexGap);
+        translate();
 
         setTimeout(function () {
-          that.update();
+          update();
         }, speed * indexGap);
       }
-    };
+    }
 
-    this.fireDotClick = function () {
+    function fireDotClick() {
       return function () {
         var dotIndex = gn.indexOf(allDots, this);
-        that.onDotClick(dotIndex);
+        onDotClick(dotIndex);
       };
-    };
+    }
 
-    this.onDotClick = function (dotIndex) {
+    function onDotClick(dotIndex) {
       if (!animating) {
         dotClicked = dotIndex;
 
@@ -436,16 +380,16 @@
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
 
-        this.setTransitionDuration(indexGap);
-        this.translate();
+        setTransitionDuration(indexGap);
+        translate();
 
         setTimeout(function () { 
-          that.update();
+          update();
         }, speed * indexGap);
       }
-    };
+    }
 
-    this.lazyLoad = function () {
+    function lazyLoad() {
       if (!gn.isInViewport(slideContainer)) { return; }
 
       var imgs = slideContainer.querySelectorAll('.tiny-visible .tiny-lazy');
@@ -456,17 +400,17 @@
           imgs[i].classList.add('loaded');
         }
       }
-    };
+    }
 
-    this.onPanStart = function () {
+    function onPanStart() {
       return function (e) {
         var touchObj = e.changedTouches[0];
         startX = parseInt(touchObj.clientX);
         startY = parseInt(touchObj.clientY);
       };
-    };
+    }
 
-    this.onPanMove = function () {
+    function onPanMove() {
       return function (e) {
         var touchObj = e.changedTouches[0];
         distX = parseInt(touchObj.clientX) - startX;
@@ -496,9 +440,9 @@
           e.preventDefault();
         }
       };
-    };
+    }
 
-    this.onPanEnd = function () {
+    function onPanEnd() {
       return function (e) {
         var touchObj = e.changedTouches[0];
         distX = parseInt(touchObj.clientX) - startX;
@@ -517,171 +461,206 @@
           indexTem = Math.max(min, Math.min(indexTem, max));
           index = indexTem;
 
-          that.setTransitionDuration(1);
-          that.translate();
+          setTransitionDuration(1);
+          translate();
 
           setTimeout(function () {
-            that.update();
+            update();
           }, speed);
         }
       };
-    };
+    }
+    return {
+      // initialize:
+      // 1. add .tiny-content to container
+      // 2. wrap container with .tiny-slider
+      // 3. add dots and nav if needed, set allDots, prevButton, nextButton
+      // 4. clone items for loop if needed, update childrenCount
+      init: function () {
+        slideContainer.classList.add('tiny-content');
 
-    // initialize:
-    // 1. add .tiny-content to container
-    // 2. wrap container with .tiny-slider
-    // 3. add dots and nav if needed, set allDots, prevButton, nextButton
-    // 4. clone items for loop if needed, update childrenCount
-    this.init = function () {
-      slideContainer.classList.add('tiny-content');
+        // wrap slider with ".tiny-slider"
+        var sliderWrapper = document.createElement('div');
+        sliderWrapper.className = 'tiny-slider';
+        gn.wrap(slideContainer, sliderWrapper);
 
-      // wrap slider with ".tiny-slider"
-      var sliderWrapper = document.createElement('div');
-      sliderWrapper.className = 'tiny-slider';
-      gn.wrap(slideContainer, sliderWrapper);
+        // for IE10
+        if (navigator.msMaxTouchPoints) {
+          sliderWrapper.classList.add('ms-touch');
 
-      // for IE10
-      if (navigator.msMaxTouchPoints) {
-        sliderWrapper.classList.add('ms-touch');
+          sliderWrapper.addEventListener('scroll', function () {
+            if (getTD) { slideContainer.style[getTD] = '0s'; }
+            slideContainer.style.transform = 'translate3d(-' + - slideContainer.scrollLeft() + 'px,0,0)';
+          });
+        }
 
-        sliderWrapper.addEventListener('scroll', function () {
-          if (getTD) { slideContainer.style[getTD] = '0s'; }
-          slideContainer.style.transform = 'translate3d(-' + - slideContainer.scrollLeft() + 'px,0,0)';
+        // add dots
+        if (dots) {
+          if (dotsContainer) {
+            allDots = dotsContainer.children;
+            allDots[0].classList.add('tiny-active');
+          } else {
+            var dotHtml = '';
+            for (var i = slideCount; i--;) {
+              dotHtml += '<div class="tiny-dot"></div>';
+            }
+            dotHtml = '<div class="tiny-dots">' + dotHtml + '</div>';
+            gn.append(sliderWrapper, dotHtml);
+
+            allDots = sliderWrapper.querySelectorAll('.tiny-dot');
+          }
+          dotsCount = allDots.length;
+        }
+
+        // add nav
+        if (nav) {
+          if (navContainer) {
+            prevButton = navContainer.firstElementChild;
+            nextButton = navContainer.lastElementChild;
+          } else {
+            gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + navText[0] + '</div><div class="tiny-next">' + navText[1] + '</div></div>');
+
+            prevButton = sliderWrapper.querySelector('.tiny-prev');
+            nextButton = sliderWrapper.querySelector('.tiny-next');
+          }
+        }
+
+        // clone items
+        if (loop) {
+          var fragmentBefore = document.createDocumentFragment(), 
+              fragmentAfter = document.createDocumentFragment(); 
+
+          for (var j = itemsMax; j--;) {
+            var 
+                cloneFirst = slideItems[j].cloneNode(true),
+                cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
+
+            fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
+            fragmentAfter.appendChild(cloneLast);
+          }
+
+          slideContainer.appendChild(fragmentBefore);
+          slideContainer.insertBefore(fragmentAfter, slideContainer.firstChild);
+
+          slideCountUpdated = slideContainer.children.length;
+          slideItems = slideContainer.children;
+        }
+
+        updateLayout();
+        setSnapInterval();
+        translate();
+        slideActive();
+        if (nav) {
+          disableNav();
+          nextButton.addEventListener('click', function () { onNavClick(1); });
+          prevButton.addEventListener('click', function () { onNavClick(-1); });
+        }
+
+        displayDots();
+        dotActive();
+        if (dots) {
+          for (var a = 0; a < dotsCount; a++) {
+            allDots[a].addEventListener('click', fireDotClick());
+          }
+        }
+
+        if (lazyload) { lazyLoad(); }
+
+        if (arrowKeys) {
+          document.addEventListener('keydown', function (e) {
+            e = e || window.event;
+            if (e.keyCode === 37) {
+              onNavClick(-1);
+            } else if (e.keyCode === 39) {
+              onNavClick(1);
+            }
+          });
+        }
+
+        if (autoplay) {
+          setInterval(function () {
+            onNavClick(autoplayDirection);
+          }, autoplayTimeout);
+        }
+
+        if (touch) {
+          if (!slideEventAdded && slideContainer.addEventListener) {
+            slideContainer.addEventListener('touchstart', onPanStart(), false);
+            slideContainer.addEventListener('touchmove', onPanMove(), false);
+            slideContainer.addEventListener('touchend', onPanEnd(), false);
+            slideContainer.addEventListener('touchcancel', onPanEnd(), false);
+
+            slideEventAdded = true;
+          }
+        }
+
+        // on window resize
+        var updateIt;
+        window.addEventListener('resize', function () {
+          // update after resize done
+          clearTimeout(updateIt);
+          updateIt = setTimeout(function () {
+            items = getItems();
+            slideWidth = getSlideWidth();
+            dotsCountVisible = getDotsCount();
+
+            updateLayout();
+            setSnapInterval();
+            translate();
+            displayDots();
+            dotActive();
+            if (lazyload) {
+              lazyLoad();
+            }
+          }, 100);
+        });
+
+        // on window scroll
+        window.addEventListener('scroll', function () {
+          if (lazyload) {
+            lazyLoad();
+          }
         });
       }
-
-      // add dots
-      if (dots) {
-        if (dotsContainer) {
-          allDots = dotsContainer.children;
-          allDots[0].classList.add('tiny-active');
-        } else {
-          var dotHtml = '';
-          for (var i = slideCount; i--;) {
-            dotHtml += '<div class="tiny-dot"></div>';
-          }
-          dotHtml = '<div class="tiny-dots">' + dotHtml + '</div>';
-          gn.append(sliderWrapper, dotHtml);
-
-          allDots = sliderWrapper.querySelectorAll('.tiny-dot');
-        }
-        dotsCount = allDots.length;
-      }
-
-      // add nav
-      if (nav) {
-        if (navContainer) {
-          prevButton = navContainer.firstElementChild;
-          nextButton = navContainer.lastElementChild;
-        } else {
-          gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + navText[0] + '</div><div class="tiny-next">' + navText[1] + '</div></div>');
-
-          prevButton = sliderWrapper.querySelector('.tiny-prev');
-          nextButton = sliderWrapper.querySelector('.tiny-next');
-        }
-      }
-
-      // clone items
-      if (loop) {
-        var fragmentBefore = document.createDocumentFragment(), 
-            fragmentAfter = document.createDocumentFragment(); 
-
-        for (var j = itemsMax; j--;) {
-          var 
-              cloneFirst = slideItems[j].cloneNode(true),
-              cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
-
-          fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
-          fragmentAfter.appendChild(cloneLast);
-        }
-
-        slideContainer.appendChild(fragmentBefore);
-        slideContainer.insertBefore(fragmentAfter, slideContainer.firstChild);
-
-        slideCountUpdated = slideContainer.children.length;
-        slideItems = slideContainer.children;
-      }
-
-      this.updateLayout();
-      this.setSnapInterval();
-      this.translate();
-      this.slideActive();
-      if (nav) {
-        this.disableNav();
-        nextButton.addEventListener('click', function () { that.onNavClick(1); });
-        prevButton.addEventListener('click', function () { that.onNavClick(-1); });
-      }
-
-      this.displayDots();
-      this.dotActive();
-      if (dots) {
-        for (var a = 0; a < dotsCount; a++) {
-          allDots[a].addEventListener('click', this.fireDotClick());
-        }
-      }
-
-      if (lazyload) { this.lazyLoad(); }
-
-      if (arrowKeys) {
-        document.addEventListener('keydown', function (e) {
-          e = e || window.event;
-          if (e.keyCode === 37) {
-            that.onNavClick(-1);
-          } else if (e.keyCode === 39) {
-            that.onNavClick(1);
-          }
-        });
-      }
-
-      if (autoplay) {
-        setInterval(function () {
-          that.onNavClick(autoplayDirection);
-        }, autoplayTimeout);
-      }
-
-      if (touch) {
-        if (!slideEventAdded && slideContainer.addEventListener) {
-          slideContainer.addEventListener('touchstart', that.onPanStart(), false);
-          slideContainer.addEventListener('touchmove', that.onPanMove(), false);
-          slideContainer.addEventListener('touchend', that.onPanEnd(), false);
-          slideContainer.addEventListener('touchcancel', that.onPanEnd(), false);
-
-          slideEventAdded = true;
-        }
-      }
     };
+  };
 
-    // === run slider ===
-    this.init();
 
-    // on window resize
-    var updateIt;
-    window.addEventListener('resize', function () {
-      // update after resize done
-      clearTimeout(updateIt);
-      updateIt = setTimeout(function () {
-        items = getItems();
-        slideWidth = getSlideWidth();
-        dotsCountVisible = getDotsCount();
-
-        that.updateLayout();
-        that.setSnapInterval();
-        that.translate();
-        that.displayDots();
-        that.dotActive();
-        if (lazyload) {
-          that.lazyLoad();
-        }
-      }, 100);
-    });
-
-    // on window scroll
-    window.addEventListener('scroll', function () {
-      if (lazyload) {
-        that.lazyLoad();
-      }
-    });
+  // === Private helper functions === //
+  function toDegree (angle) {
+    return angle * (180 / Math.PI);
   }
 
-  return tinySlider;
-});
+  function getPanDir(angle, range) {
+    if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
+      return 'horizontal';
+    } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
+      return 'vertical';
+    } else {
+      return false;
+    }
+  }
+
+  function getMapKeys (obj) {
+    if (obj && typeof(obj) === 'object') {
+      return Object.keys(obj);
+    } else {
+      return false;
+    }
+  }
+
+  function getMapValues (obj, keys) {
+    if (obj && typeof(obj) === 'object') {
+      var values = [];
+      for (var i = 0; i < keys.length; i++) {
+        var pro = keys[i];
+        values.push(obj[pro]);
+      }
+      return values;
+    } else {
+      return false;
+    }
+  }
+
+  return core;
+})();
