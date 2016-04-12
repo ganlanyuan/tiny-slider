@@ -630,7 +630,7 @@
 
       translateX = - el.itemWidth * el.index;
       if (el.fw && !el.loop) {
-        translateX = Math.max( translateX, - (el.cul * el.itemWidth - vw) );
+        translateX = Math.max( translateX, - Math.abs(el.cl * el.itemWidth - vw) );
       }
 
       if (getTransform) {
