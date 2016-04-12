@@ -347,12 +347,10 @@ var tinySlider = (function () {
 
     function onNavClick(dir) {
       if (!animating) {
-        var indexTem, indexGap;
-
         dir = (slideByPage) ? dir * items : dir;
-        indexGap = Math.abs(dir);
-        indexTem = index + dir;
-        index = (loop) ? indexTem : Math.max(0, Math.min(indexTem, slideCount - items));
+        var indexGap = Math.abs(dir);
+
+        index = (loop) ? (index + dir) : Math.max(0, Math.min((index + dir), slideCount - items));
 
         setTransitionDuration(indexGap);
         translate();
