@@ -297,7 +297,7 @@ var tinySlider = (function () {
 
       translateX = - slideWidth * index;
       if (fixedWidth && !loop) {
-        translateX = Math.max( translateX, - (slideCountUpdated * slideWidth - vw) );
+        translateX = Math.max( translateX, - Math.abs(slideCount * slideWidth - vw) );
       }
 
       if (getTransform) {
@@ -621,7 +621,7 @@ var tinySlider = (function () {
         });
       }
     };
-  };
+  }
 
 
   // === Private helper functions === //
