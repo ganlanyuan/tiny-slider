@@ -5,6 +5,7 @@
 - Removed: `offset`.
 - Totally rewrite with Module Pattern.
 - Fixed: an issue that navs are still active when slides cann't fill their parent.
+- Improved: optimize scroll and resize events.
 
 #### v0.3.1
 - Improved: performance.
