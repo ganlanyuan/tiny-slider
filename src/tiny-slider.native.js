@@ -1,21 +1,19 @@
 /**
   * tiny-slider
+  * 
   * @version 0.3.1
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
   * 
-  * DEPENDENCIES:
-  * firstElementChild, lastElementChild
-  * addEventListener
-  * extend
-  * wrap
-  * append
-  * indexOf
-  * 
   */
+
 var tinySlider = (function () {
   'use strict';
+
+  // get supported property
+  var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
+      getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
   function core (options) {
     options = gn.extend({
@@ -39,10 +37,6 @@ var tinySlider = (function () {
       lazyload: false,
       touch: true,
     }, options || {});
-
-    // get supported property
-    var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-        getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
     // === define and set variables ===
     var slideContainer = options.container,
@@ -219,15 +213,28 @@ var tinySlider = (function () {
     function disableNav() {
       if (loop) { return; }
 
-      if (index === 0) {
-        prevButton.classList.add('disabled');
+      if (slideCount <= items) {
+        if (index !== 0) {
+          index = 0;
+          translate();
+        }
+        if (!prevButton.classList.contains('disabled')) {
+          prevButton.classList.add('disabled');
+        }
+        if (!nextButton.classList.contains('disabled')) {
+          nextButton.classList.add('disabled');
+        }
       } else {
-        prevButton.classList.remove('disabled');
-      }
-      if (index === slideCount - items) {
-        nextButton.classList.add('disabled');
-      } else {
-        nextButton.classList.remove('disabled');
+        if (index === 0) {
+          prevButton.classList.add('disabled');
+        } else {
+          prevButton.classList.remove('disabled');
+        }
+        if (index === slideCount - items) {
+          nextButton.classList.add('disabled');
+        } else {
+          nextButton.classList.remove('disabled');
+        }
       }
     }
 
@@ -593,31 +600,32 @@ var tinySlider = (function () {
         }
 
         // on window resize
-        var updateIt;
-        window.addEventListener('resize', function () {
-          // update after resize done
-          clearTimeout(updateIt);
-          updateIt = setTimeout(function () {
-            items = getItems();
-            slideWidth = getSlideWidth();
-            dotsCountVisible = getDotsCount();
+        gn.optimizedResize.add(function () { 
+          items = getItems();
+          slideWidth = getSlideWidth();
+          dotsCountVisible = getDotsCount();
 
-            updateLayout();
-            setSnapInterval();
-            translate();
-            displayDots();
-            dotActive();
-            if (lazyload) {
-              lazyLoad();
-            }
-          }, 100);
-        });
-
-        // on window scroll
-        window.addEventListener('scroll', function () {
+          updateLayout();
+          setSnapInterval();
+          translate();
+          displayDots();
+          disableNav();
+          dotActive();
           if (lazyload) {
             lazyLoad();
           }
+        });
+
+        // on window scroll
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+          if (!ticking) {
+            window.requestAnimationFrame(function() {
+              if (lazyload) { lazyLoad(); }
+              ticking = false;
+            });
+          }
+          ticking = true;
         });
       }
     };

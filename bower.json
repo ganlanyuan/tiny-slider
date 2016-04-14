@@ -22,5 +22,8 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "devDependencies": {
+    "go-native": "0.0.2"
+  }
 }

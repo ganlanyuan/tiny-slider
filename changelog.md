@@ -4,6 +4,7 @@
 - Improved: `container` now is a selector, which is more convenient.
 - Removed: `offset`.
 - Totally rewrite with Module Pattern.
+- Fixed: an issue that navs are still active when slides cann't fill their parent.
 
 #### v0.3.1
 - Improved: performance.

@@ -9,10 +9,7 @@ via bower
 ```
 bower install tiny-slider
 ```
-via npm
-```
-npm install tiny-slider
-```
+
 ## Features
 + responsive
 + fixed width
@@ -24,10 +21,60 @@ npm install tiny-slider
 + touch support
 + arrow keys
 
-## Default setting
+## Usage
+##### 1. Include tiny-slider
+Include tiny-slider (css, js)
+```html
+<link rel="stylesheet" href="tiny-slider.css">
+
+<!--[if (lt IE 9)]>
+  <script src="tiny-slider-helper.ie8.js"></script>
+<![endif]-->
+<script src="tiny-slider.js"></script>
+```
+Or tiny-slider.native (css, js) and [go-native](https://github.com/ganlanyuan/go-native) (10k),
+```html
+<link rel="stylesheet" href="tiny-slider.css">
+
+<!--[if (lt IE 9)]>
+  <script src="go-native.ie8.js"></script>
+<![endif]-->
+<script src="go-native.js"></script>
+<script src="tiny-slider.native.js"></script>
+```
+##### 2. Call tiny-slider
+```html
+<!-- markup -->
+<div class="slider">
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+
+<!-- or 
+<ul class="slider">
+  <li></li>
+  <li></li>
+  <li></li>
+</ul> 
+-->
+
+<script>
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    slideByPage: true,
+    autoplay: true
+  });
+  a.init();
+</script>
+```
+
+## Options
+Default:
 ```javascript
-options = {
-  container: '.slider',
+{
+  container: document.querySelector('.slider'),
   items: 1,
   fixedWidth: false,
   maxContainerWidth: false,
@@ -46,71 +93,41 @@ options = {
   responsive: false,
   lazyload: false,
   touch: true
-};
+}
 ```
-## Usage
-Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
-```html
-<link rel="stylesheet" href="path/to/tiny-slider.css">
-<script src="path/to/tiny-slider.js"></script>
 
-<!-- markup -->
-<div class="slider">
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-</div>
-
-<!-- or 
-<ul class="slider">
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
-  <li></li>
-</ul> 
--->
-
-<script>
-  tinySlider({
-    container: '.slider',
-    items: 3,
-    slideByPage: true,
-    autoplay: true
-  });
-</script>
-```
 #### Responsive
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 1,
   responsive: {
     500: 2,
     800: 3,
   }
 });
+a.init();
 ```
 
 #### Fixed width items
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   fixedWidth: 200,
   maxContainerWidth: 900
 });
+a.init();
 ```
 
 #### Non-loop
 Loop is `true` by default.
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
   loop: false
 });
+a.init();
 ```
 #### Customize
 ```html
@@ -131,12 +148,13 @@ tinySlider({
 </div>
 ```
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
-  navContainer: '.slider-nav',
-  dotsContainer: '.thumbnails'
+  navContainer: document.querySelector('.slider-nav'),
+  dotsContainer: document.querySelector('.thumbnails')
 });
+a.init();
 ```
 
 #### Lazyload
@@ -151,43 +169,47 @@ Add a placeholder image to the image `src` attribute, save the real image sourse
 </div>
 ```
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
   lazyload: true
 });
+a.init();
 ```
 
 #### Slide by page
 Default setting is slide by item.
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
   slideByPage: true
 });
+a.init();
 ```
 
 #### Autoplay
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
   autoplay: true,
   autoplayDirection: 'forward',
   speed: 300,
   autoplayTimeout: 3000
 });
+a.init();
 ```
 
 #### Arrow keys
 Run slider by pressing left or right arrow key.
 ```javascript
-tinySlider({
-  container: '.slider',
+var a = tinySlider({
+  container: document.querySelector('.slider'),
   items: 3,
   arrowKeys: true
 });
+a.init();
 ```
 
 #### * Padding
@@ -212,3 +234,10 @@ There is no option for `padding`, but you can add it by css
 
 ## Todo
 - vertical slider
+
+
+## Browser Support
+Tested on IE8+ and mordern browsers.
+
+## License
+This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
