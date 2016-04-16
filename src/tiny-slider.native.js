@@ -108,11 +108,11 @@ var tinySlider = (function () {
             itemsTem = options.items;
           }
 
-          return Math.min(slideCount, itemsTem);
+          return Math.max(Math.min(slideCount, itemsTem), 1);
         };
       } else {
         return function () {
-          return Math.min(slideCount, Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth));
+          return Math.max(Math.min(slideCount, Math.floor(slideContainer.parentNode.offsetWidth / fixedWidth)), 1);
         };
       }
     })();
