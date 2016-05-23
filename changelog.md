@@ -1,11 +1,11 @@
 #Changelog
 
 #### v1.0.0 beta
-- Improved: `container` now is a selector, which is more convenient.
-- Removed: `offset`.
-- Totally rewrite with Module Pattern.
-- Fixed: an issue that navs are still active when slides cann't fill their parent.
+- Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
 - Improved: optimize scroll and resize events.
+- Removed: `offset`.
+- Fixed: an issue that navs are still active when slides cann't fill their parent.
+- Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
 
 #### v0.3.1
 - Improved: performance.
