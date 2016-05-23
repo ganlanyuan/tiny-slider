@@ -1,7 +1,7 @@
 # tiny-slider
 Pure javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
-[demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)   
+[demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
 [changelog](https://github.com/ganlanyuan/tiny-slider/blob/master/changelog.md)  
 
 ## Install
