@@ -578,6 +578,8 @@ var tinySlider = (function () {
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
+      autoText: ['start', 'stop'],
+      autoContainer: false,
       loop: true,
       autoHeight: false,
       responsive: false,
@@ -601,6 +603,8 @@ var tinySlider = (function () {
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
+        autoText = options.autoText,
+        autoContainer = (!options.autoContainer) ? false : options.autoContainer,
         loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         autoHeight = options.autoHeight,
         slideByPage = options.slideByPage,
@@ -617,7 +621,13 @@ var tinySlider = (function () {
         dotsCountVisible,
         index = 0,
         animating = false,
+        scrolling = false,
         dotClicked = -1;
+
+    if (autoplay) {
+      var startButton,
+          stopButton;
+    }
 
     if (touch) {
       var startX = 0,
@@ -768,12 +778,19 @@ var tinySlider = (function () {
 
       for (var i = slideCountUpdated; i--;) {
         if (i < current || i >= current + items) {
+          if (slideItems[i].getAttribute('tabindex') !== null) {
+            slideItems[i].removeAttribute('tabindex');
+          }
           if (slideItems[i].classList.contains('tiny-visible')) {
             slideItems[i].classList.remove('tiny-current', 'tiny-visible');
           }
         } else if (i === current) {
+          slideItems[i].setAttribute('tabindex', -1);
           slideItems[i].classList.add('tiny-current', 'tiny-visible');
         } else {
+          if (slideItems[i].getAttribute('tabindex') !== null) {
+            slideItems[i].removeAttribute('tabindex');
+          }
           if (!slideItems[i].classList.contains('tiny-visible')) {
             slideItems[i].classList.remove('tiny-current');
             slideItems[i].classList.add('tiny-visible');
@@ -794,21 +811,21 @@ var tinySlider = (function () {
           translate();
         }
         if (!prevButton.classList.contains('disabled')) {
-          prevButton.classList.add('disabled');
+          prevButton.disabled = true;
         }
         if (!nextButton.classList.contains('disabled')) {
-          nextButton.classList.add('disabled');
+          nextButton.disabled = true;
         }
       } else {
         if (index === 0) {
-          prevButton.classList.add('disabled');
+          prevButton.disabled = true;
         } else {
-          prevButton.classList.remove('disabled');
+          prevButton.disabled = false;
         }
         if (index === slideCount - items) {
-          nextButton.classList.add('disabled');
+          nextButton.disabled = true;
         } else {
-          nextButton.classList.remove('disabled');
+          nextButton.disabled = false;
         }
       }
     }
@@ -1091,7 +1108,7 @@ var tinySlider = (function () {
           } else {
             var dotHtml = '';
             for (var i = slideCount; i--;) {
-              dotHtml += '<div class="tiny-dot"></div>';
+              dotHtml += '<button class="tiny-dot" type="button"></button>';
             }
             dotHtml = '<div class="tiny-dots">' + dotHtml + '</div>';
             gn.append(sliderWrapper, dotHtml);
@@ -1107,10 +1124,23 @@ var tinySlider = (function () {
             prevButton = navContainer.firstElementChild;
             nextButton = navContainer.lastElementChild;
           } else {
-            gn.append(sliderWrapper, '<div class="tiny-nav"><div class="tiny-prev">' + navText[0] + '</div><div class="tiny-next">' + navText[1] + '</div></div>');
+            gn.append(sliderWrapper, '<div class="tiny-nav"><button class="tiny-prev" type="button">' + navText[0] + '</button><button class="tiny-next" type="button">' + navText[1] + '</button></div>');
 
             prevButton = sliderWrapper.querySelector('.tiny-prev');
             nextButton = sliderWrapper.querySelector('.tiny-next');
+          }
+        }
+
+        // add auto
+        if (autoplay) {
+          if (autoContainer) {
+            startButton = autoContainer.firstElementChild;
+            stopButton = autoContainer.lastElementChild;
+          } else {
+            gn.append(sliderWrapper, '<div class="tiny-auto"><button class="tiny-start" type="button">' + autoText[0] + '</button><button class="tiny-stop" type="button">' + autoText[1] + '</button></div>');
+
+            startButton = sliderWrapper.querySelector('.tiny-start');
+            stopButton = sliderWrapper.querySelector('.tiny-stop');
           }
         }
 
@@ -1152,7 +1182,7 @@ var tinySlider = (function () {
         activeDot();
         if (dots) {
           for (var a = 0; a < dotsCount; a++) {
-            allDots[a].addEventListener('click', fireDotClick());
+            allDots[a].addEventListener('click', fireDotClick(), false);
           }
         }
 
@@ -1170,9 +1200,32 @@ var tinySlider = (function () {
         }
 
         if (autoplay) {
-          setInterval(function () {
-            onNavClick(autoplayDirection);
-          }, autoplayTimeout);
+          var autoplayTimer;
+
+          function startScroll() {
+            autoplayTimer = setInterval(function () {
+              onNavClick(autoplayDirection);
+            }, autoplayTimeout);
+          }
+          startScroll();
+
+          function stopScroll() {
+            clearInterval(autoplayTimer);
+          }
+
+          startButton.addEventListener('click', startScroll, false );
+          stopButton.addEventListener('click', stopScroll, false );
+
+          if (nav) {
+            prevButton.addEventListener('click', stopScroll, false );
+            nextButton.addEventListener('click', stopScroll, false );
+          }
+
+          if (dots) {
+            for (var a = 0; a < dotsCount; a++) {
+              allDots[a].addEventListener('click', stopScroll, false);
+            }
+          }
         }
 
         if (touch) {

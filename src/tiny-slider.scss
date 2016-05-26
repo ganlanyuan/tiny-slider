@@ -37,8 +37,12 @@
       overflow: hidden;
     }
   }
-  &-prev, &-next, &-dot { cursor: pointer; }
-  &-hide { display: none; }
+  &-prev, &-next, &-start, &-stop, &-dot {
+    cursor: pointer;
+    border-width: 0;
+    padding: 0;
+  }
+  &-hide { display: none !important; }
   &-lazy {
     -webkit-transition: opacity 0.6s;
     transition: opacity 0.6s;

@@ -16,6 +16,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
+  <link href="prism/prism.css" rel="stylesheet">
+  <link rel="stylesheet" href="../dist/tiny-slider.css">
   <style>
     li { list-style: none; }
     ul, ol, li { margin: 0; padding: 0; }
@@ -85,16 +87,23 @@
     .slider-nav .prev { left: 0; }
     .slider-nav .next { right: 0; }
     .slider-nav li:hover { background: #f2f2f2; }
-    .tiny-nav { text-align: center; }
-    .tiny-prev, .tiny-next {
-      display: inline-block;
+    .tiny-nav, .tiny-auto { text-align: center; margin-bottom: 10px; }
+    .tiny-prev, .tiny-next, .tiny-start, .tiny-stop {
+      font-size: 15px;
       margin: 0 5px;
-      padding: 10px 20px;
+      padding: 0 1em;
+      height: 2.5em;
       color: #1D3A50;
       background: #66CCFF;
       border-radius: 3px;
     }
-    .disabled { 
+    .lt-ie9 .tiny-prev, 
+    .lt-ie9 .tiny-next,
+    .lt-ie9 .tiny-start,
+    .lt-ie9 .tiny-stop {
+      line-height: 2.5em;
+    }
+    button[disabled] { 
       color: #999999;
       background: #B3B3B3; 
       cursor: not-allowed !important;
@@ -104,7 +113,6 @@
       margin: 10px 0;
     }
     .tiny-dot {
-      display: inline-block;
       width: 9px;
       height: 9px;
       margin: 0 5px;
@@ -113,8 +121,6 @@
     }
     .tiny-active { background: #999; }
   </style>
-  <link href="prism/prism.css" rel="stylesheet">
-  <link rel="stylesheet" href="../dist/tiny-slider.css">
 </head>
 <body>
 
