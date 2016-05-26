@@ -1,4 +1,4 @@
-// @codekit-prepend "../bower_components/go-native/src/es5/array/forEach.js";
+
 // @codekit-prepend "../bower_components/go-native/src/es5/object/keys.js";
 
 // @codekit-prepend "../bower_components/go-native/src/ie8/addEventListener.js";

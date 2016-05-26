@@ -11,5 +11,4 @@
 // @codekit-prepend "../bower_components/go-native/src/gn/append.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/wrap.js";
 
-// @codekit-prepend "../bower_components/go-native/src/gn/optimizedResize.js";
 // @codekit-prepend "../bower_components/requestAnimationFrame/requestAnimationFrame.js";

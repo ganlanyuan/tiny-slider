@@ -22,8 +22,10 @@
   &-content {
     position: relative;
     left: 0;
-    -webkit-transition: transform 0s;
-    transition: transform 0s;
+    -webkit-transition: transform 0s, height 0s;
+    -moz-transition: transform 0s, height 0s;
+    transition: transform 0s, height 0s;
+    overflow: hidden;
     &:after {
       content: '';
       display: table;

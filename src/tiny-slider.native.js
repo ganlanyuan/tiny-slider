@@ -15,7 +15,7 @@ var tinySlider = (function () {
 
   function core (options) {
     options = gn.extend({
-      container: '.slider',
+      container: document.querySelector('.slider'),
       items: 1,
       fixedWidth: false,
       maxContainerWidth: false,
@@ -31,6 +31,7 @@ var tinySlider = (function () {
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
       loop: true,
+      autoHeight: false,
       responsive: false,
       lazyload: false,
       touch: true,
@@ -53,6 +54,7 @@ var tinySlider = (function () {
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
+        autoHeight = options.autoHeight,
         slideByPage = options.slideByPage,
         lazyload = options.lazyload,
         touch = options.touch,
@@ -81,8 +83,8 @@ var tinySlider = (function () {
 
     // get items, itemsMax, slideWidth, dotsCountVisible
     var responsive = (fixedWidth) ? false : options.responsive,
-        bpKeys = getMapKeys(responsive),
-        bpVals = getMapValues(responsive, bpKeys);
+        bpKeys = (typeof responsive !== 'object') ? false : Object.keys(responsive),
+        bpVals = getMapValues(responsive);
 
     var getItems = (function () {
       if (!fixedWidth) {
@@ -156,7 +158,6 @@ var tinySlider = (function () {
     slideWidth = getSlideWidth();
     dotsCountVisible = getDotsCount();
 
-    // === Public functions ===
     // update layout:
     // update slide container width, margin-left
     // update slides' width
@@ -170,6 +171,34 @@ var tinySlider = (function () {
       }
     }
 
+    // update container height
+    // 1. get the max-height of the current slides
+    // 2. set transitionDuration to speed
+    // 3. update container height to max-height
+    // 4. set transitionDuration to 0s after transition is done
+    function updateContainerHeight() {
+      var current = (loop) ? index + itemsMax : index, 
+          heights = [],
+          maxHeight;
+
+      for (var i = slideCountUpdated; i--;) {
+        if (i >= current && i < current + items) {
+          heights.push(slideItems[i].offsetHeight);
+        }
+      }
+
+      maxHeight = Math.max.apply(null, heights);
+      if (getTD) { slideContainer.style[getTD] = speed / 1000 + 's'; }
+      slideContainer.style.height = maxHeight + 'px';
+      animating = true;
+      
+      setTimeout(function () {
+        if (getTD) { slideContainer.style[getTD] = '0s'; }
+        animating = false;
+      }, speed);
+    }
+
+    // set transition duration
     function setTransitionDuration(indexGap) {
       if (!getTD) { return; }
       slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
@@ -182,11 +211,11 @@ var tinySlider = (function () {
       slideContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
     }
 
-    // slide active
+    // active slide
     // 1. add class '.tiny-visible' to visible slides
     // 2. add class '.tiny-current' to the first visible slide
     // 3. remove classes '.tiny-visible' and '.tiny-current' from other slides
-    function slideActive() {
+    function activeSlide() {
       var current = (loop) ? index + itemsMax : index;
 
       for (var i = slideCountUpdated; i--;) {
@@ -258,7 +287,7 @@ var tinySlider = (function () {
 
     // add class 'tiny-active' to active dot
     // remove this class from other dots
-    function dotActive() {
+    function activeDot() {
       if (!dots) { return; }
 
       var dotCurrent;
@@ -340,16 +369,21 @@ var tinySlider = (function () {
     // 3. disable nav buttons when reach the first/last slide in non-loop slider
     // 4. update dots status
     // 5. lazyload images
+    // 6. update container height
     function update() {
       fallback();
-      slideActive();
+      activeSlide();
       disableNav();
-      dotActive();
+      activeDot();
       lazyLoad();
+      if (autoHeight) {
+        updateContainerHeight();
+      }
 
       animating = false;
     }
 
+    // on nav click
     function onNavClick(dir) {
       if (!animating) {
         dir = (slideByPage) ? dir * items : dir;
@@ -366,6 +400,7 @@ var tinySlider = (function () {
       }
     }
 
+    // 
     function fireDotClick() {
       return function () {
         var dotIndex = gn.indexOf(allDots, this);
@@ -373,6 +408,7 @@ var tinySlider = (function () {
       };
     }
 
+    // on doc click
     function onDotClick(dotIndex) {
       if (!animating) {
         dotClicked = dotIndex;
@@ -392,6 +428,7 @@ var tinySlider = (function () {
       }
     }
 
+    // lazyload
     function lazyLoad() {
       if (!gn.isInViewport(slideContainer)) { return; }
 
@@ -473,6 +510,7 @@ var tinySlider = (function () {
         }
       };
     }
+    
     return {
       // initialize:
       // 1. add .tiny-content to container
@@ -550,9 +588,12 @@ var tinySlider = (function () {
         }
 
         updateLayout();
+        if (autoHeight) {
+          updateContainerHeight();
+        }
         setSnapInterval();
         translate();
-        slideActive();
+        activeSlide();
         if (nav) {
           disableNav();
           nextButton.addEventListener('click', function () { onNavClick(1); });
@@ -560,7 +601,7 @@ var tinySlider = (function () {
         }
 
         displayDots();
-        dotActive();
+        activeDot();
         if (dots) {
           for (var a = 0; a < dotsCount; a++) {
             allDots[a].addEventListener('click', fireDotClick());
@@ -598,20 +639,29 @@ var tinySlider = (function () {
         }
 
         // on window resize
-        gn.optimizedResize.add(function () { 
-          items = getItems();
-          slideWidth = getSlideWidth();
-          dotsCountVisible = getDotsCount();
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
 
-          updateLayout();
-          setSnapInterval();
-          translate();
-          displayDots();
-          disableNav();
-          dotActive();
-          if (lazyload) {
-            lazyLoad();
-          }
+          // update after resize done
+          resizeTimer = setTimeout(function () {
+            items = getItems();
+            slideWidth = getSlideWidth();
+            dotsCountVisible = getDotsCount();
+
+            updateLayout();
+            setSnapInterval();
+            translate();
+            displayDots();
+            disableNav();
+            activeDot();
+            if (autoHeight) {
+              updateContainerHeight();
+            }
+            if (lazyload) {
+              lazyLoad();
+            }
+          }, 100);
         });
 
         // on window scroll
@@ -645,21 +695,16 @@ var tinySlider = (function () {
     }
   }
 
-  function getMapKeys (obj) {
-    if (obj && typeof(obj) === 'object') {
-      return Object.keys(obj);
-    } else {
-      return false;
-    }
-  }
+  function getMapValues (obj) {
+    if (typeof(obj) === 'object') {
+      var values = [],
+          keys = Object.keys(obj);
 
-  function getMapValues (obj, keys) {
-    if (obj && typeof(obj) === 'object') {
-      var values = [];
-      for (var i = 0; i < keys.length; i++) {
-        var pro = keys[i];
-        values.push(obj[pro]);
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var a = keys[i];
+        values.push(obj[a]);
       }
+
       return values;
     } else {
       return false;

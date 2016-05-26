@@ -3,6 +3,7 @@
 #### v1.0.0 beta
 - Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
 - Improved: optimize scroll and resize events.
+- Added: `autoHeight` option.
 - Removed: `offset`.
 - Fixed: an issue that navs are still active when slides cann't fill their parent.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.

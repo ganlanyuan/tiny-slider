@@ -1,4 +1,5 @@
 # tiny-slider
+![version](https://img.shields.io/badge/Version-0.3.1-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
 [demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
@@ -11,19 +12,20 @@ bower install tiny-slider
 ```
 
 ## Features
-+ responsive
-+ fixed width
-+ loop
-+ slide by page
-+ customize nav / dots
-+ autoplay
-+ lazyload
-+ touch support
-+ arrow keys
+- responsive
+- fixed width
+- loop
+- slide by page
+- customize nav / dots
+- autoplay
+- auto height
+- lazyload
+- touch support
+- arrow keys
 
 ## Usage
 ##### 1. Include tiny-slider
-Include tiny-slider (css, js)
+Include tiny-slider
 ```html
 <link rel="stylesheet" href="tiny-slider.css">
 
@@ -32,7 +34,7 @@ Include tiny-slider (css, js)
 <![endif]-->
 <script src="tiny-slider.js"></script>
 ```
-Or tiny-slider.native (css, js) and [go-native](https://github.com/ganlanyuan/go-native),
+Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 ```html
 <link rel="stylesheet" href="tiny-slider.css">
 
@@ -42,7 +44,7 @@ Or tiny-slider.native (css, js) and [go-native](https://github.com/ganlanyuan/go
 <script src="go-native.js"></script>
 <script src="tiny-slider.native.js"></script>
 ```
-##### 2. Call tiny-slider
+##### 2. Add your markup
 ```html
 <!-- markup -->
 <div class="slider">
@@ -58,7 +60,9 @@ Or tiny-slider.native (css, js) and [go-native](https://github.com/ganlanyuan/go
   <li></li>
 </ul> 
 -->
-
+```
+##### 3. Call tiny-slider
+```html
 <script>
   var a = tinySlider({
     container: document.querySelector('.slider'),
@@ -90,6 +94,7 @@ Default:
   autoplayTimeout: 5000,
   autoplayDirection: 'forward',
   loop: true,
+  autoHeight: false,
   responsive: false,
   lazyload: false,
   touch: true
@@ -208,6 +213,16 @@ var a = tinySlider({
   container: document.querySelector('.slider'),
   items: 3,
   arrowKeys: true
+});
+a.init();
+```
+
+#### Auto height
+```javascript
+var a = tinySlider({
+  container: document.querySelector('.slider'),
+  items: 3,
+  autoHeight: true
 });
 a.init();
 ```
