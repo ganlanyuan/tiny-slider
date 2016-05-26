@@ -5,10 +5,10 @@
   "authors": [
     "WilliamLin <ganlanyuan@gmail.com>"
   ],
-  "description": "Pure tiny javascript slider for all purposes.",
+  "description": "Tiny slider for all purposes.",
   "main": [
     "src/css/tiny-slider.css",
-    "src/js/tiny-slider.min.js"
+    "src/js/tiny-slider.js"
   ],
   "moduleType": [],
   "keywords": [
@@ -24,6 +24,6 @@
     "tests"
   ],
   "devDependencies": {
-    "go-native": "0.0.2"
+    "go-native": "0.0.3"
   }
 }
