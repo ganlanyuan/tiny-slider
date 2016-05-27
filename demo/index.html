@@ -68,11 +68,11 @@
       text-align: center;
     }
     .thumbnails li { display: inline-block; cursor: pointer; }
-    .thumbnails li.tiny-active { background: none; }
+    .thumbnails li.current { background: none; }
     .thumbnails li img { border: 5px solid #fff; }
-    .thumbnails li.tiny-active img { border-color: #E75FCB; }
-    .slider-nav { text-align: center; }
-    .slider-nav li {
+    .thumbnails li.current img { border-color: #E75FCB; }
+    .slider-controls { text-align: center; }
+    .slider-controls li {
       display: block;
       position: absolute;
       top: 50%;
@@ -83,43 +83,47 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .slider-nav li img { display: inline-block; vertical-align: middle; }
-    .slider-nav .prev { left: 0; }
-    .slider-nav .next { right: 0; }
-    .slider-nav li:hover { background: #f2f2f2; }
-    .tiny-nav, .tiny-auto { text-align: center; margin-bottom: 10px; }
-    .tiny-prev, .tiny-next, .tiny-start, .tiny-stop {
+    .slider-controls li img { display: inline-block; vertical-align: middle; }
+    .slider-controls .prev { left: 0; }
+    .slider-controls .next { right: 0; }
+    .slider-controls li:hover { background: #f2f2f2; }
+    .tiny-controls, .tiny-auto { text-align: center; margin-bottom: 10px; }
+    .tiny-prev, .tiny-next {
       font-size: 15px;
       margin: 0 5px;
       padding: 0 1em;
       height: 2.5em;
-      color: #1D3A50;
+      color: #000;
       background: #66CCFF;
       border-radius: 3px;
     }
     .lt-ie9 .tiny-prev, 
-    .lt-ie9 .tiny-next,
-    .lt-ie9 .tiny-start,
-    .lt-ie9 .tiny-stop {
+    .lt-ie9 .tiny-next {
       line-height: 2.5em;
+    }
+    [data-action] {
+      margin-top: 4px;
+      font-size: 15px;
+      vertical-align: middle;
+      background: transparent;
     }
     button[disabled] { 
       color: #999999;
       background: #B3B3B3; 
       cursor: not-allowed !important;
     }
-    .tiny-dots {
+    .tiny-nav {
       text-align: center;
       margin: 10px 0;
     }
-    .tiny-dot {
+    button[data-slide] {
       width: 9px;
       height: 9px;
       margin: 0 5px;
       border-radius: 50%;
       background: #ddd;
     }
-    .tiny-active { background: #999; }
+    button.current { background: #999; }
   </style>
 </head>
 <body>
@@ -163,13 +167,13 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.responsive'),
   responsive: {
     500: 2,
     800: 3,
   }
-  }).init();
+}).init();
     </code></pre>
   </section>
   <section>
@@ -209,12 +213,12 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.fixed-width'),
   fixedWidth: 200,
   maxContainerWidth: 900,
   loop: false
-  }).init();
+}).init();
     </code></pre>
   </section>
   <section>
@@ -255,28 +259,28 @@
     </ul>
     <div class="controls">
       <ul class="thumbnails">
-        <li><img src="images/sm/1.jpg" alt=""></li>
-        <li><img src="images/sm/2.jpg" alt=""></li>
-        <li><img src="images/sm/3.jpg" alt=""></li>
-        <li><img src="images/sm/4.jpg" alt=""></li>
-        <li><img src="images/sm/5.jpg" alt=""></li>
-        <li><img src="images/sm/6.jpg" alt=""></li>
-        <li><img src="images/sm/7.jpg" alt=""></li>
-        <li><img src="images/sm/8.jpg" alt=""></li>
+        <li data-slide="0"><img src="images/sm/1.jpg" alt=""></li>
+        <li data-slide="1"><img src="images/sm/2.jpg" alt=""></li>
+        <li data-slide="2"><img src="images/sm/3.jpg" alt=""></li>
+        <li data-slide="3"><img src="images/sm/4.jpg" alt=""></li>
+        <li data-slide="4"><img src="images/sm/5.jpg" alt=""></li>
+        <li data-slide="5"><img src="images/sm/6.jpg" alt=""></li>
+        <li data-slide="6"><img src="images/sm/7.jpg" alt=""></li>
+        <li data-slide="7"><img src="images/sm/8.jpg" alt=""></li>
       </ul>
-      <ul class="slider-nav">
+      <ul class="slider-controls">
         <li class="prev"><img src="images/angle-left.png" alt=""></li>
         <li class="next"><img src="images/angle-right.png" alt=""></li>
       </ul>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.customize'),
   items: 3,
-  navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails'),
+  controlsContainer: document.querySelector('.slider-controls'),
+  navContainer: document.querySelector('.thumbnails'),
   lazyload: true
-  }).init();
+}).init();
     </code></pre>
   </section>
   <section>
@@ -316,11 +320,11 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.non-loop'),
   items: 3,
   loop: false
-  }).init();
+}).init();
     </code></pre>
   </section>
   <section>
@@ -360,11 +364,11 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.slide-by-page'),
   items: 3,
   slideByPage: true
-  }).init();
+}).init();
     </code></pre>
   </section>
   <section>
@@ -404,13 +408,14 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.autoplay'),
   items: 3,
   autoplay: true,
   speed: 300,
-  autoplayTimeout: 3000
-  }).init();
+  autoplayTimeout: 3000,
+  autoplayText: ['▶', '❚❚']
+}).init();
     </code></pre>
   </section>
   <section>
@@ -450,11 +455,11 @@
       </div>
     </div>
     <pre><code class="language-javascript">
-  tinySlider({
+tinySlider({
   container: document.querySelector('.arrow-keys'),
   items: 3,
   arrowKeys: true
-  }).init();
+}).init();
     </code></pre>
   </section>
     <section class="auto-height-wrapper">
@@ -494,13 +499,14 @@
         </div>
       </div>
       <pre><code class="language-javascript">
-  tinySlider({
-    container: document.querySelector('.responsive'),
-    responsive: {
-      500: 2,
-      800: 3,
-    }
-  }).init();
+tinySlider({
+  container: document.querySelector('.auto-height'),
+  autoHeight: true,
+  responsive: {
+    500: 2,
+    800: 3,
+  }
+}).init();
       </code></pre>
     </section>
 </div>
@@ -527,8 +533,8 @@
   tinySlider({
     container: document.querySelector('.customize'),
     items: 3,
-    navContainer: document.querySelector('.slider-nav'),
-    dotsContainer: document.querySelector('.thumbnails'),
+    controlsContainer: document.querySelector('.slider-controls'),
+    navContainer: document.querySelector('.thumbnails'),
     lazyload: true
   }).init();
 
@@ -549,7 +555,8 @@
     items: 3,
     autoplay: true,
     speed: 300,
-    autoplayTimeout: 3000
+    autoplayTimeout: 3000,
+    autoplayText: ['▶', '❚❚']
   }).init();
 
   tinySlider({

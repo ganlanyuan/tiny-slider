@@ -568,18 +568,17 @@ var tinySlider = (function () {
       fixedWidth: false,
       maxContainerWidth: false,
       slideByPage: false,
+      controls: true,
+      controlsText: ['prev', 'next'],
+      controlsContainer: false,
       nav: true,
-      navText: ['prev', 'next'],
       navContainer: false,
-      dots: true,
-      dotsContainer: false,
       arrowKeys: false,
       speed: 250,
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
-      autoText: ['start', 'stop'],
-      autoContainer: false,
+      autoplayText: ['start', 'stop'],
       loop: true,
       autoHeight: false,
       responsive: false,
@@ -593,18 +592,17 @@ var tinySlider = (function () {
         slideCount = slideItems.length,
         slideCountUpdated = slideItems.length,
         fixedWidth = options.fixedWidth,
+        controls = options.controls,
+        controlsText = options.controlsText,
+        controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
         nav = options.nav,
-        navText = options.navText,
         navContainer = (!options.navContainer) ? false : options.navContainer,
-        dots = options.dots,
-        dotsContainer = (!options.dotsContainer) ? false : options.dotsContainer,
         arrowKeys = options.arrowKeys,
         speed = (!getTD) ? 0 : options.speed,
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
-        autoText = options.autoText,
-        autoContainer = (!options.autoContainer) ? false : options.autoContainer,
+        autoplayText = options.autoplayText,
         loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         autoHeight = options.autoHeight,
         slideByPage = options.slideByPage,
@@ -617,16 +615,15 @@ var tinySlider = (function () {
         prevButton,
         nextButton,
         allDots,
-        dotsCount,
-        dotsCountVisible,
+        navCount,
+        navCountVisible,
         index = 0,
-        animating = false,
-        scrolling = false,
+        running = false,
         dotClicked = -1;
 
     if (autoplay) {
-      var startButton,
-          stopButton;
+      var actionButton,
+          animating = false;
     }
 
     if (touch) {
@@ -639,7 +636,7 @@ var tinySlider = (function () {
           slideEventAdded = false;
     }
 
-    // get items, itemsMax, slideWidth, dotsCountVisible
+    // get items, itemsMax, slideWidth, navCountVisible
     var responsive = (fixedWidth) ? false : options.responsive,
         bpKeys = (typeof responsive !== 'object') ? false : Object.keys(responsive),
         bpVals = getMapValues(responsive);
@@ -704,7 +701,7 @@ var tinySlider = (function () {
     })();
 
     var getDotsCount = (function () {
-      if (dotsContainer) {
+      if (options.navContainer) {
         return function () { return slideCount; };
       } else {
         return function () { return Math.ceil(slideCount / items); };
@@ -714,7 +711,7 @@ var tinySlider = (function () {
     items = getItems();
     itemsMax = getItemsMax();
     slideWidth = getSlideWidth();
-    dotsCountVisible = getDotsCount();
+    navCountVisible = getDotsCount();
 
     // update layout:
     // update slide container width, margin-left
@@ -748,11 +745,11 @@ var tinySlider = (function () {
       maxHeight = Math.max.apply(null, heights);
       if (getTD) { slideContainer.style[getTD] = speed / 1000 + 's'; }
       slideContainer.style.height = maxHeight + 'px';
-      animating = true;
+      running = true;
       
       setTimeout(function () {
         if (getTD) { slideContainer.style[getTD] = '0s'; }
-        animating = false;
+        running = false;
       }, speed);
     }
 
@@ -760,7 +757,7 @@ var tinySlider = (function () {
     function setTransitionDuration(indexGap) {
       if (!getTD) { return; }
       slideContainer.style[getTD] = (speed * indexGap / 1000) + 's';
-      animating = true;
+      running = true;
     }
 
     // set snapInterval (for IE10)
@@ -770,9 +767,9 @@ var tinySlider = (function () {
     }
 
     // active slide
-    // 1. add class '.tiny-visible' to visible slides
-    // 2. add class '.tiny-current' to the first visible slide
-    // 3. remove classes '.tiny-visible' and '.tiny-current' from other slides
+    // 1. add class '.visible' to visible slides
+    // 2. add class '.current' to the first visible slide
+    // 3. remove classes '.visible' and '.current' from other slides
     function activeSlide() {
       var current = (loop) ? index + itemsMax : index;
 
@@ -781,26 +778,26 @@ var tinySlider = (function () {
           if (slideItems[i].getAttribute('tabindex') !== null) {
             slideItems[i].removeAttribute('tabindex');
           }
-          if (slideItems[i].classList.contains('tiny-visible')) {
-            slideItems[i].classList.remove('tiny-current', 'tiny-visible');
+          if (slideItems[i].classList.contains('visible')) {
+            slideItems[i].classList.remove('current', 'visible');
           }
         } else if (i === current) {
           slideItems[i].setAttribute('tabindex', -1);
-          slideItems[i].classList.add('tiny-current', 'tiny-visible');
+          slideItems[i].classList.add('current', 'visible');
         } else {
           if (slideItems[i].getAttribute('tabindex') !== null) {
             slideItems[i].removeAttribute('tabindex');
           }
-          if (!slideItems[i].classList.contains('tiny-visible')) {
-            slideItems[i].classList.remove('tiny-current');
-            slideItems[i].classList.add('tiny-visible');
+          if (!slideItems[i].classList.contains('visible')) {
+            slideItems[i].classList.remove('current');
+            slideItems[i].classList.add('visible');
           }
         }
       }
     }
 
     // non-loop:
-    // add class 'disabled' to nav 
+    // add class 'disabled' to controls 
     // when reach the first/last slide
     function disableNav() {
       if (loop) { return; }
@@ -830,39 +827,39 @@ var tinySlider = (function () {
       }
     }
 
-    // show or hide extra dots.
-    // doesn't work on customized dots.
+    // show or hide extra nav.
+    // doesn't work on customized nav.
     function displayDots() {
-      if (!dots || dotsContainer) { return; }
+      if (!nav || options.navContainer) { return; }
 
-      for (var i = dotsCount; i--;) {
+      for (var i = navCount; i--;) {
         var dotTem = allDots[i];
 
-        if (i < dotsCountVisible) {
-          if (dotTem.classList.contains('tiny-hide')) {
-            dotTem.classList.remove('tiny-hide');
+        if (i < navCountVisible) {
+          if (dotTem.classList.contains('tiny-hidden')) {
+            dotTem.classList.remove('tiny-hidden');
           }
         } else {
-          if (!dotTem.classList.contains('tiny-hide')) {
-            dotTem.classList.add('tiny-hide');
+          if (!dotTem.classList.contains('tiny-hidden')) {
+            dotTem.classList.add('tiny-hidden');
           }
         }
       }
     }
 
-    // add class 'tiny-active' to active dot
-    // remove this class from other dots
+    // add class 'active' to active dot
+    // remove this class from other nav
     function activeDot() {
-      if (!dots) { return; }
+      if (!nav) { return; }
 
       var dotCurrent;
 
       if (dotClicked === -1) {
         var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
-        dotCurrent = (dotsContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+        dotCurrent = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
 
         // non-loop & reach the edge
-        if (!loop && !dotsContainer) {
+        if (!loop && !options.navContainer) {
           var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
           if(!integer && index === slideCount - items) {
             dotCurrent += 1;
@@ -873,16 +870,16 @@ var tinySlider = (function () {
         dotClicked = -1;
       }
 
-      for (var i = dotsCountVisible; i--;) {
+      for (var i = navCountVisible; i--;) {
         var dotTem = allDots[i];
 
         if (i === dotCurrent) {
-          if (!dotTem.classList.contains('tiny-active')) {
-            dotTem.classList.add('tiny-active');
+          if (!dotTem.classList.contains('current')) {
+            dotTem.classList.add('current');
           }
         } else {
-          if (dotTem.classList.contains('tiny-active')) {
-            dotTem.classList.remove('tiny-active');
+          if (dotTem.classList.contains('current')) {
+            dotTem.classList.remove('current');
           }
         }
       }
@@ -931,8 +928,8 @@ var tinySlider = (function () {
     // All actions need to be done after a transfer:
     // 1. check index
     // 2. add classes to current/visible slide
-    // 3. disable nav buttons when reach the first/last slide in non-loop slider
-    // 4. update dots status
+    // 3. disable controls buttons when reach the first/last slide in non-loop slider
+    // 4. update nav status
     // 5. lazyload images
     // 6. update container height
     function update() {
@@ -945,12 +942,12 @@ var tinySlider = (function () {
         updateContainerHeight();
       }
 
-      animating = false;
+      running = false;
     }
 
-    // on nav click
+    // on controls click
     function onNavClick(dir) {
-      if (!animating) {
+      if (!running) {
         dir = (slideByPage) ? dir * items : dir;
         var indexGap = Math.abs(dir);
 
@@ -975,11 +972,11 @@ var tinySlider = (function () {
 
     // on doc click
     function onDotClick(dotIndex) {
-      if (!animating) {
+      if (!running) {
         dotClicked = dotIndex;
 
         var indexTem, indexGap;
-        indexTem = (dotsContainer) ? dotIndex : dotIndex * items;
+        indexTem = (options.navContainer) ? dotIndex : dotIndex * items;
         indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
@@ -997,7 +994,7 @@ var tinySlider = (function () {
     function lazyLoad() {
       if (!gn.isInViewport(slideContainer)) { return; }
 
-      var imgs = slideContainer.querySelectorAll('.tiny-visible .tiny-lazy');
+      var imgs = slideContainer.querySelectorAll('.visible .tiny-lazy');
       if (imgs.length === 0) { return; }
       for (var i = 0, len = imgs.length; i < len; i++) {
         if (!imgs[i].classList.contains('loaded')) {
@@ -1024,7 +1021,7 @@ var tinySlider = (function () {
         var rotate = toDegree(Math.atan2(distY, distX)),
             panDir = getPanDir(rotate, 15);
 
-        if (panDir === 'horizontal' && animating === false) { run = true; }
+        if (panDir === 'horizontal' && running === false) { run = true; }
         if (run) {
           if (getTD) { slideContainer.style[getTD] = '0s'; }
 
@@ -1080,7 +1077,7 @@ var tinySlider = (function () {
       // initialize:
       // 1. add .tiny-content to container
       // 2. wrap container with .tiny-slider
-      // 3. add dots and nav if needed, set allDots, prevButton, nextButton
+      // 3. add nav and controls if needed, set allDots, prevButton, nextButton
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
         slideContainer.classList.add('tiny-content');
@@ -1100,31 +1097,37 @@ var tinySlider = (function () {
           });
         }
 
-        // add dots
-        if (dots) {
-          if (dotsContainer) {
-            allDots = dotsContainer.children;
-            allDots[0].classList.add('tiny-active');
-          } else {
-            var dotHtml = '';
-            for (var i = slideCount; i--;) {
-              dotHtml += '<button class="tiny-dot" type="button"></button>';
-            }
-            dotHtml = '<div class="tiny-dots">' + dotHtml + '</div>';
-            gn.append(sliderWrapper, dotHtml);
-
-            allDots = sliderWrapper.querySelectorAll('.tiny-dot');
-          }
-          dotsCount = allDots.length;
-        }
-
         // add nav
         if (nav) {
-          if (navContainer) {
-            prevButton = navContainer.firstElementChild;
-            nextButton = navContainer.lastElementChild;
+          if (!navContainer) {
+            var navHtml = '';
+            for (var i = 0; i < slideCount; i++) {
+              navHtml += '<button data-slide="' + i +'" type="button"></button>';
+            }
+
+            if (autoplay) {
+              navHtml += '<button data-action="stop" type="button"><span class="tiny-hidden">Stop Animation</span>' + autoplayText[0] + '</button>';
+            }
+
+            navHtml = '<div class="tiny-nav">' + navHtml + '</div>';
+            gn.append(sliderWrapper, navHtml);
+
+            navContainer = sliderWrapper.querySelector('.tiny-nav');
+            allDots = sliderWrapper.querySelectorAll('[data-slide]');
+          }
+
+          allDots = navContainer.querySelectorAll('[data-slide]');
+          navCount = allDots.length;
+          allDots[0].classList.add('current');
+        }
+
+        // add controls
+        if (controls) {
+          if (controlsContainer) {
+            prevButton = controlsContainer.firstElementChild;
+            nextButton = controlsContainer.lastElementChild;
           } else {
-            gn.append(sliderWrapper, '<div class="tiny-nav"><button class="tiny-prev" type="button">' + navText[0] + '</button><button class="tiny-next" type="button">' + navText[1] + '</button></div>');
+            gn.append(sliderWrapper, '<div class="tiny-controls"><button class="tiny-prev" type="button">' + controlsText[0] + '</button><button class="tiny-next" type="button">' + controlsText[1] + '</button></div>');
 
             prevButton = sliderWrapper.querySelector('.tiny-prev');
             nextButton = sliderWrapper.querySelector('.tiny-next');
@@ -1133,15 +1136,11 @@ var tinySlider = (function () {
 
         // add auto
         if (autoplay) {
-          if (autoContainer) {
-            startButton = autoContainer.firstElementChild;
-            stopButton = autoContainer.lastElementChild;
-          } else {
-            gn.append(sliderWrapper, '<div class="tiny-auto"><button class="tiny-start" type="button">' + autoText[0] + '</button><button class="tiny-stop" type="button">' + autoText[1] + '</button></div>');
-
-            startButton = sliderWrapper.querySelector('.tiny-start');
-            stopButton = sliderWrapper.querySelector('.tiny-stop');
+          if (!navContainer) {
+            gn.append(sliderWrapper, '<div class="tiny-nav"><button data-action="stop" type="button"><span class="tiny-hidden">Stop Animation</span>' + autoplayText[0] + '</button></div>');
+            navContainer = sliderWrapper.querySelector('.tiny-nav');
           }
+          actionButton = navContainer.querySelector('[data-action]');
         }
 
         // clone items
@@ -1172,7 +1171,7 @@ var tinySlider = (function () {
         setSnapInterval();
         translate();
         activeSlide();
-        if (nav) {
+        if (controls) {
           disableNav();
           nextButton.addEventListener('click', function () { onNavClick(1); });
           prevButton.addEventListener('click', function () { onNavClick(-1); });
@@ -1180,8 +1179,8 @@ var tinySlider = (function () {
 
         displayDots();
         activeDot();
-        if (dots) {
-          for (var a = 0; a < dotsCount; a++) {
+        if (nav) {
+          for (var a = 0; a < navCount; a++) {
             allDots[a].addEventListener('click', fireDotClick(), false);
           }
         }
@@ -1202,28 +1201,47 @@ var tinySlider = (function () {
         if (autoplay) {
           var autoplayTimer;
 
-          function startScroll() {
+          var startAction = function () {
             autoplayTimer = setInterval(function () {
               onNavClick(autoplayDirection);
             }, autoplayTimeout);
-          }
-          startScroll();
+            actionButton.setAttribute('data-action', 'stop');
+            actionButton.innerHTML = '<span class="tiny-hidden">Stop Animation</span>' + autoplayText[1];
 
-          function stopScroll() {
+            animating = true;
+          };
+          startAction();
+
+          var stopAction = function () {
             clearInterval(autoplayTimer);
-          }
+            actionButton.setAttribute('data-action', 'start');
+            actionButton.innerHTML = '<span class="tiny-hidden">Stop Animation</span>' + autoplayText[0];
 
-          startButton.addEventListener('click', startScroll, false );
-          stopButton.addEventListener('click', stopScroll, false );
+            animating = false;
+          };
+
+          var toggleAnimation = function () {
+            if (animating) {
+              stopAction();
+            } else {
+              startAction();
+            }
+          };
+
+          var stopAnimation = function () {
+            if (animating) { stopAction(); }
+          };
+
+          actionButton.addEventListener('click', toggleAnimation, false );
+
+          if (controls) {
+            prevButton.addEventListener('click', stopAnimation, false );
+            nextButton.addEventListener('click', stopAnimation, false );
+          }
 
           if (nav) {
-            prevButton.addEventListener('click', stopScroll, false );
-            nextButton.addEventListener('click', stopScroll, false );
-          }
-
-          if (dots) {
-            for (var a = 0; a < dotsCount; a++) {
-              allDots[a].addEventListener('click', stopScroll, false);
+            for (var b = 0; b < navCount; b++) {
+              allDots[b].addEventListener('click', stopAnimation, false);
             }
           }
         }
@@ -1248,7 +1266,7 @@ var tinySlider = (function () {
           resizeTimer = setTimeout(function () {
             items = getItems();
             slideWidth = getSlideWidth();
-            dotsCountVisible = getDotsCount();
+            navCountVisible = getDotsCount();
 
             updateLayout();
             setSnapInterval();

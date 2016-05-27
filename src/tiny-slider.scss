@@ -37,17 +37,17 @@
       overflow: hidden;
     }
   }
-  &-prev, &-next, &-start, &-stop, &-dot {
-    cursor: pointer;
-    border-width: 0;
-    padding: 0;
-  }
-  &-hide { display: none !important; }
+  
+  &-hidden { display: none !important; }
   &-lazy {
     -webkit-transition: opacity 0.6s;
     transition: opacity 0.6s;
     opacity: 0.6;
     &.loaded { opacity: 1; }
-    // .no-js & { display: none; }
   }
+}
+.tiny-prev, .tiny-next, [data-action], [data-slide]  {
+  cursor: pointer;
+  border-width: 0;
+  padding: 0;
 }

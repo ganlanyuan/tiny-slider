@@ -16,7 +16,7 @@ bower install tiny-slider
 - fixed width
 - loop
 - slide by page
-- customize nav / dots
+- customize controls / nav
 - autoplay
 - auto height
 - lazyload
@@ -30,7 +30,7 @@ Include tiny-slider
 <link rel="stylesheet" href="tiny-slider.css">
 
 <!--[if (lt IE 9)]>
-  <script src="tiny-slider-helper.ie8.js"></script>
+  <script src="tiny-slider.helper.ie8.js"></script>
 <![endif]-->
 <script src="tiny-slider.js"></script>
 ```
@@ -83,16 +83,17 @@ Default:
   fixedWidth: false,
   maxContainerWidth: false,
   slideByPage: false,
+  controls: true,
+  controlsText: ['prev', 'next'],
+  controlsContainer: false,
   nav: true,
-  navText: ['prev', 'next'],
   navContainer: false,
-  dots: true,
-  dotsContainer: false,
   arrowKeys: false,
   speed: 250,
   autoplay: false,
   autoplayTimeout: 5000,
   autoplayDirection: 'forward',
+  autoplayText: ['start', 'stop'],
   loop: true,
   autoHeight: false,
   responsive: false,
@@ -140,24 +141,24 @@ a.init();
 </div>
 
 <!-- customized nav & dots -->
-<div class="slider-nav">
-  <div></div>
-  <div></div>
+<div class="controls">
+  <button></button>
+  <button></button>
 </div>
 <div class="thumbnails">
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
+  <button data-slide="0"></button>
+  <button data-slide="1"></button>
+  <button data-slide="2"></button>
+  <button data-slide="3"></button>
+  <button data-action="stop">stop</button>
 </div>
 ```
 ```javascript
 var a = tinySlider({
   container: document.querySelector('.slider'),
   items: 3,
-  navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails')
+  controlsContainer: document.querySelector('.slider-controls'),
+  navContainer: document.querySelector('.thumbnails')
 });
 a.init();
 ```
