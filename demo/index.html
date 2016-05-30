@@ -88,7 +88,7 @@
     .slider-controls .next { right: 0; }
     .slider-controls li:hover { background: #f2f2f2; }
     .tiny-controls, .tiny-auto { text-align: center; margin-bottom: 10px; }
-    .tiny-prev, .tiny-next {
+    button[data-controls] {
       font-size: 15px;
       margin: 0 5px;
       padding: 0 1em;
@@ -97,13 +97,12 @@
       background: #66CCFF;
       border-radius: 3px;
     }
-    .lt-ie9 .tiny-prev, 
-    .lt-ie9 .tiny-next {
+    .lt-ie9 [data-controls] {
       line-height: 2.5em;
     }
     [data-action] {
       margin-top: 4px;
-      font-size: 15px;
+      font-size: 17px;
       vertical-align: middle;
       background: transparent;
     }
@@ -269,8 +268,8 @@ tinySlider({
         <li data-slide="7"><img src="images/sm/8.jpg" alt=""></li>
       </ul>
       <ul class="slider-controls">
-        <li class="prev"><img src="images/angle-left.png" alt=""></li>
-        <li class="next"><img src="images/angle-right.png" alt=""></li>
+        <li data-controls="prev" class="prev"><img src="images/angle-left.png" alt=""></li>
+        <li data-controls="next" class="next"><img src="images/angle-right.png" alt=""></li>
       </ul>
     </div>
     <pre><code class="language-javascript">
@@ -553,7 +552,7 @@ tinySlider({
   tinySlider({
     container: document.querySelector('.autoplay'),
     items: 3,
-    autoplay: true,
+    // autoplay: true,
     speed: 300,
     autoplayTimeout: 3000,
     autoplayText: ['▶', '❚❚']

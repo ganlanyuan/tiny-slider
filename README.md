@@ -22,6 +22,8 @@ bower install tiny-slider
 - lazyload
 - touch support
 - arrow keys
+- accessibility for people using keyboard navigation or screen readers   
+(thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the sugestion, [issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 
 ## Usage
 ##### 1. Include tiny-slider
@@ -141,9 +143,10 @@ a.init();
 </div>
 
 <!-- customized nav & dots -->
+<!-- Attributes [data-controls], [data-slide] and [data-action] are required -->
 <div class="controls">
-  <button></button>
-  <button></button>
+  <button data-controls="prev"></button>
+  <button data-controls="next"></button>
 </div>
 <div class="thumbnails">
   <button data-slide="0"></button>
@@ -157,7 +160,7 @@ a.init();
 var a = tinySlider({
   container: document.querySelector('.slider'),
   items: 3,
-  controlsContainer: document.querySelector('.slider-controls'),
+  controlsContainer: document.querySelector('.controls'),
   navContainer: document.querySelector('.thumbnails')
 });
 a.init();
@@ -166,6 +169,7 @@ a.init();
 #### Lazyload
 Add a placeholder image to the image `src` attribute, save the real image sourse in the `data-src` attribute, then add class `tiny-lazy`. 
 ```html
+<!-- class .tiny-lazy is required -->
 <div class="slider">
   <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
   <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>

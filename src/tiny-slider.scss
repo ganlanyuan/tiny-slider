@@ -38,7 +38,9 @@
     }
   }
   
-  &-hidden { display: none !important; }
+  &-nav {
+    button { vertical-align: middle; }
+  }
   &-lazy {
     -webkit-transition: opacity 0.6s;
     transition: opacity 0.6s;
@@ -46,7 +48,8 @@
     &.loaded { opacity: 1; }
   }
 }
-.tiny-prev, .tiny-next, [data-action], [data-slide]  {
+[hidden] { display: none !important; }
+[data-controls], [data-action], [data-slide]  {
   cursor: pointer;
   border-width: 0;
   padding: 0;
