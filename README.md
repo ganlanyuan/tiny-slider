@@ -63,16 +63,18 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 </ul> 
 -->
 ```
-##### 3. Call tiny-slider
+##### 3. Call tiny-slider on DOM ready
 ```html
 <script>
-  var a = tinySlider({
-    container: document.querySelector('.slider'),
-    items: 3,
-    slideByPage: true,
-    autoplay: true
+  gn.ready(function () {
+    var a = tinySlider({
+      container: document.querySelector('.slider'),
+      items: 3,
+      slideByPage: true,
+      autoplay: true
+    });
+    a.init();
   });
-  a.init();
 </script>
 ```
 
@@ -106,36 +108,42 @@ Default:
 
 #### Responsive
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 1,
-  responsive: {
-    500: 2,
-    800: 3,
-  }
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 1,
+    responsive: {
+      500: 2,
+      800: 3,
+    }
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Fixed width items
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  fixedWidth: 200,
-  maxContainerWidth: 900
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    fixedWidth: 200,
+    maxContainerWidth: 900
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Non-loop
 Loop is `true` by default.
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  loop: false
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    loop: false
+  });
+  a.init();
 });
-a.init();
 ```
 #### Customize
 ```html
@@ -157,13 +165,15 @@ a.init();
 </div>
 ```
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  controlsContainer: document.querySelector('.controls'),
-  navContainer: document.querySelector('.thumbnails')
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    controlsContainer: document.querySelector('.controls'),
+    navContainer: document.querySelector('.thumbnails')
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Lazyload
@@ -179,36 +189,42 @@ Add a placeholder image to the image `src` attribute, save the real image sourse
 </div>
 ```
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  lazyload: true
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    lazyload: true
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Slide by page
 Default setting is slide by item.
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  slideByPage: true
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    slideByPage: true
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Autoplay
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  autoplay: true,
-  autoplayDirection: 'forward',
-  speed: 300,
-  autoplayTimeout: 3000
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    autoplay: true,
+    autoplayDirection: 'forward',
+    speed: 300,
+    autoplayTimeout: 3000
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### Arrow keys
@@ -224,12 +240,14 @@ a.init();
 
 #### Auto height
 ```javascript
-var a = tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  autoHeight: true
+gn.ready(function () {
+  var a = tinySlider({
+    container: document.querySelector('.slider'),
+    items: 3,
+    autoHeight: true
+  });
+  a.init();
 });
-a.init();
 ```
 
 #### * Padding

@@ -312,7 +312,7 @@ var tinySlider = (function () {
 
     // add class 'active' to active dot
     // remove this class from other nav
-    function activeDot() {
+    function activeNav() {
       if (!nav) { return; }
 
       var dotCurrent;
@@ -403,7 +403,7 @@ var tinySlider = (function () {
       fallback();
       activeSlide();
       disableControls();
-      activeDot();
+      activeNav();
       lazyLoad();
       if (autoHeight) {
         updateContainerHeight();
@@ -459,12 +459,12 @@ var tinySlider = (function () {
 
     // change focus
     function changeFocus(blur, focus) {
-      if (typeof blur === 'object') {
-        blur.blur();
+      if (typeof blur === 'object' && typeof focus === 'object') {
+        if (blur === document.activeElement) {
+          blur.blur();
+          focus.focus();
+        }
         blur.setAttribute('tabindex', '-1');
-      }
-      if (typeof focus === 'object') {
-        focus.focus();
         focus.removeAttribute('tabindex');
       }
     }
@@ -476,12 +476,12 @@ var tinySlider = (function () {
           curElement = document.activeElement;
 
       if (code === KEY.LEFT || code === KEY.UP || code === KEY.HOME || code === KEY.PAGEUP) {
-        if (curElement.getAttribute('data-controls') !== 'prev' && prevButton.disabled != true) {
+        if (curElement !== prevButton && prevButton.disabled !== true) {
           changeFocus(curElement, prevButton);
         }
       }
       if (code === KEY.RIGHT || code === KEY.DOWN || code === KEY.END || code === KEY.PAGEDOWN) {
-        if (curElement.getAttribute('data-controls') !== 'next' && nextButton.disabled != true) {
+        if (curElement !== 'next' && nextButton.disabled !== true) {
           changeFocus(curElement, nextButton);
         }
       }
@@ -730,7 +730,7 @@ var tinySlider = (function () {
         }
 
         displayNav();
-        activeDot();
+        activeNav();
         if (nav) {
           for (var a = 0; a < navCount; a++) {
             allDots[a].addEventListener('click', fireDotClick(), false);
@@ -826,7 +826,7 @@ var tinySlider = (function () {
             translate();
             displayNav();
             disableControls();
-            activeDot();
+            activeNav();
             if (autoHeight) {
               updateContainerHeight();
             }

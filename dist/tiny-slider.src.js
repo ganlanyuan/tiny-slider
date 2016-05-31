@@ -425,6 +425,23 @@ gn.getSupportedProp = function (proparray){
 // var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
 // getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
+// DOM ready
+// @require "/src/gn/gn.js"
+
+gn.ready = function ( fn ) {
+
+  // Sanity check
+  if ( typeof fn !== 'function' ) { return; }
+
+  // If document is already loaded, run method
+  if ( document.readyState === 'complete'  ) {
+    return fn();
+  }
+
+  // Otherwise, wait until document is loaded
+  document.addEventListener( 'DOMContentLoaded', fn, false );
+};
+
 // isNodeList
 // @require "/src/gn/gn.js"
 
@@ -538,6 +555,7 @@ if (!Date.now)
 // @codekit-prepend "../bower_components/go-native/src/gn/isInViewport.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/indexOf.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/getSupportedProp.js";
+// @codekit-prepend "../bower_components/go-native/src/gn/DOM.ready.js";
 
 // @codekit-prepend "../bower_components/go-native/src/gn/isNodeList.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/append.js";
@@ -860,7 +878,7 @@ var tinySlider = (function () {
 
     // add class 'active' to active dot
     // remove this class from other nav
-    function activeDot() {
+    function activeNav() {
       if (!nav) { return; }
 
       var dotCurrent;
@@ -951,7 +969,7 @@ var tinySlider = (function () {
       fallback();
       activeSlide();
       disableControls();
-      activeDot();
+      activeNav();
       lazyLoad();
       if (autoHeight) {
         updateContainerHeight();
@@ -1007,12 +1025,12 @@ var tinySlider = (function () {
 
     // change focus
     function changeFocus(blur, focus) {
-      if (typeof blur === 'object') {
-        blur.blur();
+      if (typeof blur === 'object' && typeof focus === 'object') {
+        if (blur === document.activeElement) {
+          blur.blur();
+          focus.focus();
+        }
         blur.setAttribute('tabindex', '-1');
-      }
-      if (typeof focus === 'object') {
-        focus.focus();
         focus.removeAttribute('tabindex');
       }
     }
@@ -1024,12 +1042,12 @@ var tinySlider = (function () {
           curElement = document.activeElement;
 
       if (code === KEY.LEFT || code === KEY.UP || code === KEY.HOME || code === KEY.PAGEUP) {
-        if (curElement.getAttribute('data-controls') !== 'prev' && prevButton.disabled != true) {
+        if (curElement !== prevButton && prevButton.disabled !== true) {
           changeFocus(curElement, prevButton);
         }
       }
       if (code === KEY.RIGHT || code === KEY.DOWN || code === KEY.END || code === KEY.PAGEDOWN) {
-        if (curElement.getAttribute('data-controls') !== 'next' && nextButton.disabled != true) {
+        if (curElement !== 'next' && nextButton.disabled !== true) {
           changeFocus(curElement, nextButton);
         }
       }
@@ -1278,7 +1296,7 @@ var tinySlider = (function () {
         }
 
         displayNav();
-        activeDot();
+        activeNav();
         if (nav) {
           for (var a = 0; a < navCount; a++) {
             allDots[a].addEventListener('click', fireDotClick(), false);
@@ -1374,7 +1392,7 @@ var tinySlider = (function () {
             translate();
             displayNav();
             disableControls();
-            activeDot();
+            activeNav();
             if (autoHeight) {
               updateContainerHeight();
             }

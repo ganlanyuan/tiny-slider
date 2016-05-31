@@ -6,6 +6,7 @@
 // @codekit-prepend "../bower_components/go-native/src/gn/isInViewport.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/indexOf.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/getSupportedProp.js";
+// @codekit-prepend "../bower_components/go-native/src/gn/DOM.ready.js";
 
 // @codekit-prepend "../bower_components/go-native/src/gn/isNodeList.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/append.js";
