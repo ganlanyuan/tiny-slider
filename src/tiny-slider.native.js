@@ -606,7 +606,7 @@ var tinySlider = (function () {
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
         sliderContainer.classList.add('tiny-content');
-        sliderContainer.id = 'slider' + getRandom();
+        sliderContainer.id = getSliderId();
         sliderId = sliderContainer.id;
 
         // wrap slider with ".tiny-slider"
@@ -847,14 +847,24 @@ var tinySlider = (function () {
           }
           ticking = true;
         });
+      },
+
+      // destory
+      destory: function () {
+        // if () {} else {}
       }
     };
   }
 
 
   // === Private helper functions === //
-  function getRandom() {
-    return Math.random().toPrecision(3) * 1000;
+  function getSliderId() {
+    if (window.tinySliderNumber === undefined) {
+      window.tinySliderNumber = 1;
+    } else {
+      window.tinySliderNumber++;
+    }
+    return 'tinySlider' + window.tinySliderNumber;
   }
 
   function toDegree (angle) {

@@ -509,6 +509,28 @@ gn.wrap = function (els, obj) {
 
 
 
+// unwrap
+// @require "/src/gn/gn.js"
+// @require "/src/gn/isNodeList.js"
+
+gn.unwrap = function (els) {
+  var elsNew = (gn.isNodeList(els)) ? els : [els];
+  for (var i = elsNew.length; i--;) {
+    var el = elsNew[i];
+
+    // get the element's parent node
+    var parent = el.parentNode;
+    
+    // move all children out of the element
+    while (el.firstChild) { 
+      parent.insertBefore(el.firstChild, el); 
+    }
+    
+    // remove the empty element
+    parent.removeChild(el);
+  }
+};
+
 // Adapted from https://gist.github.com/paulirish/1579671 which derived from 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
@@ -558,6 +580,7 @@ if (!Date.now)
 // @codekit-prepend "../bower_components/go-native/src/gn/isNodeList.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/append.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/wrap.js";
+// @codekit-prepend "../bower_components/go-native/src/gn/unwrap.js";
 
 // @codekit-prepend "../bower_components/requestAnimationFrame/requestAnimationFrame.js";
 
@@ -1170,7 +1193,7 @@ var tinySlider = (function () {
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
         sliderContainer.classList.add('tiny-content');
-        sliderContainer.id = 'slider' + getRandom();
+        sliderContainer.id = getSliderId();
         sliderId = sliderContainer.id;
 
         // wrap slider with ".tiny-slider"
@@ -1411,14 +1434,24 @@ var tinySlider = (function () {
           }
           ticking = true;
         });
+      },
+
+      // destory
+      destory: function () {
+        // if () {} else {}
       }
     };
   }
 
 
   // === Private helper functions === //
-  function getRandom() {
-    return Math.random().toPrecision(3) * 1000;
+  function getSliderId() {
+    if (window.tinySliderNumber === undefined) {
+      window.tinySliderNumber = 1;
+    } else {
+      window.tinySliderNumber++;
+    }
+    return 'tinySlider' + window.tinySliderNumber;
   }
 
   function toDegree (angle) {
