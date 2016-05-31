@@ -1,1 +1,0 @@
-// @codekit-append "tiny-slider.js";

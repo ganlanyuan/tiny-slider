@@ -1,9 +1,892 @@
 /**
-  * tiny-slider.native
+  * tiny-slider
   * @version 0.3.1
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
   */
-var tinySlider=function(){"use strict";function t(t){function d(){S.style.width=Z*N+"px",X&&(S.style.marginLeft=-(_*Z)+"px");for(var t=N;t--;)k[t].style.width=Z+"px"}function l(){for(var t=X?ot+_:ot,e=[],n,a=N;a--;)a>=t&&t+tt>a&&e.push(k[a].offsetHeight);n=Math.max.apply(null,e),r&&(S.style[r]=F/1e3+"s"),S.style.height=n+"px",st=!0,setTimeout(function(){r&&(S.style[r]="0s"),st=!1},F)}function u(t){r&&(S.style[r]=F*t/1e3+"s",st=!0)}function c(){navigator.msMaxTouchPoints&&(S.parentNode.style.msScrollSnapPointsX="snapInterval(0%, "+Z+")")}function f(){for(var t=X?ot+_:ot,e=N;e--;)e===t?k[e].classList.add("current"):k[e].classList.contains("current")&&k[e].classList.remove("current"),e>=t&&t+tt>e?k[e].hasAttribute("aria-hidden")&&"true"!==k[e].getAttribute("aria-hidden")||k[e].setAttribute("aria-hidden","false"):k[e].hasAttribute("aria-hidden")&&"false"!==k[e].getAttribute("aria-hidden")||k[e].setAttribute("aria-hidden","true")}function v(){X||(tt>=D?(0!==ot&&(ot=0,b()),et.disabled=!0,nt.disabled=!0):(0===ot?(et.disabled=!0,E(et,nt)):et.disabled=!1,ot===D-tt?(nt.disabled=!0,E(nt,et)):nt.disabled=!1))}function h(){if(q&&!t.navContainer)for(var e=it;e--;){var n=at[e];rt>e?n.hasAttribute("hidden")&&n.removeAttribute("hidden"):n.hasAttribute("hidden")||n.setAttribute("hidden","")}}function p(){if(q){var e;if(-1===dt){var n=0>ot?ot+D:ot>=D?ot-D:ot;if(e=t.navContainer?n:Math.floor(n/tt),!X&&!t.navContainer){var a=/^-?[0-9]+$/,i=a.test(D/tt);i||ot!==D-tt||(e+=1)}}else e=dt,dt=-1;for(var r=rt;r--;){var o=at[r];r===e?o.classList.contains("current")||(o.classList.add("current"),o.removeAttribute("tabindex"),o.setAttribute("aria-selected","true")):o.classList.contains("current")&&(o.classList.remove("current"),o.setAttribute("tabindex",-1),o.setAttribute("aria-selected","false"))}}}function b(){var t=S.parentNode.offsetWidth;vt=-Z*ot,W&&!X&&(vt=Math.max(vt,-Math.abs(D*Z-t))),o?S.style[o]="translate3d("+vt+"px, 0, 0)":S.style.left=vt+"px"}function m(){if(X){var t=Y?tt-_>ot:-_>=ot,e=Y?ot>D+_-2*tt-1:ot>=D+_-tt;W&&_&&!Y&&(e=ot>=D+_-tt-1),t&&(ot+=D),e&&(ot-=D),r&&(S.style[r]="0s"),b()}}function y(){m(),f(),v(),p(),T(),K&&l(),st=!1}function g(t){if(!st){t=Y?t*tt:t;var e=Math.abs(t);ot=X?ot+t:Math.max(0,Math.min(ot+t,D-tt)),u(e),b(),setTimeout(function(){y()},F*e)}}function A(){return function(){var t=gn.indexOf(at,this);x(t)}}function x(e){if(!st){dt=e;var n,a;n=t.navContainer?e:e*tt,n=X?n:Math.min(n,D-tt),a=Math.abs(n-ot),ot=n,u(a),b(),setTimeout(function(){y()},F*a)}}function E(t,e){"object"==typeof t&&"object"==typeof e&&(t===document.activeElement&&(t.blur(),e.focus()),t.setAttribute("tabindex","-1"),e.removeAttribute("tabindex"))}function M(t){t=t||window.event;var e=t.keyCode,n=document.activeElement;e!==s.LEFT&&e!==s.UP&&e!==s.HOME&&e!==s.PAGEUP||n!==et&&et.disabled!==!0&&E(n,et),e!==s.RIGHT&&e!==s.DOWN&&e!==s.END&&e!==s.PAGEDOWN||"next"!==n&&nt.disabled!==!0&&E(n,nt)}function L(t){t=t||window.event;var e=t.keyCode,n=document.activeElement;e!==s.LEFT&&e!==s.PAGEUP||n.getAttribute("data-slide")>0&&E(n,n.previousElementSibling),e!==s.UP&&e!==s.HOME||0!==n.getAttribute("data-slide")&&E(n,at[0]),e!==s.RIGHT&&e!==s.PAGEDOWN||n.getAttribute("data-slide")<rt-1&&E(n,n.nextElementSibling),e!==s.DOWN&&e!==s.END||n.getAttribute("data-slide")<rt-1&&E(n,at[rt-1])}function T(){if(gn.isInViewport(S)){var t=S.querySelectorAll('[aria-hidden="false"] .tiny-lazy');if(0!==t.length)for(var e=0,n=t.length;n>e;e++)t[e].classList.contains("loaded")||(t[e].src=t[e].getAttribute("data-src"),t[e].classList.add("loaded"))}}function C(){return function(t){var e=t.changedTouches[0];ct=parseInt(e.clientX),ft=parseInt(e.clientY)}}function w(){return function(t){var e=t.changedTouches[0];ht=parseInt(e.clientX)-ct,pt=parseInt(e.clientY)-ft;var i=n(Math.atan2(pt,ht)),s=a(i,15);if("horizontal"===s&&st===!1&&(bt=!0),bt){r&&(S.style[r]="0s");var d=X?-(D+_-tt)*Z:-(D-tt)*Z,l=X?_*Z:0;!X&&W&&(d=-(D*Z-S.parentNode.offsetWidth)),vt=-ot*Z+ht,vt=Math.max(d,Math.min(vt,l)),o?S.style[o]="translate3d("+vt+"px, 0, 0)":S.style.left=vt+"px",t.preventDefault()}}}function P(){return function(t){var e=t.changedTouches[0];if(ht=parseInt(e.clientX)-ct,bt&&0!==ht){t.preventDefault(),bt=!1,vt=-ot*Z+ht;var n,a=X?-_:0,i=X?D+_-tt:D-tt;n=-(vt/Z),n=0>ht?Math.ceil(n):Math.floor(n),n=Math.max(a,Math.min(n,i)),ot=n,u(1),b(),setTimeout(function(){y()},F)}}}t=gn.extend({container:document.querySelector(".slider"),items:1,fixedWidth:!1,maxContainerWidth:!1,slideByPage:!1,controls:!0,controlsText:["prev","next"],controlsContainer:!1,nav:!0,navContainer:!1,arrowKeys:!1,speed:250,autoplay:!1,autoplayTimeout:5e3,autoplayDirection:"forward",autoplayText:["start","stop"],loop:!0,autoHeight:!1,responsive:!1,lazyload:!1,touch:!0},t||{});var S=t.container,k=S.children,D=k.length,N=k.length,W=t.fixedWidth,I=t.controls,O=t.controlsText,H=t.controlsContainer?t.controlsContainer:!1,q=t.nav,G=t.navContainer?t.navContainer:!1,z=t.arrowKeys,F=r?t.speed:0,j=t.autoplay,U=t.autoplayTimeout,B="forward"===t.autoplayDirection?1:-1,R=t.autoplayText,X=W&&!t.maxContainerWidth?!1:t.loop,K=t.autoHeight,Y=t.slideByPage,V=t.lazyload,J=t.touch,Q,Z,_,tt,et,nt,at,it,rt,ot=0,st=!1,dt=-1;if(j)var lt,ut=!1;if(J)var ct=0,ft=0,vt=0,ht=0,pt=0,bt=!1,mt=!1;var yt=W?!1:t.responsive,gt="object"!=typeof yt?!1:Object.keys(yt),At=i(yt),xt=function(){return W?function(){return Math.max(Math.min(D,Math.floor(S.parentNode.offsetWidth/W)),1)}:function(){var e,n=document.documentElement.clientWidth;if(void 0!==gt.length&&void 0!==At&&gt.length===At.length)if(n<gt[0])e=t.items;else if(n>=gt[gt.length-1])e=At[At.length-1];else for(var a=0;a<gt.length-1;a++)n>=gt[a]&&n<=gt[a+1]&&(e=At[a]);else e=t.items;return Math.max(Math.min(D,e),1)}}(),Et=function(){var e;return e=W?t.maxContainerWidth?Math.ceil(t.maxContainerWidth/W):!1:void 0!==At.length?Math.max.apply(Math,At):t.items,e?Math.min(D,e):e},Mt=function(){return W?function(){return W}:function(){return S.parentNode.offsetWidth/tt}}(),Lt=function(){return t.navContainer?function(){return D}:function(){return Math.ceil(D/tt)}}();return tt=xt(),_=Et(),Z=Mt(),rt=Lt(),{init:function(){S.classList.add("tiny-content"),S.id="slider"+e(),Q=S.id;var t=document.createElement("div");t.className="tiny-slider",gn.wrap(S,t),navigator.msMaxTouchPoints&&(t.classList.add("ms-touch"),t.addEventListener("scroll",function(){r&&(S.style[r]="0s"),S.style.transform="translate3d(-"+-S.scrollLeft()+"px,0,0)"}));for(var n=0;D>n;n++)k[n].id=Q+"item"+n;if(X){for(var a=document.createDocumentFragment(),i=document.createDocumentFragment(),o=_;o--;){var u=k[o].cloneNode(!0),m=k[D-1-o].cloneNode(!0);u.id="",m.id="",a.insertBefore(u,a.firstChild),i.appendChild(m)}S.appendChild(a),S.insertBefore(i,S.firstChild),N=S.children.length,k=S.children}if(q){if(!G){for(var y="",x=0;D>x;x++)y+='<button data-slide="'+x+'" tabindex="-1" aria-selected="false" aria-controls="'+Q+"item"+x+'" type="button"></button>';j&&(y+='<button data-action="stop" type="button"><span hidden>Stop Animation</span>'+R[0]+"</button>"),y='<div class="tiny-nav" aria-label="Carousel Pagination">'+y+"</div>",gn.append(t,y),G=t.querySelector(".tiny-nav")}if(at=G.querySelectorAll("[data-slide]"),it=at.length,!G.hasAttribute("aria-label")){G.setAttribute("aria-label","Carousel Pagination");for(var E=0;it>E;E++){var W=at[E];W.setAttribute("aria-selected","false"),W.setAttribute("aria-controls",Q+"item"+E)}}}if(I&&(H||(gn.append(t,'<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="'+Q+'" type="button">'+O[0]+'</button><button data-controls="next" aria-controls="'+Q+'" type="button">'+O[1]+"</button></div>"),H=t.querySelector(".tiny-controls")),et=H.querySelector('[data-controls="prev"]'),nt=H.querySelector('[data-controls="next"]'),H.hasAttribute("tabindex")||(H.setAttribute("aria-label","Carousel Navigation"),et.setAttribute("aria-controls",Q),nt.setAttribute("aria-controls",Q),et.setAttribute("tabindex",-1))),j&&(G||(gn.append(t,'<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>'+R[0]+"</button></div>"),G=t.querySelector(".tiny-nav")),lt=G.querySelector("[data-action]")),d(),K&&l(),c(),b(),f(),I&&(v(),et.addEventListener("click",function(){g(-1)}),nt.addEventListener("click",function(){g(1)}),et.addEventListener("keydown",M,!1),nt.addEventListener("keydown",M,!1)),h(),p(),q)for(var F=0;it>F;F++)at[F].addEventListener("click",A(),!1),at[F].addEventListener("keydown",L,!1);if(V&&T(),z&&document.addEventListener("keydown",function(t){t=t||window.event,t.keyCode===s.LEFT?g(-1):t.keyCode===s.RIGHT&&g(1)}),j){var Y,ot=function(){Y=setInterval(function(){g(B)},U),lt.setAttribute("data-action","stop"),lt.innerHTML="<span hidden>Stop Animation</span>"+R[1],ut=!0};ot();var st=function(){clearInterval(Y),lt.setAttribute("data-action","start"),lt.innerHTML="<span hidden>Stop Animation</span>"+R[0],ut=!1},dt=function(){ut?st():ot()},ct=function(){ut&&st()};if(lt.addEventListener("click",dt,!1),I&&(et.addEventListener("click",ct,!1),nt.addEventListener("click",ct,!1)),q)for(var ft=0;it>ft;ft++)at[ft].addEventListener("click",ct,!1)}J&&!mt&&S.addEventListener&&(S.addEventListener("touchstart",C(),!1),S.addEventListener("touchmove",w(),!1),S.addEventListener("touchend",P(),!1),S.addEventListener("touchcancel",P(),!1),mt=!0);var vt;window.addEventListener("resize",function(){clearTimeout(vt),vt=setTimeout(function(){tt=xt(),Z=Mt(),rt=Lt(),d(),c(),b(),h(),v(),p(),K&&l(),V&&T()},100)});var ht=!1;window.addEventListener("scroll",function(){ht||window.requestAnimationFrame(function(){V&&T(),ht=!1}),ht=!0})}}}function e(){return 1e3*Math.random().toPrecision(3)}function n(t){return t*(180/Math.PI)}function a(t,e){return Math.abs(90-Math.abs(t))>=90-e?"horizontal":Math.abs(90-Math.abs(t))<=e?"vertical":!1}function i(t){if("object"==typeof t){for(var e=[],n=Object.keys(t),a=0,i=n.length;i>a;a++){var r=n[a];e.push(t[r])}return e}return!1}var r=gn.getSupportedProp(["transitionDuration","WebkitTransitionDuration","MozTransitionDuration","OTransitionDuration"]),o=gn.getSupportedProp(["transform","WebkitTransform","MozTransform","OTransform"]),s={PAGEUP:33,PAGEDOWN:34,END:35,HOME:36,LEFT:37,UP:38,RIGHT:39,DOWN:40};return t}();
-//# sourceMappingURL=./tiny-slider.native.js.map
+
+var tinySlider = (function () {
+  'use strict';
+
+  // get supported property
+  var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
+      getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
+
+  var KEY = {
+      PAGEUP: 33,
+      PAGEDOWN: 34,
+      END: 35,
+      HOME: 36,
+      LEFT: 37,
+      UP: 38,
+      RIGHT: 39,
+      DOWN: 40
+  };
+
+  function core (options) {
+    options = gn.extend({
+      container: document.querySelector('.slider'),
+      items: 1,
+      fixedWidth: false,
+      maxContainerWidth: false,
+      slideByPage: false,
+      controls: true,
+      controlsText: ['prev', 'next'],
+      controlsContainer: false,
+      nav: true,
+      navContainer: false,
+      arrowKeys: false,
+      speed: 250,
+      autoplay: false,
+      autoplayTimeout: 5000,
+      autoplayDirection: 'forward',
+      autoplayText: ['start', 'stop'],
+      loop: true,
+      autoHeight: false,
+      responsive: false,
+      lazyload: false,
+      touch: true,
+    }, options || {});
+
+    // === define and set variables ===
+    var sliderContainer = options.container,
+        sliderItems = sliderContainer.children,
+        sliderCount = sliderItems.length,
+        sliderCountUpdated = sliderItems.length,
+        fixedWidth = options.fixedWidth,
+        controls = options.controls,
+        controlsText = options.controlsText,
+        controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
+        nav = options.nav,
+        navContainer = (!options.navContainer) ? false : options.navContainer,
+        arrowKeys = options.arrowKeys,
+        speed = (!getTD) ? 0 : options.speed,
+        autoplay = options.autoplay,
+        autoplayTimeout = options.autoplayTimeout,
+        autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
+        autoplayText = options.autoplayText,
+        loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
+        autoHeight = options.autoHeight,
+        slideByPage = options.slideByPage,
+        lazyload = options.lazyload,
+        touch = options.touch,
+
+        sliderId,
+        slideWidth,
+        itemsMax,
+        items,
+        prevButton,
+        nextButton,
+        allDots,
+        navCount,
+        navCountVisible,
+        index = 0,
+        running = false,
+        dotClicked = -1;
+
+    if (autoplay) {
+      var actionButton,
+          animating = false;
+    }
+
+    if (touch) {
+      var startX = 0,
+          startY = 0,
+          translateX = 0,
+          distX = 0,
+          distY = 0,
+          run = false,
+          slideEventAdded = false;
+    }
+
+    // get items, itemsMax, slideWidth, navCountVisible
+    var responsive = (fixedWidth) ? false : options.responsive,
+        bpKeys = (typeof responsive !== 'object') ? false : Object.keys(responsive),
+        bpVals = getMapValues(responsive);
+
+    var getItems = (function () {
+      if (!fixedWidth) {
+        return function () {
+          var itemsTem;
+          var ww = document.documentElement.clientWidth;
+
+          if (bpKeys.length !== undefined && bpVals !== undefined && bpKeys.length === bpVals.length) {
+            if (ww < bpKeys[0]) {
+              itemsTem = options.items;
+            } else if (ww >= bpKeys[bpKeys.length - 1]) {
+              itemsTem = bpVals[bpVals.length - 1];
+            } else {
+              for (var i = 0; i < bpKeys.length - 1; i++) {
+                if (ww >= bpKeys[i] && ww <= bpKeys[i+1]) {
+                  itemsTem = bpVals[i];
+                }
+              }
+            }
+          } else {
+            itemsTem = options.items;
+          }
+
+          return Math.max(Math.min(sliderCount, itemsTem), 1);
+        };
+      } else {
+        return function () {
+          return Math.max(Math.min(sliderCount, Math.floor(sliderContainer.parentNode.offsetWidth / fixedWidth)), 1);
+        };
+      }
+    })();
+
+    var getItemsMax = function () {
+      var itemsMaxTem;
+
+      if (!fixedWidth) {
+        itemsMaxTem = (bpVals.length !== undefined) ? Math.max.apply(Math, bpVals) : options.items;
+      } else {
+        if (options.maxContainerWidth) {
+          itemsMaxTem = Math.ceil(options.maxContainerWidth / fixedWidth);
+        } else {
+          itemsMaxTem = false;
+        }
+      }
+
+      if (itemsMaxTem) {
+        return Math.min(sliderCount, itemsMaxTem);
+      } else {
+        return itemsMaxTem;
+      }
+    };
+
+    var getSlideWidth = (function () {
+      if (fixedWidth) {
+        return function () { return fixedWidth; };
+      } else {
+        return function () { return sliderContainer.parentNode.offsetWidth / items; };
+      }
+    })();
+
+    var getDotsCount = (function () {
+      if (options.navContainer) {
+        return function () { return sliderCount; };
+      } else {
+        return function () { return Math.ceil(sliderCount / items); };
+      }
+    })();
+
+    items = getItems();
+    itemsMax = getItemsMax();
+    slideWidth = getSlideWidth();
+    navCountVisible = getDotsCount();
+
+    // update layout:
+    // update slide container width, margin-left
+    // update slides' width
+    function updateLayout() {
+      sliderContainer.style.width = slideWidth * sliderCountUpdated + 'px';
+      if (loop) {
+        sliderContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
+      }
+      for (var b = sliderCountUpdated; b--;) {
+        sliderItems[b].style.width = slideWidth + 'px';
+      }
+    }
+
+    // update container height
+    // 1. get the max-height of the current slides
+    // 2. set transitionDuration to speed
+    // 3. update container height to max-height
+    // 4. set transitionDuration to 0s after transition is done
+    function updateContainerHeight() {
+      var current = (loop) ? index + itemsMax : index, 
+          heights = [],
+          maxHeight;
+
+      for (var i = sliderCountUpdated; i--;) {
+        if (i >= current && i < current + items) {
+          heights.push(sliderItems[i].offsetHeight);
+        }
+      }
+
+      maxHeight = Math.max.apply(null, heights);
+      if (getTD) { sliderContainer.style[getTD] = speed / 1000 + 's'; }
+      sliderContainer.style.height = maxHeight + 'px';
+      running = true;
+      
+      setTimeout(function () {
+        if (getTD) { sliderContainer.style[getTD] = '0s'; }
+        running = false;
+      }, speed);
+    }
+
+    // set transition duration
+    function setTransitionDuration(indexGap) {
+      if (!getTD) { return; }
+      sliderContainer.style[getTD] = (speed * indexGap / 1000) + 's';
+      running = true;
+    }
+
+    // set snapInterval (for IE10)
+    function setSnapInterval() {
+      if (!navigator.msMaxTouchPoints) { return; }
+      sliderContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
+    }
+
+    // active slide
+    // 1. add class '.visible' to visible slides
+    // 2. add class '.current' to the first visible slide
+    // 3. remove classes '.visible' and '.current' from other slides
+    function activeSlide() {
+      var current = (loop) ? index + itemsMax : index;
+
+      for (var i = sliderCountUpdated; i--;) {
+        // set current and tabindex
+        if (i === current) {
+          sliderItems[i].classList.add('current');
+        } else {
+          if (sliderItems[i].classList.contains('current')) {
+            sliderItems[i].classList.remove('current');
+          }
+        }
+
+        // set visible
+        if (i >= current && i < current + items) {
+          if (!sliderItems[i].hasAttribute('aria-hidden') || sliderItems[i].getAttribute('aria-hidden') === 'true') {
+            sliderItems[i].setAttribute('aria-hidden', 'false');
+          }
+        } else {
+          if (!sliderItems[i].hasAttribute('aria-hidden') || sliderItems[i].getAttribute('aria-hidden') === 'false') {
+            sliderItems[i].setAttribute('aria-hidden', 'true');
+          }
+        }
+      }
+    }
+
+    // non-loop:
+    // set 'disabled' to true to controls when reach the edge
+    function disableControls() {
+      if (loop) { return; }
+
+      if (sliderCount <= items) {
+        if (index !== 0) {
+          index = 0;
+          translate();
+        }
+
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+      } else {
+        if (index === 0) {
+          prevButton.disabled = true;
+          changeFocus(prevButton, nextButton);
+        } else {
+          prevButton.disabled = false;
+        }
+
+        if (index === sliderCount - items) {
+          nextButton.disabled = true;
+          changeFocus(nextButton, prevButton);
+        } else {
+          nextButton.disabled = false;
+        }
+      }
+    }
+
+    // show or hide extra nav.
+    // doesn't work on customized nav.
+    function displayNav() {
+      if (!nav || options.navContainer) { return; }
+
+      for (var i = navCount; i--;) {
+        var dotTem = allDots[i];
+
+        if (i < navCountVisible) {
+          if (dotTem.hasAttribute('hidden')) {
+            dotTem.removeAttribute('hidden');
+          }
+        } else {
+          if (!dotTem.hasAttribute('hidden')) {
+            dotTem.setAttribute('hidden', '');
+          }
+        }
+      }
+    }
+
+    // add class 'active' to active dot
+    // remove this class from other nav
+    function activeNav() {
+      if (!nav) { return; }
+
+      var dotCurrent;
+
+      if (dotClicked === -1) {
+        var absoluteIndex = (index < 0) ? index + sliderCount : (index >= sliderCount) ? index - sliderCount : index;
+        dotCurrent = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+
+        // non-loop & reach the edge
+        if (!loop && !options.navContainer) {
+          var re=/^-?[0-9]+$/, integer = re.test(sliderCount / items);
+          if(!integer && index === sliderCount - items) {
+            dotCurrent += 1;
+          }
+        }
+      } else {
+        dotCurrent = dotClicked;
+        dotClicked = -1;
+      }
+
+      for (var i = navCountVisible; i--;) {
+        var dotTem = allDots[i];
+
+        if (i === dotCurrent) {
+          if (!dotTem.classList.contains('current')) {
+            dotTem.classList.add('current');
+            dotTem.removeAttribute('tabindex');
+            dotTem.setAttribute('aria-selected', 'true');
+          }
+        } else {
+          if (dotTem.classList.contains('current')) {
+            dotTem.classList.remove('current');
+            dotTem.setAttribute('tabindex', -1);
+            dotTem.setAttribute('aria-selected', 'false');
+          }
+        }
+      }
+    }
+
+    // make transfer after click/drag:
+    // 1. change 'transform' property for mordern browsers
+    // 2. change 'left' property for legacy browsers
+    function translate() {
+      var vw = sliderContainer.parentNode.offsetWidth;
+
+      translateX = - slideWidth * index;
+      if (fixedWidth && !loop) {
+        translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - vw) );
+      }
+
+      if (getTransform) {
+        sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+      } else {
+        sliderContainer.style.left = translateX + 'px';
+      }
+    }
+
+    // check index after click/drag:
+    // if viewport reach the left/right edge of slide container or
+    // there is not enough room for next transfer,
+    // transfer slide container to a new location without animation
+    function fallback() {
+      if (!loop) { return; }
+
+      var reachLeftEdge = (slideByPage) ? index < (items - itemsMax) : index <= - itemsMax,
+          reachRightEdge = (slideByPage) ? index > (sliderCount + itemsMax - items * 2 - 1) : index >= (sliderCount + itemsMax - items);
+
+      // fix fixed-width
+      if (fixedWidth && itemsMax && !slideByPage) {
+        reachRightEdge = index >= (sliderCount + itemsMax - items - 1);
+      }
+
+      if (reachLeftEdge) { index += sliderCount; }
+      if (reachRightEdge) { index -= sliderCount; }
+
+      if (getTD) { sliderContainer.style[getTD] = '0s'; }
+      translate();
+    }
+
+    // All actions need to be done after a transfer:
+    // 1. check index
+    // 2. add classes to current/visible slide
+    // 3. disable controls buttons when reach the first/last slide in non-loop slider
+    // 4. update nav status
+    // 5. lazyload images
+    // 6. update container height
+    function update() {
+      fallback();
+      activeSlide();
+      disableControls();
+      activeNav();
+      lazyLoad();
+      if (autoHeight) {
+        updateContainerHeight();
+      }
+
+      running = false;
+    }
+
+    // on controls click
+    function onNavClick(dir) {
+      if (!running) {
+        dir = (slideByPage) ? dir * items : dir;
+        var indexGap = Math.abs(dir);
+
+        index = (loop) ? (index + dir) : Math.max(0, Math.min((index + dir), sliderCount - items));
+
+        setTransitionDuration(indexGap);
+        translate();
+
+        setTimeout(function () {
+          update();
+        }, speed * indexGap);
+      }
+    }
+
+    // 
+    function fireDotClick() {
+      return function () {
+        var dotIndex = gn.indexOf(allDots, this);
+        onDotClick(dotIndex);
+      };
+    }
+
+    // on doc click
+    function onDotClick(dotIndex) {
+      if (!running) {
+        dotClicked = dotIndex;
+
+        var indexTem, indexGap;
+        indexTem = (options.navContainer) ? dotIndex : dotIndex * items;
+        indexTem = (loop) ? indexTem : Math.min(indexTem, sliderCount - items);
+        indexGap = Math.abs(indexTem - index);
+        index = indexTem;
+
+        setTransitionDuration(indexGap);
+        translate();
+
+        setTimeout(function () { 
+          update();
+        }, speed * indexGap);
+      }
+    }
+
+    // change focus
+    function changeFocus(blur, focus) {
+      if (typeof blur === 'object' && typeof focus === 'object') {
+        if (blur === document.activeElement) {
+          blur.blur();
+          focus.focus();
+        }
+        blur.setAttribute('tabindex', '-1');
+        focus.removeAttribute('tabindex');
+      }
+    }
+
+    // on key control
+    function onKeyControl(e) {
+      e = e || window.event;
+      var code = e.keyCode,
+          curElement = document.activeElement;
+
+      if (code === KEY.LEFT || code === KEY.UP || code === KEY.HOME || code === KEY.PAGEUP) {
+        if (curElement !== prevButton && prevButton.disabled !== true) {
+          changeFocus(curElement, prevButton);
+        }
+      }
+      if (code === KEY.RIGHT || code === KEY.DOWN || code === KEY.END || code === KEY.PAGEDOWN) {
+        if (curElement !== 'next' && nextButton.disabled !== true) {
+          changeFocus(curElement, nextButton);
+        }
+      }
+    }
+
+    // on key nav
+    function onKeyNav(e) {
+      e = e || window.event;
+      var code = e.keyCode,
+          curElement = document.activeElement;
+
+      if (code === KEY.LEFT || code === KEY.PAGEUP) {
+        if (curElement.getAttribute('data-slide') > 0) {
+          changeFocus(curElement, curElement.previousElementSibling);
+        }
+      }
+      if (code === KEY.UP || code === KEY.HOME) {
+        if (curElement.getAttribute('data-slide') !== 0) {
+          changeFocus(curElement, allDots[0]);
+        }
+      }
+      if (code === KEY.RIGHT || code === KEY.PAGEDOWN) {
+        if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
+          changeFocus(curElement, curElement.nextElementSibling);
+        }
+      }
+      if (code === KEY.DOWN || code === KEY.END) {
+        if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
+          changeFocus(curElement, allDots[navCountVisible - 1]);
+        }
+      }
+    }
+
+    // lazyload
+    function lazyLoad() {
+      if (!gn.isInViewport(sliderContainer)) { return; }
+
+      var imgs = sliderContainer.querySelectorAll('[aria-hidden="false"] .tiny-lazy');
+      if (imgs.length === 0) { return; }
+      for (var i = 0, len = imgs.length; i < len; i++) {
+        if (!imgs[i].classList.contains('loaded')) {
+          imgs[i].src = imgs[i].getAttribute('data-src');
+          imgs[i].classList.add('loaded');
+        }
+      }
+    }
+
+    function onPanStart() {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        startX = parseInt(touchObj.clientX);
+        startY = parseInt(touchObj.clientY);
+      };
+    }
+
+    function onPanMove() {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        distX = parseInt(touchObj.clientX) - startX;
+        distY = parseInt(touchObj.clientY) - startY;
+
+        var rotate = toDegree(Math.atan2(distY, distX)),
+            panDir = getPanDir(rotate, 15);
+
+        if (panDir === 'horizontal' && running === false) { run = true; }
+        if (run) {
+          if (getTD) { sliderContainer.style[getTD] = '0s'; }
+
+          var min = (!loop) ? - (sliderCount - items) * slideWidth : - (sliderCount + itemsMax - items) * slideWidth,
+              max = (!loop) ? 0 : itemsMax * slideWidth;
+
+          if (!loop && fixedWidth) { min = - (sliderCount * slideWidth - sliderContainer.parentNode.offsetWidth); }
+
+          translateX = - index * slideWidth + distX;
+          translateX = Math.max(min, Math.min( translateX, max));
+
+          if (getTransform) {
+            sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+          } else {
+            sliderContainer.style.left = translateX + 'px';
+          }
+
+          e.preventDefault();
+        }
+      };
+    }
+
+    function onPanEnd() {
+      return function (e) {
+        var touchObj = e.changedTouches[0];
+        distX = parseInt(touchObj.clientX) - startX;
+
+        if (run && distX !== 0) {
+          e.preventDefault();
+          run = false;
+          translateX = - index * slideWidth + distX;
+
+          var indexTem,
+              min = (!loop) ? 0 : -itemsMax,
+              max = (!loop) ? sliderCount - items : sliderCount + itemsMax - items;
+
+          indexTem = - (translateX / slideWidth);
+          indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
+          indexTem = Math.max(min, Math.min(indexTem, max));
+          index = indexTem;
+
+          setTransitionDuration(1);
+          translate();
+
+          setTimeout(function () {
+            update();
+          }, speed);
+        }
+      };
+    }
+    
+    return {
+      // initialize:
+      // 1. add .tiny-content to container
+      // 2. wrap container with .tiny-slider
+      // 3. add nav and controls if needed, set allDots, prevButton, nextButton
+      // 4. clone items for loop if needed, update childrenCount
+      init: function () {
+        sliderContainer.classList.add('tiny-content');
+        sliderContainer.id = 'slider' + getRandom();
+        sliderId = sliderContainer.id;
+
+        // wrap slider with ".tiny-slider"
+        var sliderWrapper = document.createElement('div');
+        sliderWrapper.className = 'tiny-slider';
+        gn.wrap(sliderContainer, sliderWrapper);
+
+        // for IE10
+        if (navigator.msMaxTouchPoints) {
+          sliderWrapper.classList.add('ms-touch');
+
+          sliderWrapper.addEventListener('scroll', function () {
+            if (getTD) { sliderContainer.style[getTD] = '0s'; }
+            sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
+          });
+        }
+
+        // add slide id
+        for (var x = 0; x < sliderCount; x++) {
+          sliderItems[x].id = sliderId + 'item' + x;
+        }
+
+        // clone items
+        if (loop) {
+          var fragmentBefore = document.createDocumentFragment(), 
+              fragmentAfter = document.createDocumentFragment(); 
+
+          for (var j = itemsMax; j--;) {
+            var cloneFirst = sliderItems[j].cloneNode(true),
+                cloneLast = sliderItems[sliderCount - 1 - j].cloneNode(true);
+
+            // remove id from cloned slides
+            cloneFirst.id = '';
+            cloneLast.id = '';
+
+            fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
+            fragmentAfter.appendChild(cloneLast);
+          }
+
+          sliderContainer.appendChild(fragmentBefore);
+          sliderContainer.insertBefore(fragmentAfter, sliderContainer.firstChild);
+
+          sliderCountUpdated = sliderContainer.children.length;
+          sliderItems = sliderContainer.children;
+        }
+
+        // add nav
+        if (nav) {
+          if (!navContainer) {
+            var navHtml = '';
+            for (var i = 0; i < sliderCount; i++) {
+              navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
+            }
+
+            if (autoplay) {
+              navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
+            }
+
+            navHtml = '<div class="tiny-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
+            gn.append(sliderWrapper, navHtml);
+
+            navContainer = sliderWrapper.querySelector('.tiny-nav');
+          }
+
+          allDots = navContainer.querySelectorAll('[data-slide]');
+          navCount = allDots.length;
+
+          if (!navContainer.hasAttribute('aria-label')) {
+            navContainer.setAttribute('aria-label', "Carousel Pagination");
+            for (var y = 0; y < navCount; y++) {
+              var dot = allDots[y];
+              dot.setAttribute('aria-selected', 'false');
+              dot.setAttribute('aria-controls', sliderId + 'item' + y);
+            }
+          }
+        }
+
+        // add controls
+        if (controls) {
+          if (!controlsContainer) {
+             // tabindex="0"
+            gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
+
+            controlsContainer = sliderWrapper.querySelector('.tiny-controls');
+          }
+
+          prevButton = controlsContainer.querySelector('[data-controls="prev"]');
+          nextButton = controlsContainer.querySelector('[data-controls="next"]');
+
+          if (!controlsContainer.hasAttribute('tabindex')) {
+            // controlsContainer.setAttribute('tabindex', 0);
+            controlsContainer.setAttribute('aria-label', 'Carousel Navigation');
+            prevButton.setAttribute('aria-controls', sliderId);
+            nextButton.setAttribute('aria-controls', sliderId);
+            prevButton.setAttribute('tabindex', -1);
+          }
+        }
+
+        // add auto
+        if (autoplay) {
+          if (!navContainer) {
+            gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
+            navContainer = sliderWrapper.querySelector('.tiny-nav');
+          }
+          actionButton = navContainer.querySelector('[data-action]');
+        }
+
+        updateLayout();
+        if (autoHeight) {
+          updateContainerHeight();
+        }
+        setSnapInterval();
+        translate();
+        activeSlide();
+        if (controls) {
+          disableControls();
+          prevButton.addEventListener('click', function () { onNavClick(-1); });
+          nextButton.addEventListener('click', function () { onNavClick(1); });
+          prevButton.addEventListener('keydown', onKeyControl, false);
+          nextButton.addEventListener('keydown', onKeyControl, false);
+        }
+
+        displayNav();
+        activeNav();
+        if (nav) {
+          for (var a = 0; a < navCount; a++) {
+            allDots[a].addEventListener('click', fireDotClick(), false);
+            allDots[a].addEventListener('keydown', onKeyNav, false);
+          }
+        }
+
+        if (lazyload) { lazyLoad(); }
+
+        if (arrowKeys) {
+          document.addEventListener('keydown', function (e) {
+            e = e || window.event;
+            if (e.keyCode === KEY.LEFT) {
+              onNavClick(-1);
+            } else if (e.keyCode === KEY.RIGHT) {
+              onNavClick(1);
+            }
+          });
+        }
+
+        if (autoplay) {
+          var autoplayTimer;
+
+          var startAction = function () {
+            autoplayTimer = setInterval(function () {
+              onNavClick(autoplayDirection);
+            }, autoplayTimeout);
+            actionButton.setAttribute('data-action', 'stop');
+            actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
+
+            animating = true;
+          };
+          startAction();
+
+          var stopAction = function () {
+            clearInterval(autoplayTimer);
+            actionButton.setAttribute('data-action', 'start');
+            actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
+
+            animating = false;
+          };
+
+          var toggleAnimation = function () {
+            if (animating) {
+              stopAction();
+            } else {
+              startAction();
+            }
+          };
+
+          var stopAnimation = function () {
+            if (animating) { stopAction(); }
+          };
+
+          actionButton.addEventListener('click', toggleAnimation, false );
+
+          if (controls) {
+            prevButton.addEventListener('click', stopAnimation, false );
+            nextButton.addEventListener('click', stopAnimation, false );
+          }
+
+          if (nav) {
+            for (var b = 0; b < navCount; b++) {
+              allDots[b].addEventListener('click', stopAnimation, false);
+            }
+          }
+        }
+
+        if (touch) {
+          if (!slideEventAdded && sliderContainer.addEventListener) {
+            sliderContainer.addEventListener('touchstart', onPanStart(), false);
+            sliderContainer.addEventListener('touchmove', onPanMove(), false);
+            sliderContainer.addEventListener('touchend', onPanEnd(), false);
+            sliderContainer.addEventListener('touchcancel', onPanEnd(), false);
+
+            slideEventAdded = true;
+          }
+        }
+
+        // on window resize
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+
+          // update after resize done
+          resizeTimer = setTimeout(function () {
+            items = getItems();
+            slideWidth = getSlideWidth();
+            navCountVisible = getDotsCount();
+
+            updateLayout();
+            setSnapInterval();
+            translate();
+            displayNav();
+            disableControls();
+            activeNav();
+            if (autoHeight) {
+              updateContainerHeight();
+            }
+            if (lazyload) {
+              lazyLoad();
+            }
+          }, 100);
+        });
+
+        // on window scroll
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+          if (!ticking) {
+            window.requestAnimationFrame(function() {
+              if (lazyload) { lazyLoad(); }
+              ticking = false;
+            });
+          }
+          ticking = true;
+        });
+      }
+    };
+  }
+
+
+  // === Private helper functions === //
+  function getRandom() {
+    return Math.random().toPrecision(3) * 1000;
+  }
+
+  function toDegree (angle) {
+    return angle * (180 / Math.PI);
+  }
+
+  function getPanDir(angle, range) {
+    if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
+      return 'horizontal';
+    } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
+      return 'vertical';
+    } else {
+      return false;
+    }
+  }
+
+  function getMapValues (obj) {
+    if (typeof(obj) === 'object') {
+      var values = [],
+          keys = Object.keys(obj);
+
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var a = keys[i];
+        values.push(obj[a]);
+      }
+
+      return values;
+    } else {
+      return false;
+    }
+  }
+
+  return core;
+})();
+
