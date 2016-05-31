@@ -673,7 +673,8 @@ var tinySlider = (function () {
         dotClicked = -1;
 
     if (autoplay) {
-      var actionButton,
+      var autoplayTimer,
+          actionButton,
           animating = false;
     }
 
@@ -1044,6 +1045,46 @@ var tinySlider = (function () {
       }
     }
 
+    function startAction() {
+      autoplayTimer = setInterval(function () {
+        onNavClick(autoplayDirection);
+      }, autoplayTimeout);
+      actionButton.setAttribute('data-action', 'stop');
+      actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
+
+      animating = true;
+    }
+
+    function stopAction() {
+      clearInterval(autoplayTimer);
+      actionButton.setAttribute('data-action', 'start');
+      actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
+
+      animating = false;
+    }
+
+    function toggleAnimation() {
+      if (animating) {
+        stopAction();
+      } else {
+        startAction();
+      }
+    }
+
+    function stopAnimation() {
+      if (animating) { stopAction(); }
+    }
+
+    // 
+    function onKeyDocument(e) {
+      e = e || window.event;
+      if (e.keyCode === KEY.LEFT) {
+        onNavClick(-1);
+      } else if (e.keyCode === KEY.RIGHT) {
+        onNavClick(1);
+      }
+    }
+
     // change focus
     function changeFocus(blur, focus) {
       if (typeof blur === 'object' && typeof focus === 'object') {
@@ -1114,6 +1155,12 @@ var tinySlider = (function () {
           imgs[i].classList.add('loaded');
         }
       }
+    }
+
+    // IE10 scroll function
+    function ie10Scroll() {
+      sliderContainer.style[getTD] = '0s';
+      sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
     }
 
     function onPanStart() {
@@ -1193,8 +1240,13 @@ var tinySlider = (function () {
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
         sliderContainer.classList.add('tiny-content');
-        sliderContainer.id = getSliderId();
-        sliderId = sliderContainer.id;
+
+        // add slider id
+        if (sliderContainer.id.length === 0) {
+          sliderContainer.id = sliderId = getSliderId();
+        } else {
+          sliderId = sliderContainer.id;
+        }
 
         // wrap slider with ".tiny-slider"
         var sliderWrapper = document.createElement('div');
@@ -1204,11 +1256,7 @@ var tinySlider = (function () {
         // for IE10
         if (navigator.msMaxTouchPoints) {
           sliderWrapper.classList.add('ms-touch');
-
-          sliderWrapper.addEventListener('scroll', function () {
-            if (getTD) { sliderContainer.style[getTD] = '0s'; }
-            sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
-          });
+          sliderWrapper.addEventListener('scroll', ie10Scroll, false);
         }
 
         // add slide id
@@ -1242,7 +1290,7 @@ var tinySlider = (function () {
 
         // add nav
         if (nav) {
-          if (!navContainer) {
+          if (!options.navContainer) {
             var navHtml = '';
             for (var i = 0; i < sliderCount; i++) {
               navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
@@ -1273,8 +1321,7 @@ var tinySlider = (function () {
 
         // add controls
         if (controls) {
-          if (!controlsContainer) {
-             // tabindex="0"
+          if (!options.controlsContainer) {
             gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
 
             controlsContainer = sliderWrapper.querySelector('.tiny-controls');
@@ -1284,7 +1331,6 @@ var tinySlider = (function () {
           nextButton = controlsContainer.querySelector('[data-controls="next"]');
 
           if (!controlsContainer.hasAttribute('tabindex')) {
-            // controlsContainer.setAttribute('tabindex', 0);
             controlsContainer.setAttribute('aria-label', 'Carousel Navigation');
             prevButton.setAttribute('aria-controls', sliderId);
             nextButton.setAttribute('aria-controls', sliderId);
@@ -1302,12 +1348,16 @@ var tinySlider = (function () {
         }
 
         updateLayout();
-        if (autoHeight) {
-          updateContainerHeight();
-        }
+        if (autoHeight) { updateContainerHeight(); }
         setSnapInterval();
         translate();
         activeSlide();
+
+        displayNav();
+        activeNav();
+        if (lazyload) { lazyLoad(); }
+
+        // add eventListeners
         if (controls) {
           disableControls();
           prevButton.addEventListener('click', function () { onNavClick(-1); });
@@ -1315,9 +1365,7 @@ var tinySlider = (function () {
           prevButton.addEventListener('keydown', onKeyControl, false);
           nextButton.addEventListener('keydown', onKeyControl, false);
         }
-
-        displayNav();
-        activeNav();
+        
         if (nav) {
           for (var a = 0; a < navCount; a++) {
             allDots[a].addEventListener('click', fireDotClick(), false);
@@ -1325,53 +1373,12 @@ var tinySlider = (function () {
           }
         }
 
-        if (lazyload) { lazyLoad(); }
-
         if (arrowKeys) {
-          document.addEventListener('keydown', function (e) {
-            e = e || window.event;
-            if (e.keyCode === KEY.LEFT) {
-              onNavClick(-1);
-            } else if (e.keyCode === KEY.RIGHT) {
-              onNavClick(1);
-            }
-          });
+          document.addEventListener('keydown', onKeyDocument, false);
         }
 
         if (autoplay) {
-          var autoplayTimer;
-
-          var startAction = function () {
-            autoplayTimer = setInterval(function () {
-              onNavClick(autoplayDirection);
-            }, autoplayTimeout);
-            actionButton.setAttribute('data-action', 'stop');
-            actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
-
-            animating = true;
-          };
           startAction();
-
-          var stopAction = function () {
-            clearInterval(autoplayTimer);
-            actionButton.setAttribute('data-action', 'start');
-            actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
-
-            animating = false;
-          };
-
-          var toggleAnimation = function () {
-            if (animating) {
-              stopAction();
-            } else {
-              startAction();
-            }
-          };
-
-          var stopAnimation = function () {
-            if (animating) { stopAction(); }
-          };
-
           actionButton.addEventListener('click', toggleAnimation, false );
 
           if (controls) {
@@ -1438,11 +1445,94 @@ var tinySlider = (function () {
 
       // destory
       destory: function () {
-        // if () {} else {}
+        // gn.unwrap(sliderWrapper);
+        sliderContainer.classList.remove('tiny-content');
+        sliderContainer.style.width = '';
+        sliderContainer.style[getTD] = '';
+        sliderContainer.style.transform = '';
+        sliderContainer.style.marginLeft = '';
+        sliderContainer.style.left = '';
+
+        // for IE10
+        // if (navigator.msMaxTouchPoints && sliderWrapper) {
+        //   sliderWrapper.classList.remove('ms-touch');
+        //   sliderWrapper.removeEventListener('scroll', ie10Scroll, false);
+        // }
+
+        // remove clone items
+        if (loop) {
+          for (var j = itemsMax; j--;) {
+            sliderItems[j].remove();
+            sliderItems[sliderCount - 1 - j].remove();
+          }
+        }
+
+        // remove ids
+        if (sliderId !== undefined) {
+          sliderId = null;
+          sliderContainer.removeAttribute('id');
+
+          // remove slide id
+          for (var x = 0; x < sliderCount; x++) {
+            sliderItems[x].removeAttribute('id');
+            sliderItems[x].removeAttribute('aria-hidden');
+            sliderItems[x].style.width = '';
+            sliderItems[x].classList.remove('current');
+          }
+        }
+
+        // remove nav
+        if (nav) {
+          if (!options.navContainer) {
+            navContainer.remove();
+            navContainer = null;
+          } else {
+            navContainer.removeAttribute('aria-label');
+            for (var i = allDots.length; i--;) {
+              allDots[i].removeAttribute('aria-selected');
+              allDots[i].removeAttribute('aria-controls');
+            }
+          }
+          allDots = null;
+          navCount = null;
+        }
+
+        // remove controls
+        if (controls) {
+          if (!options.controlsContainer) {
+            controlsContainer.remove();
+            controlsContainer = null;
+            prevButton = null;
+            nextButton = null;
+          } else {
+            controlsContainer.removeAttribute('aria-label');
+            prevButton.removeAttribute('aria-controls');
+            prevButton.removeAttribute('tabindex');
+            nextButton.removeAttribute('aria-controls');
+            nextButton.removeAttribute('tabindex');
+          }
+        }
+
+        // remove auto
+        if (autoplay) {
+          if (!navContainer) {
+            if (navContainer) {
+              navContainer.remove();
+              navContainer = null;
+            }
+          } else {
+            actionButton = null;
+          }
+        }
+
+        // remove arrowKeys eventlistener
+        if (arrowKeys) {
+          document.removeEventListener('keydown', arrowKeys, false);
+        }
+
       }
     };
   }
-
 
   // === Private helper functions === //
   function getSliderId() {
