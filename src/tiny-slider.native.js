@@ -9,20 +9,29 @@
 var tinySlider = (function () {
   'use strict';
 
-  // get supported property
-  var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-      getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
-
-  var KEY = {
-      PAGEUP: 33,
-      PAGEDOWN: 34,
-      END: 35,
-      HOME: 36,
-      LEFT: 37,
-      UP: 38,
-      RIGHT: 39,
-      DOWN: 40
-  };
+  // get supported property, KEYs
+  var TRANSITIONDURATION = gn.getSupportedProp([
+        'transitionDuration', 
+        'WebkitTransitionDuration', 
+        'MozTransitionDuration', 
+        'OTransitionDuration'
+      ]),
+      TRANSFORM = gn.getSupportedProp([
+        'transform', 
+        'WebkitTransform', 
+        'MozTransform', 
+        'OTransform'
+      ]),
+      KEY = {
+        PAGEUP: 33,
+        PAGEDOWN: 34,
+        END: 35,
+        HOME: 36,
+        LEFT: 37,
+        UP: 38,
+        RIGHT: 39,
+        DOWN: 40
+      };
 
   function core (options) {
     options = gn.extend({
@@ -62,7 +71,7 @@ var tinySlider = (function () {
         nav = options.nav,
         navContainer = (!options.navContainer) ? false : options.navContainer,
         arrowKeys = options.arrowKeys,
-        speed = (!getTD) ? 0 : options.speed,
+        speed = (!TRANSITIONDURATION) ? 0 : options.speed,
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
@@ -210,20 +219,20 @@ var tinySlider = (function () {
       }
 
       maxHeight = Math.max.apply(null, heights);
-      if (getTD) { sliderContainer.style[getTD] = speed / 1000 + 's'; }
+      if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = speed / 1000 + 's'; }
       sliderContainer.style.height = maxHeight + 'px';
       running = true;
       
       setTimeout(function () {
-        if (getTD) { sliderContainer.style[getTD] = '0s'; }
+        if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
         running = false;
       }, speed);
     }
 
     // set transition duration
     function setTransitionDuration(indexGap) {
-      if (!getTD) { return; }
-      sliderContainer.style[getTD] = (speed * indexGap / 1000) + 's';
+      if (!TRANSITIONDURATION) { return; }
+      sliderContainer.style[TRANSITIONDURATION] = (speed * indexGap / 1000) + 's';
       running = true;
     }
 
@@ -366,8 +375,8 @@ var tinySlider = (function () {
         translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - vw) );
       }
 
-      if (getTransform) {
-        sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+      if (TRANSFORM) {
+        sliderContainer.style[TRANSFORM] = 'translate3d(' + translateX + 'px, 0, 0)';
       } else {
         sliderContainer.style.left = translateX + 'px';
       }
@@ -391,7 +400,7 @@ var tinySlider = (function () {
       if (reachLeftEdge) { index += sliderCount; }
       if (reachRightEdge) { index -= sliderCount; }
 
-      if (getTD) { sliderContainer.style[getTD] = '0s'; }
+      if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
       translate();
     }
 
@@ -581,7 +590,7 @@ var tinySlider = (function () {
 
     // IE10 scroll function
     function ie10Scroll() {
-      sliderContainer.style[getTD] = '0s';
+      sliderContainer.style[TRANSITIONDURATION] = '0s';
       sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
     }
 
@@ -601,7 +610,7 @@ var tinySlider = (function () {
 
       if (panDir === 'horizontal' && running === false) { run = true; }
       if (run) {
-        if (getTD) { sliderContainer.style[getTD] = '0s'; }
+        if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
 
         var min = (!loop) ? - (sliderCount - items) * slideWidth : - (sliderCount + itemsMax - items) * slideWidth,
             max = (!loop) ? 0 : itemsMax * slideWidth;
@@ -611,8 +620,8 @@ var tinySlider = (function () {
         translateX = - index * slideWidth + distX;
         translateX = Math.max(min, Math.min( translateX, max));
 
-        if (getTransform) {
-          sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+        if (TRANSFORM) {
+          sliderContainer.style[TRANSFORM] = 'translate3d(' + translateX + 'px, 0, 0)';
         } else {
           sliderContainer.style.left = translateX + 'px';
         }
@@ -853,7 +862,7 @@ var tinySlider = (function () {
       destory: function () {
         sliderContainer.classList.remove('tiny-content');
         sliderContainer.style.width = '';
-        sliderContainer.style[getTD] = '';
+        sliderContainer.style[TRANSITIONDURATION] = '';
         sliderContainer.style.transform = '';
         sliderContainer.style.marginLeft = '';
         sliderContainer.style.left = '';
