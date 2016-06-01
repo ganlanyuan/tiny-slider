@@ -277,15 +277,7 @@ var tinySlider = (function () {
     function disableControls() {
       if (loop) { return; }
 
-      if (sliderCount <= items) {
-        if (index !== 0) {
-          index = 0;
-          translate();
-        }
-
-        prevButton.disabled = true;
-        nextButton.disabled = true;
-      } else {
+      if (sliderCount > items) {
         if (index === 0) {
           prevButton.disabled = true;
           changeFocus(prevButton, nextButton);
@@ -299,6 +291,18 @@ var tinySlider = (function () {
         } else {
           nextButton.disabled = false;
         }
+      } else {
+        if (index !== 0) {
+          index = 0;
+          translate();
+        }
+
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        prevButton.setAttribute('tabindex', '-1');
+        nextButton.setAttribute('tabindex', '-1');
+        if (prevButton === document.activeElement) { prevButton.blur(); }
+        if (nextButton === document.activeElement) { nextButton.blur(); }
       }
     }
 
@@ -380,6 +384,19 @@ var tinySlider = (function () {
       } else {
         sliderContainer.style.left = translateX + 'px';
       }
+    }
+
+    // render
+    function render() {
+      updateLayout();
+      setSnapInterval();
+      translate();
+      displayNav();
+      activeNav();
+      activeSlide();
+      disableControls();
+      if (autoHeight) { updateContainerHeight(); }
+      if (lazyload) { lazyLoad(); }
     }
 
     // check index after click/drag:
@@ -653,14 +670,7 @@ var tinySlider = (function () {
         slideWidth = getSlideWidth();
         navCountVisible = getNavCount();
 
-        updateLayout();
-        setSnapInterval();
-        translate();
-        displayNav();
-        disableControls();
-        activeNav();
-        if (autoHeight) { updateContainerHeight(); }
-        if (lazyload) { lazyLoad(); }
+        render();
       }, 100);
     }
 
@@ -788,14 +798,7 @@ var tinySlider = (function () {
           actionButton = navContainer.querySelector('[data-action]');
         }
 
-        updateLayout();
-        if (autoHeight) { updateContainerHeight(); }
-        setSnapInterval();
-        translate();
-        activeSlide();
-        displayNav();
-        activeNav();
-        if (lazyload) { lazyLoad(); }
+        render();
 
         // add sliderContainer eventListeners
         if (touch) {
