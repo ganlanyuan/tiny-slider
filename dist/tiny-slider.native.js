@@ -386,7 +386,7 @@ var tinySlider = (function () {
     // if viewport reach the left/right edge of slide container or
     // there is not enough room for next transfer,
     // transfer slide container to a new location without animation
-    function fallback() {
+    function checkIndex() {
       if (!loop) { return; }
 
       var reachLeftEdge = (slideByPage) ? index < (items - itemsMax) : index <= - itemsMax,
@@ -404,24 +404,26 @@ var tinySlider = (function () {
       translate();
     }
 
-    // All actions need to be done after a transfer:
+    // Things need to be done after a transfer:
     // 1. check index
     // 2. add classes to current/visible slide
     // 3. disable controls buttons when reach the first/last slide in non-loop slider
     // 4. update nav status
     // 5. lazyload images
     // 6. update container height
-    function update() {
-      fallback();
-      activeSlide();
-      disableControls();
-      activeNav();
-      lazyLoad();
-      if (autoHeight) {
-        updateContainerHeight();
-      }
+    function update(indexGap) {
+      setTransitionDuration(indexGap);
+      translate();
 
-      running = false;
+      setTimeout(function () {
+        checkIndex();
+        activeSlide();
+        disableControls();
+        activeNav();
+        lazyLoad();
+        if (autoHeight) { updateContainerHeight(); }
+        running = false;
+      }, speed * indexGap);
     }
 
     // on controls click
@@ -432,12 +434,7 @@ var tinySlider = (function () {
 
         index = (loop) ? (index + dir) : Math.max(0, Math.min((index + dir), sliderCount - items));
 
-        setTransitionDuration(indexGap);
-        translate();
-
-        setTimeout(function () {
-          update();
-        }, speed * indexGap);
+        update(indexGap);
       }
     }
 
@@ -467,12 +464,7 @@ var tinySlider = (function () {
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
 
-        setTransitionDuration(indexGap);
-        translate();
-
-        setTimeout(function () { 
-          update();
-        }, speed * indexGap);
+        update(indexGap);
       }
     }
 
@@ -648,12 +640,7 @@ var tinySlider = (function () {
         indexTem = Math.max(min, Math.min(indexTem, max));
         index = indexTem;
 
-        setTransitionDuration(1);
-        translate();
-
-        setTimeout(function () {
-          update();
-        }, speed);
+        update(1);
       }
     }
 
