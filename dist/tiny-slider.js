@@ -638,6 +638,7 @@ var tinySlider = (function () {
 
     // === define and set variables ===
     var sliderContainer = options.container,
+        sliderWrapper = document.createElement('div'),
         sliderItems = sliderContainer.children,
         sliderCount = sliderItems.length,
         sliderCountUpdated = sliderItems.length,
@@ -665,12 +666,14 @@ var tinySlider = (function () {
         items,
         prevButton,
         nextButton,
-        allDots,
+        allNavs,
         navCount,
         navCountVisible,
+        navClicked = -1,
         index = 0,
         running = false,
-        dotClicked = -1;
+        resizeTimer,
+        ticking = false;
 
     if (autoplay) {
       var autoplayTimer,
@@ -684,8 +687,7 @@ var tinySlider = (function () {
           translateX = 0,
           distX = 0,
           distY = 0,
-          run = false,
-          slideEventAdded = false;
+          run = false;
     }
 
     // get items, itemsMax, slideWidth, navCountVisible
@@ -752,7 +754,7 @@ var tinySlider = (function () {
       }
     })();
 
-    var getDotsCount = (function () {
+    var getNavCount = (function () {
       if (options.navContainer) {
         return function () { return sliderCount; };
       } else {
@@ -763,7 +765,7 @@ var tinySlider = (function () {
     items = getItems();
     itemsMax = getItemsMax();
     slideWidth = getSlideWidth();
-    navCountVisible = getDotsCount();
+    navCountVisible = getNavCount();
 
     // update layout:
     // update slide container width, margin-left
@@ -884,57 +886,57 @@ var tinySlider = (function () {
       if (!nav || options.navContainer) { return; }
 
       for (var i = navCount; i--;) {
-        var dotTem = allDots[i];
+        var navTem = allNavs[i];
 
         if (i < navCountVisible) {
-          if (dotTem.hasAttribute('hidden')) {
-            dotTem.removeAttribute('hidden');
+          if (navTem.hasAttribute('hidden')) {
+            navTem.removeAttribute('hidden');
           }
         } else {
-          if (!dotTem.hasAttribute('hidden')) {
-            dotTem.setAttribute('hidden', '');
+          if (!navTem.hasAttribute('hidden')) {
+            navTem.setAttribute('hidden', '');
           }
         }
       }
     }
 
-    // add class 'active' to active dot
+    // add class 'active' to active nav
     // remove this class from other nav
     function activeNav() {
       if (!nav) { return; }
 
-      var dotCurrent;
+      var navCurrent;
 
-      if (dotClicked === -1) {
+      if (navClicked === -1) {
         var absoluteIndex = (index < 0) ? index + sliderCount : (index >= sliderCount) ? index - sliderCount : index;
-        dotCurrent = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+        navCurrent = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
 
         // non-loop & reach the edge
         if (!loop && !options.navContainer) {
           var re=/^-?[0-9]+$/, integer = re.test(sliderCount / items);
           if(!integer && index === sliderCount - items) {
-            dotCurrent += 1;
+            navCurrent += 1;
           }
         }
       } else {
-        dotCurrent = dotClicked;
-        dotClicked = -1;
+        navCurrent = navClicked;
+        navClicked = -1;
       }
 
       for (var i = navCountVisible; i--;) {
-        var dotTem = allDots[i];
+        var navTem = allNavs[i];
 
-        if (i === dotCurrent) {
-          if (!dotTem.classList.contains('current')) {
-            dotTem.classList.add('current');
-            dotTem.removeAttribute('tabindex');
-            dotTem.setAttribute('aria-selected', 'true');
+        if (i === navCurrent) {
+          if (!navTem.classList.contains('current')) {
+            navTem.classList.add('current');
+            navTem.removeAttribute('tabindex');
+            navTem.setAttribute('aria-selected', 'true');
           }
         } else {
-          if (dotTem.classList.contains('current')) {
-            dotTem.classList.remove('current');
-            dotTem.setAttribute('tabindex', -1);
-            dotTem.setAttribute('aria-selected', 'false');
+          if (navTem.classList.contains('current')) {
+            navTem.classList.remove('current');
+            navTem.setAttribute('tabindex', -1);
+            navTem.setAttribute('aria-selected', 'false');
           }
         }
       }
@@ -1001,7 +1003,7 @@ var tinySlider = (function () {
     }
 
     // on controls click
-    function onNavClick(dir) {
+    function onClickControl(dir) {
       if (!running) {
         dir = (slideByPage) ? dir * items : dir;
         var indexGap = Math.abs(dir);
@@ -1017,21 +1019,28 @@ var tinySlider = (function () {
       }
     }
 
-    // 
-    function fireDotClick() {
-      return function () {
-        var dotIndex = gn.indexOf(allDots, this);
-        onDotClick(dotIndex);
-      };
+    function onClickControlPrev() {
+      onClickControl(-1);
+    }
+
+    function onClickControlNext() {
+      onClickControl(1);
     }
 
     // on doc click
-    function onDotClick(dotIndex) {
+    function onClickNav(e) {
       if (!running) {
-        dotClicked = dotIndex;
+        var clickTarget = e.target || e.srcElement,
+            navIndex;
+
+        while (gn.indexOf(allNavs, clickTarget) === -1) {
+          clickTarget = clickTarget.parentNode;
+        }
+
+        navClicked = navIndex = Number(clickTarget.getAttribute('data-slide'));
 
         var indexTem, indexGap;
-        indexTem = (options.navContainer) ? dotIndex : dotIndex * items;
+        indexTem = (options.navContainer) ? navIndex : navIndex * items;
         indexTem = (loop) ? indexTem : Math.min(indexTem, sliderCount - items);
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
@@ -1047,7 +1056,7 @@ var tinySlider = (function () {
 
     function startAction() {
       autoplayTimer = setInterval(function () {
-        onNavClick(autoplayDirection);
+        onClickControl(autoplayDirection);
       }, autoplayTimeout);
       actionButton.setAttribute('data-action', 'stop');
       actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
@@ -1079,9 +1088,9 @@ var tinySlider = (function () {
     function onKeyDocument(e) {
       e = e || window.event;
       if (e.keyCode === KEY.LEFT) {
-        onNavClick(-1);
+        onClickControl(-1);
       } else if (e.keyCode === KEY.RIGHT) {
-        onNavClick(1);
+        onClickControl(1);
       }
     }
 
@@ -1128,7 +1137,7 @@ var tinySlider = (function () {
       }
       if (code === KEY.UP || code === KEY.HOME) {
         if (curElement.getAttribute('data-slide') !== 0) {
-          changeFocus(curElement, allDots[0]);
+          changeFocus(curElement, allNavs[0]);
         }
       }
       if (code === KEY.RIGHT || code === KEY.PAGEDOWN) {
@@ -1138,7 +1147,7 @@ var tinySlider = (function () {
       }
       if (code === KEY.DOWN || code === KEY.END) {
         if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
-          changeFocus(curElement, allDots[navCountVisible - 1]);
+          changeFocus(curElement, allNavs[navCountVisible - 1]);
         }
       }
     }
@@ -1163,80 +1172,104 @@ var tinySlider = (function () {
       sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
     }
 
-    function onPanStart() {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        startX = parseInt(touchObj.clientX);
-        startY = parseInt(touchObj.clientY);
-      };
+    function onPanStart(e) {
+      var touchObj = e.changedTouches[0];
+      startX = parseInt(touchObj.clientX);
+      startY = parseInt(touchObj.clientY);
     }
 
-    function onPanMove() {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        distX = parseInt(touchObj.clientX) - startX;
-        distY = parseInt(touchObj.clientY) - startY;
+    function onPanMove(e) {
+      var touchObj = e.changedTouches[0];
+      distX = parseInt(touchObj.clientX) - startX;
+      distY = parseInt(touchObj.clientY) - startY;
 
-        var rotate = toDegree(Math.atan2(distY, distX)),
-            panDir = getPanDir(rotate, 15);
+      var rotate = toDegree(Math.atan2(distY, distX)),
+          panDir = getPanDir(rotate, 15);
 
-        if (panDir === 'horizontal' && running === false) { run = true; }
-        if (run) {
-          if (getTD) { sliderContainer.style[getTD] = '0s'; }
+      if (panDir === 'horizontal' && running === false) { run = true; }
+      if (run) {
+        if (getTD) { sliderContainer.style[getTD] = '0s'; }
 
-          var min = (!loop) ? - (sliderCount - items) * slideWidth : - (sliderCount + itemsMax - items) * slideWidth,
-              max = (!loop) ? 0 : itemsMax * slideWidth;
+        var min = (!loop) ? - (sliderCount - items) * slideWidth : - (sliderCount + itemsMax - items) * slideWidth,
+            max = (!loop) ? 0 : itemsMax * slideWidth;
 
-          if (!loop && fixedWidth) { min = - (sliderCount * slideWidth - sliderContainer.parentNode.offsetWidth); }
+        if (!loop && fixedWidth) { min = - (sliderCount * slideWidth - sliderContainer.parentNode.offsetWidth); }
 
-          translateX = - index * slideWidth + distX;
-          translateX = Math.max(min, Math.min( translateX, max));
+        translateX = - index * slideWidth + distX;
+        translateX = Math.max(min, Math.min( translateX, max));
 
-          if (getTransform) {
-            sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
-          } else {
-            sliderContainer.style.left = translateX + 'px';
-          }
-
-          e.preventDefault();
+        if (getTransform) {
+          sliderContainer.style[getTransform] = 'translate3d(' + translateX + 'px, 0, 0)';
+        } else {
+          sliderContainer.style.left = translateX + 'px';
         }
-      };
+
+        e.preventDefault();
+      }
     }
 
-    function onPanEnd() {
-      return function (e) {
-        var touchObj = e.changedTouches[0];
-        distX = parseInt(touchObj.clientX) - startX;
+    function onPanEnd(e) {
+      var touchObj = e.changedTouches[0];
+      distX = parseInt(touchObj.clientX) - startX;
 
-        if (run && distX !== 0) {
-          e.preventDefault();
-          run = false;
-          translateX = - index * slideWidth + distX;
+      if (run && distX !== 0) {
+        e.preventDefault();
+        run = false;
+        translateX = - index * slideWidth + distX;
 
-          var indexTem,
-              min = (!loop) ? 0 : -itemsMax,
-              max = (!loop) ? sliderCount - items : sliderCount + itemsMax - items;
+        var indexTem,
+            min = (!loop) ? 0 : -itemsMax,
+            max = (!loop) ? sliderCount - items : sliderCount + itemsMax - items;
 
-          indexTem = - (translateX / slideWidth);
-          indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
-          indexTem = Math.max(min, Math.min(indexTem, max));
-          index = indexTem;
+        indexTem = - (translateX / slideWidth);
+        indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
+        indexTem = Math.max(min, Math.min(indexTem, max));
+        index = indexTem;
 
-          setTransitionDuration(1);
-          translate();
+        setTransitionDuration(1);
+        translate();
 
-          setTimeout(function () {
-            update();
-          }, speed);
-        }
-      };
+        setTimeout(function () {
+          update();
+        }, speed);
+      }
+    }
+
+    function onResize() {
+      clearTimeout(resizeTimer);
+
+      // update after resize done
+      resizeTimer = setTimeout(function () {
+        items = getItems();
+        slideWidth = getSlideWidth();
+        navCountVisible = getNavCount();
+
+        updateLayout();
+        setSnapInterval();
+        translate();
+        displayNav();
+        disableControls();
+        activeNav();
+        if (autoHeight) { updateContainerHeight(); }
+        if (lazyload) { lazyLoad(); }
+      }, 100);
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          if (lazyload) { lazyLoad(); }
+          ticking = false;
+        });
+      }
+      ticking = true;
     }
     
     return {
       // initialize:
       // 1. add .tiny-content to container
       // 2. wrap container with .tiny-slider
-      // 3. add nav and controls if needed, set allDots, prevButton, nextButton
+      // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
         sliderContainer.classList.add('tiny-content');
@@ -1249,7 +1282,6 @@ var tinySlider = (function () {
         }
 
         // wrap slider with ".tiny-slider"
-        var sliderWrapper = document.createElement('div');
         sliderWrapper.className = 'tiny-slider';
         gn.wrap(sliderContainer, sliderWrapper);
 
@@ -1306,15 +1338,15 @@ var tinySlider = (function () {
             navContainer = sliderWrapper.querySelector('.tiny-nav');
           }
 
-          allDots = navContainer.querySelectorAll('[data-slide]');
-          navCount = allDots.length;
+          allNavs = navContainer.querySelectorAll('[data-slide]');
+          navCount = allNavs.length;
 
           if (!navContainer.hasAttribute('aria-label')) {
             navContainer.setAttribute('aria-label', "Carousel Pagination");
             for (var y = 0; y < navCount; y++) {
-              var dot = allDots[y];
-              dot.setAttribute('aria-selected', 'false');
-              dot.setAttribute('aria-controls', sliderId + 'item' + y);
+              var navTem = allNavs[y];
+              navTem.setAttribute('aria-selected', 'false');
+              navTem.setAttribute('aria-controls', sliderId + 'item' + y);
             }
           }
         }
@@ -1352,34 +1384,36 @@ var tinySlider = (function () {
         setSnapInterval();
         translate();
         activeSlide();
-
         displayNav();
         activeNav();
         if (lazyload) { lazyLoad(); }
 
-        // add eventListeners
+        // add sliderContainer eventListeners
+        if (touch) {
+          sliderContainer.addEventListener('touchstart', onPanStart, false);
+          sliderContainer.addEventListener('touchmove', onPanMove, false);
+          sliderContainer.addEventListener('touchend', onPanEnd, false);
+          sliderContainer.addEventListener('touchcancel', onPanEnd, false);
+        }
+
         if (controls) {
           disableControls();
-          prevButton.addEventListener('click', function () { onNavClick(-1); });
-          nextButton.addEventListener('click', function () { onNavClick(1); });
+          prevButton.addEventListener('click', onClickControlPrev, false);
+          nextButton.addEventListener('click', onClickControlNext, false);
           prevButton.addEventListener('keydown', onKeyControl, false);
           nextButton.addEventListener('keydown', onKeyControl, false);
         }
         
         if (nav) {
-          for (var a = 0; a < navCount; a++) {
-            allDots[a].addEventListener('click', fireDotClick(), false);
-            allDots[a].addEventListener('keydown', onKeyNav, false);
+          for (var a = allNavs.length; a--;) {
+            allNavs[a].addEventListener('click', onClickNav, false);
+            allNavs[a].addEventListener('keydown', onKeyNav, false);
           }
-        }
-
-        if (arrowKeys) {
-          document.addEventListener('keydown', onKeyDocument, false);
         }
 
         if (autoplay) {
           startAction();
-          actionButton.addEventListener('click', toggleAnimation, false );
+          actionButton.addEventListener('click', toggleAnimation, false);
 
           if (controls) {
             prevButton.addEventListener('click', stopAnimation, false );
@@ -1388,64 +1422,22 @@ var tinySlider = (function () {
 
           if (nav) {
             for (var b = 0; b < navCount; b++) {
-              allDots[b].addEventListener('click', stopAnimation, false);
+              allNavs[b].addEventListener('click', stopAnimation, false);
             }
           }
         }
 
-        if (touch) {
-          if (!slideEventAdded && sliderContainer.addEventListener) {
-            sliderContainer.addEventListener('touchstart', onPanStart(), false);
-            sliderContainer.addEventListener('touchmove', onPanMove(), false);
-            sliderContainer.addEventListener('touchend', onPanEnd(), false);
-            sliderContainer.addEventListener('touchcancel', onPanEnd(), false);
-
-            slideEventAdded = true;
-          }
+        if (arrowKeys) {
+          document.addEventListener('keydown', onKeyDocument, false);
         }
 
-        // on window resize
-        var resizeTimer;
-        window.addEventListener('resize', function () {
-          clearTimeout(resizeTimer);
-
-          // update after resize done
-          resizeTimer = setTimeout(function () {
-            items = getItems();
-            slideWidth = getSlideWidth();
-            navCountVisible = getDotsCount();
-
-            updateLayout();
-            setSnapInterval();
-            translate();
-            displayNav();
-            disableControls();
-            activeNav();
-            if (autoHeight) {
-              updateContainerHeight();
-            }
-            if (lazyload) {
-              lazyLoad();
-            }
-          }, 100);
-        });
-
-        // on window scroll
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-          if (!ticking) {
-            window.requestAnimationFrame(function() {
-              if (lazyload) { lazyLoad(); }
-              ticking = false;
-            });
-          }
-          ticking = true;
-        });
+        // on window resize && scroll
+        window.addEventListener('resize', onResize, false);
+        window.addEventListener('scroll', onScroll, false);
       },
 
       // destory
       destory: function () {
-        // gn.unwrap(sliderWrapper);
         sliderContainer.classList.remove('tiny-content');
         sliderContainer.style.width = '';
         sliderContainer.style[getTD] = '';
@@ -1453,17 +1445,15 @@ var tinySlider = (function () {
         sliderContainer.style.marginLeft = '';
         sliderContainer.style.left = '';
 
-        // for IE10
-        // if (navigator.msMaxTouchPoints && sliderWrapper) {
-        //   sliderWrapper.classList.remove('ms-touch');
-        //   sliderWrapper.removeEventListener('scroll', ie10Scroll, false);
-        // }
+        // remove sliderWrapper
+        gn.unwrap(sliderWrapper);
+        sliderWrapper = null;
 
         // remove clone items
         if (loop) {
           for (var j = itemsMax; j--;) {
-            sliderItems[j].remove();
-            sliderItems[sliderCount - 1 - j].remove();
+            sliderItems[0].remove();
+            sliderItems[sliderItems.length - 1].remove();
           }
         }
 
@@ -1472,8 +1462,7 @@ var tinySlider = (function () {
           sliderId = null;
           sliderContainer.removeAttribute('id');
 
-          // remove slide id
-          for (var x = 0; x < sliderCount; x++) {
+          for (var x = sliderCount; x--;) {
             sliderItems[x].removeAttribute('id');
             sliderItems[x].removeAttribute('aria-hidden');
             sliderItems[x].style.width = '';
@@ -1481,20 +1470,12 @@ var tinySlider = (function () {
           }
         }
 
-        // remove nav
-        if (nav) {
-          if (!options.navContainer) {
-            navContainer.remove();
-            navContainer = null;
-          } else {
-            navContainer.removeAttribute('aria-label');
-            for (var i = allDots.length; i--;) {
-              allDots[i].removeAttribute('aria-selected');
-              allDots[i].removeAttribute('aria-controls');
-            }
-          }
-          allDots = null;
-          navCount = null;
+        // remove sliderContainer event listener
+        if (touch) {
+          sliderContainer.removeEventListener('touchstart', onPanStart, false);
+          sliderContainer.removeEventListener('touchmove', onPanMove, false);
+          sliderContainer.removeEventListener('touchend', onPanEnd, false);
+          sliderContainer.removeEventListener('touchcancel', onPanEnd, false);
         }
 
         // remove controls
@@ -1508,20 +1489,53 @@ var tinySlider = (function () {
             controlsContainer.removeAttribute('aria-label');
             prevButton.removeAttribute('aria-controls');
             prevButton.removeAttribute('tabindex');
+            prevButton.removeEventListener('click', onClickControlPrev, false);
+            prevButton.removeEventListener('keydown', onKeyControl, false);
+
             nextButton.removeAttribute('aria-controls');
             nextButton.removeAttribute('tabindex');
+            nextButton.removeEventListener('click', onClickControlNext, false);
+            nextButton.removeEventListener('keydown', onKeyControl, false);
           }
+        }
+
+        // remove nav
+        if (nav) {
+          if (!options.navContainer) {
+            navContainer.remove();
+            navContainer = null;
+          } else {
+            navContainer.removeAttribute('aria-label');
+            for (var i = allNavs.length; i--;) {
+              allNavs[i].removeAttribute('aria-selected');
+              allNavs[i].removeAttribute('aria-controls');
+              allNavs[i].removeEventListener('click', onClickNav, false);
+              allNavs[i].removeEventListener('keydown', onKeyNav, false);
+            }
+          }
+          allNavs = null;
+          navCount = null;
         }
 
         // remove auto
         if (autoplay) {
-          if (!navContainer) {
-            if (navContainer) {
-              navContainer.remove();
-              navContainer = null;
-            }
+          if (!options.navContainer && navContainer !== null) {
+            navContainer.remove();
+            navContainer = null;
           } else {
+            actionButton.removeEventListener('click', toggleAnimation, false);
             actionButton = null;
+
+            if (controls && options.controlsContainer) {
+              prevButton.removeEventListener('click', stopAnimation, false );
+              nextButton.removeEventListener('click', stopAnimation, false );
+            }
+
+            if (nav && options.navContainer) {
+              for (var b = 0; b < navCount; b++) {
+                allNavs[b].removeEventListener('click', stopAnimation, false);
+              }
+            }
           }
         }
 
@@ -1530,6 +1544,9 @@ var tinySlider = (function () {
           document.removeEventListener('keydown', arrowKeys, false);
         }
 
+        // remove window event listeners
+        window.removeEventListener('resize', onResize, false);
+        window.removeEventListener('scroll', onScroll, false);
       }
     };
   }
