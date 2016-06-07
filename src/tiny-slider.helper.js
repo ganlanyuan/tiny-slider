@@ -1,6 +1,7 @@
 
 // @codekit-prepend "../bower_components/domtokenlist/src/token-list.js";
 
+// @codekit-prepend "../bower_components/go-native/src/utilities/childNode.remove.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/base.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/extend.js";
 // @codekit-prepend "../bower_components/go-native/src/gn/isInViewport.js";

@@ -23,6 +23,8 @@ var tinySlider = (function () {
         'OTransform'
       ]),
       KEY = {
+        ENTER: 13,
+        SPACE: 32,
         PAGEUP: 33,
         PAGEDOWN: 34,
         END: 35,
@@ -203,7 +205,7 @@ var tinySlider = (function () {
     }
 
     // update container height
-    // 1. get the max-height of the current slides
+    // 1. get the max-height of the visible slides
     // 2. set transitionDuration to speed
     // 3. update container height to max-height
     // 4. set transitionDuration to 0s after transition is done
@@ -242,31 +244,21 @@ var tinySlider = (function () {
       sliderContainer.parentNode.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
     }
 
-    // active slide
-    // 1. add class '.visible' to visible slides
-    // 2. add class '.current' to the first visible slide
-    // 3. remove classes '.visible' and '.current' from other slides
-    function activeSlide() {
+    // update slide
+    // set aria-hidden
+    function updateSlide() {
       var current = (loop) ? index + itemsMax : index;
 
       for (var i = sliderCountUpdated; i--;) {
-        // set current and tabindex
-        if (i === current) {
-          sliderItems[i].classList.add('current');
-        } else {
-          if (sliderItems[i].classList.contains('current')) {
-            sliderItems[i].classList.remove('current');
-          }
-        }
+        var slideTem = sliderItems[i];
 
-        // set visible
         if (i >= current && i < current + items) {
-          if (!sliderItems[i].hasAttribute('aria-hidden') || sliderItems[i].getAttribute('aria-hidden') === 'true') {
-            sliderItems[i].setAttribute('aria-hidden', 'false');
+          if (!slideTem.hasAttribute('aria-hidden') || slideTem.getAttribute('aria-hidden') === 'true') {
+            slideTem.setAttribute('aria-hidden', 'false');
           }
         } else {
-          if (!sliderItems[i].hasAttribute('aria-hidden') || sliderItems[i].getAttribute('aria-hidden') === 'false') {
-            sliderItems[i].setAttribute('aria-hidden', 'true');
+          if (!slideTem.hasAttribute('aria-hidden') || slideTem.getAttribute('aria-hidden') === 'false') {
+            slideTem.setAttribute('aria-hidden', 'true');
           }
         }
       }
@@ -306,9 +298,9 @@ var tinySlider = (function () {
       }
     }
 
-    // show or hide extra nav.
+    // show or hide nav.
     // doesn't work on customized nav.
-    function displayNav() {
+    function diaplayNav() {
       if (!nav || options.navContainer) { return; }
 
       for (var i = navCount; i--;) {
@@ -326,8 +318,7 @@ var tinySlider = (function () {
       }
     }
 
-    // add class 'active' to active nav
-    // remove this class from other nav
+    // set tabindex & aria-selected on Nav
     function activeNav() {
       if (!nav) { return; }
 
@@ -353,15 +344,13 @@ var tinySlider = (function () {
         var navTem = allNavs[i];
 
         if (i === navCurrent) {
-          if (!navTem.classList.contains('current')) {
-            navTem.classList.add('current');
-            navTem.removeAttribute('tabindex');
+          if (navTem.getAttribute('aria-selected') === 'false') {
+            navTem.setAttribute('tabindex', '0');
             navTem.setAttribute('aria-selected', 'true');
           }
         } else {
-          if (navTem.classList.contains('current')) {
-            navTem.classList.remove('current');
-            navTem.setAttribute('tabindex', -1);
+          if (navTem.getAttribute('aria-selected') === 'true') {
+            navTem.setAttribute('tabindex', '-1');
             navTem.setAttribute('aria-selected', 'false');
           }
         }
@@ -391,9 +380,9 @@ var tinySlider = (function () {
       updateLayout();
       setSnapInterval();
       translate();
-      displayNav();
+      diaplayNav();
       activeNav();
-      activeSlide();
+      updateSlide();
       disableControls();
       if (autoHeight) { updateContainerHeight(); }
       if (lazyload) { lazyLoad(); }
@@ -423,23 +412,26 @@ var tinySlider = (function () {
 
     // Things need to be done after a transfer:
     // 1. check index
-    // 2. add classes to current/visible slide
+    // 2. add classes to visible slide
     // 3. disable controls buttons when reach the first/last slide in non-loop slider
     // 4. update nav status
     // 5. lazyload images
     // 6. update container height
     function update(indexGap) {
+      sliderContainer.setAttribute('aria-busy', 'true');
       setTransitionDuration(indexGap);
       translate();
 
       setTimeout(function () {
         checkIndex();
-        activeSlide();
+        updateSlide();
         disableControls();
         activeNav();
         lazyLoad();
         if (autoHeight) { updateContainerHeight(); }
+
         running = false;
+        sliderContainer.setAttribute('aria-busy', 'false');
       }, speed * indexGap);
     }
 
@@ -532,8 +524,6 @@ var tinySlider = (function () {
           blur.blur();
           focus.focus();
         }
-        blur.setAttribute('tabindex', '-1');
-        focus.removeAttribute('tabindex');
       }
     }
 
@@ -549,8 +539,15 @@ var tinySlider = (function () {
         }
       }
       if (code === KEY.RIGHT || code === KEY.DOWN || code === KEY.END || code === KEY.PAGEDOWN) {
-        if (curElement !== 'next' && nextButton.disabled !== true) {
+        if (curElement !== nextButton && nextButton.disabled !== true) {
           changeFocus(curElement, nextButton);
+        }
+      }
+      if (code === KEY.ENTER || code === KEY.SPACE) {
+        if (curElement === nextButton) {
+          onClickControlNext();
+        } else {
+          onClickControlPrev();
         }
       }
     }
@@ -580,6 +577,9 @@ var tinySlider = (function () {
         if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
           changeFocus(curElement, allNavs[navCountVisible - 1]);
         }
+      }
+      if (code === KEY.ENTER || code === KEY.SPACE) {
+        onClickNav(e);
       }
     }
 
@@ -764,6 +764,7 @@ var tinySlider = (function () {
             navContainer.setAttribute('aria-label', "Carousel Pagination");
             for (var y = 0; y < navCount; y++) {
               var navTem = allNavs[y];
+              navTem.setAttribute('tabindex', '-1');
               navTem.setAttribute('aria-selected', 'false');
               navTem.setAttribute('aria-controls', sliderId + 'item' + y);
             }
@@ -773,7 +774,7 @@ var tinySlider = (function () {
         // add controls
         if (controls) {
           if (!options.controlsContainer) {
-            gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
+            gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
 
             controlsContainer = sliderWrapper.querySelector('.tiny-controls');
           }
@@ -785,7 +786,8 @@ var tinySlider = (function () {
             controlsContainer.setAttribute('aria-label', 'Carousel Navigation');
             prevButton.setAttribute('aria-controls', sliderId);
             nextButton.setAttribute('aria-controls', sliderId);
-            prevButton.setAttribute('tabindex', -1);
+            prevButton.setAttribute('tabindex', '-1');
+            nextButton.setAttribute('tabindex', '0');
           }
         }
 
@@ -859,7 +861,7 @@ var tinySlider = (function () {
 
         // remove sliderWrapper
         gn.unwrap(sliderWrapper);
-        sliderWrapper = null;
+        // sliderWrapper = null;
 
         // remove clone items
         if (loop) {
@@ -878,7 +880,6 @@ var tinySlider = (function () {
             sliderItems[x].removeAttribute('id');
             sliderItems[x].removeAttribute('aria-hidden');
             sliderItems[x].style.width = '';
-            sliderItems[x].classList.remove('current');
           }
         }
 

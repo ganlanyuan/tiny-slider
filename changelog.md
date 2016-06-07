@@ -2,10 +2,12 @@
 
 #### v1.0.0 beta
 - Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
-- Improved: optimize scroll and resize events.
-- Added: [accessibility](https://www.w3.org/WAI/EO/Drafts/tutorials/sliders/) support for people using keyboard navigation or screen readers.    
+- Added: [accessibility](https://www.w3.org/WAI/EO/Drafts/tutorials/carousels/) support for people using keyboard navigation or screen readers.    
 Thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the idea. [[issue 4]](https://github.com/ganlanyuan/tiny-slider/issues/4)
 - Added: `autoHeight` option.
+- Added: `autoplay` pause function.
+- Added: `destory` function;
+- Improved: optimize scroll and resize events.
 - Renamed options:   
 `nav` => `controls`,   
 `navText` => `controlsText`,   

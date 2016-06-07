@@ -68,9 +68,9 @@
       text-align: center;
     }
     .thumbnails li { display: inline-block; cursor: pointer; }
-    .thumbnails li.current { background: none; }
+    .thumbnails li[aria-selected="true"] { background: none; }
     .thumbnails li img { border: 5px solid #fff; }
-    .thumbnails li.current img { border-color: #E75FCB; }
+    .thumbnails li[aria-selected="true"] img { border-color: #E75FCB; }
     .slider-controls { text-align: center; }
     .slider-controls li {
       display: block;
@@ -122,24 +122,20 @@
       border-radius: 50%;
       background: #ddd;
     }
-    button.current { background: #999; }
+    button[aria-selected="true"] { background: #999; }
   </style>
   <script src="prism/prism.js"></script>
   <script src="../dist/tiny-slider.helper.ie8.js"></script>
   <script src="../dist/tiny-slider.js"></script>
   <script type="text/javascript">
     gn.ready(function () {
-      var slider1 = tinySlider({
+      tinySlider({
         container: document.querySelector('.responsive'),
         responsive: {
           500: 2,
           800: 3,
         }
-      });
-      slider1.init();
-      // setTimeout(function () {
-      //   slider1.destory();
-      // }, 2000);
+      }).init();
 
       tinySlider({
         container: document.querySelector('.fixed-width'),
