@@ -6,7 +6,7 @@
 Thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the idea. [[issue 4]](https://github.com/ganlanyuan/tiny-slider/issues/4)
 - Added: `autoHeight` option.
 - Added: `autoplay` pause function.
-- Added: `destory` function;
+- Added: `destory` method;
 - Improved: optimize scroll and resize events.
 - Renamed options:   
 `nav` => `controls`,   
