@@ -26,6 +26,11 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue that navs are still active when slides cann't fill their parent.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
 
+#### v0.3.3
+
+#### v0.3.2
+- A lots of works around accessibility.
+
 #### v0.3.1
 - Improved: performance.
 - Improved: classList related functions.
