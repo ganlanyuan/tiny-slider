@@ -1,13 +1,16 @@
 {
   "name": "tiny-slider",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "homepage": "https://github.com/ganlanyuan/tiny-slider",
   "authors": [
     "WilliamLin <ganlanyuan@gmail.com>"
   ],
   "description": "Tiny slider for all purposes.",
   "main": [
-    "dist/",
+    "src/tiny-slider.scss",
+    "dist/tiny-slider.helper.ie8.js",
+    "dist/tiny-slider.native.js",
+    "dist/tiny-slider.js"
   ],
   "moduleType": [],
   "keywords": [
