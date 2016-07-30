@@ -53,7 +53,6 @@
     .img-6 { background: #D65B5B; background: hsl(0, 60%, 60%); }
     .img-7 { background: #D6995B; background: hsl(30, 60%, 60%); }
     .img-8 { background: #705BD6; background: hsl(250, 60%, 60%); }
-    .auto-height-wrapper .tiny-slider { outline: 1px solid #2894DC; }
     .auto-height .img-1 { height: 120px; }
     .auto-height .img-2 { height: 120px; }
     .auto-height .img-3 { height: 140px; }
@@ -182,10 +181,7 @@
       tinySlider({
         container: document.querySelector('.auto-height'),
         autoHeight: true,
-        responsive: {
-          500: 2,
-          800: 3,
-        }
+        items: 1
       }).init();
   });
   </script>
@@ -529,35 +525,35 @@ tinySlider({
       <h2>auto height</h2>
       <div class="auto-height">
         <div>
-          <div class="img img-1">1</div>
+          <img src="http://lorempixel.com/900/400/nature?1" alt="">
           <p>Lorem ipsum dolor sit amet</p>
         </div>
         <div>
-          <div class="img img-2">2</div>
+          <img src="http://lorempixel.com/900/500/people?3" alt="">
           <p>Blanditiis sapiente tempora </p>
         </div>
         <div>
-          <div class="img img-3">3</div>
+          <img src="http://lorempixel.com/900/450/food?7" alt="">
           <p>At possimus dolorum eligendi repellat</p>
         </div>
         <div>
-          <div class="img img-4">4</div>
+          <img src="http://lorempixel.com/900/500/city?9" alt="">
           <p>Cumque facilis amet eos nulla</p>
         </div>
         <div>
-          <div class="img img-5">5</div>
+          <img src="http://lorempixel.com/900/430/nightlife?2" alt="">
           <p>Sint ad, praesentium est delectus</p>
         </div>
         <div>
-          <div class="img img-6">6</div>
+          <img src="http://lorempixel.com/900/540/animals?6" alt="">
           <p>Neque accusamus inventore rerum</p>
         </div>
         <div>
-          <div class="img img-7">7</div>
+          <img src="http://lorempixel.com/900/500/transport?4" alt="">
           <p>Quis deserunt quo sequi qui fugiat nobis </p>
         </div>
         <div>
-          <div class="img img-8">8</div>
+          <img src="http://lorempixel.com/900/440/business?3" alt="">
           <p>Laborum officiis, magnam, eos possimus </p>
         </div>
       </div>

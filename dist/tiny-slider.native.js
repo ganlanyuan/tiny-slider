@@ -204,6 +204,50 @@ var tinySlider = (function () {
       }
     }
 
+    // check if an image is loaded
+    // 1. See if "naturalWidth" and "naturalHeight" properties are available.
+    // 2. See if "complete" property is available.
+    // 3. Fallback behavior: return TRUE.
+    function imageLoaded(imgElement) {
+      if (typeof imgElement.naturalWidth === 'number' && typeof imgElement.naturalHeight === 'number') {
+        return !(imgElement.naturalWidth === 0 && imgElement.naturalHeight === 0);
+      } else if (typeof imgElement.complete === 'boolean') {
+        return imgElement.complete;
+      } else {
+        return true;
+      }
+    }
+
+    // get all images inside visible slider items
+    function getVisibleImages() {
+      var current = (loop) ? index + itemsMax : index, 
+          images = [];
+
+      for (var i = sliderCountUpdated; i--;) {
+        if (i >= current && i < current + items) {
+          images.push(sliderItems[i].querySelectorAll('img'));
+        }
+      }
+
+      return images;
+    }
+
+    // check if all visibel images are loaded
+    // and update container height if that's done
+    function visibleImagesLoaded(images) {
+      for (var i = images.length; i--;) {
+        if (imageLoaded(images[i])) {
+          images.splice(i, 1);
+        }
+      }
+
+      if (images.length === 0) {
+        updateContainerHeight();
+      } else {
+        setTimeout(function () { visibleImagesLoaded(images); }, 100);
+      }
+    } 
+
     // update container height
     // 1. get the max-height of the visible slides
     // 2. set transitionDuration to speed
@@ -384,7 +428,15 @@ var tinySlider = (function () {
       activeNav();
       updateSlide();
       disableControls();
-      if (autoHeight) { updateContainerHeight(); }
+      if (autoHeight) { 
+          updateContainerHeight(); 
+        var images = getVisibleImages();
+        if (images.length === 0) {
+          updateContainerHeight(); 
+        } else {
+          visibleImagesLoaded(images);
+        }
+      }
       if (lazyload) { lazyLoad(); }
     }
 
@@ -428,7 +480,14 @@ var tinySlider = (function () {
         disableControls();
         activeNav();
         lazyLoad();
-        if (autoHeight) { updateContainerHeight(); }
+        if (autoHeight) {
+          var images = getVisibleImages();
+          if (images.length === 0) {
+            updateContainerHeight(); 
+          } else {
+            visibleImagesLoaded(images);
+          }
+        }
 
         running = false;
         sliderContainer.setAttribute('aria-busy', 'false');
