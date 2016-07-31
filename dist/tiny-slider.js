@@ -809,14 +809,12 @@ var tinySlider = (function () {
     // check if an image is loaded
     // 1. See if "naturalWidth" and "naturalHeight" properties are available.
     // 2. See if "complete" property is available.
-    // 3. Fallback behavior: return TRUE.
-    function imageLoaded(imgElement) {
-      if (typeof imgElement.naturalWidth === 'number' && typeof imgElement.naturalHeight === 'number') {
-        return !(imgElement.naturalWidth === 0 && imgElement.naturalHeight === 0);
-      } else if (typeof imgElement.complete === 'boolean') {
-        return imgElement.complete;
-      } else {
-        return true;
+    function imageLoaded(img) {
+      if (gn.isNodeList(img)) { img = img[0]; }
+      if (typeof img.naturalWidth === 'number') {
+        return img.naturalWidth !== 0;
+      } else if (typeof img.complete === 'boolean') {
+        return img.complete;
       }
     }
 
@@ -836,7 +834,7 @@ var tinySlider = (function () {
 
     // check if all visibel images are loaded
     // and update container height if that's done
-    function visibleImagesLoaded(images) {
+    function checkImagesLoaded(images) {
       for (var i = images.length; i--;) {
         if (imageLoaded(images[i])) {
           images.splice(i, 1);
@@ -846,7 +844,9 @@ var tinySlider = (function () {
       if (images.length === 0) {
         updateContainerHeight();
       } else {
-        setTimeout(function () { visibleImagesLoaded(images); }, 100);
+        setTimeout(function () { 
+          checkImagesLoaded(images); 
+        }, 60);
       }
     } 
 
@@ -875,6 +875,16 @@ var tinySlider = (function () {
         if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
         running = false;
       }, speed);
+    }
+
+    function runUpdateContainerHeight() {
+      var images = getVisibleImages();
+
+      if (images.length === 0) {
+        updateContainerHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
     }
 
     // set transition duration
@@ -1031,13 +1041,7 @@ var tinySlider = (function () {
       updateSlide();
       disableControls();
       if (autoHeight) { 
-          updateContainerHeight(); 
-        var images = getVisibleImages();
-        if (images.length === 0) {
-          updateContainerHeight(); 
-        } else {
-          visibleImagesLoaded(images);
-        }
+        runUpdateContainerHeight();
       }
       if (lazyload) { lazyLoad(); }
     }
@@ -1083,12 +1087,7 @@ var tinySlider = (function () {
         activeNav();
         lazyLoad();
         if (autoHeight) {
-          var images = getVisibleImages();
-          if (images.length === 0) {
-            updateContainerHeight(); 
-          } else {
-            visibleImagesLoaded(images);
-          }
+          runUpdateContainerHeight();
         }
 
         running = false;
