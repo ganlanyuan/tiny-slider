@@ -810,7 +810,6 @@ var tinySlider = (function () {
     // 1. See if "naturalWidth" and "naturalHeight" properties are available.
     // 2. See if "complete" property is available.
     function imageLoaded(img) {
-      if (gn.isNodeList(img)) { img = img[0]; }
       if (typeof img.naturalWidth === 'number') {
         return img.naturalWidth !== 0;
       } else if (typeof img.complete === 'boolean') {
@@ -825,7 +824,10 @@ var tinySlider = (function () {
 
       for (var i = sliderCountUpdated; i--;) {
         if (i >= current && i < current + items) {
-          images.push(sliderItems[i].querySelectorAll('img'));
+          var imagesTem = sliderItems[i].querySelectorAll('img');
+          for (var j = imagesTem.length; j--;) {
+            images.push(imagesTem[j]);
+          }
         }
       }
 
