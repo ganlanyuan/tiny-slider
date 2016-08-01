@@ -60,6 +60,14 @@ var tinySlider = (function () {
       touch: true,
     }, options || {});
 
+    // make sure slider container exists
+    if (typeof options.container !== 'object' || options.container === null) { 
+      return {
+        init: function () { return; },
+        destory: function () { return; }
+      }; 
+    }
+
     // === define and set variables ===
     var sliderContainer = options.container,
         sliderWrapper = document.createElement('div'),
