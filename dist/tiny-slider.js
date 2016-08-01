@@ -796,6 +796,14 @@ var tinySlider = (function () {
       }
     })();
 
+    var getCurrent = (function () {
+      if (loop) {
+        return function () { return index + itemsMax; };
+      } else {
+        return function () { return index; };
+      }
+    })();
+
     items = getItems();
     itemsMax = getItemsMax();
     slideWidth = getSlideWidth();
@@ -818,32 +826,13 @@ var tinySlider = (function () {
     // 1. See if "naturalWidth" and "naturalHeight" properties are available.
     // 2. See if "complete" property is available.
     function imageLoaded(img) {
-      if (typeof img.naturalWidth === 'number') {
-        return img.naturalWidth !== 0;
-      } else if (typeof img.complete === 'boolean') {
+      if (typeof img.complete === 'boolean') {
         return img.complete;
+      } else if (typeof img.naturalWidth === 'number') {
+        return img.naturalWidth !== 0;
       }
     }
 
-    // get all images inside visible slider items
-    function getVisibleImages() {
-      var current = (loop) ? index + itemsMax : index, 
-          images = [];
-
-      for (var i = sliderCountUpdated; i--;) {
-        if (i >= current && i < current + items) {
-          var imagesTem = sliderItems[i].querySelectorAll('img');
-          for (var j = imagesTem.length; j--;) {
-            images.push(imagesTem[j]);
-          }
-        }
-      }
-
-      return images;
-    }
-
-    // check if all visibel images are loaded
-    // and update container height if that's done
     function checkImagesLoaded(images) {
       for (var i = images.length; i--;) {
         if (imageLoaded(images[i])) {
@@ -856,9 +845,31 @@ var tinySlider = (function () {
       } else {
         setTimeout(function () { 
           checkImagesLoaded(images); 
-        }, 60);
+        }, 16);
       }
     } 
+
+    // check if all visibel images are loaded
+    // and update container height if it's done
+    function runAutoHeight() {
+      // get all images inside visible slider items
+      var current = getCurrent(), images = [];
+
+      for (var i = sliderCountUpdated; i--;) {
+        if (i >= current && i < current + items) {
+          var imagesTem = sliderItems[i].querySelectorAll('img');
+          for (var j = imagesTem.length; j--;) {
+            images.push(imagesTem[j]);
+          }
+        }
+      }
+
+      if (images.length === 0) {
+        updateContainerHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
+    }
 
     // update container height
     // 1. get the max-height of the visible slides
@@ -866,9 +877,7 @@ var tinySlider = (function () {
     // 3. update container height to max-height
     // 4. set transitionDuration to 0s after transition is done
     function updateContainerHeight() {
-      var current = (loop) ? index + itemsMax : index, 
-          heights = [],
-          maxHeight;
+      var current = getCurrent(), heights = [], maxHeight;
 
       for (var i = sliderCountUpdated; i--;) {
         if (i >= current && i < current + items) {
@@ -887,16 +896,6 @@ var tinySlider = (function () {
       }, speed);
     }
 
-    function runUpdateContainerHeight() {
-      var images = getVisibleImages();
-
-      if (images.length === 0) {
-        updateContainerHeight(); 
-      } else {
-        checkImagesLoaded(images);
-      }
-    }
-
     // set transition duration
     function setTransitionDuration(indexGap) {
       if (!TRANSITIONDURATION) { return; }
@@ -913,10 +912,8 @@ var tinySlider = (function () {
     // update slide
     // set aria-hidden
     function updateSlide() {
-      var current = (loop) ? index + itemsMax : index;
-
       for (var i = sliderCountUpdated; i--;) {
-        var slideTem = sliderItems[i];
+        var current = getCurrent(), slideTem = sliderItems[i];
 
         if (i >= current && i < current + items) {
           if (!slideTem.hasAttribute('aria-hidden') || slideTem.getAttribute('aria-hidden') === 'true') {
@@ -1051,7 +1048,7 @@ var tinySlider = (function () {
       updateSlide();
       disableControls();
       if (autoHeight) { 
-        runUpdateContainerHeight();
+        runAutoHeight();
       }
       if (lazyload) { lazyLoad(); }
     }
@@ -1097,7 +1094,7 @@ var tinySlider = (function () {
         activeNav();
         lazyLoad();
         if (autoHeight) {
-          runUpdateContainerHeight();
+          runAutoHeight();
         }
 
         running = false;
