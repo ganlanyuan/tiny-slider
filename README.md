@@ -70,7 +70,7 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
       slideByPage: true,
       autoplay: true
     });
-    a.init();
+    slider.init();
   });
 </script>
 ```
@@ -78,10 +78,10 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 ```javascript
 var slider = tinySlider(...);
 // init
-a.init();
+slider.init();
 
 // destory
-a.destory();
+slider.destory();
 ```
 ## Options
 Default:

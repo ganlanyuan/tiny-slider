@@ -127,7 +127,8 @@ var slider = tinySlider({
   container: document.querySelector('.slider'),
   items: 3,
   arrowKeys: true
-});slider.init();
+});
+slider.init();
 ```
 
 #### Auto height
