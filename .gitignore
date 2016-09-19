@@ -6,6 +6,7 @@
 *.sublime-workspace
 *.scssc
 *.swp
+*.log
 
 /.codekit-cache/
 /bower_components/

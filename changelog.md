@@ -1,6 +1,6 @@
 #Changelog
 
-#### v1.0.0 beta
+<!-- #### v1.0.0 beta
 - Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
 - Added: [accessibility](https://www.w3.org/WAI/EO/Drafts/tutorials/carousels/) support for people using keyboard navigation or screen readers.    
 Thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the idea. [[issue 4]](https://github.com/ganlanyuan/tiny-slider/issues/4)
@@ -25,8 +25,9 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Removed: `offset`.
 - Fixed: an issue that navs are still active when slides cann't fill their parent.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
-
-#### v0.3.3
+ -->
+#### v0.3.5
+- Fix a `package.json` issue.
 
 #### v0.3.2
 - A lots of works around accessibility.
