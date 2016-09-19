@@ -3,6 +3,8 @@
   "version": "0.3.4",
   "description": "Pure tiny javascript slider for all purposes.",
   "main": "dist/tiny-slider.js",
+  "style": "dist/tiny-slider.css",
+  "sass": "src/tiny-slider.scss",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
