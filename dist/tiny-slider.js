@@ -352,7 +352,6 @@
 	}
 }());
 
-
 // ChildNode.remove
 (function () {
   "use strict";
@@ -366,16 +365,14 @@
   }
 })();
 
-
 // *** gn *** //
 var gn = (function (g) {
 
   // return gn
   return g;
 })(window.gn || {});
-
 // extend
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.extend = function () {
   var obj, name, copy,
@@ -398,22 +395,20 @@ gn.extend = function () {
   }
   return target;
 };
-
 // isInViewport
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.isInViewport = function ( elem ) {
   var rect = elem.getBoundingClientRect();
   return (
-    rect.bottom >= 0 &&
-    rect.right >= 0 &&
-    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.left <= (window.innerWidth || document.documentElement.clientWidth)
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < document.documentElement.clientHeight &&
+    rect.left < document.documentElement.clientWidth
     );
 };
-
 // indexOf
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.indexOf = function (array, item) {
   for (var i = 0; i < array.length; i++) {
@@ -421,9 +416,8 @@ gn.indexOf = function (array, item) {
   }
   return -1;
 };
-
 // get supported property
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.getSupportedProp = function (proparray){
   var root = document.documentElement;
@@ -436,9 +430,8 @@ gn.getSupportedProp = function (proparray){
 
 // var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
 // getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
-
 // DOM ready
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.ready = function ( fn ) {
 
@@ -453,18 +446,16 @@ gn.ready = function ( fn ) {
   // Otherwise, wait until document is loaded
   document.addEventListener( 'DOMContentLoaded', fn, false );
 };
-
 // isNodeList
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.isNodeList = function (el) {
   // Only NodeList has the "item()" function
   return typeof el.item !== 'undefined'; 
 };
 
-
 // append
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.append = function(els, data) {
@@ -490,9 +481,8 @@ gn.append = function(els, data) {
 };
 
 
-
 // wrap
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.wrap = function (els, obj) {
@@ -522,9 +512,8 @@ gn.wrap = function (els, obj) {
 };
 
 
-
 // unwrap
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.unwrap = function (els) {
@@ -544,7 +533,6 @@ gn.unwrap = function (els) {
     parent.removeChild(el);
   }
 };
-
 // Adapted from https://gist.github.com/paulirish/1579671 which derived from 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
@@ -580,29 +568,9 @@ if (!Date.now)
     }
 }());
 
-
-
-// @codekit-prepend "../bower_components/domtokenlist/src/token-list.js";
-
-// @codekit-prepend "../bower_components/go-native/src/utilities/childNode.remove.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/base.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/extend.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/isInViewport.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/indexOf.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/getSupportedProp.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/DOM.ready.js";
-
-// @codekit-prepend "../bower_components/go-native/src/gn/isNodeList.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/append.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/wrap.js";
-// @codekit-prepend "../bower_components/go-native/src/gn/unwrap.js";
-
-// @codekit-prepend "../bower_components/requestAnimationFrame/requestAnimationFrame.js";
-
-
 /**
   * tiny-slider
-  * @version 0.3.5
+  * @version 0.4.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -641,6 +609,7 @@ var tinySlider = (function () {
     options = gn.extend({
       container: document.querySelector('.slider'),
       items: 1,
+      gutter: 0,
       fixedWidth: false,
       maxContainerWidth: false,
       slideByPage: false,
@@ -676,6 +645,7 @@ var tinySlider = (function () {
         sliderItems = sliderContainer.children,
         sliderCount = sliderItems.length,
         sliderCountUpdated = sliderItems.length,
+        gutter = options.gutter,
         fixedWidth = options.fixedWidth,
         controls = options.controls,
         controlsText = options.controlsText,
@@ -782,9 +752,9 @@ var tinySlider = (function () {
 
     var getSlideWidth = (function () {
       if (fixedWidth) {
-        return function () { return fixedWidth; };
+        return function () { return fixedWidth + gutter; };
       } else {
-        return function () { return sliderContainer.parentNode.offsetWidth / items; };
+        return function () { return (sliderContainer.parentNode.offsetWidth + gutter) / items; };
       }
     })();
 
@@ -818,7 +788,8 @@ var tinySlider = (function () {
         sliderContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
       }
       for (var b = sliderCountUpdated; b--;) {
-        sliderItems[b].style.width = slideWidth + 'px';
+        sliderItems[b].style.width = slideWidth - gutter + 'px';
+        sliderItems[b].style.marginRight = gutter + 'px';
       }
     }
 
@@ -1028,7 +999,7 @@ var tinySlider = (function () {
 
       translateX = - slideWidth * index;
       if (fixedWidth && !loop) {
-        translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - vw) );
+        translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - gutter - vw) );
       }
 
       if (TRANSFORM) {
@@ -1673,7 +1644,3 @@ var tinySlider = (function () {
 
   return core;
 })();
-
-// @codekit-prepend "tiny-slider.helper.js";
-// @codekit-prepend "tiny-slider.native.js";
-

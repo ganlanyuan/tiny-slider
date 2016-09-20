@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.3.5
+  * @version 0.4.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -39,6 +39,7 @@ var tinySlider = (function () {
     options = gn.extend({
       container: document.querySelector('.slider'),
       items: 1,
+      gutter: 0,
       fixedWidth: false,
       maxContainerWidth: false,
       slideByPage: false,
@@ -74,6 +75,7 @@ var tinySlider = (function () {
         sliderItems = sliderContainer.children,
         sliderCount = sliderItems.length,
         sliderCountUpdated = sliderItems.length,
+        gutter = options.gutter,
         fixedWidth = options.fixedWidth,
         controls = options.controls,
         controlsText = options.controlsText,
@@ -180,9 +182,9 @@ var tinySlider = (function () {
 
     var getSlideWidth = (function () {
       if (fixedWidth) {
-        return function () { return fixedWidth; };
+        return function () { return fixedWidth + gutter; };
       } else {
-        return function () { return sliderContainer.parentNode.offsetWidth / items; };
+        return function () { return (sliderContainer.parentNode.offsetWidth + gutter) / items; };
       }
     })();
 
@@ -216,7 +218,8 @@ var tinySlider = (function () {
         sliderContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
       }
       for (var b = sliderCountUpdated; b--;) {
-        sliderItems[b].style.width = slideWidth + 'px';
+        sliderItems[b].style.width = slideWidth - gutter + 'px';
+        sliderItems[b].style.marginRight = gutter + 'px';
       }
     }
 
@@ -426,7 +429,7 @@ var tinySlider = (function () {
 
       translateX = - slideWidth * index;
       if (fixedWidth && !loop) {
-        translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - vw) );
+        translateX = Math.max( translateX, - Math.abs(sliderCount * slideWidth - gutter - vw) );
       }
 
       if (TRANSFORM) {

@@ -1,5 +1,5 @@
 # tiny-slider
-![version](https://img.shields.io/badge/Version-0.3.5-green.svg)   
+![version](https://img.shields.io/badge/Version-0.4.0-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
 [demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
@@ -32,7 +32,7 @@ Include tiny-slider
 ```html
 <link rel="stylesheet" href="tiny-slider.css">
 
-<!--[if (lt IE 9)]><script src="tiny-slider.helper.ie8.js"></script><![endif]-->
+<!--[if (lt IE 9)]><script src="tiny-slider.ie8.js"></script><![endif]-->
 <script src="tiny-slider.js"></script>
 ```
 Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
@@ -89,6 +89,7 @@ Default:
 {
   container: document.querySelector('.slider'),
   items: 1,
+  gutter: 0,
   fixedWidth: false,
   maxContainerWidth: false,
   slideByPage: false,
@@ -111,14 +112,11 @@ Default:
 }
 ```
 
-#### * Padding
-There is no option for `padding`, but you can add it by css 
-```css
-.tiny-slider { margin-right: -10px; }
-.your-slider > div { padding-right: 10px; }
-``` 
+#### Padding
+<del>There is no option for `padding`, but you can add it by css </del>
+Now you can set the gutter using `gutter` option.
 
-#### * Non-javascirpt fallback
+#### Fallback
 ```css
 .no-js .your-slider { 
   overflow-x: auto; 

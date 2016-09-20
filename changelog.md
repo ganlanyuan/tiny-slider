@@ -1,4 +1,4 @@
-#Changelog
+# Changelog
 
 <!-- #### v1.0.0 beta
 - Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
@@ -26,6 +26,11 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue that navs are still active when slides cann't fill their parent.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
+
+#### v0.4.0
+- Added: `gutter` option.
+- Renamed `tiny-slider.helper.ie8.js` to `tiny-slider.ie8.js`.
+
 #### v0.3.5
 - Fix a `package.json` issue.
 

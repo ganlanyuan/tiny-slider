@@ -124,12 +124,13 @@
     button[aria-selected="true"] { background: #999; }
   </style>
   <script src="prism/prism.js"></script>
-  <script src="../dist/tiny-slider.helper.ie8.js"></script>
-  <script src="../dist/tiny-slider.js"></script>
+  <script src="../dist/min/tiny-slider.ie8.js"></script>
+  <script src="../dist/min/tiny-slider.js"></script>
   <script type="text/javascript">
     gn.ready(function () {
       tinySlider({
         container: document.querySelector('.responsive'),
+        gutter: 10,
         responsive: {
           500: 2,
           800: 3,
@@ -138,6 +139,7 @@
 
       tinySlider({
         container: document.querySelector('.fixed-width'),
+        gutter: 10,
         fixedWidth: 200,
         maxContainerWidth: 900,
         loop: false
@@ -146,6 +148,7 @@
       tinySlider({
         container: document.querySelector('.customize'),
         items: 3,
+        gutter: 10,
         controlsContainer: document.querySelector('.slider-controls'),
         navContainer: document.querySelector('.thumbnails'),
         lazyload: true
@@ -154,12 +157,14 @@
       tinySlider({
         container: document.querySelector('.non-loop'),
         items: 3,
+        gutter: 10,
         loop: false
       }).init();
 
       tinySlider({
         container: document.querySelector('.slide-by-page'),
         items: 3,
+        gutter: 10,
         slideByPage: true
       }).init();
 
@@ -167,6 +172,7 @@
         container: document.querySelector('.autoplay'),
         items: 3,
         autoplay: true,
+        gutter: 10,
         speed: 300,
         autoplayTimeout: 3000,
         autoplayText: ['▶', '❚❚']
@@ -175,12 +181,14 @@
       tinySlider({
         container: document.querySelector('.arrow-keys'),
         items: 3,
+        gutter: 10,
         arrowKeys: true
       }).init();
 
       tinySlider({
         container: document.querySelector('.auto-height'),
         autoHeight: true,
+        gutter: 10,
         items: 1
       }).init();
   });
@@ -525,7 +533,7 @@ tinySlider({
     <h2>auto height</h2>
     <div class="auto-height">
       <div>
-        <img src="" alt="">
+        <img src="http://lorempixel.com/900/400/city?2" alt="">
         <p>Lorem ipsum dolor sit amet</p>
       </div>
       <div>

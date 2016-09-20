@@ -1,15 +1,13 @@
 {
   "name": "tiny-slider",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "homepage": "https://github.com/ganlanyuan/tiny-slider",
   "authors": [
     "WilliamLin <ganlanyuan@gmail.com>"
   ],
   "description": "Tiny slider for all purposes.",
   "main": [
-    "src/tiny-slider.scss",
-    "dist/tiny-slider.helper.ie8.js",
-    "dist/tiny-slider.native.js",
+    "dist/tiny-slider.css",
     "dist/tiny-slider.js"
   ],
   "moduleType": [],
@@ -26,7 +24,7 @@
     "tests"
   ],
   "devDependencies": {
-    "go-native": "0.0.3"
+    "go-native": "0.0.8"
   },
   "dependencies": {}
 }
