@@ -789,7 +789,9 @@ var tinySlider = (function () {
       }
       for (var b = sliderCountUpdated; b--;) {
         sliderItems[b].style.width = slideWidth - gutter + 'px';
-        sliderItems[b].style.marginRight = gutter + 'px';
+        if (gutter !== 0) {
+          sliderItems[b].style.marginRight = gutter + 'px';
+        }
       }
     }
 
