@@ -7,9 +7,12 @@ Works on morden browsers and IE8+.
 [examples](examples.md)  
 
 ## Install
-via bower
 ```
 bower install tiny-slider
+```
+or
+```
+npm install tiny-slider
 ```
 
 ## Features
@@ -17,7 +20,7 @@ bower install tiny-slider
 - fixed width
 - loop
 - slide by page
-- customize controls / nav
+- customize controls / nav / gutter
 - autoplay
 - auto height
 - lazyload

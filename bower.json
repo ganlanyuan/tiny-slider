@@ -21,7 +21,10 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    ".env",
+    "docker-compose.yml",
+    "gulpfile.js"
   ],
   "devDependencies": {
     "go-native": "0.0.8"
