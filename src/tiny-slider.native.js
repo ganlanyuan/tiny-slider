@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.4.0
+  * @version 0.4.1
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -40,6 +40,7 @@ var tinySlider = (function () {
       container: document.querySelector('.slider'),
       items: 1,
       gutter: 0,
+      gutterPosition: 'right',
       fixedWidth: false,
       maxContainerWidth: false,
       slideByPage: false,
@@ -76,6 +77,7 @@ var tinySlider = (function () {
         sliderCount = sliderItems.length,
         sliderCountUpdated = sliderItems.length,
         gutter = options.gutter,
+        gutterPosition = (options.gutterPosition === 'right') ? 'marginRight' : 'marginLeft',
         fixedWidth = options.fixedWidth,
         controls = options.controls,
         controlsText = options.controlsText,
@@ -214,13 +216,19 @@ var tinySlider = (function () {
     // update slides' width
     function updateLayout() {
       sliderContainer.style.width = slideWidth * sliderCountUpdated + 'px';
-      if (loop) {
-        sliderContainer.style.marginLeft = - (itemsMax * slideWidth) + 'px';
+
+      var ml;
+      if (gutter !== 0 && gutterPosition === 'marginLeft') {
+        ml = (loop)? itemsMax * slideWidth + gutter : gutter;
+      } else {
+        ml = itemsMax * slideWidth;
       }
+      sliderContainer.style.marginLeft = - ml + 'px';
+
       for (var b = sliderCountUpdated; b--;) {
         sliderItems[b].style.width = slideWidth - gutter + 'px';
         if (gutter !== 0) {
-          sliderItems[b].style.marginRight = gutter + 'px';
+          sliderItems[b].style[gutterPosition] = gutter + 'px';
         }
       }
     }

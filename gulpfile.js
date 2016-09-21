@@ -47,16 +47,15 @@ var config = {
         "bower_components/go-native/src/ie8/nextElementSibling.js",
       ]],
     name: ['tiny-slider.js', 'tiny-slider.native.js', 'tiny-slider.ie8.js'],
-    options:[{}, {
-        mangle: false,
-        output: {
-          quote_keys: true,
-        },
-        compress: {
-          properties: false,
-        }
+    options: {
+      // mangle: false,
+      output: {
+        quote_keys: true,
+      },
+      compress: {
+        properties: false,
       }
-    ],
+    },
   },
 };
 

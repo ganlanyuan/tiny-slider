@@ -27,6 +27,10 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
 
+#### v0.4.1
+- Added: `gutterPosition` option.
+- Fixed: `margin` attribute is added even gutter is 0.
+
 #### v0.4.0
 - Added: `gutter` option.
 - Renamed `tiny-slider.helper.ie8.js` to `tiny-slider.ie8.js`.

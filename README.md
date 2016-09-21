@@ -1,5 +1,5 @@
 # tiny-slider
-![version](https://img.shields.io/badge/Version-0.4.0-green.svg)   
+![version](https://img.shields.io/badge/Version-0.4.1-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
 [demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
@@ -90,6 +90,7 @@ Default:
   container: document.querySelector('.slider'),
   items: 1,
   gutter: 0,
+  gutterPosition: 'right',
   fixedWidth: false,
   maxContainerWidth: false,
   slideByPage: false,
