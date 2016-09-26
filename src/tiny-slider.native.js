@@ -60,6 +60,7 @@ var tinySlider = (function () {
       responsive: false,
       lazyload: false,
       touch: true,
+      rewind: false
     }, options || {});
 
     // make sure slider container exists
@@ -95,6 +96,7 @@ var tinySlider = (function () {
         slideByPage = options.slideByPage,
         lazyload = options.lazyload,
         touch = options.touch,
+        rewind = options.rewind,
 
         sliderId,
         slideWidth,
@@ -350,8 +352,7 @@ var tinySlider = (function () {
         } else {
           prevButton.disabled = false;
         }
-
-        if (index === sliderCount - items) {
+        if (index === sliderCount - items && !rewind) {
           nextButton.disabled = true;
           changeFocus(nextButton, prevButton);
         } else {
@@ -530,7 +531,11 @@ var tinySlider = (function () {
     }
 
     function onClickControlNext() {
-      onClickControl(1);
+      if(index === sliderCount - items && rewind){
+        onClickControl(-sliderCount);
+      }else{
+        onClickControl(1);
+      }
     }
 
     // on doc click
