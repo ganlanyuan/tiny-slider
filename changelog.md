@@ -28,7 +28,7 @@ class `tiny-next` => attribute `[data-controls="next"`.
  -->
 
 #### v0.5.0
-- Added: `rewind` option. Thanks [faboulaws](https://github.com/ganlanyuan/tiny-slider/pull/10).
+- Added: `rewind` option. Thank [faboulaws](https://github.com/ganlanyuan/tiny-slider/pull/10).
 
 #### v0.4.2
 - Fixed: a length issue when slider parent element has non-zero `padding`.

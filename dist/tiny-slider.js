@@ -599,7 +599,7 @@ gn.getWidth = function (el) {
 };
 /**
   * tiny-slider
-  * @version 0.4.2
+  * @version 0.5.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
