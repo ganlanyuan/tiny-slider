@@ -1,6 +1,6 @@
 {
   "name": "tiny-slider",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "homepage": "https://github.com/ganlanyuan/tiny-slider",
   "authors": [
     "WilliamLin <ganlanyuan@gmail.com>"
@@ -27,7 +27,7 @@
     "gulpfile.js"
   ],
   "devDependencies": {
-    "go-native": "0.0.8"
+    "go-native": "0.x"
   },
   "dependencies": {}
 }

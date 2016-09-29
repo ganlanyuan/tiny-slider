@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.4.1
+  * @version 0.4.2
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -186,7 +186,7 @@ var tinySlider = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth + gutter; };
       } else {
-        return function () { return (sliderContainer.parentNode.offsetWidth + gutter) / items; };
+        return function () { return (gn.getWidth(sliderContainer.parentNode) + gutter) / items; };
       }
     })();
 

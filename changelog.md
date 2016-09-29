@@ -27,6 +27,9 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
 
+#### v0.4.2
+- Fixed: a length issue when slider parent element has non-zero `padding`.
+
 #### v0.4.1
 - Added: `gutterPosition` option.
 - Fixed: `margin` attribute is added even gutter is 0.

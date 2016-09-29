@@ -20,6 +20,8 @@ var config = {
   js: {
     src: [[
         "bower_components/domtokenlist/src/token-list.js",
+        "bower_components/Units/Length.min.js",
+        "bower_components/requestAnimationFrame/requestAnimationFrame.js",
 
         "bower_components/go-native/src/utilities/childNode.remove.js",
         "bower_components/go-native/src/gn/base.js",
@@ -28,13 +30,12 @@ var config = {
         "bower_components/go-native/src/gn/indexOf.js",
         "bower_components/go-native/src/gn/getSupportedProp.js",
         "bower_components/go-native/src/gn/DOM.ready.js",
-
         "bower_components/go-native/src/gn/isNodeList.js",
         "bower_components/go-native/src/gn/append.js",
         "bower_components/go-native/src/gn/wrap.js",
         "bower_components/go-native/src/gn/unwrap.js",
+        "bower_components/go-native/src/gn/getWidth.js",
 
-        "bower_components/requestAnimationFrame/requestAnimationFrame.js",
         "src/tiny-slider.native.js",
       ], [
         "src/tiny-slider.native.js",
@@ -45,6 +46,7 @@ var config = {
         "bower_components/go-native/src/ie8/lastElementChild.js",
         "bower_components/go-native/src/ie8/previousElementSibling.js",
         "bower_components/go-native/src/ie8/nextElementSibling.js",
+        "bower_components/go-native/src/ie8/getComputedStyle.js",
       ]],
     name: ['tiny-slider.js', 'tiny-slider.native.js', 'tiny-slider.ie8.js'],
     options: {
