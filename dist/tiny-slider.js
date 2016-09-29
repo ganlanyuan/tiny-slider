@@ -659,6 +659,7 @@ var tinySlider = (function () {
       responsive: false,
       lazyload: false,
       touch: true,
+      rewind: false
     }, options || {});
 
     // make sure slider container exists
@@ -689,7 +690,8 @@ var tinySlider = (function () {
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         autoplayText = options.autoplayText,
-        loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
+        rewind = options.rewind,
+        loop = (rewind || fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         autoHeight = options.autoHeight,
         slideByPage = options.slideByPage,
         lazyload = options.lazyload,
@@ -949,8 +951,7 @@ var tinySlider = (function () {
         } else {
           prevButton.disabled = false;
         }
-
-        if (index === sliderCount - items) {
+        if (index === sliderCount - items && !rewind) {
           nextButton.disabled = true;
           changeFocus(nextButton, prevButton);
         } else {
@@ -1129,7 +1130,11 @@ var tinySlider = (function () {
     }
 
     function onClickControlNext() {
-      onClickControl(1);
+      if(index === sliderCount - items && rewind){
+        onClickControl(- sliderCount + items);
+      }else{
+        onClickControl(1);
+      }
     }
 
     // on doc click

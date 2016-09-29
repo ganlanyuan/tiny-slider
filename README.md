@@ -18,16 +18,17 @@ npm install tiny-slider
 ## Features
 - responsive
 - fixed width
+- gutter
 - loop
+- rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
 - slide by page
-- customize controls / nav / gutter
+- customize controls / nav
 - autoplay
 - auto height
 - lazyload
 - touch support
 - arrow keys
-- accessibility for people using keyboard navigation or screen readers   
-(thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the sugestion, [issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 
 ## Usage
 ##### 1. Include tiny-slider
@@ -112,7 +113,8 @@ Default:
   autoHeight: false,
   responsive: false,
   lazyload: false,
-  touch: true
+  touch: true,
+  rewind: false
 }
 ```
 

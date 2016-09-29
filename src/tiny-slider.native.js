@@ -91,12 +91,12 @@ var tinySlider = (function () {
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         autoplayText = options.autoplayText,
-        loop = (fixedWidth && !options.maxContainerWidth) ? false : options.loop,
+        rewind = options.rewind,
+        loop = (rewind || fixedWidth && !options.maxContainerWidth) ? false : options.loop,
         autoHeight = options.autoHeight,
         slideByPage = options.slideByPage,
         lazyload = options.lazyload,
         touch = options.touch,
-        rewind = options.rewind,
 
         sliderId,
         slideWidth,
@@ -532,7 +532,7 @@ var tinySlider = (function () {
 
     function onClickControlNext() {
       if(index === sliderCount - items && rewind){
-        onClickControl(-sliderCount);
+        onClickControl(- sliderCount + items);
       }else{
         onClickControl(1);
       }
