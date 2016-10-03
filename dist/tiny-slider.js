@@ -352,10 +352,6 @@
 	}
 }());
 
-(function(t,e,o){"use strict";function r(t,e,r,p){r=r||"width";var n,l,m,c=(e.match(s)||[])[2],f="px"===c?1:d[c+"toPx"],u=/r?em/i;if(f||u.test(c)&&!p)t=f?t:"rem"===c?i:"fontSize"===r?t.parentNode||t:t,f=f||parseFloat(a(t,"fontSize")),m=parseFloat(e)*f;else{n=t.style,l=n[r];try{n[r]=e}catch(x){return 0}m=n[r]?parseFloat(a(t,r)):0,n[r]=l!==o?l:null}return m}function a(t,e){var o,n,i,l,d,c=/^top|bottom/,f=["paddingTop","paddingBottom","borderTop","borderBottom"],u=4;if(o=m?m(t)[e]:(n=t.style["pixel"+e.charAt(0).toUpperCase()+e.slice(1)])?n+"px":"fontSize"===e?r(t,"1em","left",1)+"px":t.currentStyle[e],i=(o.match(s)||[])[2],"%"===i&&p)if(c.test(e)){for(l=(d=t.parentNode||t).offsetHeight;u--;)l-=parseFloat(a(d,f[u]));o=parseFloat(o)/100*l+"px"}else o=r(t,o);else("auto"===o||i&&"px"!==i)&&m?o=0:i&&"px"!==i&&!m&&(o=r(t,o)+"px");return o}var p,n=e.createElement("test"),i=e.documentElement,l=e.defaultView,m=l&&l.getComputedStyle,s=/^(-?[\d+\.\-]+)([a-z]+|%)$/i,d={},c=[1/25.4,1/2.54,1/72,1/6],f=["mm","cm","pt","pc","in","mozmm"],u=6;for(i.appendChild(n),m&&(n.style.marginTop="1%",p="1%"===m(n).marginTop);u--;)d[f[u]+"toPx"]=c[u]?c[u]*d.inToPx:r(n,"1"+f[u]);i.removeChild(n),n=o,t.Length={toPx:r}})(this,this.document);
-/*
-//@ sourceMappingURL=Length.min.js.map
-*/
 // Adapted from https://gist.github.com/paulirish/1579671 which derived from 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
@@ -572,31 +568,6 @@ gn.unwrap = function (els) {
     parent.removeChild(el);
   }
 };
-// getWidth
-// @require "/src/gn/base.js"
-// @require "/bower_components/Units/Length.js"
-// 1. outer size: content + padding + border + margin //
-
-// 2. offset size: content + padding + border //
-//    el.offsetWidth  
-//    el.offsetHeight
-
-// 3. client size: content + padding
-//    el.clientWidth  
-//    el.clientHeight
-
-// 4. size: content
-
-gn.getWidth = function (el) {
-  var pattern = /\d/, // check if value contains digital number
-      width = el.clientWidth,
-      style = el.currentStyle || getComputedStyle(el),
-      paddingLeft = (pattern.exec(style.paddingLeft) === null) ? '0px' : style.paddingLeft,
-      paddingRight = (pattern.exec(style.paddingRight) === null) ? '0px' : style.paddingRight;
-
-  width -= (parseInt(Length.toPx(el, paddingLeft)) + parseInt(Length.toPx(el, paddingRight)));
-  return width;
-};
 /**
   * tiny-slider
   * @version 0.5.0
@@ -637,6 +608,7 @@ var tinySlider = (function () {
   function core (options) {
     options = gn.extend({
       container: document.querySelector('.slider'),
+      transform: 'horizontal',
       items: 1,
       gutter: 0,
       gutterPosition: 'right',
@@ -671,7 +643,8 @@ var tinySlider = (function () {
     }
 
     // === define and set variables ===
-    var sliderContainer = options.container,
+    var transform = options.transform,
+        sliderContainer = options.container,
         sliderWrapper = document.createElement('div'),
         sliderItems = sliderContainer.children,
         sliderCount = sliderItems.length,
@@ -787,7 +760,7 @@ var tinySlider = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth + gutter; };
       } else {
-        return function () { return (gn.getWidth(sliderContainer.parentNode) + gutter) / items; };
+        return function () { return (sliderWrapper.clientWidth + gutter) / items; };
       }
     })();
 
@@ -809,7 +782,6 @@ var tinySlider = (function () {
 
     items = getItems();
     itemsMax = getItemsMax();
-    slideWidth = getSlideWidth();
     navCountVisible = getNavCount();
 
     // update layout:
@@ -1373,7 +1345,7 @@ var tinySlider = (function () {
       // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
-        sliderContainer.classList.add('tiny-content');
+        sliderContainer.classList.add('tiny-content', transform);
 
         // add slider id
         if (sliderContainer.id.length === 0) {
@@ -1482,6 +1454,7 @@ var tinySlider = (function () {
           actionButton = navContainer.querySelector('[data-action]');
         }
 
+        slideWidth = getSlideWidth();
         render();
 
         // add sliderContainer eventListeners

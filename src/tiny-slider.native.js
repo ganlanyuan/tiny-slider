@@ -38,6 +38,7 @@ var tinySlider = (function () {
   function core (options) {
     options = gn.extend({
       container: document.querySelector('.slider'),
+      transform: 'horizontal',
       items: 1,
       gutter: 0,
       gutterPosition: 'right',
@@ -72,7 +73,8 @@ var tinySlider = (function () {
     }
 
     // === define and set variables ===
-    var sliderContainer = options.container,
+    var transform = options.transform,
+        sliderContainer = options.container,
         sliderWrapper = document.createElement('div'),
         sliderItems = sliderContainer.children,
         sliderCount = sliderItems.length,
@@ -188,7 +190,7 @@ var tinySlider = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth + gutter; };
       } else {
-        return function () { return (gn.getWidth(sliderContainer.parentNode) + gutter) / items; };
+        return function () { return (sliderWrapper.clientWidth + gutter) / items; };
       }
     })();
 
@@ -210,7 +212,6 @@ var tinySlider = (function () {
 
     items = getItems();
     itemsMax = getItemsMax();
-    slideWidth = getSlideWidth();
     navCountVisible = getNavCount();
 
     // update layout:
@@ -774,7 +775,7 @@ var tinySlider = (function () {
       // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
       // 4. clone items for loop if needed, update childrenCount
       init: function () {
-        sliderContainer.classList.add('tiny-content');
+        sliderContainer.classList.add('tiny-content', transform);
 
         // add slider id
         if (sliderContainer.id.length === 0) {
@@ -883,6 +884,7 @@ var tinySlider = (function () {
           actionButton = navContainer.querySelector('[data-action]');
         }
 
+        slideWidth = getSlideWidth();
         render();
 
         // add sliderContainer eventListeners

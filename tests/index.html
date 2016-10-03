@@ -18,112 +18,7 @@
 
   <link href="prism/prism.css" rel="stylesheet">
   <link rel="stylesheet" href="../dist/tiny-slider.css">
-  <style>
-    /*.wrapper { padding: 5em; }*/
-    li { list-style: none; }
-    ul, ol, li { margin: 0; padding: 0; }
-    body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    pre[class*="language-"] > code[data-language] { overflow: auto !important; }
-    section { margin: 50px 0; }
-    h1 { font-size: 45px; }
-    h2 { text-transform: capitalize; }
-    p { 
-      font-size: 14px;
-      line-height: 1.4;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    .img {
-      padding: 100px 0;
-      font-size: 100px;
-      font-weight: 100;
-      color: #fff;
-      text-align: center;
-    }
-    .img-1 { background: #D6D65B; background: hsl(60, 60%, 60%); }
-    .img-2 { background: #5BD6AD; background: hsl(160, 60%, 60%); }
-    .img-3 { background: #5B99D6; background: hsl(210, 60%, 60%); }
-    .img-4 { background: #D65BC1; background: hsl(310, 60%, 60%); }
-    .img-5 { background: #70D65B; background: hsl(110, 60%, 60%); }
-    .img-6 { background: #D65B5B; background: hsl(0, 60%, 60%); }
-    .img-7 { background: #D6995B; background: hsl(30, 60%, 60%); }
-    .img-8 { background: #705BD6; background: hsl(250, 60%, 60%); }
-    .auto-height .img-1 { height: 120px; }
-    .auto-height .img-2 { height: 120px; }
-    .auto-height .img-3 { height: 140px; }
-    .auto-height .img-4 { height: 320px; }
-    .auto-height .img-5 { height: 120px; }
-    .auto-height .img-6 { height: 120px; }
-    .auto-height .img-7 { height: 220px; }
-    .auto-height .img-8 { height: 120px; }
-    .controls { position: relative; }
-    .thumbnails { 
-      margin: 20px 0;
-      text-align: center;
-    }
-    .thumbnails li { display: inline-block; cursor: pointer; }
-    .thumbnails li[aria-selected="true"] { background: none; }
-    .thumbnails li img { border: 5px solid #fff; }
-    .thumbnails li[aria-selected="true"] img { border-color: #E75FCB; }
-    .slider-controls { text-align: center; }
-    .slider-controls li {
-      display: block;
-      position: absolute;
-      top: 50%;
-      height: 60px;
-      line-height: 60px;
-      margin-top: -30px;
-      padding: 0 15px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .slider-controls li img { display: inline-block; vertical-align: middle; }
-    .slider-controls .prev { left: 0; }
-    .slider-controls .next { right: 0; }
-    .slider-controls li:hover { background: #f2f2f2; }
-    .tiny-controls, .tiny-auto { text-align: center; margin-bottom: 10px; }
-    button[data-controls] {
-      font-size: 15px;
-      margin: 0 5px;
-      padding: 0 1em;
-      height: 2.5em;
-      color: #000;
-      background: #66CCFF;
-      border-radius: 3px;
-    }
-    .lt-ie9 [data-controls] {
-      line-height: 2.5em;
-    }
-    [data-action] {
-      margin-top: 4px;
-      font-size: 17px;
-      vertical-align: middle;
-      background: transparent;
-    }
-    button[disabled] { 
-      color: #999999;
-      background: #B3B3B3; 
-      cursor: not-allowed !important;
-    }
-    .tiny-nav {
-      text-align: center;
-      margin: 10px 0;
-    }
-    button[data-slide] {
-      width: 9px;
-      height: 9px;
-      margin: 0 5px;
-      border-radius: 50%;
-      background: #ddd;
-    }
-    button[aria-selected="true"] { background: #999; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
   <script src="prism/prism.js"></script>
   <script src="../dist/min/tiny-slider.ie8.js"></script>
   <script src="../dist/min/tiny-slider.js"></script>
@@ -198,7 +93,7 @@
   <section>
     <h2>responsive</h2>
     <div class="wrapper">
-      <div class="responsive" id="myslider">
+      <div class="responsive">
         <div>
           <div class="img img-1">1</div>
           <p>Lorem ipsum dolor sit amet</p>

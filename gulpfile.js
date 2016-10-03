@@ -20,7 +20,7 @@ var config = {
   js: {
     src: [[
         "bower_components/domtokenlist/src/token-list.js",
-        "bower_components/Units/Length.min.js",
+        // "bower_components/Units/Length.min.js",
         "bower_components/requestAnimationFrame/requestAnimationFrame.js",
 
         "bower_components/go-native/src/utilities/childNode.remove.js",
@@ -34,7 +34,7 @@ var config = {
         "bower_components/go-native/src/gn/append.js",
         "bower_components/go-native/src/gn/wrap.js",
         "bower_components/go-native/src/gn/unwrap.js",
-        "bower_components/go-native/src/gn/getWidth.js",
+        // "bower_components/go-native/src/gn/getWidth.js",
 
         "src/tiny-slider.native.js",
       ], [

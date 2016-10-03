@@ -21,20 +21,33 @@
   }
   &-content {
     position: relative;
-    left: 0;
     -webkit-transition: transform 0s, height 0s;
     -moz-transition: transform 0s, height 0s;
     transition: transform 0s, height 0s;
     overflow: hidden;
-    &:after {
-      content: '';
-      display: table;
-      clear: both;
+    &.horizontal {
+      left: 0;
+      &:after {
+        content: '';
+        display: table;
+        clear: both;
+      }
+      > div, > li, > span, > a {
+        float: left;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
     }
-    > div, > li, > span, > a {
-      float: left;
-      box-sizing: border-box;
-      overflow: hidden;
+    &.vertical {}
+    &.fade,
+    &.others {
+      > div, > li, > span, > a {
+        position: absolute;
+        left: 0;
+        opacity: 0;
+        z-index: 0;
+        transition: transform 0s, opacity 0s;
+      }
     }
   }
   
