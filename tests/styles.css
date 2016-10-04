@@ -1,4 +1,3 @@
-.wrapper { padding: 0 5em; }
 li { list-style: none; }
 ul, ol, li { margin: 0; padding: 0; }
 body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
@@ -102,3 +101,8 @@ button[data-slide] {
   background: #ddd;
 }
 button[aria-selected="true"] { background: #999; }
+.wrapper { padding: 0 5em; }
+
+.html_template,
+.fade_wrapper 
+{ display: none; }
