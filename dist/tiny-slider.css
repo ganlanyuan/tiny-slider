@@ -1,5 +1,6 @@
 .tiny-slider {
-  overflow: hidden; }
+  overflow: hidden;
+  padding: 0 !important; }
   .tiny-slider.ms-touch {
     overflow-x: scroll;
     overflow-y: hidden;
@@ -33,7 +34,7 @@
     left: 0;
     opacity: 0;
     z-index: 0;
-    transition: transform 0s, opacity 0s; }
+    transition: transform 0s, opacity 0s, height 0s; }
 
 .tiny-nav button {
   vertical-align: middle; }

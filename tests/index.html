@@ -183,14 +183,6 @@
     }).init();
 
     tinySlider({
-      container: doc.querySelector('.customize'),
-      items: 3,
-      controlsContainer: doc.querySelector('.slider-controls'),
-      navContainer: doc.querySelector('.thumbnails'),
-      lazyload: true
-    }).init();
-
-    tinySlider({
       container: doc.querySelector('.non-loop'),
       items: 3,
       loop: false
@@ -215,6 +207,14 @@
       container: doc.querySelector('.arrow-keys'),
       items: 3,
       arrowKeys: true
+    }).init();
+
+    tinySlider({
+      container: doc.querySelector('.customize'),
+      items: 3,
+      controlsContainer: doc.querySelector('.slider-controls'),
+      navContainer: doc.querySelector('.thumbnails'),
+      lazyload: true
     }).init();
 
     tinySlider({

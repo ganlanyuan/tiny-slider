@@ -104,5 +104,6 @@ button[aria-selected="true"] { background: #999; }
 .wrapper { padding: 0 5em; }
 
 .html_template,
+.vertical_wrapper,
 .fade_wrapper 
 { display: none; }
