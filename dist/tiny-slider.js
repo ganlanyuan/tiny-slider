@@ -692,7 +692,7 @@ var tinySlider = (function () {
 
     if (autoplay) {
       var autoplayTimer,
-          actionButton,
+          animationButton,
           animating = false;
     }
 
@@ -866,7 +866,7 @@ var tinySlider = (function () {
           gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
           navContainer = sliderWrapper.querySelector('.tiny-nav');
         }
-        actionButton = navContainer.querySelector('[data-action]');
+        animationButton = navContainer.querySelector('[data-action]');
       }
 
       // dom initilized
@@ -1274,16 +1274,16 @@ var tinySlider = (function () {
       autoplayTimer = setInterval(function () {
         onClickControl(autoplayDirection);
       }, autoplayTimeout);
-      actionButton.setAttribute('data-action', 'stop');
-      actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
+      animationButton.setAttribute('data-action', 'stop');
+      animationButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
 
       animating = true;
     }
 
     function stopAction() {
       clearInterval(autoplayTimer);
-      actionButton.setAttribute('data-action', 'start');
-      actionButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
+      animationButton.setAttribute('data-action', 'start');
+      animationButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
 
       animating = false;
     }
@@ -1488,7 +1488,7 @@ var tinySlider = (function () {
 
       if (autoplay) {
         startAction();
-        actionButton.addEventListener('click', toggleAnimation, false);
+        animationButton.addEventListener('click', toggleAnimation, false);
 
         if (controls) {
           prevButton.addEventListener('click', stopAnimation, false );
@@ -1520,16 +1520,15 @@ var tinySlider = (function () {
 
       // destory
       destory: function () {
-        sliderContainer.classList.remove('tiny-content');
-        sliderContainer.style.width = '';
-        sliderContainer.style[TRANSITIONDURATION] = '';
-        sliderContainer.style.transform = '';
-        sliderContainer.style.marginLeft = '';
-        sliderContainer.style.left = '';
-
         // remove sliderWrapper
         gn.unwrap(sliderWrapper);
-        // sliderWrapper = null;
+        sliderWrapper = null;
+
+        // reset slider container
+        sliderContainer.removeAttribute('id');
+        sliderContainer.classList.remove('tiny-content', transform);
+        sliderContainer.style = '';
+        if (touch) { removeAllEvent(sliderContainer); }
 
         // remove clone items
         if (loop) {
@@ -1539,44 +1538,27 @@ var tinySlider = (function () {
           }
         }
 
-        // remove ids
-        if (sliderId !== undefined) {
-          sliderId = null;
-          sliderContainer.removeAttribute('id');
-
-          for (var x = slideCount; x--;) {
-            slideItems[x].removeAttribute('id');
-            slideItems[x].removeAttribute('aria-hidden');
-            slideItems[x].style.width = '';
-          }
+        // Slide Items
+        for (var x = slideCount; x--;) {
+          slideItems[x].removeAttribute('id');
+          slideItems[x].removeAttribute('aria-hidden');
+          slideItems[x].style = '';
         }
-
-        // remove sliderContainer event listener
-        if (touch) {
-          sliderContainer.removeEventListener('touchstart', onPanStart, false);
-          sliderContainer.removeEventListener('touchmove', onPanMove, false);
-          sliderContainer.removeEventListener('touchend', onPanEnd, false);
-          sliderContainer.removeEventListener('touchcancel', onPanEnd, false);
-        }
+        sliderId = slideCount = null;
 
         // remove controls
         if (controls) {
           if (!options.controlsContainer) {
             controlsContainer.remove();
-            controlsContainer = null;
-            prevButton = null;
-            nextButton = null;
+            controlsContainer = prevButton = nextButton = null;
           } else {
             controlsContainer.removeAttribute('aria-label');
             prevButton.removeAttribute('aria-controls');
             prevButton.removeAttribute('tabindex');
-            prevButton.removeEventListener('click', onClickControlPrev, false);
-            prevButton.removeEventListener('keydown', onKeyControl, false);
-
             nextButton.removeAttribute('aria-controls');
             nextButton.removeAttribute('tabindex');
-            nextButton.removeEventListener('click', onClickControlNext, false);
-            nextButton.removeEventListener('keydown', onKeyControl, false);
+
+            removeAllEvent(controlsContainer);
           }
         }
 
@@ -1590,12 +1572,11 @@ var tinySlider = (function () {
             for (var i = allNavs.length; i--;) {
               allNavs[i].removeAttribute('aria-selected');
               allNavs[i].removeAttribute('aria-controls');
-              allNavs[i].removeEventListener('click', onClickNav, false);
-              allNavs[i].removeEventListener('keydown', onKeyNav, false);
+              allNavs[i].removeAttribute('tabindex');
             }
+            removeAllEvent(navContainer);
           }
-          allNavs = null;
-          navCount = null;
+          allNavs = navCount = null;
         }
 
         // remove auto
@@ -1604,19 +1585,7 @@ var tinySlider = (function () {
             navContainer.remove();
             navContainer = null;
           } else {
-            actionButton.removeEventListener('click', toggleAnimation, false);
-            actionButton = null;
-
-            if (controls && options.controlsContainer) {
-              prevButton.removeEventListener('click', stopAnimation, false );
-              nextButton.removeEventListener('click', stopAnimation, false );
-            }
-
-            if (nav && options.navContainer) {
-              for (var b = 0; b < navCount; b++) {
-                allNavs[b].removeEventListener('click', stopAnimation, false);
-              }
-            }
+            removeAllEvent(animationButton);
           }
         }
 
@@ -1669,6 +1638,16 @@ var tinySlider = (function () {
       return values;
     } else {
       return false;
+    }
+  }
+
+  function removeAllEvent(els) {
+    var els = (gn.isNodeList(els)) ? els : [els];
+    for (var i = els.length; i--;) {
+      var el = els[i], elClone = el.cloneNode(true), parent = el.parentNode;
+      parent.insertBefore(elClone, el);
+      el.remove();
+      el = null;
     }
   }
 
