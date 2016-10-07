@@ -164,6 +164,8 @@ var tinySlider = (function () {
         return slideCount;
       } else if (edgePadding) {
         return 1;
+      } else {
+        return 0;
       }
     };
 
@@ -950,17 +952,15 @@ var tinySlider = (function () {
 
       // destory
       destory: function () {
-        // remove sliderWrapper
+        // sliderWrapper
         gn.unwrap(sliderWrapper);
         sliderWrapper = null;
 
-        // reset slider container
-        sliderContainer.removeAttribute('id');
+        // sliderContainer
         sliderContainer.classList.remove('tiny-content', transform);
-        sliderContainer.style = '';
-        if (touch) { removeAllEvent(sliderContainer); }
+        removeElementsAttrs(sliderContainer, ['id', 'style']);
 
-        // remove clone items
+        // cloned items
         if (loop) {
           for (var j = cloneCount; j--;) {
             slideItems[0].remove();
@@ -969,55 +969,47 @@ var tinySlider = (function () {
         }
 
         // Slide Items
-        for (var x = slideCount; x--;) {
-          slideItems[x].removeAttribute('id');
-          slideItems[x].removeAttribute('aria-hidden');
-          slideItems[x].style = '';
-        }
+        removeElementsAttrs(slideItems, ['id', 'style', 'aria-hidden']);
         sliderId = slideCount = null;
 
-        // remove controls
+        // controls
         if (controls) {
           if (!options.controlsContainer) {
             controlsContainer.remove();
             controlsContainer = prevButton = nextButton = null;
           } else {
-            controlsContainer.removeAttribute('aria-label');
-            prevButton.removeAttribute('aria-controls');
-            prevButton.removeAttribute('tabindex');
-            nextButton.removeAttribute('aria-controls');
-            nextButton.removeAttribute('tabindex');
-
-            removeAllEvent(controlsContainer);
+            removeElementsAttrs(controlsContainer, ['aria-label']);
+            removeElementsAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
+            removeElementEvents(controlsContainer);
           }
         }
 
-        // remove nav
+        // nav
         if (nav) {
           if (!options.navContainer) {
             navContainer.remove();
             navContainer = null;
           } else {
-            navContainer.removeAttribute('aria-label');
-            for (var i = allNavs.length; i--;) {
-              allNavs[i].removeAttribute('aria-selected');
-              allNavs[i].removeAttribute('aria-controls');
-              allNavs[i].removeAttribute('tabindex');
-            }
-            removeAllEvent(navContainer);
+            removeElementsAttrs(navContainer, ['aria-label']);
+            removeElementsAttrs(allNavs, ['aria-selected', 'aria-controls', 'tabindex']);
+            removeElementEvents(navContainer);
           }
           allNavs = navCount = null;
         }
 
-        // remove auto
+        // auto
         if (autoplay) {
           if (!options.navContainer && navContainer !== null) {
             navContainer.remove();
             navContainer = null;
           } else {
-            removeAllEvent(animationButton);
+            removeElementEvents(animationButton);
           }
         }
+
+        // remove slider container events at the end
+        // because this will make sliderContainer = null
+        if (touch) { removeElementEvents(sliderContainer); }
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
@@ -1071,14 +1063,21 @@ var tinySlider = (function () {
     }
   }
 
-  function removeAllEvent(els) {
-    var els = (gn.isNodeList(els)) ? els : [els];
+  function removeElementsAttrs(els, attrs) {
+    var els = (gn.isNodeList(els)) ? els : [els],
+        attrs = (attrs instanceof Array) ? attrs : [attrs],
+        attrLength = attrs.length;
     for (var i = els.length; i--;) {
-      var el = els[i], elClone = el.cloneNode(true), parent = el.parentNode;
-      parent.insertBefore(elClone, el);
-      el.remove();
-      el = null;
+      for (var j = attrLength; j--;) {
+        els[i].removeAttribute(attrs[j]);
+      }
     }
+  }
+  function removeElementEvents(el) {
+    var elClone = el.cloneNode(true), parent = el.parentNode;
+    parent.insertBefore(elClone, el);
+    el.remove();
+    el = null;
   }
 
   return core;
