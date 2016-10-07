@@ -612,7 +612,7 @@ var tinySlider = (function () {
       items: 1,
       gutter: 0,
       gutterPosition: 'right',
-      center: false,
+      edgePadding: 0,
       fixedWidth: false,
       maxContainerWidth: false,
       slideByPage: false,
@@ -652,7 +652,7 @@ var tinySlider = (function () {
         slideCountUpdated = slideItems.length,
         gutter = options.gutter,
         gutterPosition = (options.gutterPosition === 'right') ? 'marginRight' : 'marginLeft',
-        center = options.center,
+        edgePadding = (options.rewind) ? 0 : options.edgePadding,
         fixedWidth = options.fixedWidth,
         maxContainerWidth = options.maxContainerWidth,
         controls = options.controls,
@@ -676,7 +676,7 @@ var tinySlider = (function () {
         sliderId,
         slideWidth,
         cloneCount,
-        items,
+        items = options.items,
         prevButton,
         nextButton,
         allNavs,
@@ -685,6 +685,7 @@ var tinySlider = (function () {
         navClicked = -1,
         index = 0,
         running = false,
+        domInit = false,
         layoutInit = false,
         resizeTimer,
         ticking = false;
@@ -712,42 +713,32 @@ var tinySlider = (function () {
     var getItems = (function () {
       if (!fixedWidth) {
         return function () {
-          var itemsTem;
-          var ww = document.documentElement.clientWidth;
+          var itemsTem = options.items,
+              ww = document.documentElement.clientWidth;
 
-          if (bpKeys.length !== undefined && bpVals !== undefined && bpKeys.length === bpVals.length) {
-            if (ww < bpKeys[0]) {
-              itemsTem = options.items;
-            } else if (ww >= bpKeys[bpKeys.length - 1]) {
-              itemsTem = bpVals[bpVals.length - 1];
-            } else {
-              for (var i = 0; i < bpKeys.length - 1; i++) {
-                if (ww >= bpKeys[i] && ww <= bpKeys[i+1]) {
-                  itemsTem = bpVals[i];
-                }
-              }
+          if (bpVals) {
+            for (var i = 0; i < bpKeys.length; i++) {
+              if (ww >= bpKeys[i]) { itemsTem = bpVals[i]; }
             }
-          } else {
-            itemsTem = options.items;
           }
-
-          return Math.max(Math.min(slideCount, itemsTem), 1);
+          return Math.max(1, Math.min(slideCount, itemsTem));
         };
+
       } else {
-        return function () { return Math.max(Math.min(slideCount, Math.floor(sliderWrapper.clientWidth / fixedWidth)), 1); };
+        return function () { return Math.max(1, Math.min(slideCount, Math.floor(sliderWrapper.clientWidth / fixedWidth))); };
       }
     })();
 
     var getCloneCount = function () {
       if (loop) {
         return slideCount;
-      } else if (center) {
+      } else if (edgePadding) {
         return 1;
       }
     };
 
     var getSlideWidth = (function () {
-      return function () { return (fixedWidth) ? fixedWidth + gutter : (sliderWrapper.clientWidth + gutter) / items; };
+      return function () { return (fixedWidth) ? fixedWidth + gutter : (sliderWrapper.clientWidth + gutter - edgePadding * 2) / items; };
     })();
 
     var getVisibleNavCount = (function () {
@@ -758,6 +749,129 @@ var tinySlider = (function () {
       return function () { return index + cloneCount; };
     })();
 
+    // # DOM initilize
+    // 1. add .tiny-content to container
+    // 2. wrap container with .tiny-slider
+    // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
+    // 4. clone items for loop if needed, update childrenCount
+    function updateDom() {
+      sliderContainer.classList.add('tiny-content', transform);
+
+      // add slider id
+      if (sliderContainer.id.length === 0) {
+        sliderContainer.id = sliderId = getSliderId();
+      } else {
+        sliderId = sliderContainer.id;
+      }
+
+      // wrap slider with ".tiny-slider"
+      sliderWrapper.className = 'tiny-slider';
+      gn.wrap(sliderContainer, sliderWrapper);
+
+      // for IE10
+      if (navigator.msMaxTouchPoints) {
+        sliderWrapper.classList.add('ms-touch');
+        sliderWrapper.addEventListener('scroll', ie10Scroll, false);
+      }
+
+      // add slide id
+      for (var x = 0; x < slideCount; x++) {
+        slideItems[x].id = sliderId + 'item' + x;
+      }
+      items = getItems();
+      if (slideCount <= items) { 
+        loop = rewind = nav = controls = slideByPage = false;
+      }
+
+      // clone items
+      cloneCount = getCloneCount();
+      if (loop || edgePadding) {
+        var fragmentBefore = document.createDocumentFragment(), 
+            fragmentAfter = document.createDocumentFragment();
+
+        for (var j = cloneCount; j--;) {
+          var cloneFirst = slideItems[j].cloneNode(true),
+              cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
+
+          // remove id from cloned slides
+          cloneFirst.id = '';
+          cloneLast.id = '';
+
+          fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
+          fragmentAfter.appendChild(cloneLast);
+        }
+
+        sliderContainer.appendChild(fragmentBefore);
+        sliderContainer.insertBefore(fragmentAfter, sliderContainer.firstChild);
+
+        slideCountUpdated = sliderContainer.children.length;
+        slideItems = sliderContainer.children;
+      }
+
+      // add nav
+      if (nav) {
+        if (!options.navContainer) {
+          var navHtml = '';
+          for (var i = 0; i < slideCount; i++) {
+            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
+          }
+
+          if (autoplay) {
+            navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
+          }
+
+          navHtml = '<div class="tiny-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
+          gn.append(sliderWrapper, navHtml);
+
+          navContainer = sliderWrapper.querySelector('.tiny-nav');
+        }
+
+        allNavs = navContainer.querySelectorAll('[data-slide]');
+        navCount = allNavs.length;
+
+        if (!navContainer.hasAttribute('aria-label')) {
+          navContainer.setAttribute('aria-label', "Carousel Pagination");
+          for (var y = 0; y < navCount; y++) {
+            var navTem = allNavs[y];
+            navTem.setAttribute('tabindex', '-1');
+            navTem.setAttribute('aria-selected', 'false');
+            navTem.setAttribute('aria-controls', sliderId + 'item' + y);
+          }
+        }
+      }
+
+      // add controls
+      if (controls) {
+        if (!options.controlsContainer) {
+          gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
+
+          controlsContainer = sliderWrapper.querySelector('.tiny-controls');
+        }
+
+        prevButton = controlsContainer.querySelector('[data-controls="prev"]');
+        nextButton = controlsContainer.querySelector('[data-controls="next"]');
+
+        if (!controlsContainer.hasAttribute('tabindex')) {
+          controlsContainer.setAttribute('aria-label', 'Carousel Navigation');
+          prevButton.setAttribute('aria-controls', sliderId);
+          nextButton.setAttribute('aria-controls', sliderId);
+          prevButton.setAttribute('tabindex', '-1');
+          nextButton.setAttribute('tabindex', '0');
+        }
+      }
+
+      // add auto
+      if (autoplay) {
+        if (!navContainer) {
+          gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
+          navContainer = sliderWrapper.querySelector('.tiny-nav');
+        }
+        actionButton = navContainer.querySelector('[data-action]');
+      }
+
+      // dom initilized
+      domInit = true;
+    }
 
     // # SETTING UP
     // update layout:
@@ -769,19 +883,27 @@ var tinySlider = (function () {
         sliderContainer.style.width = slideWidth * slideCountUpdated + 'px';
       }
 
-      // update slider container position
-      if (!layoutInit || !responsive && center) {
-        if (fixedWidth) { var vw = sliderWrapper.clientWidth; }
-        var gap = cloneCount * slideWidth,
-            gt = (gutterPosition === 'marginLeft') ? gutter : 0,
-            // adjust = (center) ? (fixedWidth) ? - (vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2 : -slideWidth / 2 : 0,
-            ml = gap + gt;
-        if (ml !== 0) { sliderContainer.style.marginLeft = - ml + 'px'; }
+      // update edge padding
+      if (edgePadding) {
+        var pl = edgePadding;
+        if (fixedWidth) {
+          var vw = sliderWrapper.clientWidth;            
+          pl = (vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2;
+        }
+        if (!layoutInit || fixedWidth) {
+          sliderContainer.style.paddingLeft = pl + 'px';
+        }
       }
+
+      // update slider container position
+      var gap = cloneCount * slideWidth,
+          adjust = (gutterPosition === 'marginLeft') ? gutter : 0,
+          ml = gap + adjust;
+      if (ml !== 0) { sliderContainer.style.marginLeft = - ml + 'px'; }
 
       // update slide width & margin
       for (var b = slideCountUpdated; b--;) {
-        if (!layoutInit || responsive) {
+        if (!layoutInit || !fixedWidth) {
           slideItems[b].style.width = slideWidth - gutter + 'px';
         }
         if (!layoutInit && gutter !== 0) {
@@ -829,7 +951,7 @@ var tinySlider = (function () {
       var current = getCurrent(), 
           heights = [], 
           maxHeight, 
-          adjust = (center) ? 0 : 0;
+          adjust = (edgePadding) ? 1 : 0;
 
       for (var i = slideCountUpdated; i--;) {
         if (i >= current - adjust && i < current + items) {
@@ -949,7 +1071,7 @@ var tinySlider = (function () {
     // |-----|----------|-----|-----|
     // |items|slideCount|items|items|
     function resetIndexAndContainer() {
-      var adjust = (center) ? 0 : 0, leftEdge, rightEdge;
+      var adjust = (edgePadding) ? 1 : 0, leftEdge, rightEdge;
 
       if (slideByPage) {
         leftEdge = items - cloneCount + 1 + adjust;
@@ -1023,7 +1145,7 @@ var tinySlider = (function () {
 
     // set 'disabled' to true to controls when reach the edge
     function updateControlsStatus() {
-      var countTem = (center) ? slideCount + 0 : slideCount;
+      var countTem = (edgePadding) ? slideCount + 1 : slideCount;
       if (countTem > items) {
         if (index === 0) {
           prevButton.disabled = true;
@@ -1057,20 +1179,18 @@ var tinySlider = (function () {
     function lazyLoad() {
       if (!gn.isInViewport(sliderContainer)) { return; }
 
-      if (center) {
-        var imgsPrev = slideItems[cloneCount + index - 1].querySelectorAll('.tiny-lazy');
-        for (var i = 0, len = imgsPrev.length; i < len; i++) {
-          var img = imgsPrev[i];
-          if (!img.classList.contains('loaded')) {
-            img.src = img.getAttribute('data-src');
-            img.classList.add('loaded');
-          }
+      var arr = [];
+      for(var i = slideCountUpdated; i--;) {
+        var base = index + cloneCount - 1;
+        if (i >= base && i <= base + items + 1) {
+          var imgsTem = slideItems[i].querySelectorAll('.tiny-lazy');
+          for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
+          arr.unshift();
         }
       }
 
-      var imgs = sliderContainer.querySelectorAll('[aria-hidden="false"] .tiny-lazy');
-      for (var i = 0, len = imgs.length; i < len; i++) {
-        var img = imgs[i];
+      for (var h = arr.length; h--;) {
+        var img = arr[h];
         if (!img.classList.contains('loaded')) {
           img.src = img.getAttribute('data-src');
           img.classList.add('loaded');
@@ -1085,7 +1205,7 @@ var tinySlider = (function () {
       var current = getCurrent(), images = [];
 
       for (var i = slideCountUpdated; i--;) {
-        if (i >= current && i < current + items) {
+        if (i >= current -1 && i <= current + items) {
           var imagesTem = slideItems[i].querySelectorAll('img');
           for (var j = imagesTem.length; j--;) {
             images.push(imagesTem[j]);
@@ -1106,7 +1226,7 @@ var tinySlider = (function () {
       if (!running) {
         dir = (slideByPage) ? dir * items : dir;
         var indexGap = Math.abs(dir),
-            countTem = (center) ? slideCount + 0 : slideCount;
+            countTem = (edgePadding) ? slideCount + 1 : slideCount;
 
         index = (loop) ? (index + dir) : Math.max(0, Math.min((index + dir), countTem - items));
 
@@ -1119,7 +1239,7 @@ var tinySlider = (function () {
     }
 
     function onClickControlNext() {
-      var countTem = (center) ? slideCount + 0 : slideCount;
+      var countTem = (edgePadding) ? slideCount + 1 : slideCount;
 
       if(rewind && index === countTem - items){
         onClickControl(- countTem + items);
@@ -1339,177 +1459,63 @@ var tinySlider = (function () {
       }
       ticking = true;
     }
+
+    // # Event listener
+    function domAddEventListener () {
+      // add sliderContainer eventListeners
+      if (touch) {
+        sliderContainer.addEventListener('touchstart', onPanStart, false);
+        sliderContainer.addEventListener('touchmove', onPanMove, false);
+        sliderContainer.addEventListener('touchend', onPanEnd, false);
+        sliderContainer.addEventListener('touchcancel', onPanEnd, false);
+      }
+
+      if (controls) {
+        if (!loop) { updateControlsStatus(); }
+
+        prevButton.addEventListener('click', onClickControlPrev, false);
+        nextButton.addEventListener('click', onClickControlNext, false);
+        prevButton.addEventListener('keydown', onKeyControl, false);
+        nextButton.addEventListener('keydown', onKeyControl, false);
+      }
+      
+      if (nav) {
+        for (var a = allNavs.length; a--;) {
+          allNavs[a].addEventListener('click', onClickNav, false);
+          allNavs[a].addEventListener('keydown', onKeyNav, false);
+        }
+      }
+
+      if (autoplay) {
+        startAction();
+        actionButton.addEventListener('click', toggleAnimation, false);
+
+        if (controls) {
+          prevButton.addEventListener('click', stopAnimation, false );
+          nextButton.addEventListener('click', stopAnimation, false );
+        }
+
+        if (nav) {
+          for (var b = 0; b < navCount; b++) {
+            allNavs[b].addEventListener('click', stopAnimation, false);
+          }
+        }
+      }
+
+      if (arrowKeys) {
+        document.addEventListener('keydown', onKeyDocument, false);
+      }
+
+      // on window resize && scroll
+      window.addEventListener('resize', onResize, false);
+      window.addEventListener('scroll', onScroll, false);
+    }
     
     return {
-      // initialize:
-      // 1. add .tiny-content to container
-      // 2. wrap container with .tiny-slider
-      // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
-      // 4. clone items for loop if needed, update childrenCount
       init: function () {
-        sliderContainer.classList.add('tiny-content', transform);
-
-        // add slider id
-        if (sliderContainer.id.length === 0) {
-          sliderContainer.id = sliderId = getSliderId();
-        } else {
-          sliderId = sliderContainer.id;
-        }
-
-        // wrap slider with ".tiny-slider"
-        sliderWrapper.className = 'tiny-slider';
-        gn.wrap(sliderContainer, sliderWrapper);
-
-        // for IE10
-        if (navigator.msMaxTouchPoints) {
-          sliderWrapper.classList.add('ms-touch');
-          sliderWrapper.addEventListener('scroll', ie10Scroll, false);
-        }
-
-        // add slide id
-        for (var x = 0; x < slideCount; x++) {
-          slideItems[x].id = sliderId + 'item' + x;
-        }
-        items = getItems();
-        if (slideCount <= items) { 
-          loop = rewind = nav = controls = slideByPage = false;
-        }
-
-        // clone items
-        cloneCount = getCloneCount();
-        if (loop || center) {
-          var fragmentBefore = document.createDocumentFragment(), 
-              fragmentAfter = document.createDocumentFragment();
-
-          for (var j = cloneCount; j--;) {
-            var cloneFirst = slideItems[j].cloneNode(true),
-                cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
-
-            // remove id from cloned slides
-            cloneFirst.id = '';
-            cloneLast.id = '';
-
-            fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
-            fragmentAfter.appendChild(cloneLast);
-          }
-
-          sliderContainer.appendChild(fragmentBefore);
-          sliderContainer.insertBefore(fragmentAfter, sliderContainer.firstChild);
-
-          slideCountUpdated = sliderContainer.children.length;
-          slideItems = sliderContainer.children;
-        }
-
-        // add nav
-        if (nav) {
-          if (!options.navContainer) {
-            var navHtml = '';
-            for (var i = 0; i < slideCount; i++) {
-              navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
-            }
-
-            if (autoplay) {
-              navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
-            }
-
-            navHtml = '<div class="tiny-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-            gn.append(sliderWrapper, navHtml);
-
-            navContainer = sliderWrapper.querySelector('.tiny-nav');
-          }
-
-          allNavs = navContainer.querySelectorAll('[data-slide]');
-          navCount = allNavs.length;
-
-          if (!navContainer.hasAttribute('aria-label')) {
-            navContainer.setAttribute('aria-label', "Carousel Pagination");
-            for (var y = 0; y < navCount; y++) {
-              var navTem = allNavs[y];
-              navTem.setAttribute('tabindex', '-1');
-              navTem.setAttribute('aria-selected', 'false');
-              navTem.setAttribute('aria-controls', sliderId + 'item' + y);
-            }
-          }
-        }
-
-        // add controls
-        if (controls) {
-          if (!options.controlsContainer) {
-            gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
-
-            controlsContainer = sliderWrapper.querySelector('.tiny-controls');
-          }
-
-          prevButton = controlsContainer.querySelector('[data-controls="prev"]');
-          nextButton = controlsContainer.querySelector('[data-controls="next"]');
-
-          if (!controlsContainer.hasAttribute('tabindex')) {
-            controlsContainer.setAttribute('aria-label', 'Carousel Navigation');
-            prevButton.setAttribute('aria-controls', sliderId);
-            nextButton.setAttribute('aria-controls', sliderId);
-            prevButton.setAttribute('tabindex', '-1');
-            nextButton.setAttribute('tabindex', '0');
-          }
-        }
-
-        // add auto
-        if (autoplay) {
-          if (!navContainer) {
-            gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
-            navContainer = sliderWrapper.querySelector('.tiny-nav');
-          }
-          actionButton = navContainer.querySelector('[data-action]');
-        }
-
+        updateDom();
         render();
-
-        // add sliderContainer eventListeners
-        if (touch) {
-          sliderContainer.addEventListener('touchstart', onPanStart, false);
-          sliderContainer.addEventListener('touchmove', onPanMove, false);
-          sliderContainer.addEventListener('touchend', onPanEnd, false);
-          sliderContainer.addEventListener('touchcancel', onPanEnd, false);
-        }
-
-        if (controls) {
-          if (!loop) { updateControlsStatus(); }
-
-          prevButton.addEventListener('click', onClickControlPrev, false);
-          nextButton.addEventListener('click', onClickControlNext, false);
-          prevButton.addEventListener('keydown', onKeyControl, false);
-          nextButton.addEventListener('keydown', onKeyControl, false);
-        }
-        
-        if (nav) {
-          for (var a = allNavs.length; a--;) {
-            allNavs[a].addEventListener('click', onClickNav, false);
-            allNavs[a].addEventListener('keydown', onKeyNav, false);
-          }
-        }
-
-        if (autoplay) {
-          startAction();
-          actionButton.addEventListener('click', toggleAnimation, false);
-
-          if (controls) {
-            prevButton.addEventListener('click', stopAnimation, false );
-            nextButton.addEventListener('click', stopAnimation, false );
-          }
-
-          if (nav) {
-            for (var b = 0; b < navCount; b++) {
-              allNavs[b].addEventListener('click', stopAnimation, false);
-            }
-          }
-        }
-
-        if (arrowKeys) {
-          document.addEventListener('keydown', onKeyDocument, false);
-        }
-
-        // on window resize && scroll
-        window.addEventListener('resize', onResize, false);
-        window.addEventListener('scroll', onScroll, false);
+        domAddEventListener();
       },
 
       // destory

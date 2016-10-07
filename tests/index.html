@@ -139,8 +139,8 @@
   </section>
 </div>
 
-<script src="../dist/tiny-slider.ie8.js"></script>
-<script src="../dist/tiny-slider.js"></script>
+<script src="../dist/min/tiny-slider.ie8.js"></script>
+<script src="../dist/min/tiny-slider.js"></script>
 <script type="text/javascript">
   gn.ready(function () {
     var doc = document,
@@ -164,18 +164,18 @@
       container: doc.querySelector('.responsive'),
       gutter: 10,
       gutterPosition: 'left',
-      center: true,
+      edgePadding: 50,
       responsive: {
         500: 2,
-        800: 4,
+        800: 3,
       },
-      // rewind: true,
+      rewind: true,
     }).init();
 
     tinySlider({
       container: doc.querySelector('.fixed-width'),
-      gutter: 10,
-      center: true,
+      // gutter: 10,
+      edgePadding: 50,
       gutterPosition: 'left',
       fixedWidth: 200,
       maxContainerWidth: 900,
@@ -208,7 +208,7 @@
     tinySlider({
       container: doc.querySelector('.arrow-keys'),
       items: 3,
-      center: true,
+      edgePadding: 50,
       arrowKeys: true,
       slideByPage: true,
     }).init();
@@ -216,6 +216,7 @@
     tinySlider({
       container: doc.querySelector('.customize'),
       items: 3,
+      // edgePadding: 40,
       controlsContainer: doc.querySelector('.slider-controls'),
       navContainer: doc.querySelector('.thumbnails'),
       lazyload: true,
@@ -224,7 +225,8 @@
     tinySlider({
       container: doc.querySelector('.auto-height'),
       autoHeight: true,
-      items: 6,
+      // edgePadding: 20,
+      items: 1,
     }).init();
 });
 </script>
