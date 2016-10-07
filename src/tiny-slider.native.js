@@ -115,6 +115,7 @@ var tinySlider = (function () {
         navClicked = -1,
         index = 0,
         running = false,
+        layoutInit = false,
         resizeTimer,
         ticking = false;
 
@@ -168,18 +169,6 @@ var tinySlider = (function () {
     })();
 
     var getCloneCount = function () {
-      // var cloneCountTem = 0;
-
-      // if (loop) {
-      //   if (fixedWidth) {
-      //     cloneCountTem = (!maxContainerWidth) ? slideCount : Math.ceil(maxContainerWidth / fixedWidth);
-      //   } else {
-      //     cloneCountTem = (bpVals.length !== undefined) ? Math.max.apply(Math, bpVals) : options.items;
-      //   }
-      // }
-
-      // if (center) { cloneCountTem += 1; }
-      // return Math.min(slideCount, cloneCountTem);
       if (loop) {
         return slideCount;
       } else if (center) {
@@ -206,22 +195,32 @@ var tinySlider = (function () {
     // update slides' width
     function updateLayout() {
       // update slider container width
-      sliderContainer.style.width = slideWidth * slideCountUpdated + 'px';
+      if (!layoutInit || responsive) {
+        sliderContainer.style.width = slideWidth * slideCountUpdated + 'px';
+      }
 
       // update slider container position
-      var gap = cloneCount * slideWidth,
-          gt = (gutterPosition === 'marginLeft') ? gutter : 0,
-          adjust = (center) ? (fixedWidth) ? - (fixedWidth / 2 + gutter) : -slideWidth / 2 : 0,
-          ml = gap + gt + adjust;
-      if (ml !== 0) { sliderContainer.style.marginLeft = - ml + 'px'; }
+      if (!layoutInit || !responsive && center) {
+        if (fixedWidth) { var vw = sliderWrapper.clientWidth; }
+        var gap = cloneCount * slideWidth,
+            gt = (gutterPosition === 'marginLeft') ? gutter : 0,
+            // adjust = (center) ? (fixedWidth) ? - (vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2 : -slideWidth / 2 : 0,
+            ml = gap + gt;
+        if (ml !== 0) { sliderContainer.style.marginLeft = - ml + 'px'; }
+      }
 
       // update slide width & margin
       for (var b = slideCountUpdated; b--;) {
-        slideItems[b].style.width = slideWidth - gutter + 'px';
-        if (gutter !== 0) {
+        if (!layoutInit || responsive) {
+          slideItems[b].style.width = slideWidth - gutter + 'px';
+        }
+        if (!layoutInit && gutter !== 0) {
           slideItems[b].style[gutterPosition] = gutter + 'px';
         }
       }
+
+      // layout initilized
+      layoutInit = true;
     }
 
     // check if an image is loaded
@@ -260,7 +259,7 @@ var tinySlider = (function () {
       var current = getCurrent(), 
           heights = [], 
           maxHeight, 
-          adjust = (center) ? 1 : 0;
+          adjust = (center) ? 0 : 0;
 
       for (var i = slideCountUpdated; i--;) {
         if (i >= current - adjust && i < current + items) {
@@ -375,35 +374,23 @@ var tinySlider = (function () {
     }
 
     // check index after click/drag:
-    // if viewport reach the left/right edge of slide container or
-    // there is not enough room for next transfer,
-    // transfer slide container to a new location without animation
+    // if there is not enough room for next transfering,
+    // move slide container to a new location without animation
+    // |-----|----------|-----|-----|
+    // |items|slideCount|items|items|
     function resetIndexAndContainer() {
-      // var adjust = (center) ? 1 : 0,
-      //     reachLeftEdge = (slideByPage) ? index < (items + adjust - cloneCount) : index <= adjust - cloneCount,
-      //     reachRightEdge = (slideByPage) ? index > (slideCount + cloneCount - items * 2 - 1) : index >= (slideCount + cloneCount - items);
-
-      // if (reachLeftEdge) { index += slideCount; }
-      // if (reachRightEdge) { index -= slideCount; }
-
-      // if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
-      // translate();
-      var adjust = (center) ? 1 : 0,
-          leftEdge,
-          rightEdge;
-          // reachLeftEdge = (slideByPage) ? index < (items + adjust - cloneCount) : index <= adjust - cloneCount,
-          // reachRightEdge = (slideByPage) ? index > (slideCount + cloneCount - items * 2 - 1) : index >= (slideCount + cloneCount - items);
+      var adjust = (center) ? 0 : 0, leftEdge, rightEdge;
 
       if (slideByPage) {
-        leftEdge = items + adjust - cloneCount;
-        rightEdge = slideCount + cloneCount - items * 2 - 1;
+        leftEdge = items - cloneCount + 1 + adjust;
+        rightEdge = slideCount + cloneCount - items * 2 - 1; // -1: index starts form 0
       } else {
-        leftEdge = adjust - cloneCount;
-        rightEdge = slideCount + cloneCount - items;
+        leftEdge = - cloneCount + 1 + adjust;
+        rightEdge = slideCount + cloneCount - items - 2; // -1: index starts from 0
       }
 
       if (index < leftEdge || index > rightEdge) {
-        (index - slideCount > leftEdge) ? index -= slideCount : index += slideCount;
+        (index - slideCount >= leftEdge && index - slideCount <= rightEdge) ? index -= slideCount : index += slideCount;
 
         if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
         translate();
@@ -466,7 +453,7 @@ var tinySlider = (function () {
 
     // set 'disabled' to true to controls when reach the edge
     function updateControlsStatus() {
-      var countTem = (center) ? slideCount + 1 : slideCount;
+      var countTem = (center) ? slideCount + 0 : slideCount;
       if (countTem > items) {
         if (index === 0) {
           prevButton.disabled = true;
@@ -547,10 +534,9 @@ var tinySlider = (function () {
     // on controls click
     function onClickControl(dir) {
       if (!running) {
-        // get new index
         dir = (slideByPage) ? dir * items : dir;
         var indexGap = Math.abs(dir),
-            countTem = (center) ? slideCount + 1 : slideCount;
+            countTem = (center) ? slideCount + 0 : slideCount;
 
         index = (loop) ? (index + dir) : Math.max(0, Math.min((index + dir), countTem - items));
 
@@ -563,7 +549,7 @@ var tinySlider = (function () {
     }
 
     function onClickControlNext() {
-      var countTem = (center) ? slideCount + 1 : slideCount;
+      var countTem = (center) ? slideCount + 0 : slideCount;
 
       if(rewind && index === countTem - items){
         onClickControl(- countTem + items);

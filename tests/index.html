@@ -139,8 +139,8 @@
   </section>
 </div>
 
-<script src="../dist/min/tiny-slider.ie8.js"></script>
-<script src="../dist/min/tiny-slider.js"></script>
+<script src="../dist/tiny-slider.ie8.js"></script>
+<script src="../dist/tiny-slider.js"></script>
 <script type="text/javascript">
   gn.ready(function () {
     var doc = document,
@@ -164,6 +164,7 @@
       container: doc.querySelector('.responsive'),
       gutter: 10,
       gutterPosition: 'left',
+      center: true,
       responsive: {
         500: 2,
         800: 4,
@@ -174,10 +175,12 @@
     tinySlider({
       container: doc.querySelector('.fixed-width'),
       gutter: 10,
+      center: true,
       gutterPosition: 'left',
       fixedWidth: 200,
       maxContainerWidth: 900,
       arrowKeys: true,
+      slideByPage: true,
       // loop: false,
     }).init();
 
