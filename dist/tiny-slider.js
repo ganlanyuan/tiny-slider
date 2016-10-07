@@ -757,18 +757,11 @@ var tinySlider = (function () {
     // 3. add nav and controls if needed, set allNavs, prevButton, nextButton
     // 4. clone items for loop if needed, update childrenCount
     function updateDom() {
-      sliderContainer.classList.add('tiny-content', transform);
-
-      // add slider id
-      if (sliderContainer.id.length === 0) {
-        sliderContainer.id = sliderId = getSliderId();
-      } else {
-        sliderId = sliderContainer.id;
-      }
-
       // wrap slider with ".tiny-slider"
       sliderWrapper.className = 'tiny-slider';
       gn.wrap(sliderContainer, sliderWrapper);
+
+      sliderContainer.classList.add('tiny-content', transform);
 
       // for IE10
       if (navigator.msMaxTouchPoints) {
@@ -776,7 +769,13 @@ var tinySlider = (function () {
         sliderWrapper.addEventListener('scroll', ie10Scroll, false);
       }
 
-      // add slide id
+      // add slider id
+      if (sliderContainer.id.length === 0) {
+        sliderContainer.id = sliderId = getSliderId();
+      } else {
+        sliderId = sliderContainer.id;
+      }
+      
       for (var x = 0; x < slideCount; x++) {
         slideItems[x].id = sliderId + 'item' + x;
       }
@@ -1000,9 +999,8 @@ var tinySlider = (function () {
     function render() {
       // get variables
       items = getItems();
-      if (slideCount <= items) { 
-        loop = rewind = nav = controls = slideByPage = false;
-      }
+      // check if items is less than slidecount
+      if (slideCount <= items) { loop = rewind = nav = controls = slideByPage = false; }
       slideWidth = getSlideWidth();
       navCountVisible = getVisibleNavCount();
 
