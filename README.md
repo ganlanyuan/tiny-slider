@@ -92,12 +92,15 @@ Default:
 ```javascript
 {
   container: document.querySelector('.slider'),
+  transform: 'horizontal',
   items: 1,
   gutter: 0,
   gutterPosition: 'right',
+  edgePadding: 0,
   fixedWidth: false,
-  maxContainerWidth: false,
+  // maxContainerWidth: false,
   slideByPage: false,
+  slideBy: 1,
   controls: true,
   controlsText: ['prev', 'next'],
   controlsContainer: false,
@@ -117,6 +120,7 @@ Default:
   rewind: false
 }
 ```
+**Note:** `maxContainerWidth` has been removed. `slideByPage` will be removed from version 1.
 
 #### Padding
 <del>There is no option for `padding`, but you can add it by css </del>
