@@ -19,9 +19,11 @@ npm install tiny-slider
 - responsive
 - fixed width
 - gutter
+- edge padding (center)
 - loop
 - rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
 - slide by page
+- slide by
 - customize controls / nav
 - autoplay
 - auto height
