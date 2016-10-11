@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.5.0
+  * @version 0.6.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -1068,6 +1068,7 @@ var tinySlider = (function () {
       }
     }
   }
+  
   function removeAttrs(els, attrs) {
     els = (gn.isNodeList(els)) ? els : [els];
     attrs = (attrs instanceof Array) ? attrs : [attrs];
@@ -1079,6 +1080,7 @@ var tinySlider = (function () {
       }
     }
   }
+
   function removeEvents(el) {
     var elClone = el.cloneNode(true), parent = el.parentNode;
     parent.insertBefore(elClone, el);

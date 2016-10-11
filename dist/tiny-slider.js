@@ -570,7 +570,7 @@ gn.unwrap = function (els) {
 };
 /**
   * tiny-slider
-  * @version 0.5.0
+  * @version 0.6.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/

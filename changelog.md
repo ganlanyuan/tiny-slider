@@ -27,13 +27,13 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
 
-<!-- #### v0.6.0
+#### v0.6.0
 - Added: `edgePadding` option.
 - Added: `slideBy` option.
 - Removed: `maxContainerWidth` option.
 - Fixed: an `arrowKeys` issue when `rewind` is set to true.
 - Improved: nav, controls will be hidden if slide items are fewer or equal to `items`.
- -->
+
 #### v0.5.0
 - Added: `rewind` option. Thank [faboulaws](https://github.com/ganlanyuan/tiny-slider/pull/10).
 
