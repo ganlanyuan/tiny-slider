@@ -289,11 +289,13 @@ var tinySlider = (function () {
           }
 
           navInit = true;
-        } else if (navContainer.hasAttribute('hidden')) {
+        } else if (navContainer && navContainer.hasAttribute('hidden')) {
           removeAttrs(navContainer, 'hidden');
         }
-      } else if (navInit && !navContainer.hasAttribute('hidden')) {
-        setAttrs(navContainer, {'hidden': 'true'});
+      } else if (navInit && navContainer && !navContainer.hasAttribute('hidden')) {
+        // console.log(nav, navInit, navContainer.hasAttribute('hidden'));
+        navContainer.setAttribute('hidden', 'true');
+        // setAttrs(navContainer, {'hidden': 'true'});
       }
     }
 
@@ -631,32 +633,22 @@ var tinySlider = (function () {
 
     // set 'disabled' to true on controls when reach the edge
     function updateControlsStatus() {
-      if (slideCount > items) {
-        if (index === 0) {
-          prevButton.disabled = true;
-          changeFocus(prevButton, nextButton);
-        } else {
-          prevButton.disabled = false;
-        }
-
-        if (!rewind && index === slideCount - items) {
-          nextButton.disabled = true;
-          changeFocus(nextButton, prevButton);
-        } else {
-          nextButton.disabled = false;
-        }
-      } else {
-        if (index !== 0) {
-          index = 0;
-          translate();
-        }
-
+      if (index === 0) {
         prevButton.disabled = true;
-        nextButton.disabled = true;
         prevButton.setAttribute('tabindex', '-1');
+        nextButton.setAttribute('tabindex', '0');
+        changeFocus(prevButton, nextButton);
+      } else {
+        prevButton.disabled = false;
+      }
+
+      if (!rewind && index === slideCount - items) {
+        nextButton.disabled = true;
         nextButton.setAttribute('tabindex', '-1');
-        if (prevButton === document.activeElement) { prevButton.blur(); }
-        if (nextButton === document.activeElement) { nextButton.blur(); }
+        prevButton.setAttribute('tabindex', '0');
+        changeFocus(nextButton, prevButton);
+      } else {
+        nextButton.disabled = false;
       }
     }
 
@@ -812,22 +804,31 @@ var tinySlider = (function () {
       var code = e.keyCode,
           curElement = document.activeElement;
 
-      if (code === KEY.LEFT || code === KEY.UP || code === KEY.HOME || code === KEY.PAGEUP) {
-        if (curElement !== prevButton && prevButton.disabled !== true) {
-          changeFocus(curElement, prevButton);
-        }
-      }
-      if (code === KEY.RIGHT || code === KEY.DOWN || code === KEY.END || code === KEY.PAGEDOWN) {
-        if (curElement !== nextButton && nextButton.disabled !== true) {
-          changeFocus(curElement, nextButton);
-        }
-      }
-      if (code === KEY.ENTER || code === KEY.SPACE) {
-        if (curElement === nextButton) {
-          onClickControlNext();
-        } else {
-          onClickControlPrev();
-        }
+      switch (code) {
+        case KEY.LEFT:
+        case KEY.UP:
+        case KEY.HOME:
+        case KEY.PAGEUP:
+          if (curElement !== prevButton && prevButton.disabled !== true) {
+            changeFocus(curElement, prevButton);
+          }
+          break;
+        case KEY.RIGHT:
+        case KEY.DOWN:
+        case KEY.END:
+        case KEY.PAGEDOWN:
+          if (curElement !== nextButton && nextButton.disabled !== true) {
+            changeFocus(curElement, nextButton);
+          }
+          break;
+        case KEY.ENTER:
+        case KEY.SPACE:
+          if (curElement === nextButton) {
+            onClickControlNext();
+          } else {
+            onClickControlPrev();
+          }
+          break;
       }
     }
 
@@ -835,30 +836,30 @@ var tinySlider = (function () {
     function onKeyNav(e) {
       e = e || window.event;
       var code = e.keyCode,
-          curElement = document.activeElement;
+          curElement = document.activeElement,
+          dataSlide = curElement.getAttribute('data-slide');
 
-      if (code === KEY.LEFT || code === KEY.PAGEUP) {
-        if (curElement.getAttribute('data-slide') > 0) {
-          changeFocus(curElement, curElement.previousElementSibling);
-        }
-      }
-      if (code === KEY.UP || code === KEY.HOME) {
-        if (curElement.getAttribute('data-slide') !== 0) {
-          changeFocus(curElement, allNavs[0]);
-        }
-      }
-      if (code === KEY.RIGHT || code === KEY.PAGEDOWN) {
-        if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
-          changeFocus(curElement, curElement.nextElementSibling);
-        }
-      }
-      if (code === KEY.DOWN || code === KEY.END) {
-        if (curElement.getAttribute('data-slide') < navCountVisible - 1) {
-          changeFocus(curElement, allNavs[navCountVisible - 1]);
-        }
-      }
-      if (code === KEY.ENTER || code === KEY.SPACE) {
-        onClickNav(e);
+      switch(code) {
+        case KEY.LEFT:
+        case KEY.PAGEUP:
+          if (dataSlide > 0) { changeFocus(curElement, curElement.previousElementSibling); }
+          break;
+        case KEY.UP:
+        case KEY.HOME:
+          if (dataSlide !== 0) { changeFocus(curElement, allNavs[0]); }
+          break;
+        case KEY.RIGHT:
+        case KEY.PAGEDOWN:
+          if (dataSlide < navCountVisible - 1) { changeFocus(curElement, curElement.nextElementSibling); }
+          break;
+        case KEY.DOWN:
+        case KEY.END:
+          if (dataSlide < navCountVisible - 1) { changeFocus(curElement, allNavs[navCountVisible - 1]); }
+          break;
+        case KEY.ENTER:
+        case KEY.SPACE:
+          onClickNav(e);
+          break;
       }
     }
 
@@ -1068,6 +1069,7 @@ var tinySlider = (function () {
       }
     }
   }
+
   function removeAttrs(els, attrs) {
     els = (gn.isNodeList(els)) ? els : [els];
     attrs = (attrs instanceof Array) ? attrs : [attrs];
@@ -1079,6 +1081,7 @@ var tinySlider = (function () {
       }
     }
   }
+
   function removeEvents(el) {
     var elClone = el.cloneNode(true), parent = el.parentNode;
     parent.insertBefore(elClone, el);
