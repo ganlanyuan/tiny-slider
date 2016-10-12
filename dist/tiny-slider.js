@@ -685,9 +685,13 @@ var tinySlider = (function () {
         allNavs,
         navCount,
         navCountVisible,
-        navCountVisibleCache,
+        navCountVisibleCached = slideCount,
         navClicked = -1,
+        navCurrent = 0,
+        navCurrentCached = 0,
         index = 0,
+        current,
+        currentCached = cloneCount + index,
         resizeTimer,
         navInit = false,
         controlsInit = false,
@@ -748,7 +752,7 @@ var tinySlider = (function () {
       }
     })();
 
-    var getCurrent = function () { return index + cloneCount; };
+    var getCurrent = function () { return cloneCount + index; };
 
     function containerInit() {
       sliderWrapper.className = 'tiny-slider';
@@ -794,8 +798,8 @@ var tinySlider = (function () {
               cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
 
           // remove id from cloned slides
-          cloneFirst.id = '';
-          cloneLast.id = '';
+          removeAttrs(cloneFirst, 'id');
+          removeAttrs(cloneLast, 'id');
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
           fragmentAfter.appendChild(cloneLast);
@@ -848,6 +852,7 @@ var tinySlider = (function () {
           allNavs = navContainer.querySelectorAll('[data-slide]');
           navCount = allNavs.length;
 
+          // for customized nav container
           if (!hasAttr(navContainer, 'aria-label')) {
             setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
             setAttrs(allNavs, {
@@ -857,6 +862,13 @@ var tinySlider = (function () {
             });
           }
 
+          // reset the first nav to be visible
+          setAttrs(allNavs[0], {
+            'tabindex': '0',
+            'aria-selected': 'true',
+          });
+
+          // add click and keydown events
           for (var y = 0; y < navCount; y++) {
             allNavs[y].addEventListener('click', onClickNav, false);
             allNavs[y].addEventListener('keydown', onKeyNav, false);
@@ -982,40 +994,14 @@ var tinySlider = (function () {
       layoutInit = true;
     }
 
-    // check if an image is loaded
-    // 1. See if "naturalWidth" and "naturalHeight" properties are available.
-    // 2. See if "complete" property is available.
-    function imageLoaded(img) {
-      if (typeof img.complete === 'boolean') {
-        return img.complete;
-      } else if (typeof img.naturalWidth === 'number') {
-        return img.naturalWidth !== 0;
-      }
-    }
-
-    function checkImagesLoaded(images) {
-      for (var i = images.length; i--;) {
-        if (imageLoaded(images[i])) {
-          images.splice(i, 1);
-        }
-      }
-
-      if (images.length === 0) {
-        updateContainerHeight();
-      } else {
-        setTimeout(function () { 
-          checkImagesLoaded(images); 
-        }, 16);
-      }
-    } 
-
     // update container height
     // 1. get the max-height of the visible slides
     // 2. set transitionDuration to speed
     // 3. update container height to max-height
     // 4. set transitionDuration to 0s after transition done
     function updateContainerHeight() {
-      var current = getCurrent(), heights = [], maxHeight;
+      var heights = [], maxHeight;
+      current = getCurrent();
       for (var i = current - indexAdjust; i < current + items; i++) {
         heights.push(slideItems[i].offsetHeight);
       }
@@ -1038,17 +1024,18 @@ var tinySlider = (function () {
     // show or hide nav.
     // doesn't work on customized nav.
     function updateNavDisplay() {
-      if (nav && !options.navContainer) {
-        for (var i = 0; i < navCountVisible; i++) {
-          removeAttrs(allNavs[i], 'hidden');
-        }
-        for (var j = navCountVisible; j < navCount; j++) {
-          var navTem = allNavs[j];
-          if (!hasAttr(navTem, 'hidden')) {
-            setAttrs(navTem, {'hidden': ''});
+      if (navCountVisible !== navCountVisibleCached) {
+        if (navCountVisible > navCountVisibleCached) {
+          for (var i = navCountVisibleCached; i < navCountVisible; i++) {
+            removeAttrs(allNavs[i], 'hidden');
+          }
+        } else {
+          for (var i = navCountVisible; i < navCountVisibleCached; i++) {
+            setAttrs(allNavs[i], {'hidden': ''});
           }
         }
       }
+      navCountVisibleCached = navCountVisible;
     }
 
     // # RENDER
@@ -1147,7 +1134,7 @@ var tinySlider = (function () {
     // update slide
     // set aria-hidden
     function updateSlideStatus() {
-      var current = getCurrent();
+      current = getCurrent();
 
       for (var i = slideCountUpdated; i--;) {
         var slideTem = slideItems[i];
@@ -1162,65 +1149,60 @@ var tinySlider = (function () {
           }
         }
       }
+
+      currentCached = current;
+    }
+
+    // get current nav
+    function getNavCurrent() {
+      var navCurrentTem;
+      if (navClicked === -1) {
+        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
+        navCurrentTem = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+
+        // non-loop & reach the edge
+        if (!loop && !options.navContainer && (slideCount / items)%1 !== 0 && index === slideCount - items) { navCurrentTem += 1; }
+      } else {
+        navCurrentTem = navClicked;
+        navClicked = -1;
+      }
+
+      return navCurrentTem;
     }
 
     // set tabindex & aria-selected on Nav
     function updateNavStatus() {
-      var navCurrent;
-      if (navClicked === -1) {
-        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
-        navCurrent = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+      navCurrent = getNavCurrent();
 
-        // non-loop & reach the edge
-        if (!loop && !options.navContainer) {
-          var re=/^-?[0-9]+$/, integer = re.test(slideCount / items);
-          if(!integer && index === slideCount - items) {
-            navCurrent += 1;
-          }
-        }
-      } else {
-        navCurrent = navClicked;
-        navClicked = -1;
-      }
+      if (navCurrent !== navCurrentCached) {
+        setAttrs(allNavs[navCurrentCached], {
+          'tabindex': '-1',
+          'aria-selected': 'false'
+        });
 
-      for (var i = navCountVisible; i--;) {
-        var navTem = allNavs[i];
-
-        if (i === navCurrent) {
-          if (getAttr(navTem, 'aria-selected') === 'false') {
-            setAttrs(navTem, {
-              'tabindex': '0',
-              'aria-selected': 'true'
-            });
-          }
-        } else {
-          if (getAttr(navTem, 'aria-selected') === 'true') {
-            setAttrs(navTem, {
-              'tabindex': '-1',
-              'aria-selected': 'false'
-            });
-          }
-        }
+        setAttrs(allNavs[navCurrent], {
+          'tabindex': '0',
+          'aria-selected': 'true'
+        });
+        navCurrentCached = navCurrent;
       }
     }
 
     // set 'disabled' to true on controls when reach the edge
     function updateControlsStatus() {
-      if (index === 0) {
-        prevButton.disabled = true;
-        prevButton.setAttribute('tabindex', '-1');
-        nextButton.setAttribute('tabindex', '0');
-        changeFocus(prevButton, nextButton);
+      if (index === 0 || !rewind && index === slideCount - items) {
+        var inactive = (index === 0) ? prevButton : nextButton,
+            active = (index === 0) ? nextButton : prevButton;
+
+        changeFocus(inactive, active);
+        
+        inactive.disabled = true;
+        setAttrs(inactive, {'tabindex': '-1'});
+
+        active.disabled = false;
+        setAttrs(active, {'tabindex': '0'});
       } else {
         prevButton.disabled = false;
-      }
-
-      if (!rewind && index === slideCount - items) {
-        nextButton.disabled = true;
-        nextButton.setAttribute('tabindex', '-1');
-        prevButton.setAttribute('tabindex', '0');
-        changeFocus(nextButton, prevButton);
-      } else {
         nextButton.disabled = false;
       }
     }
@@ -1245,18 +1227,17 @@ var tinySlider = (function () {
       }
     }
 
-    // check if all visibel images are loaded
+    // check if all visible images are loaded
     // and update container height if it's done
     function runAutoHeight() {
       // get all images inside visible slider items
-      var current = getCurrent(), images = [];
+      var images = [];
+      current = getCurrent();
 
-      for (var i = slideCountUpdated; i--;) {
-        if (i >= current -1 && i <= current + items) {
-          var imagesTem = slideItems[i].querySelectorAll('img');
-          for (var j = imagesTem.length; j--;) {
-            images.push(imagesTem[j]);
-          }
+      for (var i = current -1; i < current + items; i++) {
+        var imagesTem = slideItems[i].querySelectorAll('img');
+        for (var j = imagesTem.length; j--;) {
+          images.push(imagesTem[j]);
         }
       }
 
@@ -1266,6 +1247,33 @@ var tinySlider = (function () {
         checkImagesLoaded(images);
       }
     }
+
+    // check if an image is loaded
+    // 1. See if "naturalWidth" and "naturalHeight" properties are available.
+    // 2. See if "complete" property is available.
+    function imageLoaded(img) {
+      if (typeof img.complete === 'boolean') {
+        return img.complete;
+      } else if (typeof img.naturalWidth === 'number') {
+        return img.naturalWidth !== 0;
+      }
+    }
+
+    function checkImagesLoaded(images) {
+      for (var i = images.length; i--;) {
+        if (imageLoaded(images[i])) {
+          images.splice(i, 1);
+        }
+      }
+
+      if (images.length === 0) {
+        updateContainerHeight();
+      } else {
+        setTimeout(function () { 
+          checkImagesLoaded(images); 
+        }, 16);
+      }
+    } 
 
     // # ACTIONS
     // on controls click
@@ -1360,11 +1368,11 @@ var tinySlider = (function () {
 
     // change focus
     function changeFocus(blur, focus) {
-      if (typeof blur === 'object' && typeof focus === 'object') {
-        if (blur === document.activeElement) {
-          blur.blur();
-          focus.focus();
-        }
+      if (typeof blur === 'object' && 
+          typeof focus === 'object' && 
+          blur === document.activeElement) {
+        blur.blur();
+        focus.focus();
       }
     }
 
