@@ -27,6 +27,9 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
 
+#### v0.6.1
+- Fixed: a syntax issue in function `setAttrs`.
+
 #### v0.6.0
 - Added: `edgePadding` option.
 - Added: `slideBy` option.

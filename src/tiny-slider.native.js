@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.6.0
+  * @version 0.6.1
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -293,9 +293,7 @@ var tinySlider = (function () {
           removeAttrs(navContainer, 'hidden');
         }
       } else if (navInit && navContainer && !navContainer.hasAttribute('hidden')) {
-        // console.log(nav, navInit, navContainer.hasAttribute('hidden'));
-        navContainer.setAttribute('hidden', 'true');
-        // setAttrs(navContainer, {'hidden': 'true'});
+        setAttrs(navContainer, {'hidden': 'true'});
       }
     }
 
@@ -377,7 +375,7 @@ var tinySlider = (function () {
     function updateLayout() {
       // update slider container width
       if (!layoutInit || responsive) {
-        sliderContainer.style.width = slideWidth * slideCountUpdated + 'px';
+        sliderContainer.style.width = (slideWidth + 1) * slideCountUpdated + 'px'; // + 1: fixed half-pixel issue
       }
 
       // update edge padding
@@ -1061,7 +1059,7 @@ var tinySlider = (function () {
 
   function setAttrs(els, attrs) {
     els = (gn.isNodeList(els)) ? els : [els];
-    if (Object.prototype.toString.call(attrs) !== '[object object]') { return; }
+    if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
 
     for (var i = els.length; i--;) {
       for(var key in attrs) {
