@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.6.1
+  * @version 0.6.2
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/

@@ -570,7 +570,7 @@ gn.unwrap = function (els) {
 };
 /**
   * tiny-slider
-  * @version 0.6.1
+  * @version 0.6.2
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -1446,7 +1446,6 @@ var tinySlider = (function () {
     // IE10 scroll function
     function ie10Scroll() {
       setTransitionDuration(0);
-      // sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
       translate(sliderContainer.scrollLeft());
     }
 

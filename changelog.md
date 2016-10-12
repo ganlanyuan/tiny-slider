@@ -27,6 +27,10 @@ class `tiny-next` => attribute `[data-controls="next"`.
 - Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
  -->
 
+#### v0.6.2
+- Fixed: a conditional statement issue in function `updateLayout`.
+- Improved: performance.
+
 #### v0.6.1
 - Fixed: a syntax issue in function `setAttrs`.
 
