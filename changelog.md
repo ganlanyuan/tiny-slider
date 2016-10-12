@@ -1,32 +1,5 @@
 # Changelog
 
-<!-- #### v1.0.0 beta
-- Totally rewrite with a simple function, co-work with [go-native](https://github.com/ganlanyuan/go-native).
-- Added: [accessibility](https://www.w3.org/WAI/EO/Drafts/tutorials/carousels/) support for people using keyboard navigation or screen readers.    
-Thank [DouglasdeMoura](https://github.com/DouglasdeMoura) and [epigeyre](https://github.com/epigeyre) for the idea. [[issue 4]](https://github.com/ganlanyuan/tiny-slider/issues/4)
-- Added: `autoHeight` option.
-- Added: `autoplay` pause function.
-- Added: `destory` method;
-- Improved: optimize scroll and resize events.
-- Renamed options:   
-`nav` => `controls`,   
-`navText` => `controlsText`,   
-`navContainer` => `controlsContainer`,   
-`dots` => `nav`,   
-`dotsContainer` => `navContainer`.
-- Renamed class names:   
-`tiny-current` => `current`,   
-`tiny-visible` => `visible`,   
-`tiny-active` => `active`,   
-class `tiny-hide` => attribute `[hidden]`,   
-class `disabled` => attribute `[disable]`,   
-class `tiny-prev` => attribute `[data-controls="prev"`,   
-class `tiny-next` => attribute `[data-controls="next"`.
-- Removed: `offset`.
-- Fixed: an issue that navs are still active when slides cann't fill their parent.
-- Fixed: an issue with `items`, when container width is shorter than one slide in fixedWidth slider.
- -->
-
 #### v0.6.2
 - Fixed: a conditional statement issue in function `updateLayout`.
 - Improved: performance.
