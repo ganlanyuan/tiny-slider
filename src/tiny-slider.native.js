@@ -532,12 +532,14 @@ var tinySlider = (function () {
     // 2. change 'left' property for legacy browsers
     var translate = (function () {
       if (TRANSFORM) {
-        return function () {
-          sliderContainer.style[TRANSFORM] = 'translate3d(' + (- slideWidth * index) + 'px, 0, 0)';
+        return function (distance) {
+          var x = distance || -slideWidth * index;
+          sliderContainer.style[TRANSFORM] = 'translate3d(' + x + 'px, 0, 0)';
         };
       } else {
-        return function () {
-          sliderContainer.style.left = (- slideWidth * index) + 'px';
+        return function (distance) {
+          var x = distance || -slideWidth * index;
+          sliderContainer.style.left = x + 'px';
         };
       }
     })();
@@ -625,7 +627,7 @@ var tinySlider = (function () {
             active = (index === 0) ? nextButton : prevButton;
 
         changeFocus(inactive, active);
-        
+
         inactive.disabled = true;
         setAttrs(inactive, {'tabindex': '-1'});
 
@@ -873,8 +875,8 @@ var tinySlider = (function () {
 
     // IE10 scroll function
     function ie10Scroll() {
-      sliderContainer.style[TRANSITIONDURATION] = '0s';
-      sliderContainer.style.transform = 'translate3d(-' + - sliderContainer.scrollLeft() + 'px,0,0)';
+      setTransitionDuration(0);
+      translate(sliderContainer.scrollLeft());
     }
 
     function onPanStart(e) {
@@ -893,8 +895,6 @@ var tinySlider = (function () {
 
       if (panDir === 'horizontal' && running === false) { run = true; }
       if (run) {
-        if (TRANSITIONDURATION) { sliderContainer.style[TRANSITIONDURATION] = '0s'; }
-
         var min = (!loop) ? - (slideCount - items) * slideWidth : - (slideCount + cloneCount - items) * slideWidth,
             max = (!loop) ? 0 : cloneCount * slideWidth;
 
@@ -903,12 +903,8 @@ var tinySlider = (function () {
         translateX = - index * slideWidth + distX;
         translateX = Math.max(min, Math.min( translateX, max));
 
-        if (TRANSFORM) {
-          sliderContainer.style[TRANSFORM] = 'translate3d(' + translateX + 'px, 0, 0)';
-        } else {
-          sliderContainer.style.left = translateX + 'px';
-        }
-
+        setTransitionDuration(0);
+        translate(translateX);
         e.preventDefault();
       }
     }
