@@ -66,12 +66,7 @@ var tinySlider = (function () {
     }, options || {});
 
     // make sure slider container exists
-    if (typeof options.container !== 'object' || options.container === null) { 
-      return {
-        init: function () { return; },
-        destory: function () { return; }
-      }; 
-    }
+    if (typeof options.container !== 'object' || options.container === null) { return; }
 
     // === define and set variables ===
     var transform = options.transform,
@@ -208,7 +203,7 @@ var tinySlider = (function () {
     // add ids
     function addIds() {
       if (sliderContainer.id === '') {
-        sliderContainer.id = sliderId = getSliderId();
+        sliderContainer.id = sliderId = _getSliderId();
       } else {
         sliderId = sliderContainer.id;
       }
@@ -228,8 +223,8 @@ var tinySlider = (function () {
               cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
 
           // remove id from cloned slides
-          removeAttrs(cloneFirst, 'id');
-          removeAttrs(cloneLast, 'id');
+          _removeAttrs(cloneFirst, 'id');
+          _removeAttrs(cloneLast, 'id');
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
           fragmentAfter.appendChild(cloneLast);
@@ -283,9 +278,9 @@ var tinySlider = (function () {
           navCount = allNavs.length;
 
           // for customized nav container
-          if (!hasAttr(navContainer, 'aria-label')) {
-            setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
-            setAttrs(allNavs, {
+          if (!_hasAttr(navContainer, 'aria-label')) {
+            _setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
+            _setAttrs(allNavs, {
               'tabindex': '-1',
               'aria-selected': 'false',
               'aria-controls': sliderId + 'item' + y,
@@ -293,7 +288,7 @@ var tinySlider = (function () {
           }
 
           // reset the first nav to be visible
-          setAttrs(allNavs[0], {
+          _setAttrs(allNavs[0], {
             'tabindex': '0',
             'aria-selected': 'true',
           });
@@ -305,11 +300,11 @@ var tinySlider = (function () {
           }
 
           navInit = true;
-        } else if (navContainer && hasAttr(navContainer, 'hidden')) {
-          removeAttrs(navContainer, 'hidden');
+        } else if (navContainer && _hasAttr(navContainer, 'hidden')) {
+          _removeAttrs(navContainer, 'hidden');
         }
-      } else if (navInit && navContainer && !hasAttr(navContainer, 'hidden')) {
-        setAttrs(navContainer, {'hidden': 'true'});
+      } else if (navInit && navContainer && !_hasAttr(navContainer, 'hidden')) {
+        _setAttrs(navContainer, {'hidden': 'true'});
       }
     }
 
@@ -325,13 +320,13 @@ var tinySlider = (function () {
           prevButton = controlsContainer.querySelector('[data-controls="prev"]');
           nextButton = controlsContainer.querySelector('[data-controls="next"]');
 
-          if (!hasAttr(controlsContainer, 'tabindex')) {
-            setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
-            setAttrs(controlsContainer.children, {
+          if (!_hasAttr(controlsContainer, 'tabindex')) {
+            _setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
+            _setAttrs(controlsContainer.children, {
               'aria-controls': sliderId,
               'tabindex': '-1',
             });
-            setAttrs(nextButton, {
+            _setAttrs(nextButton, {
               'tabindex': '0',
             });
           }
@@ -344,11 +339,11 @@ var tinySlider = (function () {
           nextButton.addEventListener('keydown', onKeyControl, false);
 
           controlsInit = true;
-        } else if (hasAttr(controlsContainer, 'hidden')) {
-          removeAttrs(controlsContainer, 'hidden');
+        } else if (_hasAttr(controlsContainer, 'hidden')) {
+          _removeAttrs(controlsContainer, 'hidden');
         }
-      } else if (controlsInit && !hasAttr(controlsContainer, 'hidden')) {
-        setAttrs(controlsContainer, {'hidden': 'true'});
+      } else if (controlsInit && !_hasAttr(controlsContainer, 'hidden')) {
+        _setAttrs(controlsContainer, {'hidden': 'true'});
       }
     }
 
@@ -376,11 +371,11 @@ var tinySlider = (function () {
           }
 
           autoplayInit = true;
-        } else if (hasAttr(autoplayButton, 'hidden')) {
-          removeAttrs(autoplayButton, 'hidden');
+        } else if (_hasAttr(autoplayButton, 'hidden')) {
+          _removeAttrs(autoplayButton, 'hidden');
         }
-      } else if (autoplayInit && !hasAttr(autoplayButton, 'hidden')) {
-        setAttrs(autoplayButton, {'hidden': 'true'});
+      } else if (autoplayInit && !_hasAttr(autoplayButton, 'hidden')) {
+        _setAttrs(autoplayButton, {'hidden': 'true'});
       }
     }
 
@@ -457,11 +452,11 @@ var tinySlider = (function () {
       if (navCountVisible !== navCountVisibleCached) {
         if (navCountVisible > navCountVisibleCached) {
           for (var i = navCountVisibleCached; i < navCountVisible; i++) {
-            removeAttrs(allNavs[i], 'hidden');
+            _removeAttrs(allNavs[i], 'hidden');
           }
         } else {
           for (var i = navCountVisible; i < navCountVisibleCached; i++) {
-            setAttrs(allNavs[i], {'hidden': ''});
+            _setAttrs(allNavs[i], {'hidden': ''});
           }
         }
       }
@@ -572,12 +567,12 @@ var tinySlider = (function () {
         var slideTem = slideItems[i];
 
         if (i >= current && i < current + items) {
-          if (!hasAttr(slideTem, 'aria-hidden') || getAttr(slideTem, 'aria-hidden') === 'true') {
-            setAttrs(slideTem, {'aria-hidden': 'false'});
+          if (!_hasAttr(slideTem, 'aria-hidden') || _getAttr(slideTem, 'aria-hidden') === 'true') {
+            _setAttrs(slideTem, {'aria-hidden': 'false'});
           }
         } else {
-          if (!hasAttr(slideTem, 'aria-hidden') || getAttr(slideTem, 'aria-hidden') === 'false') {
-            setAttrs(slideTem, {'aria-hidden': 'true'});
+          if (!_hasAttr(slideTem, 'aria-hidden') || _getAttr(slideTem, 'aria-hidden') === 'false') {
+            _setAttrs(slideTem, {'aria-hidden': 'true'});
           }
         }
       }
@@ -593,7 +588,7 @@ var tinySlider = (function () {
         navCurrentTem = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
 
         // non-loop & reach the edge
-        if (!loop && !options.navContainer && (slideCount / items)%1 !== 0 && index === slideCount - items) { navCurrentTem += 1; }
+        if (!loop && !options.navContainer && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
       } else {
         navCurrentTem = navClicked;
         navClicked = -1;
@@ -607,12 +602,12 @@ var tinySlider = (function () {
       navCurrent = getNavCurrent();
 
       if (navCurrent !== navCurrentCached) {
-        setAttrs(allNavs[navCurrentCached], {
+        _setAttrs(allNavs[navCurrentCached], {
           'tabindex': '-1',
           'aria-selected': 'false'
         });
 
-        setAttrs(allNavs[navCurrent], {
+        _setAttrs(allNavs[navCurrent], {
           'tabindex': '0',
           'aria-selected': 'true'
         });
@@ -629,10 +624,10 @@ var tinySlider = (function () {
         changeFocus(inactive, active);
 
         inactive.disabled = true;
-        setAttrs(inactive, {'tabindex': '-1'});
+        _setAttrs(inactive, {'tabindex': '-1'});
 
         active.disabled = false;
-        setAttrs(active, {'tabindex': '0'});
+        _setAttrs(active, {'tabindex': '0'});
       } else {
         prevButton.disabled = false;
         nextButton.disabled = false;
@@ -653,7 +648,7 @@ var tinySlider = (function () {
       for (var h = arr.length; h--;) {
         var img = arr[h];
         if (!img.classList.contains('loaded')) {
-          img.src = getAttr(img, 'data-src');
+          img.src = _getAttr(img, 'data-src');
           img.classList.add('loaded');
         }
       }
@@ -742,7 +737,7 @@ var tinySlider = (function () {
           clickTarget = clickTarget.parentNode;
         }
 
-        navClicked = navIndex = Number(getAttr(clickTarget, 'data-slide'));
+        navClicked = navIndex = Number(_getAttr(clickTarget, 'data-slide'));
 
         var indexTem, indexGap;
         indexTem = (options.navContainer) ? navIndex : navIndex * items;
@@ -847,7 +842,7 @@ var tinySlider = (function () {
       e = e || window.event;
       var code = e.keyCode,
           curElement = document.activeElement,
-          dataSlide = getAttr(curElement, 'data-slide');
+          dataSlide = _getAttr(curElement, 'data-slide');
 
       switch(code) {
         case KEY.LEFT:
@@ -890,10 +885,8 @@ var tinySlider = (function () {
       distX = parseInt(touchObj.clientX) - startX;
       distY = parseInt(touchObj.clientY) - startY;
 
-      var rotate = toDegree(Math.atan2(distY, distX)),
-          panDir = getPanDir(rotate, 15);
-
-      if (panDir === 'horizontal' && running === false) { run = true; }
+      var panDirection = _getPanDirection(_toDegree(distY, distX), 15);
+      if (panDirection === 'horizontal' && running === false) { run = true; }
       if (run) {
         var min = (!loop) ? - (slideCount - items) * slideWidth : - (slideCount + cloneCount - items) * slideWidth,
             max = (!loop) ? 0 : cloneCount * slideWidth;
@@ -974,7 +967,7 @@ var tinySlider = (function () {
 
         // sliderContainer
         sliderContainer.classList.remove('tiny-content', transform);
-        removeAttrs(sliderContainer, ['id', 'style']);
+        _removeAttrs(sliderContainer, ['id', 'style']);
 
         // cloned items
         if (loop) {
@@ -985,7 +978,7 @@ var tinySlider = (function () {
         }
 
         // Slide Items
-        removeAttrs(slideItems, ['id', 'style', 'aria-hidden']);
+        _removeAttrs(slideItems, ['id', 'style', 'aria-hidden']);
         sliderId = slideCount = null;
 
         // controls
@@ -994,9 +987,9 @@ var tinySlider = (function () {
             controlsContainer.remove();
             controlsContainer = prevButton = nextButton = null;
           } else {
-            removeAttrs(controlsContainer, ['aria-label']);
-            removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
-            removeEvents(controlsContainer);
+            _removeAttrs(controlsContainer, ['aria-label']);
+            _removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
+            _removeEvents(controlsContainer);
           }
         }
 
@@ -1006,9 +999,9 @@ var tinySlider = (function () {
             navContainer.remove();
             navContainer = null;
           } else {
-            removeAttrs(navContainer, ['aria-label']);
-            removeAttrs(allNavs, ['aria-selected', 'aria-controls', 'tabindex']);
-            removeEvents(navContainer);
+            _removeAttrs(navContainer, ['aria-label']);
+            _removeAttrs(allNavs, ['aria-selected', 'aria-controls', 'tabindex']);
+            _removeEvents(navContainer);
           }
           allNavs = navCount = null;
         }
@@ -1019,13 +1012,13 @@ var tinySlider = (function () {
             navContainer.remove();
             navContainer = null;
           } else {
-            removeEvents(autoplayButton);
+            _removeEvents(autoplayButton);
           }
         }
 
         // remove slider container events at the end
         // because this will make sliderContainer = null
-        if (touch) { removeEvents(sliderContainer); }
+        if (touch) { _removeEvents(sliderContainer); }
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
@@ -1035,12 +1028,14 @@ var tinySlider = (function () {
         // remove window event listeners
         window.removeEventListener('resize', onResize, false);
         window.removeEventListener('scroll', onScroll, false);
-      }
+      },
+      // $ Private methods, for test only
+      // hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, nextButton: function () { return nextButton; }, index: function () { return index; },
     };
   }
 
   // === Private helper functions === //
-  function getSliderId() {
+  function _getSliderId() {
     if (window.tinySliderNumber === undefined) {
       window.tinySliderNumber = 1;
     } else {
@@ -1049,11 +1044,11 @@ var tinySlider = (function () {
     return 'tinySlider' + window.tinySliderNumber;
   }
 
-  function toDegree (angle) {
-    return angle * (180 / Math.PI);
+  function _toDegree (y, x) {
+    return Math.atan2(y, x) * (180 / Math.PI);
   }
 
-  function getPanDir(angle, range) {
+  function _getPanDirection(angle, range) {
     if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
       return 'horizontal';
     } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
@@ -1063,15 +1058,15 @@ var tinySlider = (function () {
     }
   }
 
-  function hasAttr(el, attr) {
+  function _hasAttr(el, attr) {
     return el.hasAttribute(attr);
   }
 
-  function getAttr(el, attr) {
+  function _getAttr(el, attr) {
     return el.getAttribute(attr);
   }
 
-  function setAttrs(els, attrs) {
+  function _setAttrs(els, attrs) {
     els = (gn.isNodeList(els)) ? els : [els];
     if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
 
@@ -1082,7 +1077,7 @@ var tinySlider = (function () {
     }
   }
 
-  function removeAttrs(els, attrs) {
+  function _removeAttrs(els, attrs) {
     els = (gn.isNodeList(els)) ? els : [els];
     attrs = (attrs instanceof Array) ? attrs : [attrs];
 
@@ -1094,7 +1089,7 @@ var tinySlider = (function () {
     }
   }
 
-  function removeEvents(el) {
+  function _removeEvents(el) {
     var elClone = el.cloneNode(true), parent = el.parentNode;
     parent.insertBefore(elClone, el);
     el.remove();
