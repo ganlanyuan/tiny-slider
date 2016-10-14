@@ -636,7 +636,12 @@ var tinySlider = (function () {
     }, options || {});
 
     // make sure slider container exists
-    if (typeof options.container !== 'object' || options.container === null) { return; }
+    if (typeof options.container !== 'object' || options.container === null) {
+      return {
+        init: function () {},
+        destory: function () {}
+      }; 
+    }
 
     // === define and set variables ===
     var transform = options.transform,
@@ -645,10 +650,9 @@ var tinySlider = (function () {
         sliderWrapper = document.createElement('div'),
         slideItems = sliderContainer.children,
         slideCount = slideItems.length,
-        slideCountUpdated = slideItems.length,
         gutter = options.gutter,
-        gutterPosition = (options.gutterPosition === 'right') ? 'marginRight' : 'marginLeft',
-        gapAdjust = (gutterPosition === 'marginLeft') ? gutter : 0,
+        gutterPosition = (options.gutterPosition === 'right') ? 'margin-right' : 'margin-left',
+        gapAdjust = (options.gutterPosition === 'left') ? gutter : 0,
         edgePadding = options.edgePadding,
         indexAdjust = (edgePadding) ? 1 : 0,
         fixedWidth = options.fixedWidth,
@@ -675,10 +679,10 @@ var tinySlider = (function () {
         sliderId,
         slideWidth,
         cloneCount = (loop) ? slideCount : (edgePadding) ? 1 : 0,
+        slideCountNew = slideCount + cloneCount * 2,
         prevButton,
         nextButton,
         allNavs,
-        navCount,
         navCountVisible,
         navCountVisibleCached = slideCount,
         navClicked = -1,
@@ -686,12 +690,7 @@ var tinySlider = (function () {
         navCurrentCached = 0,
         index = 0,
         current,
-        currentCached = cloneCount + index,
         resizeTimer,
-        navInit = false,
-        controlsInit = false,
-        autoplayInit = false,
-        layoutInit = false,
         running = false,
         ticking = false;
 
@@ -749,17 +748,23 @@ var tinySlider = (function () {
 
     var getCurrent = function () { return cloneCount + index; };
 
-    function containerInit() {
+    function wrapContainer() {
       sliderWrapper.className = 'tiny-slider';
       gn.wrap(sliderContainer, sliderWrapper);
-      sliderContainer.classList.add('tiny-content', transform);
+    }
 
-      if (touch) {
-        sliderContainer.addEventListener('touchstart', onPanStart, false);
-        sliderContainer.addEventListener('touchmove', onPanMove, false);
-        sliderContainer.addEventListener('touchend', onPanEnd, false);
-        sliderContainer.addEventListener('touchcancel', onPanEnd, false);
-      }
+    function getVariables() {
+      items = getItems();
+      slideWidth = getSlideWidth();
+      navCountVisible = getVisibleNavCount();
+      slideBy = (slideByPage || options.slideBy === 'page') ? items : options.slideBy;
+    }
+
+    function containerInit() {
+      sliderContainer.classList.add('tiny-content', transform);
+      sliderContainer.style.cssText = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
+          'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
+          'padding-left: ' + edgePadding + 'px';
     }
 
     // for IE10
@@ -782,8 +787,8 @@ var tinySlider = (function () {
       }
     }
 
-    // clone items
-    function cloneItems() {
+    function slideItemsInit() {
+      // clone slides
       if (loop || edgePadding) {
         var fragmentBefore = document.createDocumentFragment(), 
             fragmentAfter = document.createDocumentFragment();
@@ -803,190 +808,246 @@ var tinySlider = (function () {
         sliderContainer.appendChild(fragmentBefore);
         sliderContainer.insertBefore(fragmentAfter, sliderContainer.firstChild);
 
-        slideCountUpdated = sliderContainer.children.length;
         slideItems = sliderContainer.children;
+      }
+      _setAttrs(slideItems, {
+        'style': 'width: ' + (slideWidth - gutter) + 'px; ' + 
+                  gutterPosition + ': ' + gutter + 'px', 
+        'aria-hidden': 'true'
+      });
+    }
+
+    function controlsInit() {
+      if (controls) {
+        if (!options.controlsContainer) {
+          gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
+
+          controlsContainer = sliderWrapper.querySelector('.tiny-controls');
+        }
+
+        prevButton = controlsContainer.querySelector('[data-controls="prev"]');
+        nextButton = controlsContainer.querySelector('[data-controls="next"]');
+
+        if (!_hasAttr(controlsContainer, 'tabindex')) {
+          _setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
+          _setAttrs(controlsContainer.children, {
+            'aria-controls': sliderId,
+            'tabindex': '-1',
+          });
+        }
       }
     }
 
-    function updateVariables() {
-      items = getItems();
-      slideWidth = getSlideWidth();
-      navCountVisible = getVisibleNavCount();
-      slideBy = (slideByPage || options.slideBy === 'page') ? items : options.slideBy;
+    function navInit() {
+      if (nav) {
+        if (!options.navContainer) {
+          var navHtml = '';
+          for (var i = 0; i < slideCount; i++) {
+            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
+          }
+          if (autoplay) {
+            navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
+          }
+          navHtml = '<div class="tiny-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
+          gn.append(sliderWrapper, navHtml);
+          navContainer = sliderWrapper.querySelector('.tiny-nav');
+        }
+        allNavs = navContainer.querySelectorAll('[data-slide]');
+
+        // for customized nav container
+        if (!_hasAttr(navContainer, 'aria-label')) {
+          _setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
+          for (var y = 0; y < slideCount; y++) {
+            _setAttrs(allNavs[y], {
+              'tabindex': '-1',
+              'aria-selected': 'false',
+              'aria-controls': sliderId + 'item' + y,
+            });
+          }
+        }
+
+        for (var j = navCountVisible; j < slideCount; j++) {
+          _setAttrs(allNavs[j], {'hidden': ''});
+        }
+      }
+    }
+
+    function autoplayInit() {
+      if (autoplay) {
+        if (!navContainer) {
+          gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
+          navContainer = sliderWrapper.querySelector('.tiny-nav');
+        }
+        autoplayButton = navContainer.querySelector('[data-action]');
+        startAction();
+      }
+    }
+
+    function activateSlider() {
+      current = getCurrent();
+      for (var i = current; i < current + items; i++) {
+        _setAttrs(slideItems[i], {'aria-hidden': 'false'});
+      }
+      if (controls) {
+        _setAttrs(nextButton, {'tabindex': '0'});
+      }
+      if (nav) {
+        _setAttrs(allNavs[0], {'tabindex': '0', 'aria-selected': 'true'});
+      }
+    }
+
+    function addSliderEvents() {
+      if (touch) {
+        sliderContainer.addEventListener('touchstart', onPanStart, false);
+        sliderContainer.addEventListener('touchmove', onPanMove, false);
+        sliderContainer.addEventListener('touchend', onPanEnd, false);
+        sliderContainer.addEventListener('touchcancel', onPanEnd, false);
+      }
+      if (nav) {
+        for (var y = 0; y < slideCount; y++) {
+          allNavs[y].addEventListener('click', onClickNav, false);
+          allNavs[y].addEventListener('keydown', onKeyNav, false);
+        }
+      }
+      if (controls) {
+        prevButton.addEventListener('click', onClickControlPrev, false);
+        nextButton.addEventListener('click', onClickControlNext, false);
+        prevButton.addEventListener('keydown', onKeyControl, false);
+        nextButton.addEventListener('keydown', onKeyControl, false);
+      }
+      if (autoplay) {
+        autoplayButton.addEventListener('click', toggleAnimation, false);
+
+        if (controls) {
+          prevButton.addEventListener('click', stopAnimation, false );
+          nextButton.addEventListener('click', stopAnimation, false );
+        }
+
+        if (nav) {
+          for (var b = 0; b < slideCount; b++) {
+            allNavs[b].addEventListener('click', stopAnimation, false);
+          }
+        }
+      }
+      if (arrowKeys) {
+        document.addEventListener('keydown', onKeyDocument, false);
+      }
+      window.addEventListener('resize', onResize, false);
+      window.addEventListener('scroll', onScroll, false);
+    }
+
+    // lazyload
+    function lazyLoad() {
+      if (!lazyload || !gn.isInViewport(sliderContainer)) { return; }
+
+      var arr = [], base = index + cloneCount;
+      for(var i = base - 1; i < base + items + 1; i++) {
+        var imgsTem = slideItems[i].querySelectorAll('.tiny-lazy');
+        for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
+        arr.unshift();
+      }
+
+      for (var h = arr.length; h--;) {
+        var img = arr[h];
+        if (!img.classList.contains('loaded')) {
+          img.src = _getAttr(img, 'data-src');
+          img.classList.add('loaded');
+        }
+      }
+    }
+
+    // check if all visible images are loaded
+    // and update container height if it's done
+    function runAutoHeight() {
+      if (!autoHeight) { return; }
+      // get all images inside visible slider items
+      var images = [];
+      current = getCurrent();
+
+      for (var i = current -1; i < current + items; i++) {
+        var imagesTem = slideItems[i].querySelectorAll('img');
+        for (var j = imagesTem.length; j--;) {
+          images.push(imagesTem[j]);
+        }
+      }
+
+      if (images.length === 0) {
+        updateContainerHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
+    }
+
+    function checkImagesLoaded(images) {
+      for (var i = images.length; i--;) {
+        if (imageLoaded(images[i])) {
+          images.splice(i, 1);
+        }
+      }
+
+      if (images.length === 0) {
+        updateContainerHeight();
+      } else {
+        setTimeout(function () { 
+          checkImagesLoaded(images); 
+        }, 16);
+      }
+    } 
+
+    function sliderInit() {
+      wrapContainer();
+      getVariables();
+
+      containerInit();
+      msInit();
+      addIds();
+      slideItemsInit();
+      controlsInit();
+      navInit();
+      autoplayInit();
+      activateSlider();
+      addSliderEvents();
+
+      lazyLoad();
+      runAutoHeight();
+    }
+
+    function checkSlideCount() {
       if (slideCount <= items) { 
         nav = controls = autoplay = loop = rewind = false; 
         index = 0;
+
+        hideElement(navContainer);
+        hideElement(controlsContainer);
+        hideElement(autoplayButton);
       } else {
         nav = options.nav;
         controls = options.controls;
         autoplay = options.autoplay;
         loop = (options.rewind) ? false : options.loop;
         rewind = options.rewind;
+
+        if (nav) { showElement(navContainer); }
+        if (controls) { showElement(controlsContainer); }
+        if (autoplay) { showElement(autoplayButton); }
       }
     }
 
-    function updateNav() {
-      if (nav) {
-        if (!navInit) {
-          if (!options.navContainer) {
-            var navHtml = '';
-            for (var i = 0; i < slideCount; i++) {
-              navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + sliderId + 'item' + i +'" type="button"></button>';
-            }
-
-            if (autoplay) {
-              navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
-            }
-
-            navHtml = '<div class="tiny-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-            gn.append(sliderWrapper, navHtml);
-
-            navContainer = sliderWrapper.querySelector('.tiny-nav');
-          }
-
-          allNavs = navContainer.querySelectorAll('[data-slide]');
-          navCount = allNavs.length;
-
-          // for customized nav container
-          if (!_hasAttr(navContainer, 'aria-label')) {
-            _setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
-            _setAttrs(allNavs, {
-              'tabindex': '-1',
-              'aria-selected': 'false',
-              'aria-controls': sliderId + 'item' + y,
-            });
-          }
-
-          // reset the first nav to be visible
-          _setAttrs(allNavs[0], {
-            'tabindex': '0',
-            'aria-selected': 'true',
-          });
-
-          // add click and keydown events
-          for (var y = 0; y < navCount; y++) {
-            allNavs[y].addEventListener('click', onClickNav, false);
-            allNavs[y].addEventListener('keydown', onKeyNav, false);
-          }
-
-          navInit = true;
-        } else if (navContainer && _hasAttr(navContainer, 'hidden')) {
-          _removeAttrs(navContainer, 'hidden');
-        }
-      } else if (navInit && navContainer && !_hasAttr(navContainer, 'hidden')) {
-        _setAttrs(navContainer, {'hidden': 'true'});
-      }
-    }
-
-    function updateControls() {
-      if (controls) {
-        if (!controlsInit) {
-          if (!options.controlsContainer) {
-            gn.append(sliderWrapper, '<div class="tiny-controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + sliderId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + sliderId +'" type="button">' + controlsText[1] + '</button></div>');
-
-            controlsContainer = sliderWrapper.querySelector('.tiny-controls');
-          }
-
-          prevButton = controlsContainer.querySelector('[data-controls="prev"]');
-          nextButton = controlsContainer.querySelector('[data-controls="next"]');
-
-          if (!_hasAttr(controlsContainer, 'tabindex')) {
-            _setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
-            _setAttrs(controlsContainer.children, {
-              'aria-controls': sliderId,
-              'tabindex': '-1',
-            });
-            _setAttrs(nextButton, {
-              'tabindex': '0',
-            });
-          }
-
-          if (!loop) { updateControlsStatus(); }
-
-          prevButton.addEventListener('click', onClickControlPrev, false);
-          nextButton.addEventListener('click', onClickControlNext, false);
-          prevButton.addEventListener('keydown', onKeyControl, false);
-          nextButton.addEventListener('keydown', onKeyControl, false);
-
-          controlsInit = true;
-        } else if (_hasAttr(controlsContainer, 'hidden')) {
-          _removeAttrs(controlsContainer, 'hidden');
-        }
-      } else if (controlsInit && !_hasAttr(controlsContainer, 'hidden')) {
-        _setAttrs(controlsContainer, {'hidden': 'true'});
-      }
-    }
-
-    function updateAutoplay() {
-      if (autoplay) {
-        if (!autoplayInit) {
-          if (!navContainer) {
-            gn.append(sliderWrapper, '<div class="tiny-nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
-            navContainer = sliderWrapper.querySelector('.tiny-nav');
-          }
-          autoplayButton = navContainer.querySelector('[data-action]');
-
-          startAction();
-          autoplayButton.addEventListener('click', toggleAnimation, false);
-
-          if (controls) {
-            prevButton.addEventListener('click', stopAnimation, false );
-            nextButton.addEventListener('click', stopAnimation, false );
-          }
-
-          if (nav) {
-            for (var b = 0; b < navCount; b++) {
-              allNavs[b].addEventListener('click', stopAnimation, false);
-            }
-          }
-
-          autoplayInit = true;
-        } else if (_hasAttr(autoplayButton, 'hidden')) {
-          _removeAttrs(autoplayButton, 'hidden');
-        }
-      } else if (autoplayInit && !_hasAttr(autoplayButton, 'hidden')) {
-        _setAttrs(autoplayButton, {'hidden': 'true'});
-      }
-    }
-
-    // # SETTING UP
-    // update layout:
-    // update slide container width, margin-left
-    // update slides' width
     function updateLayout() {
-      if (!layoutInit || !fixedWidth) {
-        // update slider container width
-        sliderContainer.style.width = (slideWidth + 1) * slideCountUpdated + 'px'; // + 1: fixed half-pixel issue
-
-        // update slider container position
-        var ml = cloneCount * slideWidth + gapAdjust;
-        sliderContainer.style.marginLeft = - ml + 'px';
-
-        // update slide width
-        for (var i = slideCountUpdated; i--;) {
+      if (!fixedWidth) {
+        // + 1: fixed half-pixel issue
+        sliderContainer.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
+        sliderContainer.style.marginLeft = - (cloneCount * slideWidth + gapAdjust) + 'px';
+        for (var i = slideCountNew; i--;) {
           slideItems[i].style.width = slideWidth - gutter + 'px';
         }
       }
 
       // update edge padding
-      if (edgePadding && !layoutInit || fixedWidth) {
-        var pl = edgePadding;
-        if (fixedWidth) {
-          var vw = sliderWrapper.clientWidth;            
-          pl = (vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2;
-        }
-        sliderContainer.style.paddingLeft = pl + 'px';
+      if (fixedWidth) {
+        var vw = sliderWrapper.clientWidth;            
+        sliderContainer.style.paddingLeft = ((vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2) + 'px';
       }
-
-      // update slide margin
-      if (!layoutInit && gutter !== 0) {
-        for (var b = slideCountUpdated; b--;) {
-          slideItems[b].style[gutterPosition] = gutter + 'px';
-        }
-      }
-
-      // layout initilized
-      layoutInit = true;
     }
 
     // update container height
@@ -1016,6 +1077,37 @@ var tinySlider = (function () {
       sliderWrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
     }
 
+    // update slide
+    function updateSlideStatus() {
+      var h1, h2, v1, v2, currentCached = current || cloneCount + slideCount;
+      current = getCurrent();
+      if (current > currentCached) {
+        h1 = currentCached;
+        h2 = Math.min(currentCached + items, current);
+        v1 = Math.max(currentCached + items, current);
+        v2 = current + items;
+      } else if (current < currentCached) {
+        h1 = Math.max(current + items, currentCached);
+        h2 = currentCached + items;
+        v1 = current;
+        v2 = Math.min(current + items, currentCached);
+      }
+
+      if (slideBy%1 !== 0) {
+        h1 = Math.round(h1);
+        h2 = Math.round(h2);
+        v1 = Math.round(v1);
+        v2 = Math.round(v2);
+      }
+
+      for (var i = h1; i < h2; i++) {
+        _setAttrs(slideItems[i], {'aria-hidden': 'true'});
+      }
+      for (var j = v1; j < v2; j++) {
+        _setAttrs(slideItems[j], {'aria-hidden': 'false'});
+      }
+    }
+
     // show or hide nav.
     // doesn't work on customized nav.
     function updateNavDisplay() {
@@ -1025,60 +1117,82 @@ var tinySlider = (function () {
             _removeAttrs(allNavs[i], 'hidden');
           }
         } else {
-          for (var i = navCountVisible; i < navCountVisibleCached; i++) {
-            _setAttrs(allNavs[i], {'hidden': ''});
+          for (var j = navCountVisible; j < navCountVisibleCached; j++) {
+            _setAttrs(allNavs[j], {'hidden': ''});
           }
         }
       }
       navCountVisibleCached = navCountVisible;
     }
 
-    // # RENDER
-    function render() {
-      updateVariables();
+    // get current nav
+    function getNavCurrent() {
+      var navCurrentTem;
+      if (navClicked === -1) {
+        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
+        navCurrentTem = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
+
+        // non-loop & reach the edge
+        if (!loop && !options.navContainer && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
+      } else {
+        navCurrentTem = navClicked;
+        navClicked = -1;
+      }
+
+      return navCurrentTem;
+    }
+
+    // set tabindex & aria-selected on Nav
+    function updateNavStatus() {
+      if (!nav) { return; }
+      navCurrent = getNavCurrent();
+
+      if (navCurrent !== navCurrentCached) {
+        _setAttrs(allNavs[navCurrentCached], {
+          'tabindex': '-1',
+          'aria-selected': 'false'
+        });
+
+        _setAttrs(allNavs[navCurrent], {
+          'tabindex': '0',
+          'aria-selected': 'true'
+        });
+        navCurrentCached = navCurrent;
+      }
+    }
+
+    // set 'disabled' to true on controls when reach the edge
+    function updateControlsStatus() {
+      if (!controls || loop) { return; }
+      if (index === 0 || !rewind && index === slideCount - items) {
+        var inactive = (index === 0) ? prevButton : nextButton,
+            active = (index === 0) ? nextButton : prevButton;
+
+        changeFocus(inactive, active);
+
+        inactive.disabled = true;
+        _setAttrs(inactive, {'tabindex': '-1'});
+
+        active.disabled = false;
+        _setAttrs(active, {'tabindex': '0'});
+      } else {
+        prevButton.disabled = false;
+        nextButton.disabled = false;
+      }
+    }
+
+    // # renderAfterResize
+    function renderAfterResize() {
+      getVariables();
+      checkSlideCount();
+
       updateLayout();
-      updateNav();
       updateNavDisplay();
-      updateControls();
-      updateAutoplay();
       if (navigator.msMaxTouchPoints) { setSnapInterval(); }
 
       setTransitionDuration(0);
       translate();
       afterTransform();
-    }
-
-    // # REPAINT
-    function repaint(indexGap) {
-      sliderContainer.setAttribute('aria-busy', 'true');
-
-      running = true;
-      setTransitionDuration(indexGap);
-      translate();
-
-      setTimeout(function () {
-        if (loop) { resetIndexAndContainer(); }
-        afterTransform();
-
-        running = false;
-        sliderContainer.setAttribute('aria-busy', 'false');
-      }, speed * indexGap);
-    }
-
-    // AFTER TRANSFORM
-    // Things need to be done after a transfer:
-    // 1. check index
-    // 2. add classes to visible slide
-    // 3. disable controls buttons when reach the first/last slide in non-loop slider
-    // 4. update nav status
-    // 5. lazyload images
-    // 6. update container height
-    function afterTransform() {
-      updateSlideStatus();
-      if (nav) { updateNavStatus(); }
-      if (controls && !loop) { updateControlsStatus(); }
-      if (lazyload) { lazyLoad(); }
-      if (autoHeight) { runAutoHeight(); }
     }
 
     // set transition duration
@@ -1128,149 +1242,38 @@ var tinySlider = (function () {
       }
     }
 
-    // update slide
-    // set aria-hidden
-    function updateSlideStatus() {
-      current = getCurrent();
+    // # REPAINT
+    function repaint(indexGap) {
+      sliderContainer.setAttribute('aria-busy', 'true');
 
-      for (var i = slideCountUpdated; i--;) {
-        var slideTem = slideItems[i];
+      running = true;
+      setTransitionDuration(indexGap);
+      translate();
 
-        if (i >= current && i < current + items) {
-          if (!_hasAttr(slideTem, 'aria-hidden') || _getAttr(slideTem, 'aria-hidden') === 'true') {
-            _setAttrs(slideTem, {'aria-hidden': 'false'});
-          }
-        } else {
-          if (!_hasAttr(slideTem, 'aria-hidden') || _getAttr(slideTem, 'aria-hidden') === 'false') {
-            _setAttrs(slideTem, {'aria-hidden': 'true'});
-          }
-        }
-      }
+      setTimeout(function () {
+        if (loop) { resetIndexAndContainer(); }
+        afterTransform();
 
-      currentCached = current;
+        running = false;
+        sliderContainer.setAttribute('aria-busy', 'false');
+      }, speed * indexGap);
     }
 
-    // get current nav
-    function getNavCurrent() {
-      var navCurrentTem;
-      if (navClicked === -1) {
-        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
-        navCurrentTem = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
-
-        // non-loop & reach the edge
-        if (!loop && !options.navContainer && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
-      } else {
-        navCurrentTem = navClicked;
-        navClicked = -1;
-      }
-
-      return navCurrentTem;
+    // AFTER TRANSFORM
+    // Things need to be done after a transfer:
+    // 1. check index
+    // 2. add classes to visible slide
+    // 3. disable controls buttons when reach the first/last slide in non-loop slider
+    // 4. update nav status
+    // 5. lazyload images
+    // 6. update container height
+    function afterTransform() {
+      updateSlideStatus();
+      updateNavStatus();
+      updateControlsStatus();
+      lazyLoad();
+      runAutoHeight();
     }
-
-    // set tabindex & aria-selected on Nav
-    function updateNavStatus() {
-      navCurrent = getNavCurrent();
-
-      if (navCurrent !== navCurrentCached) {
-        _setAttrs(allNavs[navCurrentCached], {
-          'tabindex': '-1',
-          'aria-selected': 'false'
-        });
-
-        _setAttrs(allNavs[navCurrent], {
-          'tabindex': '0',
-          'aria-selected': 'true'
-        });
-        navCurrentCached = navCurrent;
-      }
-    }
-
-    // set 'disabled' to true on controls when reach the edge
-    function updateControlsStatus() {
-      if (index === 0 || !rewind && index === slideCount - items) {
-        var inactive = (index === 0) ? prevButton : nextButton,
-            active = (index === 0) ? nextButton : prevButton;
-
-        changeFocus(inactive, active);
-
-        inactive.disabled = true;
-        _setAttrs(inactive, {'tabindex': '-1'});
-
-        active.disabled = false;
-        _setAttrs(active, {'tabindex': '0'});
-      } else {
-        prevButton.disabled = false;
-        nextButton.disabled = false;
-      }
-    }
-
-    // lazyload
-    function lazyLoad() {
-      if (!gn.isInViewport(sliderContainer)) { return; }
-
-      var arr = [], base = index + cloneCount;
-      for(var i = base - 1; i < base + items + 1; i++) {
-        var imgsTem = slideItems[i].querySelectorAll('.tiny-lazy');
-        for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
-        arr.unshift();
-      }
-
-      for (var h = arr.length; h--;) {
-        var img = arr[h];
-        if (!img.classList.contains('loaded')) {
-          img.src = _getAttr(img, 'data-src');
-          img.classList.add('loaded');
-        }
-      }
-    }
-
-    // check if all visible images are loaded
-    // and update container height if it's done
-    function runAutoHeight() {
-      // get all images inside visible slider items
-      var images = [];
-      current = getCurrent();
-
-      for (var i = current -1; i < current + items; i++) {
-        var imagesTem = slideItems[i].querySelectorAll('img');
-        for (var j = imagesTem.length; j--;) {
-          images.push(imagesTem[j]);
-        }
-      }
-
-      if (images.length === 0) {
-        updateContainerHeight(); 
-      } else {
-        checkImagesLoaded(images);
-      }
-    }
-
-    // check if an image is loaded
-    // 1. See if "naturalWidth" and "naturalHeight" properties are available.
-    // 2. See if "complete" property is available.
-    function imageLoaded(img) {
-      if (typeof img.complete === 'boolean') {
-        return img.complete;
-      } else if (typeof img.naturalWidth === 'number') {
-        return img.naturalWidth !== 0;
-      }
-    }
-
-    function checkImagesLoaded(images) {
-      for (var i = images.length; i--;) {
-        if (imageLoaded(images[i])) {
-          images.splice(i, 1);
-        }
-      }
-
-      if (images.length === 0) {
-        updateContainerHeight();
-      } else {
-        setTimeout(function () { 
-          checkImagesLoaded(images); 
-        }, 16);
-      }
-    } 
 
     // # ACTIONS
     // on controls click
@@ -1499,14 +1502,14 @@ var tinySlider = (function () {
       clearTimeout(resizeTimer);
       // update after resize done
       resizeTimer = setTimeout(function () {
-        render();
+        renderAfterResize();
       }, 100);
     }
 
     function onScroll() {
       if (!ticking) {
         window.requestAnimationFrame(function() {
-          if (lazyload) { lazyLoad(); }
+          lazyLoad();
           ticking = false;
         });
       }
@@ -1514,20 +1517,7 @@ var tinySlider = (function () {
     }
 
     return {
-      init: function () {
-        containerInit();
-        msInit();
-        addIds();
-        cloneItems();
-
-        render();
-
-        if (arrowKeys) {
-          document.addEventListener('keydown', onKeyDocument, false);
-        }
-        window.addEventListener('resize', onResize, false);
-        window.addEventListener('scroll', onScroll, false);
-      },
+      init: sliderInit,
 
       // destory
       destory: function () {
@@ -1573,7 +1563,7 @@ var tinySlider = (function () {
             _removeAttrs(allNavs, ['aria-selected', 'aria-controls', 'tabindex']);
             _removeEvents(navContainer);
           }
-          allNavs = navCount = null;
+          allNavs = null;
         }
 
         // auto
@@ -1600,7 +1590,7 @@ var tinySlider = (function () {
         window.removeEventListener('scroll', onScroll, false);
       },
       // $ Private methods, for test only
-      // hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, nextButton: function () { return nextButton; }, index: function () { return index; },
+      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, nextButton: function () { return nextButton; }, index: function () { return index; },
     };
   }
 
@@ -1637,7 +1627,7 @@ var tinySlider = (function () {
   }
 
   function _setAttrs(els, attrs) {
-    els = (gn.isNodeList(els)) ? els : [els];
+    els = (gn.isNodeList(els) || els instanceof Array) ? els : [els];
     if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
 
     for (var i = els.length; i--;) {
@@ -1648,7 +1638,7 @@ var tinySlider = (function () {
   }
 
   function _removeAttrs(els, attrs) {
-    els = (gn.isNodeList(els)) ? els : [els];
+    els = (gn.isNodeList(els) || els instanceof Array) ? els : [els];
     attrs = (attrs instanceof Array) ? attrs : [attrs];
 
     var attrLength = attrs.length;
@@ -1664,6 +1654,37 @@ var tinySlider = (function () {
     parent.insertBefore(elClone, el);
     el.remove();
     el = null;
+  }
+
+  function hideElement(el) {
+    if (el.nodeType !== 1) { 
+      throw 'el is not a element node.';
+      // return;
+    }
+    if (!_hasAttr(el, 'hidden')) {
+      _setAttrs(el, {'hidden': ''});
+    }
+  }
+
+  function showElement(el) {
+    if (el.nodeType !== 1) { 
+      throw 'el is not a element node.';
+      // return;
+    }
+    if (_hasAttr(el, 'hidden')) {
+      _removeAttrs(el, 'hidden');
+    }
+  }
+
+  // check if an image is loaded
+  // 1. See if "naturalWidth" and "naturalHeight" properties are available.
+  // 2. See if "complete" property is available.
+  function imageLoaded(img) {
+    if (typeof img.complete === 'boolean') {
+      return img.complete;
+    } else if (typeof img.naturalWidth === 'number') {
+      return img.naturalWidth !== 0;
+    }
   }
 
   return core;

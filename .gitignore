@@ -10,3 +10,5 @@
 
 /.codekit-cache/
 /bower_components/
+/node_modules/
+tiny-slider.helper.js

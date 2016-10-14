@@ -1,10 +1,10 @@
+body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; margin: 0; padding: 0; }
 li { list-style: none; }
 ul, ol, li { margin: 0; padding: 0; }
-body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
-.container {
+/*.container {
   max-width: 900px;
   margin: 0 auto;
-}
+}*/
 pre[class*="language-"] > code[data-language] { overflow: auto !important; }
 section { margin: 50px 0; }
 h1 { font-size: 45px; }
@@ -15,6 +15,7 @@ p {
 }
 img {
   max-width: 100%;
+  width: 100%;
   height: auto;
 }
 .img {

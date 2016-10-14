@@ -20,7 +20,6 @@ var config = {
   js: {
     src: [[
         "bower_components/domtokenlist/src/token-list.js",
-        // "bower_components/Units/Length.min.js",
         "bower_components/requestAnimationFrame/requestAnimationFrame.js",
 
         "bower_components/go-native/src/utilities/childNode.remove.js",
@@ -34,9 +33,23 @@ var config = {
         "bower_components/go-native/src/gn/append.js",
         "bower_components/go-native/src/gn/wrap.js",
         "bower_components/go-native/src/gn/unwrap.js",
-        // "bower_components/go-native/src/gn/getWidth.js",
 
         "src/tiny-slider.native.js",
+      ], [
+      "bower_components/domtokenlist/src/token-list.js",
+      "bower_components/requestAnimationFrame/requestAnimationFrame.js",
+
+      "bower_components/go-native/src/utilities/childNode.remove.js",
+      "bower_components/go-native/src/gn/base.js",
+      "bower_components/go-native/src/gn/extend.js",
+      "bower_components/go-native/src/gn/isInViewport.js",
+      "bower_components/go-native/src/gn/indexOf.js",
+      "bower_components/go-native/src/gn/getSupportedProp.js",
+      "bower_components/go-native/src/gn/DOM.ready.js",
+      "bower_components/go-native/src/gn/isNodeList.js",
+      "bower_components/go-native/src/gn/append.js",
+      "bower_components/go-native/src/gn/wrap.js",
+      "bower_components/go-native/src/gn/unwrap.js",
       ], [
         "src/tiny-slider.native.js",
       ], [
@@ -48,7 +61,7 @@ var config = {
         "bower_components/go-native/src/ie8/nextElementSibling.js",
         "bower_components/go-native/src/ie8/getComputedStyle.js",
       ]],
-    name: ['tiny-slider.js', 'tiny-slider.native.js', 'tiny-slider.ie8.js'],
+    name: ['tiny-slider.js', 'tiny-slider.helper.js', 'tiny-slider.native.js', 'tiny-slider.ie8.js'],
     options: {
       // mangle: false,
       output: {
@@ -80,6 +93,7 @@ var inject = require('gulp-inject');
 var browserSync = require('browser-sync').create();
 var rename = require('gulp-rename');
 var mergeStream = require('merge-stream');
+var nightwatch = require('gulp-nightwatch');
 
 function errorlog (error) {  
   console.error.bind(error);  

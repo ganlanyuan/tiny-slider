@@ -222,12 +222,4 @@ describe('getPanDirection: ', function () {
   })
 })
 
-// # container
-describe('container test:', function () {
-  it('return undefined when container does not exist', function() {
-    expect(tinySlider({'container': document.querySelector('.nothing')})).toBe(undefined);
-  })
-})
-
-
 
