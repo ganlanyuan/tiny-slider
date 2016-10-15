@@ -299,6 +299,7 @@ var tinySlider = (function () {
         for (var j = navCountVisible; j < slideCount; j++) {
           _setAttrs(allNavs[j], {'hidden': ''});
         }
+        navCountVisibleCached = navCountVisible;
       }
     }
 
@@ -437,6 +438,7 @@ var tinySlider = (function () {
       autoplayInit();
       activateSlider();
       addSliderEvents();
+      checkSlideCount();
 
       lazyLoad();
       runAutoHeight();
@@ -447,9 +449,9 @@ var tinySlider = (function () {
         nav = controls = autoplay = loop = rewind = false; 
         index = 0;
 
-        hideElement(navContainer);
-        hideElement(controlsContainer);
-        hideElement(autoplayButton);
+        if (navContainer) { _hideElement(navContainer); }
+        if (controlsContainer) { _hideElement(controlsContainer); }
+        if (autoplayButton) { _hideElement(autoplayButton); }
       } else {
         nav = options.nav;
         controls = options.controls;
@@ -457,9 +459,9 @@ var tinySlider = (function () {
         loop = (options.rewind) ? false : options.loop;
         rewind = options.rewind;
 
-        if (nav) { showElement(navContainer); }
-        if (controls) { showElement(controlsContainer); }
-        if (autoplay) { showElement(autoplayButton); }
+        if (nav) { _showElement(navContainer); }
+        if (controls) { _showElement(controlsContainer); }
+        if (autoplay) { _showElement(autoplayButton); }
       }
     }
 
@@ -509,18 +511,20 @@ var tinySlider = (function () {
 
     // update slide
     function updateSlideStatus() {
-      var h1, h2, v1, v2, currentCached = current || cloneCount + slideCount;
+      var h1, h2, v1, v2, currentCached = current;
       current = getCurrent();
-      if (current > currentCached) {
-        h1 = currentCached;
-        h2 = Math.min(currentCached + items, current);
-        v1 = Math.max(currentCached + items, current);
-        v2 = current + items;
-      } else if (current < currentCached) {
-        h1 = Math.max(current + items, currentCached);
-        h2 = currentCached + items;
-        v1 = current;
-        v2 = Math.min(current + items, currentCached);
+      if (current !== currentCached) {
+        if (current > currentCached) {
+          h1 = currentCached;
+          h2 = Math.min(currentCached + items, current);
+          v1 = Math.max(currentCached + items, current);
+          v2 = current + items;
+        } else {
+          h1 = Math.max(current + items, currentCached);
+          h2 = currentCached + items;
+          v1 = current;
+          v2 = Math.min(current + items, currentCached);
+        }
       }
 
       if (slideBy%1 !== 0) {
@@ -1020,7 +1024,8 @@ var tinySlider = (function () {
         window.removeEventListener('scroll', onScroll, false);
       },
       // $ Private methods, for test only
-      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, nextButton: function () { return nextButton; }, index: function () { return index; },
+      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, hideElement: _hideElement, showElement: _showElement, 
+      nextButton: function () { return nextButton; }, index: function () { return index; },
     };
   }
 
@@ -1086,21 +1091,13 @@ var tinySlider = (function () {
     el = null;
   }
 
-  function hideElement(el) {
-    if (el.nodeType !== 1) { 
-      throw 'el is not a element node.';
-      // return;
-    }
+  function _hideElement(el) {
     if (!_hasAttr(el, 'hidden')) {
       _setAttrs(el, {'hidden': ''});
     }
   }
 
-  function showElement(el) {
-    if (el.nodeType !== 1) { 
-      throw 'el is not a element node.';
-      // return;
-    }
+  function _showElement(el) {
     if (_hasAttr(el, 'hidden')) {
       _removeAttrs(el, 'hidden');
     }

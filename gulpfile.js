@@ -14,7 +14,7 @@ var config = {
 
   watch: {
     js: 'src/**/*.js',
-    html: ['**/*.html', 'tests/js/*.js']
+    html: ['**/*.html', 'tests/**/*.js']
   },
 
   js: {

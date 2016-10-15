@@ -407,7 +407,7 @@ var gn = (function (g) {
   return g;
 })(window.gn || {});
 // extend
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.extend = function () {
   var obj, name, copy,
@@ -431,19 +431,19 @@ gn.extend = function () {
   return target;
 };
 // isInViewport
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.isInViewport = function ( elem ) {
   var rect = elem.getBoundingClientRect();
   return (
-    rect.bottom > 0 &&
-    rect.right > 0 &&
-    rect.top < document.documentElement.clientHeight &&
-    rect.left < document.documentElement.clientWidth
+    rect.bottom >= 0 &&
+    rect.right >= 0 &&
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.left <= (window.innerWidth || document.documentElement.clientWidth)
     );
 };
 // indexOf
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.indexOf = function (array, item) {
   for (var i = 0; i < array.length; i++) {
@@ -452,7 +452,7 @@ gn.indexOf = function (array, item) {
   return -1;
 };
 // get supported property
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.getSupportedProp = function (proparray){
   var root = document.documentElement;
@@ -466,7 +466,7 @@ gn.getSupportedProp = function (proparray){
 // var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
 // getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 // DOM ready
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.ready = function ( fn ) {
 
@@ -482,7 +482,7 @@ gn.ready = function ( fn ) {
   document.addEventListener( 'DOMContentLoaded', fn, false );
 };
 // isNodeList
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 
 gn.isNodeList = function (el) {
   // Only NodeList has the "item()" function
@@ -490,7 +490,7 @@ gn.isNodeList = function (el) {
 };
 
 // append
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.append = function(els, data) {
@@ -517,7 +517,7 @@ gn.append = function(els, data) {
 
 
 // wrap
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.wrap = function (els, obj) {
@@ -548,7 +548,7 @@ gn.wrap = function (els, obj) {
 
 
 // unwrap
-// @require "/src/gn/base.js"
+// @require "/src/gn/gn.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.unwrap = function (els) {
@@ -869,6 +869,7 @@ var tinySlider = (function () {
         for (var j = navCountVisible; j < slideCount; j++) {
           _setAttrs(allNavs[j], {'hidden': ''});
         }
+        navCountVisibleCached = navCountVisible;
       }
     }
 
@@ -1007,6 +1008,7 @@ var tinySlider = (function () {
       autoplayInit();
       activateSlider();
       addSliderEvents();
+      checkSlideCount();
 
       lazyLoad();
       runAutoHeight();
@@ -1017,9 +1019,9 @@ var tinySlider = (function () {
         nav = controls = autoplay = loop = rewind = false; 
         index = 0;
 
-        hideElement(navContainer);
-        hideElement(controlsContainer);
-        hideElement(autoplayButton);
+        if (navContainer) { _hideElement(navContainer); }
+        if (controlsContainer) { _hideElement(controlsContainer); }
+        if (autoplayButton) { _hideElement(autoplayButton); }
       } else {
         nav = options.nav;
         controls = options.controls;
@@ -1027,9 +1029,9 @@ var tinySlider = (function () {
         loop = (options.rewind) ? false : options.loop;
         rewind = options.rewind;
 
-        if (nav) { showElement(navContainer); }
-        if (controls) { showElement(controlsContainer); }
-        if (autoplay) { showElement(autoplayButton); }
+        if (nav) { _showElement(navContainer); }
+        if (controls) { _showElement(controlsContainer); }
+        if (autoplay) { _showElement(autoplayButton); }
       }
     }
 
@@ -1079,18 +1081,20 @@ var tinySlider = (function () {
 
     // update slide
     function updateSlideStatus() {
-      var h1, h2, v1, v2, currentCached = current || cloneCount + slideCount;
+      var h1, h2, v1, v2, currentCached = current;
       current = getCurrent();
-      if (current > currentCached) {
-        h1 = currentCached;
-        h2 = Math.min(currentCached + items, current);
-        v1 = Math.max(currentCached + items, current);
-        v2 = current + items;
-      } else if (current < currentCached) {
-        h1 = Math.max(current + items, currentCached);
-        h2 = currentCached + items;
-        v1 = current;
-        v2 = Math.min(current + items, currentCached);
+      if (current !== currentCached) {
+        if (current > currentCached) {
+          h1 = currentCached;
+          h2 = Math.min(currentCached + items, current);
+          v1 = Math.max(currentCached + items, current);
+          v2 = current + items;
+        } else {
+          h1 = Math.max(current + items, currentCached);
+          h2 = currentCached + items;
+          v1 = current;
+          v2 = Math.min(current + items, currentCached);
+        }
       }
 
       if (slideBy%1 !== 0) {
@@ -1590,7 +1594,8 @@ var tinySlider = (function () {
         window.removeEventListener('scroll', onScroll, false);
       },
       // $ Private methods, for test only
-      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, nextButton: function () { return nextButton; }, index: function () { return index; },
+      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, hideElement: _hideElement, showElement: _showElement, 
+      nextButton: function () { return nextButton; }, index: function () { return index; },
     };
   }
 
@@ -1656,21 +1661,13 @@ var tinySlider = (function () {
     el = null;
   }
 
-  function hideElement(el) {
-    if (el.nodeType !== 1) { 
-      throw 'el is not a element node.';
-      // return;
-    }
+  function _hideElement(el) {
     if (!_hasAttr(el, 'hidden')) {
       _setAttrs(el, {'hidden': ''});
     }
   }
 
-  function showElement(el) {
-    if (el.nodeType !== 1) { 
-      throw 'el is not a element node.';
-      // return;
-    }
+  function _showElement(el) {
     if (_hasAttr(el, 'hidden')) {
       _removeAttrs(el, 'hidden');
     }

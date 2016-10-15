@@ -222,4 +222,24 @@ describe('getPanDirection: ', function () {
   })
 })
 
+// # hideElement
+describe('hideElement:', function () {
+  it('hide element if it\'s visible', function () {
+    var visibleElement = document.createElement('div');
+    body.appendChild(visibleElement);
+    so.hideElement(visibleElement);
+    expect(visibleElement.hasAttribute('hidden')).toBe(true);
+  })
+})
+
+// # showElement
+describe('showElement:', function () {
+  it('show element if it\'s hidden', function () {
+    var hiddenElement = document.createElement('div');
+    hiddenElement.setAttribute('hidden', '');
+    body.appendChild(hiddenElement);
+    so.showElement(hiddenElement);
+    expect(hiddenElement.hasAttribute('hidden')).toBe(false);
+  })
+})
 
