@@ -407,7 +407,7 @@ var gn = (function (g) {
   return g;
 })(window.gn || {});
 // extend
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.extend = function () {
   var obj, name, copy,
@@ -431,19 +431,19 @@ gn.extend = function () {
   return target;
 };
 // isInViewport
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.isInViewport = function ( elem ) {
   var rect = elem.getBoundingClientRect();
   return (
-    rect.bottom >= 0 &&
-    rect.right >= 0 &&
-    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.left <= (window.innerWidth || document.documentElement.clientWidth)
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < document.documentElement.clientHeight &&
+    rect.left < document.documentElement.clientWidth
     );
 };
 // indexOf
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.indexOf = function (array, item) {
   for (var i = 0; i < array.length; i++) {
@@ -452,7 +452,7 @@ gn.indexOf = function (array, item) {
   return -1;
 };
 // get supported property
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.getSupportedProp = function (proparray){
   var root = document.documentElement;
@@ -466,7 +466,7 @@ gn.getSupportedProp = function (proparray){
 // var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
 // getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 // DOM ready
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.ready = function ( fn ) {
 
@@ -482,7 +482,7 @@ gn.ready = function ( fn ) {
   document.addEventListener( 'DOMContentLoaded', fn, false );
 };
 // isNodeList
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 
 gn.isNodeList = function (el) {
   // Only NodeList has the "item()" function
@@ -490,7 +490,7 @@ gn.isNodeList = function (el) {
 };
 
 // append
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.append = function(els, data) {
@@ -517,7 +517,7 @@ gn.append = function(els, data) {
 
 
 // wrap
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.wrap = function (els, obj) {
@@ -548,7 +548,7 @@ gn.wrap = function (els, obj) {
 
 
 // unwrap
-// @require "/src/gn/gn.js"
+// @require "/src/gn/base.js"
 // @require "/src/gn/isNodeList.js"
 
 gn.unwrap = function (els) {
@@ -891,6 +891,9 @@ var tinySlider = (function () {
       }
       if (controls) {
         _setAttrs(nextButton, {'tabindex': '0'});
+        if (index === 0 && !loop || rewind) {
+          prevButton.disabled = true;
+        }
       }
       if (nav) {
         _setAttrs(allNavs[0], {'tabindex': '0', 'aria-selected': 'true'});

@@ -321,6 +321,9 @@ var tinySlider = (function () {
       }
       if (controls) {
         _setAttrs(nextButton, {'tabindex': '0'});
+        if (index === 0 && !loop || rewind) {
+          prevButton.disabled = true;
+        }
       }
       if (nav) {
         _setAttrs(allNavs[0], {'tabindex': '0', 'aria-selected': 'true'});

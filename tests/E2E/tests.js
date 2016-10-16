@@ -55,15 +55,36 @@ var tt = (function () {
     this.dom.suiteContainer.appendChild(newLi);
   };
 
-  my.checkAttrubutes = function (el, modeName, cloneCount, items) {
+  my.checkAttributes = function (options) {
+    var el = options.container,
+        mode = options.mode || 'horizontal',
+        slideCount = options.slideCount || 8,
+        cloneCount = options.cloneCount || slideCount,
+        items = options.items || 3,
+        controls = options.controls || true,
+        nav = options.nav || true,
+        prevDisabled = options.prevDisabled || false;
+
+    // check wrapper
     my.createSuite(
-      'wrapped into .tiny-slider', 
+      'Slider is wrapped into .tiny-slider.', 
       el.parentNode.className === 'tiny-slider'
     );
+
+    // check container
     my.createSuite(
-      'add class tiny-content and ' + modeName, 
-      el.className.indexOf('tiny-content ' + modeName) !== -1
+      'Classes  tiny-content and ' + mode + ' are added.', 
+      el.className.indexOf('tiny-content ' + mode) !== -1
     );
+
+    // // check transform
+    // my.createSuite(
+    //   'Transform is added.',
+    //   el.style.transitionDuration === '0s' && 
+    //   el.style.transform === 'translate3d(0px, 0px, 0px)'
+    // );
+
+    // check slides' aria-hidden
     var ariaHiddenAdded = true, 
         elChildren = el.children,
         elChildrenLen = el.children.length;
@@ -81,9 +102,61 @@ var tt = (function () {
       }
     }
     my.createSuite(
-      'aria-hiddens are correctly added', 
+      'Aria-hidden attributes are correctly added.', 
       ariaHiddenAdded
     );
+
+    // check controls
+    if (controls) {
+      var controlsContainer = el.nextSibling,
+          prevBtn = controlsContainer.children[0],
+          nextBtn = controlsContainer.children[1];
+
+      my.createSuite(
+        'Class .tiny-controls and attribute aria-label are added to controls container.',
+        controlsContainer.className.indexOf('tiny-controls') !== -1 && 
+        controlsContainer.getAttribute('aria-label') === 'Carousel Navigation' 
+      );
+      my.createSuite(
+        'Attributes are correctly added to controls.',
+        prevBtn.getAttribute('data-controls') === 'prev' &&
+        prevBtn.getAttribute('tabindex') === '-1' &&
+        prevBtn.getAttribute('aria-controls') === el.id &&
+        prevBtn.hasAttribute('disabled') === prevDisabled &&
+        nextBtn.getAttribute('data-controls') === 'next' &&
+        nextBtn.getAttribute('tabindex') === '0' &&
+        nextBtn.getAttribute('aria-controls') === el.id
+      );
+    }
+
+    // check nav
+    if (nav) {
+      var navContainer = el.nextSibling.nextSibling,
+          allNavs = navContainer.querySelectorAll('[data-slide]'),
+          navEnabled = true;
+
+      my.createSuite(
+        'Class .tiny-nav and attribute aria-label are added to nav container.',
+        navContainer.className.indexOf('tiny-nav') !== -1 && 
+        navContainer.getAttribute('aria-label') === 'Carousel Pagination' 
+      );
+
+      var controlsName = el.id + 'item';
+      for (var i = 0; i < slideCount; i++) {
+        if (navEnabled) {
+          var tabindex = (i !== 0) ? '-1' : '0',
+              selected = (i !== 0) ? 'false' : 'true',
+              thisNav = allNavs[i];
+
+          navEnabled = thisNav.getAttribute('data-slide') === i + '' && thisNav.getAttribute('tabindex') === tabindex && thisNav.getAttribute('aria-selected') === selected && thisNav.getAttribute('aria-controls') === controlsName + i;
+        }
+      }
+
+      my.createSuite(
+        'Attributes are correctly added to navs.',
+        allNavs.length === slideCount && navEnabled
+      );
+    }
   };
 
   return my;
@@ -91,10 +164,20 @@ var tt = (function () {
 
 tt.createSliderHtml();
 tt.cacheSliders();
+tt.createSuiteContainer();
+
+// # base
 tinySlider({
   container: tt.dom.sliders.base,
   items: 3,
 }).init();
+tt.createSuiteTitle('base');
+tt.checkAttributes({
+  container: tt.dom.sliders.base, 
+  cloneCount: 8,
+  items: 3,
+  prevDisabled: false,
+});
 
 tinySlider({
   container: tt.dom.sliders.responsive,
@@ -165,7 +248,4 @@ tinySlider({
   items: 1,
 }).init();
 
-tt.createSuiteContainer();
 
-tt.createSuiteTitle('base');
-tt.checkAttrubutes(tt.dom.sliders.base, 'horizontal', 8, 3);

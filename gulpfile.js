@@ -93,7 +93,6 @@ var inject = require('gulp-inject');
 var browserSync = require('browser-sync').create();
 var rename = require('gulp-rename');
 var mergeStream = require('merge-stream');
-var nightwatch = require('gulp-nightwatch');
 
 function errorlog (error) {  
   console.error.bind(error);  
