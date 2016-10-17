@@ -1136,11 +1136,15 @@ var tinySlider = (function () {
     function getNavCurrent() {
       var navCurrentTem;
       if (navClicked === -1) {
-        var absoluteIndex = (index < 0) ? index + slideCount : (index >= slideCount) ? index - slideCount : index;
-        navCurrentTem = (options.navContainer) ? absoluteIndex : Math.floor(absoluteIndex / items);
-
-        // non-loop & reach the edge
-        if (!loop && !options.navContainer && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
+        var absoluteIndex = (index < 0) ? index + slideCount : index%slideCount;
+        if (options.navContainer) {
+          return absoluteIndex;
+        } else {
+          var navCurrentTem = Math.floor(absoluteIndex / items);
+          // non-loop & reach the edge
+          if (!loop && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
+          return navCurrentTem;
+        }
       } else {
         navCurrentTem = navClicked;
         navClicked = -1;
@@ -1596,9 +1600,46 @@ var tinySlider = (function () {
         window.removeEventListener('resize', onResize, false);
         window.removeEventListener('scroll', onScroll, false);
       },
+
       // $ Private methods, for test only
-      hasAttr: _hasAttr, getAttr: _getAttr, setAttrs: _setAttrs, removeAttrs: _removeAttrs, removeEvents: _removeEvents, getSliderId: _getSliderId, toDegree: _toDegree, getPanDirection: _getPanDirection, hideElement: _hideElement, showElement: _showElement, 
-      nextButton: function () { return nextButton; }, index: function () { return index; },
+      // hasAttr: _hasAttr, 
+      // getAttr: _getAttr, 
+      // setAttrs: _setAttrs, 
+      // removeAttrs: _removeAttrs, 
+      // removeEvents: _removeEvents, 
+      // getSliderId: _getSliderId, 
+      // toDegree: _toDegree, 
+      // getPanDirection: _getPanDirection, 
+      // hideElement: _hideElement, 
+      // showElement: _showElement, 
+      
+      // transform: transform,
+      // gutter: gutter,
+      // gutterPosition: options.gutterPosition,
+      // edgePadding: edgePadding,
+      // fixedWidth: fixedWidth,
+      // controls: controls,
+      // nav: nav,
+      // rewind: rewind,
+      // loop: loop,
+      // autoHeight: autoHeight,
+      // slideBy: slideBy,
+      // lazyload: lazyload,
+      // touch: touch,
+      // speed: speed,
+      // items: getItems(),
+      // navCountVisible: getVisibleNavCount(),
+      // cloneCount: cloneCount,
+      // index: function () { return index; },
+      
+      // sliderContainer: sliderContainer,
+      // slideItems: slideItems,
+      // slideCount: slideCount,
+      // controlsContainer: function () { return controlsContainer; },
+      // prevButton: function () { return prevButton; }, 
+      // nextButton: function () { return nextButton; }, 
+      // navContainer: function () { return navContainer; },
+      // allNavs: function () { return allNavs; },
     };
   }
 

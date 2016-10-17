@@ -154,7 +154,7 @@ gulp.task('sync', function() {
 // Watch
 gulp.task('watch', function () {
   gulp.watch(config.sass, ['sass']);
-  gulp.watch(config.watch.js, ['js']);
+  gulp.watch(config.watch.js, ['js']).on('change', browserSync.reload);
   gulp.watch(config.watch.html).on('change', browserSync.reload);
 });
 

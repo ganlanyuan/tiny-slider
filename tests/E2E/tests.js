@@ -11,6 +11,18 @@ var tt = (function () {
     sliders: {},
   };
 
+  my.simulateClick = function (el) {
+    var event;
+    if (doc.createEvent) {
+      event = doc.createEvent('Event');
+      event.initEvent('click', true, true);
+      el.dispatchEvent(event);
+    } else {
+      event = doc.createEventObject();
+      el.fireEvent('onclick', event);
+    }
+  };
+
   my.createSliderHtml = function () {
     var htmlTemplate = doc.querySelector('.html_template'),
         sliderFragment = doc.createDocumentFragment(),
@@ -41,107 +53,122 @@ var tt = (function () {
     this.dom.suiteContainer = newUl;
   };
 
-  my.createSuiteTitle = function (describe) {
+  my.createSubSuiteContainer = function (newClass) {
+    var newUl = ul.cloneNode(true);
+    if (newClass) { newUl.className = newClass; }
+    this.dom.suiteContainer.appendChild(newUl);
+    return newUl;
+  };
+
+  my.createSuiteTitle = function (describe, newClass) {
     var newLi = li.cloneNode(true);
     newLi.innerHTML = describe;
-    newLi.className = 'title';
+    newLi.className = newClass || 'title';
     this.dom.suiteContainer.appendChild(newLi);
   };
 
-  my.createSuite = function (describe, result) {
+  my.createSuite = function (container, describe, result) {
     var newLi = li.cloneNode(true);
     newLi.innerHTML = describe;
-    if (!result) { newLi.className = 'fail'; }
-    this.dom.suiteContainer.appendChild(newLi);
+    if (!result) { newLi.className += 'fail'; }
+    container.appendChild(newLi);
   };
 
-  my.checkAttributes = function (options) {
-    var el = options.container,
-        mode = options.mode || 'horizontal',
-        slideCount = options.slideCount || 8,
-        cloneCount = options.cloneCount || slideCount,
-        items = options.items || 3,
-        controls = options.controls || true,
-        nav = options.nav || true,
-        prevDisabled = options.prevDisabled || false;
+  my.checkInit = function (options) {
+    var sliderContainer = options.sliderContainer,
+        mode = options.transform || 'horizontal',
+        slideItems = options.slideItems,
+        slideCount = options.slideCount,
+        cloneCount = options.cloneCount,
+        items = options.items,
+        controls = options.controls,
+        nav = options.nav,
+        prevDisabled = !options.loop,
+        controlsContainer = options.controlsContainer(),
+        prevButton = options.prevButton(),
+        nextButton = options.nextButton(),
+        navContainer = options.navContainer(),
+        allNavs = options.allNavs(),
+        navEnabled = true;
 
+    my.createSuiteTitle('Initialization', 'subtitle');
+    var CT = my.createSubSuiteContainer();
+    
     // check wrapper
     my.createSuite(
-      'Slider is wrapped into .tiny-slider.', 
-      el.parentNode.className === 'tiny-slider'
+      CT,
+      'Container: slider is wrapped into <strong>.tiny-slider</strong>.', 
+      sliderContainer.parentNode.className === 'tiny-slider'
     );
 
     // check container
     my.createSuite(
-      'Classes  tiny-content and ' + mode + ' are added.', 
-      el.className.indexOf('tiny-content ' + mode) !== -1
+      CT,
+      'Container: classes  <strong>.tiny-content</strong> and <strong>.' + mode + '</strong> are added.', 
+      sliderContainer.className.indexOf('tiny-content ' + mode) !== -1
     );
-
-    // // check transform
-    // my.createSuite(
-    //   'Transform is added.',
-    //   el.style.transitionDuration === '0s' && 
-    //   el.style.transform === 'translate3d(0px, 0px, 0px)'
-    // );
 
     // check slides' aria-hidden
     var ariaHiddenAdded = true, 
-        elChildren = el.children,
-        elChildrenLen = el.children.length;
+        elChildrenLen = slideItems.length;
     for (var i = 0; i < elChildrenLen; i++) {
       if (ariaHiddenAdded) { 
         if (i >= cloneCount && i < cloneCount + items) {
-          if (elChildren[i].getAttribute('aria-hidden') !== 'false') {
+          if (slideItems[i].getAttribute('aria-hidden') !== 'false') {
             ariaHiddenAdded = false; 
           }
         } else {
-          if (elChildren[i].getAttribute('aria-hidden') !== 'true') {
+          if (slideItems[i].getAttribute('aria-hidden') !== 'true') {
             ariaHiddenAdded = false; 
           }
         }
       }
     }
     my.createSuite(
-      'Aria-hidden attributes are correctly added.', 
+      CT,
+      'Slides: <strong>Aria-hidden</strong> attributes are correctly added.', 
       ariaHiddenAdded
+    );
+
+    // check slides' position
+    my.createSuite(
+      CT,
+      'Slides: slides are at expected positions.',
+      Math.round(slideItems[cloneCount].getBoundingClientRect().left) === Math.round(sliderContainer.parentNode.getBoundingClientRect().left) &&
+      Math.round(slideItems[cloneCount + items - 1].getBoundingClientRect().right) === Math.round(sliderContainer.parentNode.getBoundingClientRect().right)
     );
 
     // check controls
     if (controls) {
-      var controlsContainer = el.nextSibling,
-          prevBtn = controlsContainer.children[0],
-          nextBtn = controlsContainer.children[1];
-
       my.createSuite(
-        'Class .tiny-controls and attribute aria-label are added to controls container.',
+        CT,
+        'Controls: class <strong>.tiny-controls</strong> and attribute <strong>aria-label</strong> are added to controls container.',
         controlsContainer.className.indexOf('tiny-controls') !== -1 && 
         controlsContainer.getAttribute('aria-label') === 'Carousel Navigation' 
       );
       my.createSuite(
-        'Attributes are correctly added to controls.',
-        prevBtn.getAttribute('data-controls') === 'prev' &&
-        prevBtn.getAttribute('tabindex') === '-1' &&
-        prevBtn.getAttribute('aria-controls') === el.id &&
-        prevBtn.hasAttribute('disabled') === prevDisabled &&
-        nextBtn.getAttribute('data-controls') === 'next' &&
-        nextBtn.getAttribute('tabindex') === '0' &&
-        nextBtn.getAttribute('aria-controls') === el.id
+        CT,
+        'Controls: attributes are correctly added to controls.',
+        prevButton.getAttribute('data-controls') === 'prev' &&
+        prevButton.getAttribute('tabindex') === '-1' &&
+        prevButton.getAttribute('aria-controls') === sliderContainer.id &&
+        prevButton.hasAttribute('disabled') === prevDisabled &&
+        nextButton.getAttribute('data-controls') === 'next' &&
+        nextButton.getAttribute('tabindex') === '0' &&
+        nextButton.getAttribute('aria-controls') === sliderContainer.id
       );
     }
 
     // check nav
     if (nav) {
-      var navContainer = el.nextSibling.nextSibling,
-          allNavs = navContainer.querySelectorAll('[data-slide]'),
-          navEnabled = true;
-
       my.createSuite(
-        'Class .tiny-nav and attribute aria-label are added to nav container.',
+        CT,
+        'Nav: class <strong>.tiny-nav</strong> and attribute <strong>aria-label</strong> are added to nav container.',
         navContainer.className.indexOf('tiny-nav') !== -1 && 
         navContainer.getAttribute('aria-label') === 'Carousel Pagination' 
       );
 
-      var controlsName = el.id + 'item';
+      var controlsName = sliderContainer.id + 'item';
       for (var i = 0; i < slideCount; i++) {
         if (navEnabled) {
           var tabindex = (i !== 0) ? '-1' : '0',
@@ -153,10 +180,95 @@ var tt = (function () {
       }
 
       my.createSuite(
-        'Attributes are correctly added to navs.',
+        CT,
+        'Nav: attributes are correctly added to navs.',
         allNavs.length === slideCount && navEnabled
       );
     }
+  };
+
+  my.checkFunctions = function (options) {
+    var sliderContainer = options.sliderContainer,
+        mode = options.transform || 'horizontal',
+        slideItems = options.slideItems,
+        slideCount = options.slideCount,
+        cloneCount = options.cloneCount,
+        items = options.items,
+        controls = options.controls,
+        nav = options.nav,
+        speed = options.speed,
+        prevDisabled = !options.loop,
+        controlsContainer = options.controlsContainer(),
+        prevButton = options.prevButton(),
+        nextButton = options.nextButton(),
+        navContainer = options.navContainer(),
+        allNavs = options.allNavs(),
+        navEnabled = true;
+
+    my.createSuiteTitle('Functions', 'subtitle');
+    var CT = my.createSubSuiteContainer();
+    
+    // check controls
+    var a = 1, 
+        b = slideCount + 1,
+        controlsFnCheck = true,
+        slideLength = slideItems.length,
+        timeout = (gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration'])) ? (speed * slideCount) : 10;
+
+    var checkControls = function (des, fn) {
+      if (a < b) { 
+        if (des === 'prev') {
+          my.simulateClick(prevButton);
+        } else {
+          my.simulateClick(nextButton);
+        }
+        setTimeout(function () {
+          fn();
+          a++;
+          checkControls(des, fn); 
+        }, timeout);
+      } else {
+        my.createSuite(CT, 'Controls: ' + des + ' button works as expected.', controlsFnCheck);
+      }
+    };
+      
+    function controlsFn (des) {
+      var expected = (des === 'prev')? slideCount - a : slideCount + a,
+          thisIndex = options.index() + cloneCount,
+          pr = Math.round(sliderContainer.parentNode.getBoundingClientRect().right),
+          sr = Math.round(slideItems[slideLength - 1].getBoundingClientRect().right),
+          check;
+
+      expected = (expected < 0) ? expected + slideCount : expected%slideCount;
+      thisIndex = (thisIndex < 0) ? thisIndex + slideCount : thisIndex%slideCount;
+      check = sr >= pr && thisIndex === expected;
+
+      // console.log(thisIndex, sr, pr, '||', thisIndex, expected);
+      if (!check) {
+        controlsFnCheck = false;
+      }
+    }
+
+    function prevFn() {
+      controlsFn('prev');
+    }
+    function nextFn() {
+      controlsFn('next');
+    }
+
+    if (controls) {
+      checkControls('next', nextFn);
+      setTimeout(function () {
+        a = 1;
+        checkControls('prev', prevFn);
+      }, 1000);
+    }
+    // check nav
+    if (nav) {
+      var c = 1,
+          d = options.navCountVisible;
+    }
+
   };
 
   return my;
@@ -167,19 +279,17 @@ tt.cacheSliders();
 tt.createSuiteContainer();
 
 // # base
-tinySlider({
+var baseSD = tinySlider({
   container: tt.dom.sliders.base,
   items: 3,
-}).init();
-tt.createSuiteTitle('base');
-tt.checkAttributes({
-  container: tt.dom.sliders.base, 
-  cloneCount: 8,
-  items: 3,
-  prevDisabled: false,
+  speed: 10,
 });
+baseSD.init();
+tt.createSuiteTitle('base');
+tt.checkInit(baseSD);
+tt.checkFunctions(baseSD);
 
-tinySlider({
+var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
   gutter: 10,
   gutterPosition: 'left',
@@ -190,7 +300,10 @@ tinySlider({
     800: 3,
   },
   // rewind: true,
-}).init();
+});
+responsiveSD.init();
+// tt.createSuiteTitle('responsive');
+// tt.checkInit(responsiveSD);
 
 tinySlider({
   container: tt.dom.sliders.fixedWidth,
@@ -248,4 +361,8 @@ tinySlider({
   items: 1,
 }).init();
 
+// var myWindow = window.open('http://192.168.103.82:3000/tests/E2E/index.html', 'test window', 'innerWidth=1024, height=800, resizable, scrollbars, status');
+// setTimeout(function () {
+//   myWindow.resizeTo(800, 1024);
+// }, 1000);
 
