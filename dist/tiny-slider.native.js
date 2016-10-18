@@ -163,8 +163,15 @@ var tinySlider = (function () {
     var getSlideWidth = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth + gutter; };
+      } else if (navigator.appVersion.indexOf("MSIE 8") > 0) {
+        // round half-pixel if IE8
+        return function () { 
+          return Math.round((sliderWrapper.clientWidth - gutter - edgePadding * 2) / items); 
+        }
       } else {
-        return function () { return (sliderWrapper.clientWidth + gutter - edgePadding * 2) / items; };
+        return function () { 
+          return (sliderWrapper.clientWidth - gutter - edgePadding * 2) / items; 
+        };
       }
     })();
 
@@ -194,7 +201,7 @@ var tinySlider = (function () {
       sliderContainer.classList.add('tiny-content', transform);
       sliderContainer.style.cssText = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
-          'padding-left: ' + edgePadding + 'px';
+          'padding-left: ' + (edgePadding + gutter) + 'px';
     }
 
     // for IE10
@@ -1032,44 +1039,45 @@ var tinySlider = (function () {
       },
 
       // $ Private methods, for test only
-      // hasAttr: _hasAttr, 
-      // getAttr: _getAttr, 
-      // setAttrs: _setAttrs, 
-      // removeAttrs: _removeAttrs, 
-      // removeEvents: _removeEvents, 
-      // getSliderId: _getSliderId, 
-      // toDegree: _toDegree, 
-      // getPanDirection: _getPanDirection, 
-      // hideElement: _hideElement, 
-      // showElement: _showElement, 
+      hasAttr: _hasAttr, 
+      getAttr: _getAttr, 
+      setAttrs: _setAttrs, 
+      removeAttrs: _removeAttrs, 
+      removeEvents: _removeEvents, 
+      getSliderId: _getSliderId, 
+      toDegree: _toDegree, 
+      getPanDirection: _getPanDirection, 
+      hideElement: _hideElement, 
+      showElement: _showElement, 
       
-      // transform: transform,
-      // gutter: gutter,
-      // gutterPosition: options.gutterPosition,
-      // edgePadding: edgePadding,
-      // fixedWidth: fixedWidth,
-      // controls: controls,
-      // nav: nav,
-      // rewind: rewind,
-      // loop: loop,
-      // autoHeight: autoHeight,
-      // slideBy: slideBy,
-      // lazyload: lazyload,
-      // touch: touch,
-      // speed: speed,
-      // items: getItems(),
-      // navCountVisible: getVisibleNavCount(),
-      // cloneCount: cloneCount,
-      // index: function () { return index; },
+      transform: transform,
+      gutter: gutter,
+      gutterPosition: options.gutterPosition,
+      edgePadding: edgePadding,
+      fixedWidth: fixedWidth,
+      controls: controls,
+      nav: nav,
+      rewind: rewind,
+      loop: loop,
+      autoHeight: autoHeight,
+      slideBy: slideBy,
+      lazyload: lazyload,
+      touch: touch,
+      speed: speed,
+      items: getItems(),
+      navCountVisible: getVisibleNavCount(),
+      cloneCount: cloneCount,
+      index: function () { return index; },
+      running: function () { return running; },
       
-      // sliderContainer: sliderContainer,
-      // slideItems: slideItems,
-      // slideCount: slideCount,
-      // controlsContainer: function () { return controlsContainer; },
-      // prevButton: function () { return prevButton; }, 
-      // nextButton: function () { return nextButton; }, 
-      // navContainer: function () { return navContainer; },
-      // allNavs: function () { return allNavs; },
+      sliderContainer: sliderContainer,
+      slideItems: slideItems,
+      slideCount: slideCount,
+      controlsContainer: function () { return controlsContainer; },
+      prevButton: function () { return prevButton; }, 
+      nextButton: function () { return nextButton; }, 
+      navContainer: function () { return navContainer; },
+      allNavs: function () { return allNavs; },
     };
   }
 

@@ -1,10 +1,130 @@
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach =  function(block, thisObject) {
+        var len = this.length >>> 0;
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                block.call(thisObject, this[i], i, this);
+            }
+        }
+    };
+}
+var events = {
+  events: {},
+  on: function (eventName, fn) {
+    this.events[eventName] = this.events[eventName] || [];
+    this.events[eventName].push(fn);
+  },
+  off: function(eventName, fn) {
+    if (this.events[eventName]) {
+      for (var i = 0; i < this.events[eventName].length; i++) {
+        if (this.events[eventName][i] === fn) {
+          this.events[eventName].splice(i, 1);
+          break;
+        }
+      };
+    }
+  },
+  emit: function (eventName, data) {
+    if (this.events[eventName]) {
+      this.events[eventName].forEach(function(fn) {
+        fn(data);
+      });
+    }
+  }
+};
+/* From Modernizr */
+function whichTransitionEvent(){
+  var t,
+      el = document.createElement('fakeelement'),
+      transitions = {
+        'transition':'transitionend',
+        'OTransition':'oTransitionEnd',
+        'MozTransition':'transitionend',
+        'WebkitTransition':'webkitTransitionEnd'
+      };
+
+  for(t in transitions){
+    if( el.style[t] !== undefined ){
+      return transitions[t];
+    }
+  }
+
+  return false // explicit for ie8 (._.)
+}
+// Production steps of ECMA-262, Edition 5, 15.4.4.14
+// Reference: http://es5.github.io/#x15.4.4.14
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(searchElement, fromIndex) {
+
+    var k;
+
+    // 1. Let o be the result of calling ToObject passing
+    //    the this value as the argument.
+    if (this == null) {
+      throw new TypeError('"this" is null or not defined');
+    }
+
+    var o = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get
+    //    internal method of o with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = o.length >>> 0;
+
+    // 4. If len is 0, return -1.
+    if (len === 0) {
+      return -1;
+    }
+
+    // 5. If argument fromIndex was passed let n be
+    //    ToInteger(fromIndex); else let n be 0.
+    var n = +fromIndex || 0;
+
+    if (Math.abs(n) === Infinity) {
+      n = 0;
+    }
+
+    // 6. If n >= len, return -1.
+    if (n >= len) {
+      return -1;
+    }
+
+    // 7. If n >= 0, then Let k be n.
+    // 8. Else, n<0, Let k be len - abs(n).
+    //    If k is less than 0, then let k be 0.
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+    // 9. Repeat, while k < len
+    while (k < len) {
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the
+      //    HasProperty internal method of o with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      //    i.  Let elementK be the result of calling the Get
+      //        internal method of o with the argument ToString(k).
+      //   ii.  Let same be the result of applying the
+      //        Strict Equality Comparison Algorithm to
+      //        searchElement and elementK.
+      //  iii.  If same is true, return k.
+      if (k in o && o[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}
+
 var tt = (function () {
   var my = {}, 
       doc = document,
-      sliderNames = ['vertical', 'fade', 'base', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
       ul = doc.createElement('ul');
       li = doc.createElement('li');
 
+  my.transitionendEvent = whichTransitionEvent();
   my.dom = {
     body: doc.querySelector('body'),
     container: doc.querySelector('.container'),
@@ -83,6 +203,9 @@ var tt = (function () {
         items = options.items,
         controls = options.controls,
         nav = options.nav,
+        gutter = options.gutter,
+        edgePadding = options.edgePadding,
+        gap = gutter + edgePadding,
         prevDisabled = !options.loop,
         controlsContainer = options.controlsContainer(),
         prevButton = options.prevButton(),
@@ -134,8 +257,8 @@ var tt = (function () {
     my.createSuite(
       CT,
       'Slides: slides are at expected positions.',
-      Math.round(slideItems[cloneCount].getBoundingClientRect().left) === Math.round(sliderContainer.parentNode.getBoundingClientRect().left) &&
-      Math.round(slideItems[cloneCount + items - 1].getBoundingClientRect().right) === Math.round(sliderContainer.parentNode.getBoundingClientRect().right)
+      Math.round(slideItems[cloneCount].getBoundingClientRect().left) === Math.round(sliderContainer.parentNode.getBoundingClientRect().left + gap) &&
+      Math.round(slideItems[cloneCount + items - 1].getBoundingClientRect().right + gap) === Math.round(sliderContainer.parentNode.getBoundingClientRect().right)
     );
 
     // check controls
@@ -197,76 +320,130 @@ var tt = (function () {
         controls = options.controls,
         nav = options.nav,
         speed = options.speed,
+        gutter = options.gutter,
+        edgePadding = options.edgePadding,
+        gap = gutter + edgePadding,
         prevDisabled = !options.loop,
         controlsContainer = options.controlsContainer(),
         prevButton = options.prevButton(),
         nextButton = options.nextButton(),
         navContainer = options.navContainer(),
         allNavs = options.allNavs(),
-        navEnabled = true;
+        navEnabled = true,
+        slideLength = slideItems.length,
+        slideCountMultiple = Math.floor((cloneCount * 2 + slideCount) / slideCount);
 
     my.createSuiteTitle('Functions', 'subtitle');
     var CT = my.createSubSuiteContainer();
     
     // check controls
-    var a = 1, 
-        b = slideCount + 1,
-        controlsFnCheck = true,
-        slideLength = slideItems.length,
-        timeout = (gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration'])) ? (speed * slideCount) : 10;
-
-    var checkControls = function (des, fn) {
-      if (a < b) { 
-        if (des === 'prev') {
-          my.simulateClick(prevButton);
-        } else {
-          my.simulateClick(nextButton);
-        }
+    function checkControls (des, fn, ss) {
+      function fallback () {
+        fn();
+        a++;
         setTimeout(function () {
-          fn();
-          a++;
-          checkControls(des, fn); 
-        }, timeout);
-      } else {
-        my.createSuite(CT, 'Controls: ' + des + ' button works as expected.', controlsFnCheck);
+          checkControls(des, fn, ss);
+        }, 50);
+      };
+
+      if (!controlsCheckInit && my.transitionendEvent) {
+        sliderContainer.addEventListener(my.transitionendEvent, fallback);
+        controlsCheckInit = true;
+        ss = ss || fallback;
       }
-    };
+
+      if (a < b) { 
+        my.simulateClick((des === 'prev')? prevButton : nextButton);
+        if (!my.transitionendEvent) {
+          setTimeout(function () {
+            fallback();
+          }, 20);
+        } 
+      } else {
+        sliderContainer.removeEventListener(my.transitionendEvent, ss);
+        my.createSuite(CT, 'Controls: ' + des + ' button works as expected.', controlsFnCheck);
+        if (des === 'next') {
+          events.emit('nextButtonDone');
+        } else {
+          events.emit('prevButtonDone');
+        }
+      }
+    }
       
     function controlsFn (des) {
-      var expected = (des === 'prev')? slideCount - a : slideCount + a,
-          thisIndex = options.index() + cloneCount,
+      var index = (des === 'prev')? slideCount - a : slideCount + a,
+          SLs = [],
           pr = Math.round(sliderContainer.parentNode.getBoundingClientRect().right),
-          sr = Math.round(slideItems[slideLength - 1].getBoundingClientRect().right),
-          check;
+          sr = Math.round(slideItems[slideLength - 1].getBoundingClientRect().right);
 
-      expected = (expected < 0) ? expected + slideCount : expected%slideCount;
-      thisIndex = (thisIndex < 0) ? thisIndex + slideCount : thisIndex%slideCount;
-      check = sr >= pr && thisIndex === expected;
+      index = (index < 0) ? index + slideCount : index%slideCount;
 
-      // console.log(thisIndex, sr, pr, '||', thisIndex, expected);
-      if (!check) {
+      for (var i = 0; i < slideCountMultiple; i++) {
+        SLs.push(Math.round(slideItems[index + slideCount * i].getBoundingClientRect().left));
+      }
+
+      if (sr < pr || SLs.indexOf(gap) === -1) {
         controlsFnCheck = false;
       }
     }
 
-    function prevFn() {
-      controlsFn('prev');
-    }
-    function nextFn() {
-      controlsFn('next');
-    }
+    function prevFn() { controlsFn('prev'); }
+    function nextFn() { controlsFn('next'); }
 
     if (controls) {
-      checkControls('next', nextFn);
-      setTimeout(function () {
-        a = 1;
-        checkControls('prev', prevFn);
-      }, 1000);
+      var a = 1, 
+          b = slideCount + 1,
+          controlsFnCheck = true,
+          controlsCheckInit = false;
+
+      // checkControls('next', nextFn);
+      // events.on('nextButtonDone', function () {
+      //   // reset variables
+      //   a = 1;
+      //   controlsCheckInit = false;
+      //   checkControls('prev', prevFn);
+      // });
     }
+
     // check nav
     if (nav) {
       var c = 1,
-          d = options.navCountVisible;
+          d = options.navCountVisible,
+          navFnCheck = true,
+          navCheckInit = false;
+
+      // events.on('prevButtonDone', function () {
+      //   checkNav();
+      // });
+
+      function checkNav() {
+        if (!navCheckInit && my.transitionendEvent) {
+          sliderContainer.addEventListener(my.transitionendEvent, navCheckFn);
+          navCheckInit = true;
+        }
+
+        if (c < d) {
+          my.simulateClick(allNavs[c]);
+          if (!my.transitionendEvent) {
+            setTimeout(function () {
+              navCheckFn();
+            }, 20);
+          }
+        } else {
+          sliderContainer.removeEventListener(my.transitionendEvent, navCheckFn);
+          my.createSuite(CT, 'Nav: works as expected.', navFnCheck);
+          events.emit('navDone');
+        }
+      }
+
+      function navCheckFn() {
+        var index = Math.min((cloneCount + items * c), (slideLength - items));
+        if (slideItems[index].getBoundingClientRect().left !== gap) { 
+          navFnCheck = false; 
+        }
+        c++;
+        checkNav();
+      }
     }
 
   };
@@ -279,15 +456,15 @@ tt.cacheSliders();
 tt.createSuiteContainer();
 
 // # base
-var baseSD = tinySlider({
-  container: tt.dom.sliders.base,
-  items: 3,
-  speed: 10,
-});
-baseSD.init();
-tt.createSuiteTitle('base');
-tt.checkInit(baseSD);
-tt.checkFunctions(baseSD);
+// var baseSD = tinySlider({
+//   container: tt.dom.sliders.base,
+//   items: 3,
+//   speed: 10,
+// });
+// baseSD.init();
+// tt.createSuiteTitle('base');
+// tt.checkInit(baseSD);
+// tt.checkFunctions(baseSD);
 
 var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
@@ -302,8 +479,9 @@ var responsiveSD = tinySlider({
   // rewind: true,
 });
 responsiveSD.init();
-// tt.createSuiteTitle('responsive');
-// tt.checkInit(responsiveSD);
+tt.createSuiteTitle('responsive');
+tt.checkInit(responsiveSD);
+tt.checkFunctions(responsiveSD);
 
 tinySlider({
   container: tt.dom.sliders.fixedWidth,
