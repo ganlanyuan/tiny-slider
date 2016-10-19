@@ -198,10 +198,11 @@ var tinySlider = (function () {
     }
 
     function containerInit() {
+      var containerPadding = (!fixedWidth) ? edgePadding + gutter : getFixedWidthEdgePadding();
       sliderContainer.classList.add('tiny-content', transform);
-      sliderContainer.style.cssText = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
+      sliderContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
-          'padding-left: ' + (edgePadding + gutter) + 'px';
+          'padding-left: ' + containerPadding + 'px';
     }
 
     // for IE10
@@ -475,22 +476,27 @@ var tinySlider = (function () {
       }
     }
 
-    function updateLayout() {
-      if (!fixedWidth) {
-        // + 1: fixed half-pixel issue
-        sliderContainer.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
-        sliderContainer.style.marginLeft = - (cloneCount * slideWidth + gapAdjust) + 'px';
-        for (var i = slideCountNew; i--;) {
-          slideItems[i].style.width = slideWidth - gutter + 'px';
-        }
-      }
-
-      // update edge padding
-      if (fixedWidth) {
-        var vw = sliderWrapper.clientWidth;            
-        sliderContainer.style.paddingLeft = ((vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2) + 'px';
-      }
+    function getFixedWidthEdgePadding() {
+      var vw = sliderWrapper.clientWidth;            
+      return ((vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2);
     }
+
+    var updateLayout = (function () {
+      if (!fixedWidth) {
+        return function () {
+          // + 1: fixed half-pixel issue
+          sliderContainer.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
+          sliderContainer.style.marginLeft = - (cloneCount * slideWidth + gapAdjust) + 'px';
+          for (var i = slideCountNew; i--;) {
+            slideItems[i].style.width = slideWidth - gutter + 'px';
+          }
+        };
+      } else {
+        return function () {
+          sliderContainer.style.paddingLeft = getFixedWidthEdgePadding() + 'px';
+        };
+      }
+    })();
 
     // update container height
     // 1. get the max-height of the visible slides
