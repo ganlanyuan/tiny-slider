@@ -120,7 +120,8 @@ if (!Array.prototype.indexOf) {
 var tt = (function () {
   var my = {}, 
       doc = document,
-      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      sliderNames = ['vertical', 'fade', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      div = doc.createElement('div');
       ul = doc.createElement('ul');
       li = doc.createElement('li');
 
@@ -167,24 +168,25 @@ var tt = (function () {
   };
 
   my.createSuiteContainer = function () {
-    var newUl = ul.cloneNode(true);
-    newUl.className = 'suite-container';
-    this.dom.body.insertBefore(newUl, this.dom.container);
-    this.dom.suiteContainer = newUl;
+    var newDiv = div.cloneNode(true);
+    newDiv.className = 'suite-container';
+    this.dom.body.insertBefore(newDiv, this.dom.container);
+    this.dom.suiteContainer = newDiv;
+    return newDiv;
   };
 
-  my.createSubSuiteContainer = function (newClass) {
+  my.createSubSuiteContainer = function (container, newClass) {
     var newUl = ul.cloneNode(true);
     if (newClass) { newUl.className = newClass; }
-    this.dom.suiteContainer.appendChild(newUl);
+    container.appendChild(newUl);
     return newUl;
   };
 
-  my.createSuiteTitle = function (describe, newClass) {
-    var newLi = li.cloneNode(true);
-    newLi.innerHTML = describe;
-    newLi.className = newClass || 'title';
-    this.dom.suiteContainer.appendChild(newLi);
+  my.createSuiteTitle = function (container, describe, newClass) {
+    var newDiv = div.cloneNode(true);
+    newDiv.innerHTML = describe;
+    newDiv.className = newClass || 'title';
+    container.appendChild(newDiv);
   };
 
   my.createSuite = function (container, describe, result) {
@@ -194,7 +196,7 @@ var tt = (function () {
     container.appendChild(newLi);
   };
 
-  my.checkInit = function (options) {
+  my.checkInit = function (container, options) {
     var sliderContainer = options.sliderContainer,
         mode = options.transform || 'horizontal',
         slideItems = options.slideItems,
@@ -214,8 +216,8 @@ var tt = (function () {
         allNavs = options.allNavs(),
         navEnabled = true;
 
-    my.createSuiteTitle('Initialization', 'subtitle');
-    var CT = my.createSubSuiteContainer();
+    my.createSuiteTitle(container, 'Initialization', 'subtitle');
+    var CT = my.createSubSuiteContainer(container);
     
     // check wrapper
     my.createSuite(
@@ -310,7 +312,7 @@ var tt = (function () {
     }
   };
 
-  my.checkFunctions = function (options) {
+  my.checkFunctions = function (container, options) {
     var sliderContainer = options.sliderContainer,
         mode = options.transform || 'horizontal',
         slideItems = options.slideItems,
@@ -320,8 +322,11 @@ var tt = (function () {
         controls = options.controls,
         nav = options.nav,
         speed = options.speed,
+        loop = options.loop,
         gutter = options.gutter,
         edgePadding = options.edgePadding,
+        slideBy = options.slideBy,
+        slideWidth = options.slideWidth(),
         gap = gutter + edgePadding,
         prevDisabled = !options.loop,
         controlsContainer = options.controlsContainer(),
@@ -333,14 +338,14 @@ var tt = (function () {
         slideLength = slideItems.length,
         slideCountMultiple = Math.floor((cloneCount * 2 + slideCount) / slideCount);
 
-    my.createSuiteTitle('Functions', 'subtitle');
-    var CT = my.createSubSuiteContainer();
-    
+    my.createSuiteTitle(container, 'Functions', 'subtitle');
+    var CT = my.createSubSuiteContainer(container);
+
     // check controls
     function checkControls (des, fn, ss) {
       function fallback () {
         fn();
-        a++;
+        (des === 'next') ? a++ : a--;
         setTimeout(function () {
           checkControls(des, fn, ss);
         }, 50);
@@ -352,8 +357,15 @@ var tt = (function () {
         ss = ss || fallback;
       }
 
-      if (a < b) { 
-        my.simulateClick((des === 'prev')? prevButton : nextButton);
+      if (des === 'next' && a < b) { 
+        my.simulateClick(nextButton);
+        if (!my.transitionendEvent) {
+          setTimeout(function () {
+            fallback();
+          }, 20);
+        } 
+      } else if (des === 'prev' && a >= 0){
+        my.simulateClick(prevButton);
         if (!my.transitionendEvent) {
           setTimeout(function () {
             fallback();
@@ -371,7 +383,7 @@ var tt = (function () {
     }
       
     function controlsFn (des) {
-      var index = (des === 'prev')? slideCount - a : slideCount + a,
+      var index = cloneCount + slideBy * a,
           SLs = [],
           pr = Math.round(sliderContainer.parentNode.getBoundingClientRect().right),
           sr = Math.round(slideItems[slideLength - 1].getBoundingClientRect().right);
@@ -379,9 +391,11 @@ var tt = (function () {
       index = (index < 0) ? index + slideCount : index%slideCount;
 
       for (var i = 0; i < slideCountMultiple; i++) {
-        SLs.push(Math.round(slideItems[index + slideCount * i].getBoundingClientRect().left));
+        var left = (index%1 === 0) ? Math.round(slideItems[index + slideCount * i].getBoundingClientRect().left) : Math.round(slideItems[Math.floor(index) + slideCount * i].getBoundingClientRect().left + (index - Math.floor(index)) * slideWidth);
+        SLs.push(left);
       }
 
+      // console.log(index, SLs, a, b);
       if (sr < pr || SLs.indexOf(gap) === -1) {
         controlsFnCheck = false;
       }
@@ -392,29 +406,28 @@ var tt = (function () {
 
     if (controls) {
       var a = 1, 
-          b = slideCount + 1,
+          b = (loop) ? Math.floor(slideCount/slideBy) + 1 : Math.floor((slideCount - items)/slideBy) + 1,
           controlsFnCheck = true,
           controlsCheckInit = false;
 
-      // checkControls('next', nextFn);
-      // events.on('nextButtonDone', function () {
-      //   // reset variables
-      //   a = 1;
-      //   controlsCheckInit = false;
-      //   checkControls('prev', prevFn);
-      // });
+      checkControls('next', nextFn);
+      events.on('nextButtonDone', function () {
+        // reset variables
+        a = a -2;
+        controlsCheckInit = false;
+        checkControls('prev', prevFn);
+      });
     }
 
     // check nav
     if (nav) {
-      var c = 1,
-          d = options.navCountVisible,
+      var c = options.navCountVisible() - 1,
           navFnCheck = true,
           navCheckInit = false;
 
-      // events.on('prevButtonDone', function () {
-      //   checkNav();
-      // });
+      events.on('prevButtonDone', function () {
+        checkNav();
+      });
 
       function checkNav() {
         if (!navCheckInit && my.transitionendEvent) {
@@ -422,8 +435,9 @@ var tt = (function () {
           navCheckInit = true;
         }
 
-        if (c < d) {
+        if (c >= 0) {
           my.simulateClick(allNavs[c]);
+          // console.log(c);
           if (!my.transitionendEvent) {
             setTimeout(function () {
               navCheckFn();
@@ -438,10 +452,11 @@ var tt = (function () {
 
       function navCheckFn() {
         var index = Math.min((cloneCount + items * c), (slideLength - items));
+        // console.log(index, slideItems[index].getBoundingClientRect().left);
         if (slideItems[index].getBoundingClientRect().left !== gap) { 
           navFnCheck = false; 
         }
-        c++;
+        c--;
         checkNav();
       }
     }
@@ -453,19 +468,21 @@ var tt = (function () {
 
 tt.createSliderHtml();
 tt.cacheSliders();
-tt.createSuiteContainer();
 
 // # base
-// var baseSD = tinySlider({
-//   container: tt.dom.sliders.base,
-//   items: 3,
-//   speed: 10,
-// });
+var baseSD = tinySlider({
+  container: tt.dom.sliders.base,
+  items: 3,
+  speed: 10,
+});
 // baseSD.init();
-// tt.createSuiteTitle('base');
-// tt.checkInit(baseSD);
-// tt.checkFunctions(baseSD);
 
+// var baseContainer = tt.createSuiteContainer();
+// tt.createSuiteTitle(baseContainer, 'base');
+// tt.checkInit(baseContainer, baseSD);
+// tt.checkFunctions(baseContainer, baseSD);
+
+// # responsive
 var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
   gutter: 10,
@@ -478,10 +495,12 @@ var responsiveSD = tinySlider({
   },
   // rewind: true,
 });
-responsiveSD.init();
-tt.createSuiteTitle('responsive');
-tt.checkInit(responsiveSD);
-tt.checkFunctions(responsiveSD);
+// responsiveSD.init();
+
+// var responsiveContainer = tt.createSuiteContainer();
+// tt.createSuiteTitle(responsiveContainer, 'responsive');
+// tt.checkInit(responsiveContainer, responsiveSD);
+// tt.checkFunctions(responsiveContainer, responsiveSD);
 
 tinySlider({
   container: tt.dom.sliders.fixedWidth,
@@ -510,7 +529,7 @@ tinySlider({
 tinySlider({
   container: tt.dom.sliders.autoplay,
   items: 3,
-  autoplay: true,
+  // autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],

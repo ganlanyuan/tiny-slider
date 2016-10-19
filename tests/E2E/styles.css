@@ -103,10 +103,12 @@ button[data-slide] {
 }
 button[aria-selected="true"] { background: #999; }
 .wrapper { padding: 0 5em; }
+.suite-container .title, 
+.suite-container .subtitle, 
+.suite-container li { padding: 5px 10px; }
 .suite-container li {
   font-size: 12px;
   line-height: 1.4;
-  padding: 0.3em 1em;
   background: #f5f5f5;
 }
 .suite-container .title { font-size: 14px; font-weight: bold; background: #8acac6; text-transform: capitalize; }

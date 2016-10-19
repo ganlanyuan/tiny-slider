@@ -678,7 +678,7 @@ var tinySlider = (function () {
 
         sliderId,
         slideWidth,
-        cloneCount = (loop) ? slideCount : (edgePadding) ? 1 : 0,
+        cloneCount = (loop) ? Math.ceil(slideCount*1.5) : (edgePadding) ? 1 : 0,
         slideCountNew = slideCount + cloneCount * 2,
         prevButton,
         nextButton,
@@ -802,8 +802,9 @@ var tinySlider = (function () {
             fragmentAfter = document.createDocumentFragment();
 
         for (var j = cloneCount; j--;) {
-          var cloneFirst = slideItems[j].cloneNode(true),
-              cloneLast = slideItems[slideCount - 1 - j].cloneNode(true);
+          var num = j%slideCount,
+              cloneFirst = slideItems[num].cloneNode(true),
+              cloneLast = slideItems[slideCount - 1 - num].cloneNode(true);
 
           // remove id from cloned slides
           _removeAttrs(cloneFirst, 'id');
@@ -1641,9 +1642,10 @@ var tinySlider = (function () {
       touch: touch,
       speed: speed,
       items: getItems(),
-      navCountVisible: getVisibleNavCount(),
       cloneCount: cloneCount,
+      navCountVisible: function () { return navCountVisible; },
       index: function () { return index; },
+      slideWidth: function () { return slideWidth; },
       running: function () { return running; },
       
       sliderContainer: sliderContainer,
