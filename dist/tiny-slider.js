@@ -608,7 +608,8 @@ var tinySlider = (function () {
   function core (options) {
     options = gn.extend({
       container: document.querySelector('.slider'),
-      transform: 'horizontal',
+      mode: 'carousel',
+      direction: 'horizontal',
       items: 1,
       gutter: 0,
       gutterPosition: 'right',
@@ -644,7 +645,8 @@ var tinySlider = (function () {
     }
 
     // === define and set variables ===
-    var transform = options.transform,
+    var mode = options.mode,
+        direction = options.direction,
         items = options.items,
         sliderContainer = options.container,
         sliderWrapper = document.createElement('div'),
@@ -691,6 +693,7 @@ var tinySlider = (function () {
         index = 0,
         current,
         resizeTimer,
+        vw,
         running = false,
         ticking = false;
 
@@ -726,7 +729,7 @@ var tinySlider = (function () {
         };
 
       } else {
-        return function () { return Math.max(1, Math.min(slideCount, Math.floor(sliderWrapper.clientWidth / fixedWidth))); };
+        return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
       }
     })();
 
@@ -736,11 +739,11 @@ var tinySlider = (function () {
       } else if (navigator.appVersion.indexOf("MSIE 8") > 0) {
         // round half-pixel if IE8
         return function () { 
-          return Math.round((sliderWrapper.clientWidth - gutter - edgePadding * 2) / items); 
+          return Math.round((vw - gutter - edgePadding * 2) / items); 
         }
       } else {
         return function () { 
-          return (sliderWrapper.clientWidth - gutter - edgePadding * 2) / items; 
+          return (vw - gutter - edgePadding * 2) / items; 
         };
       }
     })();
@@ -758,6 +761,7 @@ var tinySlider = (function () {
     function wrapContainer() {
       sliderWrapper.className = 'tiny-slider';
       gn.wrap(sliderContainer, sliderWrapper);
+      vw = sliderWrapper.clientWidth;
     }
 
     function getVariables() {
@@ -769,7 +773,7 @@ var tinySlider = (function () {
 
     function containerInit() {
       var containerPadding = (!fixedWidth) ? edgePadding + gutter : getFixedWidthEdgePadding();
-      sliderContainer.classList.add('tiny-content', transform);
+      sliderContainer.classList.add('tiny-content', mode, direction);
       sliderContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
           'padding-left: ' + containerPadding + 'px';
@@ -1048,7 +1052,6 @@ var tinySlider = (function () {
     }
 
     function getFixedWidthEdgePadding() {
-      var vw = sliderWrapper.clientWidth;            
       return ((vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2);
     }
 
@@ -1206,20 +1209,6 @@ var tinySlider = (function () {
       }
     }
 
-    // # renderAfterResize
-    function renderAfterResize() {
-      getVariables();
-      checkSlideCount();
-
-      updateLayout();
-      updateNavDisplay();
-      if (navigator.msMaxTouchPoints) { setSnapInterval(); }
-
-      setTransitionDuration(0);
-      translate();
-      afterTransform();
-    }
-
     // set transition duration
     var setTransitionDuration = (function () {
       if (TRANSITIONDURATION) { 
@@ -1248,11 +1237,12 @@ var tinySlider = (function () {
       }
     })();
 
+
     // check index after click/drag:
     // if there is not enough room for next transfering,
     // move slide container to a new location without animation
-    // |-----|----------|-----|-----|
-    // |items|slideCount|items|items|
+    // |-----|-----|----------|-----|-----|
+    // |items|items|slideCount|items|items|
     function resetIndexAndContainer() {
       var leftEdge = slideBy - cloneCount + indexAdjust,
           rightEdge = slideCount + cloneCount - items - slideBy - 1; // -1: index starts form 0
@@ -1266,6 +1256,9 @@ var tinySlider = (function () {
         running = false;
       }
     }
+
+    // function afterTransitionEnd() {
+    // }
 
     // # REPAINT
     function repaint(indexGap) {
@@ -1489,7 +1482,7 @@ var tinySlider = (function () {
         var min = (!loop) ? - (slideCount - items) * slideWidth : - (slideCount + cloneCount - items) * slideWidth,
             max = (!loop) ? 0 : cloneCount * slideWidth;
 
-        if (!loop && fixedWidth) { min = - (slideCount * slideWidth - sliderWrapper.clientWidth); }
+        if (!loop && fixedWidth) { min = - (slideCount * slideWidth - vw); }
 
         translateX = - index * slideWidth + distX;
         translateX = Math.max(min, Math.min( translateX, max));
@@ -1525,9 +1518,22 @@ var tinySlider = (function () {
     // # RESIZE
     function onResize() {
       clearTimeout(resizeTimer);
-      // update after resize done
+      // update after stop resizing for 100 ms
       resizeTimer = setTimeout(function () {
-        renderAfterResize();
+        if (sliderWrapper.clientWidth !== vw) {
+          vw = sliderWrapper.clientWidth;
+          getVariables();
+          checkSlideCount();
+
+          updateLayout();
+          updateNavDisplay();
+          if (navigator.msMaxTouchPoints) { setSnapInterval(); }
+
+          setTransitionDuration(0);
+          translate();
+          if (loop) { resetIndexAndContainer(); }
+          afterTransform();
+        }
       }, 100);
     }
 
@@ -1551,7 +1557,7 @@ var tinySlider = (function () {
         sliderWrapper = null;
 
         // sliderContainer
-        sliderContainer.classList.remove('tiny-content', transform);
+        sliderContainer.classList.remove('tiny-content', mode, direction);
         _removeAttrs(sliderContainer, ['id', 'style']);
 
         // cloned items
@@ -1607,7 +1613,7 @@ var tinySlider = (function () {
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
-          document.removeEventListener('keydown', arrowKeys, false);
+          document.removeEventListener('keydown', onKeyDocument, false);
         }
 
         // remove window event listeners
@@ -1627,7 +1633,8 @@ var tinySlider = (function () {
       hideElement: _hideElement, 
       showElement: _showElement, 
       
-      transform: transform,
+      mode: mode,
+      direction: direction,
       gutter: gutter,
       gutterPosition: options.gutterPosition,
       edgePadding: edgePadding,

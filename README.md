@@ -94,7 +94,8 @@ Default:
 ```javascript
 {
   container: document.querySelector('.slider'),
-  transform: 'horizontal',
+  mode: 'carousel',
+  direction: 'horizontal',
   items: 1,
   gutter: 0,
   gutterPosition: 'right',
