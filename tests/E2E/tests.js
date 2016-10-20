@@ -1,7 +1,7 @@
 var tt = (function () {
   var my = {}, 
       doc = document,
-      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      sliderNames = ['vertical', 'fade'],
       div = doc.createElement('div');
       ul = doc.createElement('ul');
       li = doc.createElement('li');
@@ -369,7 +369,7 @@ var responsiveSD = tinySlider({
   gutter: 10,
   gutterPosition: 'left',
   edgePadding: 50,
-  slideBy: 0.5,
+  slideBy: 'page',
   responsive: {
     500: 2,
     800: 3,
@@ -410,7 +410,7 @@ tinySlider({
 tinySlider({
   container: tt.dom.sliders.autoplay,
   items: 3,
-  // autoplay: true,
+  autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],
