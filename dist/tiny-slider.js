@@ -737,14 +737,17 @@ var tinySlider = (function () {
       if (fixedWidth) {
         return function () { return fixedWidth + gutter; };
       } else if (navigator.appVersion.indexOf("MSIE 8") > 0) {
-        // round half-pixel if IE8
-        return function () { 
-          return Math.round((vw - gutter - edgePadding * 2) / items); 
-        };
+        if (edgePadding) {
+          return function () { return Math.round((vw - gutter - edgePadding * 2) / items); };
+        } else {
+          return function () { return Math.round((vw + gutter) / items); };
+        }
       } else {
-        return function () { 
-          return (vw - gutter - edgePadding * 2) / items; 
-        };
+        if (edgePadding) {
+          return function () { return (vw - gutter - edgePadding * 2) / items; };
+        } else {
+          return function () { return (vw + gutter) / items; };
+        }
       }
     })();
 
@@ -772,11 +775,18 @@ var tinySlider = (function () {
     }
 
     function containerInit() {
-      var containerPadding = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : edgePadding + gutter;
+      var containerPadding;
+      if (edgePadding) {
+        if (fixedWidth) {
+          containerPadding = getFixedWidthEdgePadding();
+        } else {
+          containerPadding = edgePadding + gutter;
+        }
+      }
       slideContainer.classList.add('tiny-content', mode, direction);
       slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
-          'padding-left: ' + containerPadding + 'px; ' + TRANSFORM + ': translate3d(0px, 0px, 0px);';
+          'padding-left: ' + containerPadding + 'px; ' + TRANSFORM + ': translate3d(px, 0px, 0px);';
     }
 
     // for IE10
@@ -1037,7 +1047,7 @@ var tinySlider = (function () {
     function checkSlideCount() {
       if (slideCount <= items) { 
         nav = controls = autoplay = loop = rewind = false; 
-        index = 0;
+        index = cloneCount;
 
         if (navContainer) { _hideElement(navContainer); }
         if (controlsContainer) { _hideElement(controlsContainer); }
@@ -1320,7 +1330,7 @@ var tinySlider = (function () {
         navClicked = navIndex = Number(_getAttr(clickTarget, 'data-slide'));
 
         var indexTem, indexGap;
-        indexTem = (options.navContainer) ? navIndex : navIndex * items;
+        indexTem = (options.navContainer) ? navIndex + cloneCount : navIndex * items + cloneCount;
         indexTem = (loop) ? indexTem : Math.min(indexTem, slideCount - items);
         indexGap = Math.abs(indexTem - index);
         index = indexTem;
@@ -1480,12 +1490,11 @@ var tinySlider = (function () {
         touchStarted = false;
         e.preventDefault();
 
-        var minIndex = (!loop) ? 0 : -cloneCount,
-            maxIndex = (!loop) ? slideCount - items : slideCount + cloneCount - items,
+        var maxIndex = (!loop) ? slideCount - items : slideCount + cloneCount * 2 - items,
             indexTem = - (translateXInit + distX) / slideWidth;
 
         indexTem = (distX > 0) ? Math.floor(indexTem) : Math.ceil(indexTem);
-        index = Math.max(minIndex, Math.min(indexTem, maxIndex));
+        index = Math.max(0, Math.min(indexTem, maxIndex));
 
         var translateXEnd = - index * slideWidth;
         if (!loop && !edgePadding && fixedWidth) {
