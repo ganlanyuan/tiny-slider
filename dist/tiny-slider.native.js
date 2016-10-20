@@ -702,7 +702,7 @@ var tinySlider = (function () {
     // 5. lazyload images
     // 6. update container height
     function onTransitionEnd(e) {
-      if (e.propertyName !== 'height') {
+      if (!TRANSITIONEND || e.propertyName !== 'height') {
         if (loop) { resetIndexAndContainer(); }
         updateSlideStatus();
         updateNavStatus();
