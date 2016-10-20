@@ -1,7 +1,7 @@
 var tt = (function () {
   var my = {}, 
       doc = document,
-      sliderNames = ['vertical', 'fade'],
+      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
       div = doc.createElement('div');
       ul = doc.createElement('ul');
       li = doc.createElement('li');
@@ -428,8 +428,8 @@ tinySlider({
   container: document.querySelector('.customize'),
   items: 3,
   edgePadding: 40,
-  controlsContainer: document.querySelector('.customize .slider-controls'),
-  navContainer: document.querySelector('.customize .thumbnails'),
+  controlsContainer: document.querySelector('.customize-tools .controls'),
+  navContainer: document.querySelector('.customize-tools .thumbnails'),
   lazyload: true,
 }).init();
 

@@ -15,7 +15,6 @@ p {
 }
 img {
   max-width: 100%;
-  width: 100%;
   height: auto;
 }
 .img {
@@ -41,7 +40,7 @@ img {
 .auto-height .img-6 { height: 120px; }
 .auto-height .img-7 { height: 220px; }
 .auto-height .img-8 { height: 120px; }
-.controls { position: relative; }
+.customize-tools { position: relative; }
 .thumbnails { 
   margin: 20px 0;
   text-align: center;
@@ -50,8 +49,8 @@ img {
 .thumbnails li[aria-selected="true"] { background: none; }
 .thumbnails li img { border: 5px solid #fff; }
 .thumbnails li[aria-selected="true"] img { border-color: #E75FCB; }
-.slider-controls { text-align: center; }
-.slider-controls li {
+.controls { text-align: center; }
+.controls li {
   display: block;
   position: absolute;
   top: 50%;
@@ -62,11 +61,12 @@ img {
   cursor: pointer;
   transition: background 0.3s;
 }
-.slider-controls li img { display: inline-block; vertical-align: middle; }
-.slider-controls .prev { left: 0; }
-.slider-controls .next { right: 0; }
-.slider-controls li:hover { background: #f2f2f2; }
+.controls li img { display: inline-block; vertical-align: middle; }
+.controls .prev { left: 0; }
+.controls .next { right: 0; }
+.controls li:hover { background: #f2f2f2; }
 .tiny-controls, .tiny-auto { text-align: center; margin-bottom: 10px; }
+.tiny-content img { width: 100%; }
 button[data-controls] {
   font-size: 15px;
   margin: 0 5px;
