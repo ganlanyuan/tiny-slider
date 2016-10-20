@@ -366,9 +366,9 @@ var baseSD = tinySlider({
 // # responsive
 var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
-  gutter: 10,
+  // gutter: 10,
   gutterPosition: 'left',
-  edgePadding: 50,
+  // edgePadding: 50,
   slideBy: 'page',
   responsive: {
     500: 2,
@@ -389,10 +389,9 @@ tinySlider({
   edgePadding: 50,
   gutterPosition: 'left',
   fixedWidth: 200,
-  maxContainerWidth: 900,
-  arrowKeys: true,
-  slideByPage: true,
-  // loop: false,
+  // arrowKeys: true,
+  // slideByPage: true,
+  loop: false,
 }).init();
 
 tinySlider({

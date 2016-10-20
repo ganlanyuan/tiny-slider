@@ -706,10 +706,10 @@ var tinySlider = (function () {
     if (touch) {
       var startX = 0,
           startY = 0,
-          translateX = 0,
-          distX = 0,
-          distY = 0,
-          run = false;
+          translateXInit,
+          distX,
+          distY,
+          touchStarted;
     }
 
     // get items, slideWidth, navCountVisible
@@ -772,11 +772,11 @@ var tinySlider = (function () {
     }
 
     function containerInit() {
-      var containerPadding = (!fixedWidth) ? edgePadding + gutter : getFixedWidthEdgePadding();
+      var containerPadding = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : edgePadding + gutter;
       slideContainer.classList.add('tiny-content', mode, direction);
       slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + (- (cloneCount * slideWidth + gapAdjust)) + 'px; ' + 
-          'padding-left: ' + containerPadding + 'px';
+          'padding-left: ' + containerPadding + 'px; ' + TRANSFORM + ': translate3d(0px, 0px, 0px);';
     }
 
     // for IE10
@@ -1457,6 +1457,7 @@ var tinySlider = (function () {
       var touchObj = e.changedTouches[0];
       startX = parseInt(touchObj.clientX);
       startY = parseInt(touchObj.clientY);
+      translateXInit = Number(slideContainer.style[TRANSFORM].slice(12, -13));
     }
 
     function onPanMove(e) {
@@ -1464,19 +1465,10 @@ var tinySlider = (function () {
       distX = parseInt(touchObj.clientX) - startX;
       distY = parseInt(touchObj.clientY) - startY;
 
-      var panDirection = _getPanDirection(_toDegree(distY, distX), 15);
-      if (panDirection === 'horizontal' && _getAttr(slideContainer, 'aria-busy') !== 'true') { run = true; }
-      if (run) {
-        var min = (!loop) ? - (slideCount - items) * slideWidth : - (slideCount + cloneCount - items) * slideWidth,
-            max = (!loop) ? 0 : cloneCount * slideWidth;
-
-        if (!loop && fixedWidth) { min = - (slideCount * slideWidth - vw); }
-
-        translateX = - index * slideWidth + distX;
-        translateX = Math.max(min, Math.min( translateX, max));
-
-        doTransform(0, translateX);
+      if (_getPanDirection(_toDegree(distY, distX), 15) === 'horizontal') { 
+        touchStarted = true;
         e.preventDefault();
+        doTransform(0, translateXInit + distX);
       }
     }
 
@@ -1484,21 +1476,24 @@ var tinySlider = (function () {
       var touchObj = e.changedTouches[0];
       distX = parseInt(touchObj.clientX) - startX;
 
-      if (run && distX !== 0) {
+      if (touchStarted && distX !== 0) {
+        touchStarted = false;
         e.preventDefault();
-        run = false;
-        translateX = - index * slideWidth + distX;
 
-        var indexTem,
-            min = (!loop) ? 0 : -cloneCount,
-            max = (!loop) ? slideCount - items : slideCount + cloneCount - items;
+        var minIndex = (!loop) ? 0 : -cloneCount,
+            maxIndex = (!loop) ? slideCount - items : slideCount + cloneCount - items,
+            indexTem = - (translateXInit + distX) / slideWidth;
 
-        indexTem = - (translateX / slideWidth);
-        indexTem = (distX < 0) ? Math.ceil(indexTem) : Math.floor(indexTem);
-        indexTem = Math.max(min, Math.min(indexTem, max));
-        index = indexTem;
+        indexTem = (distX > 0) ? Math.floor(indexTem) : Math.ceil(indexTem);
+        index = Math.max(minIndex, Math.min(indexTem, maxIndex));
 
-        render(1);
+        var translateXEnd = - index * slideWidth;
+        if (!loop && !edgePadding && fixedWidth) {
+          translateXEnd = Math.max(- (slideWidth * slideCount - vw), translateXEnd);
+        }
+
+        doTransform(1, translateXEnd);
+        if (!TRANSITIONEND) { onTransitionEnd(); }
       }
     }
 
@@ -1735,6 +1730,7 @@ var tinySlider = (function () {
     }
   }
 
+  // From Modernizr
   function whichTransitionEvent(){
     var t,
         el = document.createElement('fakeelement'),
