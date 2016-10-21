@@ -368,7 +368,7 @@ var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
   gutter: 10,
   gutterPosition: 'left',
-  // edgePadding: 50,
+  edgePadding: 50,
   slideBy: 'page',
   responsive: {
     500: 2,
