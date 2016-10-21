@@ -371,8 +371,8 @@ var responsiveSD = tinySlider({
   edgePadding: 50,
   slideBy: 'page',
   responsive: {
-    500: 2,
-    800: 3,
+    600: 2,
+    900: 3,
   },
   // rewind: true,
 });
@@ -385,7 +385,7 @@ responsiveSD.init();
 
 tinySlider({
   container: tt.dom.sliders.fixedWidth,
-  // gutter: 10,
+  gutter: 10,
   edgePadding: 50,
   gutterPosition: 'left',
   fixedWidth: 200,
@@ -397,6 +397,7 @@ tinySlider({
 tinySlider({
   container: tt.dom.sliders.nonLoop,
   items: 3,
+  edgePadding: 50,
   loop: false,
 }).init();
 
@@ -409,7 +410,7 @@ tinySlider({
 tinySlider({
   container: tt.dom.sliders.autoplay,
   items: 3,
-  autoplay: true,
+  // autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],

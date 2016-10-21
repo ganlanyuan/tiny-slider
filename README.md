@@ -98,7 +98,7 @@ Default:
   direction: 'horizontal',
   items: 1,
   gutter: 0,
-  gutterPosition: 'right',
+  // gutterPosition: 'right',
   edgePadding: 0,
   fixedWidth: false,
   // maxContainerWidth: false,
