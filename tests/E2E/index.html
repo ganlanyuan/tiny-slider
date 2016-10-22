@@ -16,10 +16,25 @@
 
   <link rel="stylesheet" href="../../dist/tiny-slider.css">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /*body { padding-top: 40px; }*/
+    .wp { margin-left: 40px; margin-right: 30px; background: #A5D2EA; overflow: hidden; }
+    .wp-inner { width: 200%; margin-left: -100%; }
+    .wp-inner:after { content: ''; display: table; clear: both; }
+    .items { width: 25%; float: left; padding-right: 10px; box-sizing: border-box; }
+    .inner { height: 100px; background: #DEDEDE; }
+  </style>
 </head>
 <body>
 <div class="container">
-  <h1 id="h1">Tiny-slider Demos</h1>
+  <!-- <div class="wp">
+    <div class="wp-inner">
+      <div class="items"><div class="inner">1</div></div>
+      <div class="items"><div class="inner">2</div></div>
+      <div class="items"><div class="inner">3</div></div>
+      <div class="items"><div class="inner">4</div></div>
+    </div>
+  </div> -->
   <div class="html_template">
     <h2>Title</h2>
     <div>
@@ -57,39 +72,40 @@
       </div>
     </div>
   </div>
-  <div>
+  <div class="divider"></div>
+  <!-- <div>
     <h2>Customize</h2>
     <ul class="customize">
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/1.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/1.jpg" alt="" width="300" height="300"></div>
         <p>Lorem ipsum dolor sit amet,</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/2.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/2.jpg" alt="" width="300" height="300"></div>
         <p>Blanditiis sapiente tempora corrupti incidunt</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/3.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/3.jpg" alt="" width="300" height="300"></div>
         <p>At possimus dolorum eligendi repellat</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/4.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/4.jpg" alt="" width="300" height="300"></div>
         <p>Cumque facilis amet eos nulla</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/5.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/5.jpg" alt="" width="300" height="300"></div>
         <p>Sint ad, praesentium est delectus</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/6.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/6.jpg" alt="" width="300" height="300"></div>
         <p>Neque accusamus inventore rerum aspernatur</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/7.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/7.jpg" alt="" width="300" height="300"></div>
         <p>Quis deserunt quo sequi qui</p>
       </li>
       <li>
-        <div><img class="tiny-lazy" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/8.jpg" alt="" width="300" height="300"></div>
+        <div><img data-tns-role="lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/8.jpg" alt="" width="300" height="300"></div>
         <p>Laborum officiis, magnam, eos possimus</p>
       </li>
     </ul>
@@ -109,8 +125,8 @@
         <li data-controls="next" class="next"><img src="images/angle-right.png" alt=""></li>
       </ul>
     </div>
-  </div>
-  <div class="auto-height-wrapper">
+  </div> -->
+  <!-- <div class="auto-height-wrapper">
     <h2>auto height</h2>
     <div class="auto-height">
       <div>
@@ -134,7 +150,7 @@
         <p>Quis deserunt quo sequi qui fugiat nobis </p>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <script src="../../dist/tiny-slider.ie8.js"></script>

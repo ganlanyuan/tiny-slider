@@ -65,8 +65,8 @@ img {
 .controls .prev { left: 0; }
 .controls .next { right: 0; }
 .controls li:hover { background: #f2f2f2; }
-.tiny-controls, .tiny-auto { text-align: center; margin-bottom: 10px; }
-.tiny-content img { width: 100%; }
+[data-tns-role="controls"] { text-align: center; margin-bottom: 10px; }
+[data-tns-role="content"] img { width: 100%; }
 button[data-controls] {
   font-size: 15px;
   margin: 0 5px;
@@ -90,7 +90,7 @@ button[disabled] {
   background: #B3B3B3; 
   cursor: not-allowed !important;
 }
-.tiny-nav {
+[data-tns-role='nav'] {
   text-align: center;
   margin: 10px 0;
 }

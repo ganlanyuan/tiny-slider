@@ -1,7 +1,8 @@
 var tt = (function () {
   var my = {}, 
       doc = document,
-      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      sliderNames = ['responsive', 'fixedWidth'],
+      // sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
       div = doc.createElement('div');
       ul = doc.createElement('ul');
       li = doc.createElement('li');
@@ -29,7 +30,7 @@ var tt = (function () {
     var htmlTemplate = doc.querySelector('.html_template'),
         sliderFragment = doc.createDocumentFragment(),
         docContainer = doc.querySelector('.container'),
-        docHeading = docContainer.querySelector('h1');
+        divider = docContainer.querySelector('.divider');
 
     for (var i = sliderNames.length; i--;) {
       var sd = htmlTemplate.cloneNode(true);
@@ -39,7 +40,7 @@ var tt = (function () {
 
       sliderFragment.insertBefore(sd, sliderFragment.firstChild);
     }
-    docContainer.insertBefore(sliderFragment, docHeading.nextSibling);
+    docContainer.insertBefore(sliderFragment, divider);
   };
 
   my.cacheSliders = function () {
@@ -368,7 +369,7 @@ var responsiveSD = tinySlider({
   container: tt.dom.sliders.responsive,
   gutter: 10,
   gutterPosition: 'left',
-  edgePadding: 50,
+  // edgePadding: 50,
   slideBy: 'page',
   responsive: {
     600: 2,
@@ -387,7 +388,6 @@ tinySlider({
   container: tt.dom.sliders.fixedWidth,
   gutter: 10,
   edgePadding: 50,
-  gutterPosition: 'left',
   fixedWidth: 200,
   // arrowKeys: true,
   // slideByPage: true,
@@ -424,20 +424,20 @@ tinySlider({
   // slideByPage: true,
 }).init();
 
-tinySlider({
-  container: document.querySelector('.customize'),
-  items: 3,
-  edgePadding: 40,
-  controlsContainer: document.querySelector('.customize-tools .controls'),
-  navContainer: document.querySelector('.customize-tools .thumbnails'),
-  lazyload: true,
-}).init();
+// tinySlider({
+//   container: document.querySelector('.customize'),
+//   items: 3,
+//   edgePadding: 40,
+//   controlsContainer: document.querySelector('.customize-tools .controls'),
+//   navContainer: document.querySelector('.customize-tools .thumbnails'),
+//   lazyload: true,
+// }).init();
 
-tinySlider({
-  container: document.querySelector('.auto-height'),
-  autoHeight: true,
-  items: 1,
-}).init();
+// tinySlider({
+//   container: document.querySelector('.auto-height'),
+//   autoHeight: true,
+//   items: 1,
+// }).init();
 
 // var myWindow = window.open('http://192.168.103.82:3000/tests/E2E/index.html', 'test window', 'innerWidth=1024, height=800, resizable, scrollbars, status');
 // setTimeout(function () {

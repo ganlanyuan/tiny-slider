@@ -185,11 +185,11 @@ describe('removeEvents:', function () {
 // # getSliderId
 describe('getSliderId: ', function () {
   it('get a unit id for each slider on the page', function () {
-    expect(so.getSliderId()).toBe('tinySlider1');
-    expect(so.getSliderId()).toBe('tinySlider2');
-    expect(so.getSliderId()).toBe('tinySlider3');
-    expect(so.getSliderId()).toBe('tinySlider4');
-    expect(so.getSliderId()).toBe('tinySlider5');
+    expect(so.getSliderId()).toBe('tns1');
+    expect(so.getSliderId()).toBe('tns2');
+    expect(so.getSliderId()).toBe('tns3');
+    expect(so.getSliderId()).toBe('tns4');
+    expect(so.getSliderId()).toBe('tns5');
   });
 });
 

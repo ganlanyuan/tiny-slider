@@ -1,66 +1,57 @@
 // tiny
-.tiny {
-  &-slider {
+[data-tns-role="wrapper"] {
+  overflow: hidden;
+  padding: 0 !important; // remove padding: clientWidth = width + padding (0) = width
+  &.ms-touch {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -ms-overflow-style: none; // Hides the scrollbar.
+    -ms-scroll-chaining: none; // Prevents Metro from swiping to the next tab or app.
+    -ms-scroll-snap-type: mandatory; // Forces a snap scroll behavior on your images.
+    -ms-scroll-snap-points-x: snapInterval(0%, 100%); // Defines the y and x intervals to snap to when scrolling.
+  }
+}
+[data-tns-role="content"] {
+  position: relative;
+  -webkit-transition: transform 0s, height 0s;
+  -moz-transition: transform 0s, height 0s;
+  transition: transform 0s, height 0s;
+}
+[data-tns-mode="carousel"] {
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+  > div, > li, > span, > a {
+    float: left;
+    box-sizing: border-box;
     overflow: hidden;
-    padding: 0 !important; // remove padding: clientWidth = width + padding (0) = width
-    &.ms-touch {
-      overflow-x: scroll;
-      overflow-y: hidden;
-      
-      -ms-overflow-style: none;
-      /* Hides the scrollbar. */
-      
-      -ms-scroll-chaining: none;
-      /* Prevents Metro from swiping to the next tab or app. */
-      
-      -ms-scroll-snap-type: mandatory;
-      /* Forces a snap scroll behavior on your images. */
-      
-      -ms-scroll-snap-points-x: snapInterval(0%, 100%);
-      /* Defines the y and x intervals to snap to when scrolling. */
-    }
   }
-  &-content {
-    position: relative;
-    -webkit-transition: transform 0s, height 0s;
-    -moz-transition: transform 0s, height 0s;
-    transition: transform 0s, height 0s;
-    overflow: hidden;
-    &.horizontal {
-      left: 0;
-      &:after {
-        content: '';
-        display: table;
-        clear: both;
-      }
-      > div, > li, > span, > a {
-        float: left;
-        box-sizing: border-box;
-        overflow: hidden;
-      }
-    }
-    &.vertical {}
-    &.fade,
-    &.others {
-      > div, > li, > span, > a {
-        position: absolute;
-        left: 0;
-        opacity: 0;
-        z-index: 0;
-        transition: transform 0s, opacity 0s, height 0s;
-      }
-    }
+}
+[data-tns-features*="horizontal"] {
+  left: 0;
+}
+[data-tns-features*="vertical"] {}
+[data-tns-features*="autoheight"] { overflow: hidden; }
+
+[data-tns-mode="fade"] {
+  > div, > li, > span, > a {
+    position: absolute;
+    left: 0;
+    opacity: 0;
+    z-index: 0;
+    transition: transform 0s, opacity 0s, height 0s;
   }
-  
-  &-nav {
-    button { vertical-align: middle; }
-  }
-  &-lazy {
-    -webkit-transition: opacity 0.6s;
-    transition: opacity 0.6s;
-    opacity: 0.6;
-    &.loaded { opacity: 1; }
-  }
+}
+[data-tns-role="nav"] {
+  button { vertical-align: middle; }
+}
+[data-tns-role="lazy-img"] {
+  -webkit-transition: opacity 0.6s;
+  transition: opacity 0.6s;
+  opacity: 0.6;
+  &.loaded { opacity: 1; }
 }
 [hidden] { display: none !important; }
 [data-controls], [data-action], [data-slide]  {
