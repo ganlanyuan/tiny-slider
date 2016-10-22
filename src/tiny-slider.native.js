@@ -195,7 +195,11 @@ var tinySlider = (function () {
       _setAttrs(slideWrapper, {'data-tns-role': 'wrapper'});
       _setAttrs(slideWrapperInner, {'data-tns-role': 'content-wrapper'});
       var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
-      if (gap !== 0) { slideWrapperInner.style.cssText = 'margin: 0 ' + gap + 'px'; }
+      if (gap !== 0) {
+        var h = (mode === 'carousel' && direction === 'horizontal')? gap + 'px' : '0', 
+            v = (mode === 'carousel' && direction === 'vertical')? gap + 'px' : '0'; 
+        slideWrapperInner.style.cssText = 'margin: ' + v + ' ' + h; 
+      }
 
       vw = getViewWidth();
     }
@@ -223,8 +227,10 @@ var tinySlider = (function () {
         'data-tns-mode': mode, 
         'data-tns-features': features
       });
-      var position = (TRANSFORM) ? TRANSFORM + ': translate3d(' + (-index * slideWidth) + 'px, 0px, 0px)' : 'left: ' + (-index * slideWidth) + 'px';
-      slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + position;
+      if (mode === 'carousel' && direction === 'horizontal') {
+        var position = (TRANSFORM) ? TRANSFORM + ': translate3d(' + (-index * slideWidth) + 'px, 0px, 0px)' : 'left: ' + (-index * slideWidth) + 'px';
+        slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + position;
+      } else {}
     }
 
     // for IE10
@@ -238,11 +244,19 @@ var tinySlider = (function () {
     function slideItemsInit() {
       for (var x = 0; x < slideCount; x++) {
         var item = slideItems[x];
+        // add slide id
         item.id = slideId + 'item' + x;
-        _setAttrs(item, {
-          'style': 'width: ' + (slideWidth) + 'px',
-          'aria-hidden': 'true'
-        });
+
+        // set slide width
+        if (mode === 'carousel' && direction === 'horizontal') {
+          _setAttrs(item, {'style': 'width: ' + (slideWidth) + 'px'});
+        }
+
+        // add aria-hidden attribute
+        _setAttrs(item, {'aria-hidden': 'true'});
+
+        // wrap innerHTML with item-wrapper and
+        // set gutter
         item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-right: ' + gutter + 'px">' + item.innerHTML + '</div>';
       }
       // clone slides
