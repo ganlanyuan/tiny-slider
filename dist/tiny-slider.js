@@ -763,8 +763,6 @@ var tinySlider = (function () {
       _setAttrs(slideWrapper, {'data-tns-role': 'wrapper'});
       _setAttrs(slideWrapperInner, {'data-tns-role': 'content-wrapper'});
       var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
-      // if (fixedWidth && edgePadding) {
-      // } else {}
       if (gap !== 0) { slideWrapperInner.style.cssText = 'margin: 0 ' + gap + 'px'; }
 
       vw = getViewWidth();
@@ -772,11 +770,7 @@ var tinySlider = (function () {
 
     function getVariables() {
       items = getItems();
-      if(fixedWidth){
-        console.log(vw, fixedWidth, Math.floor(vw / fixedWidth), items);
-      }
       indexMax = slideCountNew - items - indexAdjust;
-      if (fixedWidth && vw%slideWidth !== 0) { indexMax -= 1; } // adjust indexMax
       if (!fixedWidth) { slideWidth = getSlideWidth(); }
       navCountVisible = getVisibleNavCount();
       slideBy = (slideByPage || options.slideBy === 'page') ? items : options.slideBy;
