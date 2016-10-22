@@ -933,14 +933,14 @@ var tinySlider = (function () {
       if (nav) {
         for (var y = 0; y < slideCount; y++) {
           allNavs[y].addEventListener('click', onClickNav, false);
-          allNavs[y].addEventListener('keydown', onKeyNav, false);
+          allNavs[y].addEventListener('keydown', onKeydownNav, false);
         }
       }
       if (controls) {
-        prevButton.addEventListener('click', onClickControlPrev, false);
-        nextButton.addEventListener('click', onClickControlNext, false);
-        prevButton.addEventListener('keydown', onKeyControl, false);
-        nextButton.addEventListener('keydown', onKeyControl, false);
+        prevButton.addEventListener('click', onClickPrev, false);
+        nextButton.addEventListener('click', onClickNext, false);
+        prevButton.addEventListener('keydown', onKeydownControl, false);
+        nextButton.addEventListener('keydown', onKeydownControl, false);
       }
       if (autoplay) {
         autoplayButton.addEventListener('click', toggleAnimation, false);
@@ -957,7 +957,7 @@ var tinySlider = (function () {
         }
       }
       if (arrowKeys) {
-        document.addEventListener('keydown', onKeyDocument, false);
+        document.addEventListener('keydown', onKeydownDocument, false);
       }
       window.addEventListener('resize', onResize, false);
       window.addEventListener('scroll', onScroll, false);
@@ -1065,7 +1065,7 @@ var tinySlider = (function () {
       return (vw%fixedWidth + gutter) / 2;
     }
 
-    var updateLayout = (function () {
+    var updateSlideWidth = (function () {
       if (!fixedWidth) {
         return function () {
           // + 1: fixed half-pixel issue
@@ -1301,7 +1301,7 @@ var tinySlider = (function () {
 
     // # ACTIONS
     // on controls click
-    function onClickControl(dir) {
+    function move(dir) {
       if (_getAttr(slideContainer, 'aria-busy') !== 'true') {
         var indexTem = index + dir * slideBy,
             indexGap = Math.abs(dir * slideBy);
@@ -1312,15 +1312,15 @@ var tinySlider = (function () {
       }
     }
 
-    function onClickControlPrev() {
-      onClickControl(-1);
+    function onClickPrev() {
+      move(-1);
     }
 
-    function onClickControlNext() {
+    function onClickNext() {
       if(rewind && index === slideCount - items){
-        onClickControl((items - slideCount) / slideBy);
+        move((items - slideCount) / slideBy);
       }else{
-        onClickControl(1);
+        move(1);
       }
     }
 
@@ -1346,7 +1346,7 @@ var tinySlider = (function () {
 
     function startAction() {
       autoplayTimer = setInterval(function () {
-        onClickControl(autoplayDirection);
+        move(autoplayDirection);
       }, autoplayTimeout);
       autoplayButton.setAttribute('data-action', 'stop');
       autoplayButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
@@ -1375,15 +1375,15 @@ var tinySlider = (function () {
     }
 
     // 
-    function onKeyDocument(e) {
+    function onKeydownDocument(e) {
       e = e || window.event;
       if (e.keyCode === KEY.LEFT) {
-        onClickControl(-1);
+        move(-1);
       } else if (e.keyCode === KEY.RIGHT) {
         if(rewind && index === slideCount - items){
-          onClickControl((items - slideCount) / slideBy);
+          move((items - slideCount) / slideBy);
         }else{
-          onClickControl(1);
+          move(1);
         }
       }
     }
@@ -1399,7 +1399,7 @@ var tinySlider = (function () {
     }
 
     // on key control
-    function onKeyControl(e) {
+    function onKeydownControl(e) {
       e = e || window.event;
       var code = e.keyCode,
           curElement = document.activeElement;
@@ -1424,16 +1424,16 @@ var tinySlider = (function () {
         case KEY.ENTER:
         case KEY.SPACE:
           if (curElement === nextButton) {
-            onClickControlNext();
+            onClickNext();
           } else {
-            onClickControlPrev();
+            onClickPrev();
           }
           break;
       }
     }
 
     // on key nav
-    function onKeyNav(e) {
+    function onKeydownNav(e) {
       e = e || window.event;
       var code = e.keyCode,
           curElement = document.activeElement,
@@ -1520,7 +1520,7 @@ var tinySlider = (function () {
           getVariables();
           checkSlideCount();
 
-          if (!fixedWidth || edgePadding) { updateLayout(); }
+          if (!fixedWidth || edgePadding) { updateSlideWidth(); }
           updateNavDisplay();
           if (navigator.msMaxTouchPoints) { setSnapInterval(); }
 
@@ -1604,7 +1604,7 @@ var tinySlider = (function () {
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
-          document.removeEventListener('keydown', onKeyDocument, false);
+          document.removeEventListener('keydown', onKeydownDocument, false);
         }
 
         // remove window event listeners
