@@ -440,6 +440,12 @@ tinySlider({
   items: 1,
 }).init();
 
+tinySlider({
+  container: tt.dom.sliders.vertical,
+  items: 2,
+  mode: 'carousel',
+  direction: 'vertical',
+}).init();
 // var myWindow = window.open('http://192.168.103.82:3000/tests/E2E/index.html', 'test window', 'innerWidth=1024, height=800, resizable, scrollbars, status');
 // setTimeout(function () {
 //   myWindow.resizeTo(800, 1024);

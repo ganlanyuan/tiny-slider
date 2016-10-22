@@ -15,18 +15,16 @@
   -moz-transition: transform 0s, height 0s;
   transition: transform 0s, height 0s; }
 
-[data-tns-mode="carousel"]:after {
-  content: '';
-  display: table;
-  clear: both; }
-
-[data-tns-mode="carousel"] > div, [data-tns-mode="carousel"] > li, [data-tns-mode="carousel"] > span, [data-tns-mode="carousel"] > a {
-  float: left;
-  box-sizing: border-box;
-  overflow: hidden; }
-
-[data-tns-features*="horizontal"] {
+[data-tns-mode="carousel"][data-tns-features*="horizontal"] {
   left: 0; }
+  [data-tns-mode="carousel"][data-tns-features*="horizontal"]:after {
+    content: '';
+    display: table;
+    clear: both; }
+  [data-tns-mode="carousel"][data-tns-features*="horizontal"] > div, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > li, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > span, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > a {
+    float: left;
+    box-sizing: border-box;
+    overflow: hidden; }
 
 [data-tns-features*="autoheight"] {
   overflow: hidden; }

@@ -115,7 +115,8 @@ button[aria-selected="true"] { background: #999; }
 .suite-container .subtitle { font-size: 13px; font-weight: bold; background: #dedede; text-transform: capitalize; }
 .suite-container .fail { background: #FFADE2; }
 
+.vertical .img { padding: 30px 0; }
+/*.vertical_wrapper,*/
 .html_template,
-.vertical_wrapper,
 .fade_wrapper 
 { display: none; }

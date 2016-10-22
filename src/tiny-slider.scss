@@ -17,7 +17,8 @@
   -moz-transition: transform 0s, height 0s;
   transition: transform 0s, height 0s;
 }
-[data-tns-mode="carousel"] {
+[data-tns-mode="carousel"][data-tns-features*="horizontal"] {
+  left: 0;
   &:after {
     content: '';
     display: table;
@@ -30,7 +31,6 @@
   }
 }
 [data-tns-features*="horizontal"] {
-  left: 0;
 }
 [data-tns-features*="vertical"] {}
 [data-tns-features*="autoheight"] { overflow: hidden; }
