@@ -397,20 +397,20 @@ var tinySlider = (function () {
 
     // lazyload
     function lazyLoad() {
-      if (!lazyload || !gn.isInViewport(slideContainer)) { return; }
+      if (lazyload && gn.isInViewport(slideContainer)) {
+        var arr = [];
+        for(var i = index - 1; i < index + items + 1; i++) {
+          var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
+          for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
+          arr.unshift();
+        }
 
-      var arr = [];
-      for(var i = index - 1; i < index + items + 1; i++) {
-        var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
-        for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
-        arr.unshift();
-      }
-
-      for (var h = arr.length; h--;) {
-        var img = arr[h];
-        if (!img.classList.contains('loaded')) {
-          img.src = _getAttr(img, 'data-src');
-          img.classList.add('loaded');
+        for (var h = arr.length; h--;) {
+          var img = arr[h];
+          if (!img.classList.contains('loaded')) {
+            img.src = _getAttr(img, 'data-src');
+            img.classList.add('loaded');
+          }
         }
       }
     }
@@ -642,21 +642,22 @@ var tinySlider = (function () {
 
     // set 'disabled' to true on controls when reach the edge
     function updateControlsStatus() {
-      if (!controls || loop) { return; }
-      if (index === indexMin || !rewind && index === indexMax) {
-        var inactive = (index === indexMin) ? prevButton : nextButton,
-            active = (index === indexMin) ? nextButton : prevButton;
+      if (controls && !loop) {
+        if (index === indexMin || !rewind && index === indexMax) {
+          var inactive = (index === indexMin) ? prevButton : nextButton,
+              active = (index === indexMin) ? nextButton : prevButton;
 
-        changeFocus(inactive, active);
+          changeFocus(inactive, active);
 
-        inactive.disabled = true;
-        _setAttrs(inactive, {'tabindex': '-1'});
+          inactive.disabled = true;
+          _setAttrs(inactive, {'tabindex': '-1'});
 
-        active.disabled = false;
-        _setAttrs(active, {'tabindex': '0'});
-      } else {
-        prevButton.disabled = false;
-        nextButton.disabled = false;
+          active.disabled = false;
+          _setAttrs(active, {'tabindex': '0'});
+        } else {
+          prevButton.disabled = false;
+          nextButton.disabled = false;
+        }
       }
     }
 
