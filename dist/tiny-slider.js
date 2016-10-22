@@ -752,11 +752,11 @@ var tinySlider = (function () {
       if (fixedWidth) {
         return function () { return slideWrapper.clientWidth; };
       } else {
-        return function () { return slideWrapperInner.clientWidth };
+        return function () { return slideWrapperInner.clientWidth; };
       }
     })();
 
-    function wrapContainer() {
+    function wrapperInit() {
       gn.wrap(slideContainer, slideWrapperInner);
       gn.wrap(slideWrapperInner, slideWrapper);
 
@@ -1022,7 +1022,7 @@ var tinySlider = (function () {
     } 
 
     function sliderInit() {
-      wrapContainer();
+      wrapperInit();
       getVariables();
 
       containerInit();
@@ -1062,7 +1062,7 @@ var tinySlider = (function () {
 
     function getFixedWidthEdgePadding() {
       vw = vw || getViewWidth();
-      return ((vw - fixedWidth * Math.floor(vw / fixedWidth) + gutter) / 2);
+      return (vw%fixedWidth + gutter) / 2;
     }
 
     var updateLayout = (function () {
@@ -1076,7 +1076,7 @@ var tinySlider = (function () {
         };
       } else if (edgePadding) {
         return function () {
-          slideWrapperInner.style.marginLeft = getFixedWidthEdgePadding() + 'px';
+          slideWrapperInner.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
         };
       }
     })();
@@ -1231,7 +1231,7 @@ var tinySlider = (function () {
     // set transition duration
     function setTransitionDuration (indexGap) {
       slideContainer.style[TRANSITIONDURATION] = (speed * indexGap / 1000) + 's';
-    };
+    }
 
     // make transfer after click/drag:
     // 1. change 'transform' property for mordern browsers
