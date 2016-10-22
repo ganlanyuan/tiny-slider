@@ -389,7 +389,8 @@ tinySlider({
   gutter: 10,
   edgePadding: 50,
   fixedWidth: 200,
-  // arrowKeys: true,
+  arrowKeys: true,
+  // rewind: true,
   // slideByPage: true,
   loop: false,
 }).init();

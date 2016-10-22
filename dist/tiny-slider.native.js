@@ -120,7 +120,9 @@ var tinySlider = (function () {
         navCurrent = 0,
         navCurrentCached = 0,
         index = cloneCount,
-        indexCached = index,
+        // cache index for function updateSlideStatus
+        indexCachedSlideStatus = index,
+        indexMin = indexAdjust,
         indexMax,
         resizeTimer,
         vw,
@@ -341,7 +343,7 @@ var tinySlider = (function () {
       }
       if (controls) {
         _setAttrs(nextButton, {'tabindex': '0'});
-        if (index === indexAdjust && !loop || rewind) {
+        if (index === indexMin && !loop || rewind) {
           prevButton.disabled = true;
         }
       }
@@ -535,20 +537,20 @@ var tinySlider = (function () {
     // update slide
     function updateSlideStatus() {
       var h1, h2, v1, v2;
-      if (index !== indexCached) {
-        if (index > indexCached) {
-          h1 = indexCached;
-          h2 = Math.min(indexCached + items, index);
-          v1 = Math.max(indexCached + items, index);
+      if (index !== indexCachedSlideStatus) {
+        if (index > indexCachedSlideStatus) {
+          h1 = indexCachedSlideStatus;
+          h2 = Math.min(indexCachedSlideStatus + items, index);
+          v1 = Math.max(indexCachedSlideStatus + items, index);
           v2 = index + items;
         } else {
-          h1 = Math.max(index + items, indexCached);
-          h2 = indexCached + items;
+          h1 = Math.max(index + items, indexCachedSlideStatus);
+          h2 = indexCachedSlideStatus + items;
           v1 = index;
-          v2 = Math.min(index + items, indexCached);
+          v2 = Math.min(index + items, indexCachedSlideStatus);
         }
       }
-      indexCached = index;
+      indexCachedSlideStatus = index;
 
       if (slideBy%1 !== 0) {
         h1 = Math.round(h1);
@@ -641,9 +643,9 @@ var tinySlider = (function () {
     // set 'disabled' to true on controls when reach the edge
     function updateControlsStatus() {
       if (!controls || loop) { return; }
-      if (index === indexAdjust || !rewind && index === indexMax) {
-        var inactive = (index === indexAdjust) ? prevButton : nextButton,
-            active = (index === indexAdjust) ? nextButton : prevButton;
+      if (index === indexMin || !rewind && index === indexMax) {
+        var inactive = (index === indexMin) ? prevButton : nextButton,
+            active = (index === indexMin) ? nextButton : prevButton;
 
         changeFocus(inactive, active);
 
@@ -733,12 +735,12 @@ var tinySlider = (function () {
     // on controls click
     function move(dir) {
       if (_getAttr(slideContainer, 'aria-busy') !== 'true') {
-        var indexTem = index + dir * slideBy,
+        var indexOld = index,
+            indexTem = index + dir * slideBy,
             indexGap = Math.abs(dir * slideBy);
-        index = (loop) ? indexTem : Math.max(indexAdjust, Math.min(indexTem, indexMax));
-        // alert(indexMax);
+        index = (loop) ? indexTem : Math.max(indexMin, Math.min(indexTem, indexMax));
 
-        render(indexGap);
+        if (index !== indexOld) { render(indexGap); }
       }
     }
 
@@ -747,8 +749,8 @@ var tinySlider = (function () {
     }
 
     function onClickNext() {
-      if(rewind && index === slideCount - items){
-        move((items - slideCount) / slideBy);
+      if(rewind && index === indexMax){
+        move(-(indexMax - indexMin) / slideBy);
       }else{
         move(1);
       }
@@ -767,8 +769,7 @@ var tinySlider = (function () {
 
         index = (options.navContainer) ? navIndex + cloneCount : navIndex * items + cloneCount;
         index = (loop) ? index : Math.min(index, indexMax);
-        indexGap = Math.abs(index - indexCached);
-        // alert(index);
+        indexGap = Math.abs(index - indexCachedSlideStatus);
 
         render(indexGap);
       }
@@ -807,14 +808,12 @@ var tinySlider = (function () {
     // 
     function onKeydownDocument(e) {
       e = e || window.event;
-      if (e.keyCode === KEY.LEFT) {
-        move(-1);
-      } else if (e.keyCode === KEY.RIGHT) {
-        if(rewind && index === slideCount - items){
-          move((items - slideCount) / slideBy);
-        }else{
-          move(1);
-        }
+      switch(e.keyCode) {
+        case KEY.LEFT:
+          onClickPrev();
+          break;
+        case KEY.RIGHT:
+          onClickNext();
       }
     }
 
@@ -927,7 +926,7 @@ var tinySlider = (function () {
 
         var indexTem = - (translateXInit + distX) / slideWidth;
         indexTem = (distX > 0) ? Math.floor(indexTem) : Math.ceil(indexTem);
-        index = Math.max(indexAdjust, Math.min(indexTem, indexMax));
+        index = Math.max(indexMin, Math.min(indexTem, indexMax));
 
         var translateXEnd = - index * slideWidth;
         if (!loop && !edgePadding && fixedWidth) {
