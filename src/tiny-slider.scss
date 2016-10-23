@@ -32,7 +32,16 @@
 }
 [data-tns-features*="horizontal"] {
 }
-[data-tns-features*="vertical"] {}
+[data-tns-mode="carousel"][data-tns-features*="vertical"] {
+  > div,
+  > li {
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
+}
 [data-tns-features*="autoheight"] { overflow: hidden; }
 
 [data-tns-mode="fade"] {

@@ -127,6 +127,9 @@ var tinySlider = (function () {
         resizeTimer,
         vw,
         ticking = false;
+    if (mode === 'carousel' && direction === 'vertical') {
+      var slideHeights = [];
+    }
 
     if (autoplay) {
       var autoplayTimer,
@@ -257,12 +260,23 @@ var tinySlider = (function () {
 
         // wrap innerHTML with item-wrapper and
         // set gutter
-        item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-right: ' + gutter + 'px">' + item.innerHTML + '</div>';
+        var marginPosition = (mode === 'carousel' && direction === 'vertical') ? 'bottom' : 'right';
+        item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + marginPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
+
+        // get heights
+        if (mode === 'carousel' && direction === 'vertical') {
+          slideHeights.push(item.clientHeight);
+        }
       }
+      // if (mode === 'carousel' && direction === 'vertical') {
+      //   console.log(slideHeights);
+      // }
       // clone slides
       if (loop || edgePadding) {
         var fragmentBefore = document.createDocumentFragment(), 
-            fragmentAfter = document.createDocumentFragment();
+            fragmentAfter = document.createDocumentFragment(),
+            heightsBefore = [],
+            heightsAfter = [];
 
         for (var j = cloneCount; j--;) {
           var num = j%slideCount,
@@ -275,10 +289,21 @@ var tinySlider = (function () {
 
           fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
           fragmentAfter.appendChild(cloneLast);
+
+          // clone heights
+          if (mode === 'carousel' && direction === 'vertical') {
+            heightsBefore.unshift(slideHeights[num]);
+            heightsAfter.push(slideHeights[slideCount - 1 - num]);
+          }
         }
 
         slideContainer.appendChild(fragmentBefore);
         slideContainer.insertBefore(fragmentAfter, slideContainer.firstChild);
+
+        if (mode === 'carousel' && direction === 'vertical') {
+          slideHeights = heightsAfter.concat(slideHeights, heightsBefore);
+          // console.log(slideHeights);
+        }
 
         slideItems = slideContainer.children;
       }
