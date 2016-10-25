@@ -445,8 +445,14 @@ tinySlider({
   items: 2,
   mode: 'carousel',
   direction: 'vertical',
+  arrowKeys: true,
   edgePadding: 50,
   gutter: 10,
+  // slideBy: 'page',
+  // responsive: {
+  //   1280: 3,
+  //   1706: 4,
+  // }
 }).init();
 // var myWindow = window.open('http://192.168.103.82:3000/tests/E2E/index.html', 'test window', 'innerWidth=1024, height=800, resizable, scrollbars, status');
 // setTimeout(function () {

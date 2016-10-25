@@ -78,10 +78,10 @@ var tinySlider = (function () {
     var mode = options.mode,
         direction = options.direction,
         items = options.items,
-        slideContainer = options.container,
-        slideWrapper = document.createElement('div'),
-        slideWrapperInner = document.createElement('div'),
-        slideItems = slideContainer.children,
+        container = options.container,
+        wrapper = document.createElement('div'),
+        contentWrapper = document.createElement('div'),
+        slideItems = container.children,
         slideCount = slideItems.length,
         gutter = options.gutter,
         edgePadding = options.edgePadding,
@@ -107,13 +107,13 @@ var tinySlider = (function () {
         lazyload = options.lazyload,
         touch = options.touch,
 
-        slideId,
+        slideId = container.id || _getSlideId(),
         slideWidth = fixedWidth || 0,
         cloneCount = (loop) ? Math.ceil(slideCount*1.5) : (edgePadding) ? 1 : 0,
         slideCountNew = slideCount + cloneCount * 2,
         prevButton,
         nextButton,
-        allNavs,
+        navItems,
         navCountVisible,
         navCountVisibleCached = slideCount,
         navClicked = -1,
@@ -128,7 +128,8 @@ var tinySlider = (function () {
         vw,
         ticking = false;
     if (mode === 'carousel' && direction === 'vertical') {
-      var slideHeights = [];
+      var slideHeights, 
+          slideEdges;
     }
 
     if (autoplay) {
@@ -184,30 +185,30 @@ var tinySlider = (function () {
     })();
 
     var getViewWidth = (function () {
-      if (fixedWidth) {
-        return function () { return slideWrapper.clientWidth; };
+      if (fixedWidth || !edgePadding || direction === 'vertical') { 
+        return function () { return wrapper.clientWidth; };
       } else {
-        return function () { return slideWrapperInner.clientWidth; };
+        return function () { return wrapper.clientWidth - (edgePadding + gutter) * 2; };
       }
     })();
 
     function wrapperInit() {
-      gn.wrap(slideContainer, slideWrapperInner);
-      gn.wrap(slideWrapperInner, slideWrapper);
-
-      _setAttrs(slideWrapper, {'data-tns-role': 'wrapper'});
-      _setAttrs(slideWrapperInner, {'data-tns-role': 'content-wrapper'});
-      var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
-      if (gap !== 0) {
-        var h = (mode === 'carousel' && direction === 'horizontal')? gap + 'px' : '0', 
-            v = (mode === 'carousel' && direction === 'vertical')? gap + 'px' : '0'; 
-        slideWrapperInner.style.cssText = 'margin: ' + v + ' ' + h; 
+      _setAttrs(wrapper, {'data-tns-role': 'wrapper'});
+      _setAttrs(contentWrapper, {'data-tns-role': 'content-wrapper'});
+      if (direction === 'vertical') { 
+        _setAttrs(contentWrapper, {'data-tns-hidden': 'y'}); 
+      } else {
+        _setAttrs(wrapper, {'data-tns-hidden': 'x'}); 
       }
 
-      vw = getViewWidth();
+      if (mode === 'carousel') {
+        var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
+        contentWrapper.style.cssText = (direction === 'horizontal') ? 'margin: 0 ' + gap + 'px;' : 'padding: ' + gap + 'px 0 ' + edgePadding + 'px; height: ' + getVerticalWrapperHeight() + 'px;'; 
+      }
     }
 
     function getVariables() {
+      vw = getViewWidth();
       items = getItems();
       indexMax = slideCountNew - items - indexAdjust;
       if (!fixedWidth) { slideWidth = getSlideWidth(); }
@@ -216,31 +217,39 @@ var tinySlider = (function () {
     }
 
     function containerInit() {
-      if (slideContainer.id === '') { 
-        slideContainer.id = slideId = _getSlideId(); 
+      if (container.id === '') { 
+        container.id = slideId = _getSlideId(); 
       } else {
-        slideId = slideContainer.id;
+        slideId = container.id;
       }
 
       var features = '';
       if (direction) { features += direction + ' '; }
       if (autoHeight) { features += 'autoheight'; }
-      _setAttrs(slideContainer, {
+      _setAttrs(container, {
         'data-tns-role': 'content', 
         'data-tns-mode': mode, 
         'data-tns-features': features
       });
-      if (mode === 'carousel' && direction === 'horizontal') {
-        var position = (TRANSFORM) ? TRANSFORM + ': translate3d(' + (-index * slideWidth) + 'px, 0px, 0px)' : 'left: ' + (-index * slideWidth) + 'px';
-        slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + position;
-      } else {}
+      if (mode === 'carousel') {
+        if (direction === 'horizontal') {
+          var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
+              x = (-index * slideWidth),
+              transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
+          container.style.cssText += size + transforms;
+        } else {
+          var y = -slideEdges[index],
+              transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
+          container.style.cssText += transforms;
+        }
+      }
     }
 
     // for IE10
     function msInit() {
       if (navigator.msMaxTouchPoints) {
-        slideWrapper.classList.add('ms-touch');
-        slideWrapper.addEventListener('scroll', ie10Scroll, false);
+        wrapper.classList.add('ms-touch');
+        wrapper.addEventListener('scroll', ie10Scroll, false);
       }
     }
 
@@ -248,7 +257,7 @@ var tinySlider = (function () {
       for (var x = 0; x < slideCount; x++) {
         var item = slideItems[x];
         // add slide id
-        item.id = slideId + 'item' + x;
+        item.id = slideId + '-item' + x;
 
         // set slide width
         if (mode === 'carousel' && direction === 'horizontal') {
@@ -262,21 +271,12 @@ var tinySlider = (function () {
         // set gutter
         var marginPosition = (mode === 'carousel' && direction === 'vertical') ? 'bottom' : 'right';
         item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + marginPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
-
-        // get heights
-        if (mode === 'carousel' && direction === 'vertical') {
-          slideHeights.push(item.clientHeight);
-        }
       }
-      // if (mode === 'carousel' && direction === 'vertical') {
-      //   console.log(slideHeights);
-      // }
+
       // clone slides
       if (loop || edgePadding) {
         var fragmentBefore = document.createDocumentFragment(), 
-            fragmentAfter = document.createDocumentFragment(),
-            heightsBefore = [],
-            heightsAfter = [];
+            fragmentAfter = document.createDocumentFragment();
 
         for (var j = cloneCount; j--;) {
           var num = j%slideCount,
@@ -287,34 +287,22 @@ var tinySlider = (function () {
           _removeAttrs(cloneFirst, 'id');
           _removeAttrs(cloneLast, 'id');
 
-          fragmentBefore.insertBefore(cloneFirst, fragmentBefore.firstChild);
-          fragmentAfter.appendChild(cloneLast);
-
-          // clone heights
-          if (mode === 'carousel' && direction === 'vertical') {
-            heightsBefore.unshift(slideHeights[num]);
-            heightsAfter.push(slideHeights[slideCount - 1 - num]);
-          }
+          fragmentBefore.appendChild(cloneLast);
+          fragmentAfter.insertBefore(cloneFirst, fragmentAfter.firstChild);
         }
 
-        slideContainer.appendChild(fragmentBefore);
-        slideContainer.insertBefore(fragmentAfter, slideContainer.firstChild);
-
-        if (mode === 'carousel' && direction === 'vertical') {
-          slideHeights = heightsAfter.concat(slideHeights, heightsBefore);
-          // console.log(slideHeights);
-        }
-
-        slideItems = slideContainer.children;
+        container.appendChild(fragmentAfter);
+        container.insertBefore(fragmentBefore, container.firstChild);
+        slideItems = container.children;
       }
     }
 
     function controlsInit() {
       if (controls) {
         if (!options.controlsContainer) {
-          gn.append(slideWrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+          gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
-          controlsContainer = slideWrapper.querySelector('[data-tns-role="controls"]');
+          controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
         }
 
         prevButton = controlsContainer.querySelector('[data-controls="prev"]');
@@ -335,31 +323,31 @@ var tinySlider = (function () {
         if (!options.navContainer) {
           var navHtml = '';
           for (var i = 0; i < slideCount; i++) {
-            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + 'item' + i +'" type="button"></button>';
+            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
           }
           if (autoplay) {
             navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
           }
           navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-          gn.append(slideWrapper, navHtml);
-          navContainer = slideWrapper.querySelector('[data-tns-role="nav"]');
+          gn.append(wrapper, navHtml);
+          navContainer = wrapper.querySelector('[data-tns-role="nav"]');
         }
-        allNavs = navContainer.querySelectorAll('[data-slide]');
+        navItems = navContainer.querySelectorAll('[data-slide]');
 
         // for customized nav container
         if (!_hasAttr(navContainer, 'aria-label')) {
           _setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
           for (var y = 0; y < slideCount; y++) {
-            _setAttrs(allNavs[y], {
+            _setAttrs(navItems[y], {
               'tabindex': '-1',
               'aria-selected': 'false',
-              'aria-controls': slideId + 'item' + y,
+              'aria-controls': slideId + '-item' + y,
             });
           }
         }
 
         for (var j = navCountVisible; j < slideCount; j++) {
-          _setAttrs(allNavs[j], {'hidden': ''});
+          _setAttrs(navItems[j], {'hidden': ''});
         }
         navCountVisibleCached = navCountVisible;
       }
@@ -368,8 +356,8 @@ var tinySlider = (function () {
     function autoplayInit() {
       if (autoplay) {
         if (!navContainer) {
-          gn.append(slideWrapper, '<div data-tns-role="nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
-          navContainer = slideWrapper.querySelector('[data-tns-role="nav"]');
+          gn.append(wrapper, '<div data-tns-role="nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
+          navContainer = wrapper.querySelector('[data-tns-role="nav"]');
         }
         autoplayButton = navContainer.querySelector('[data-action]');
         startAction();
@@ -387,24 +375,24 @@ var tinySlider = (function () {
         }
       }
       if (nav) {
-        _setAttrs(allNavs[0], {'tabindex': '0', 'aria-selected': 'true'});
+        _setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
       }
     }
 
     function addSliderEvents() {
       if (TRANSITIONEND) {
-        slideContainer.addEventListener(TRANSITIONEND, onTransitionEnd, false);
+        container.addEventListener(TRANSITIONEND, onTransitionEnd, false);
       }
       if (touch) {
-        slideContainer.addEventListener('touchstart', onPanStart, false);
-        slideContainer.addEventListener('touchmove', onPanMove, false);
-        slideContainer.addEventListener('touchend', onPanEnd, false);
-        slideContainer.addEventListener('touchcancel', onPanEnd, false);
+        container.addEventListener('touchstart', onPanStart, false);
+        container.addEventListener('touchmove', onPanMove, false);
+        container.addEventListener('touchend', onPanEnd, false);
+        container.addEventListener('touchcancel', onPanEnd, false);
       }
       if (nav) {
         for (var y = 0; y < slideCount; y++) {
-          allNavs[y].addEventListener('click', onClickNav, false);
-          allNavs[y].addEventListener('keydown', onKeydownNav, false);
+          navItems[y].addEventListener('click', onClickNav, false);
+          navItems[y].addEventListener('keydown', onKeydownNav, false);
         }
       }
       if (controls) {
@@ -423,7 +411,7 @@ var tinySlider = (function () {
 
         if (nav) {
           for (var b = 0; b < slideCount; b++) {
-            allNavs[b].addEventListener('click', stopAnimation, false);
+            navItems[b].addEventListener('click', stopAnimation, false);
           }
         }
       }
@@ -436,7 +424,7 @@ var tinySlider = (function () {
 
     // lazyload
     function lazyLoad() {
-      if (lazyload && gn.isInViewport(slideContainer)) {
+      if (lazyload && gn.isInViewport(container)) {
         var arr = [];
         for(var i = index - 1; i < index + items + 1; i++) {
           var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
@@ -493,15 +481,21 @@ var tinySlider = (function () {
     } 
 
     function sliderInit() {
-      wrapperInit();
-      getVariables();
+      gn.wrap(container, contentWrapper);
+      gn.wrap(contentWrapper, wrapper);
 
+      getVariables();
+      slideItemsInit();
+      if (direction === 'vertical') { getSlideEdges(); }
+
+      wrapperInit();
       containerInit();
       msInit();
-      slideItemsInit();
       controlsInit();
       navInit();
       autoplayInit();
+
+
       activateSlider();
       addSliderEvents();
       checkSlideCount();
@@ -532,23 +526,28 @@ var tinySlider = (function () {
     }
 
     function getFixedWidthEdgePadding() {
-      vw = vw || getViewWidth();
       return (vw%fixedWidth + gutter) / 2;
     }
 
-    var updateSlideWidth = (function () {
-      if (!fixedWidth) {
+    var updateSlideSize = (function () {
+      if (direction === 'horizontal') {
+        if (!fixedWidth) {
+          return function () {
+            // + 1: fixed half-pixel issue
+            container.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
+            for (var i = slideCountNew; i--;) {
+              slideItems[i].style.width = slideWidth + 'px';
+            }
+          };
+        } else if (edgePadding) {
+          return function () {
+            contentWrapper.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
+          };
+        }
+      } else {
         return function () {
-          // + 1: fixed half-pixel issue
-          slideContainer.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
-          for (var i = slideCountNew; i--;) {
-            slideItems[i].style.width = slideWidth + 'px';
-          }
-        };
-      } else if (edgePadding) {
-        return function () {
-          slideWrapperInner.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
-        };
+          contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
+        }
       }
     })();
 
@@ -565,12 +564,25 @@ var tinySlider = (function () {
       maxHeight = Math.max.apply(null, heights);
 
       if (TRANSITIONDURATION) { setTransitionDuration(1); }
-      slideContainer.style.height = maxHeight + 'px';
+      container.style.height = maxHeight + 'px';
+    }
+
+    function getSlideEdges() {
+      slideEdges = [0];
+      var topFirst = slideItems[0].getBoundingClientRect().top, top;
+      for (var i = 1; i < slideCountNew; i++) {
+        top = slideItems[i].getBoundingClientRect().top;
+        slideEdges.push(top - topFirst);
+      }
+    }
+
+    function getVerticalWrapperHeight() {
+      return slideEdges[index + items] - slideEdges[index];
     }
 
     // set snapInterval (for IE10)
     function setSnapInterval() {
-      slideWrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
+      wrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
     }
 
     // update slide
@@ -612,11 +624,11 @@ var tinySlider = (function () {
       if (navCountVisible !== navCountVisibleCached) {
         if (navCountVisible > navCountVisibleCached) {
           for (var i = navCountVisibleCached; i < navCountVisible; i++) {
-            _removeAttrs(allNavs[i], 'hidden');
+            _removeAttrs(navItems[i], 'hidden');
           }
         } else {
           for (var j = navCountVisible; j < navCountVisibleCached; j++) {
-            _setAttrs(allNavs[j], {'hidden': ''});
+            _setAttrs(navItems[j], {'hidden': ''});
           }
         }
       }
@@ -665,12 +677,12 @@ var tinySlider = (function () {
         }
 
         if (navCurrent !== navCurrentCached) {
-          _setAttrs(allNavs[navCurrentCached], {
+          _setAttrs(navItems[navCurrentCached], {
             'tabindex': '-1',
             'aria-selected': 'false'
           });
 
-          _setAttrs(allNavs[navCurrent], {
+          _setAttrs(navItems[navCurrent], {
             'tabindex': '0',
             'aria-selected': 'true'
           });
@@ -702,24 +714,39 @@ var tinySlider = (function () {
 
     // set transition duration
     function setTransitionDuration (indexGap) {
-      slideContainer.style[TRANSITIONDURATION] = (speed * indexGap / 1000) + 's';
+      var duration = speed * indexGap / 1000 + 's';
+      container.style[TRANSITIONDURATION] = duration;
+      if (direction === 'vertical') {
+        contentWrapper.style[TRANSITIONDURATION] = duration;
+      }
     }
 
     // make transfer after click/drag:
     // 1. change 'transform' property for mordern browsers
     // 2. change 'left' property for legacy browsers
     var transformCore = (function () {
-      if (TRANSFORM) {
-        return function (distance) {
-          var x = distance || -slideWidth * index;
-          slideContainer.style[TRANSFORM] = 'translate3d(' + x + 'px, 0, 0)';
-        };
-      } else {
-        return function (distance) {
-          var x = distance || -slideWidth * index;
-          slideContainer.style.left = x + 'px';
-        };
-      }
+      return function (distance) {
+        var d, value, attr = TRANSFORM;
+        if (direction === 'horizontal') {
+          d = distance || -slideWidth * index;
+          if (TRANSFORM) {
+            value = 'translate3d(' + d + 'px, 0, 0)';
+          } else {
+            attr = 'left';
+            value = d + 'px';
+          }
+        } else {
+          d = -slideEdges[index];
+          if (TRANSFORM) {
+            value = 'translate3d(0, ' + d + 'px, 0)';
+          } else {
+            attr = 'top';
+            value = d + 'px';
+          }
+        }
+        container.style[attr] = value;
+        if (direction === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
+      };
     })();
 
     function doTransform (indexGap, distance) {
@@ -746,7 +773,7 @@ var tinySlider = (function () {
     }
 
     function render(indexGap) {
-      _setAttrs(slideContainer, {'aria-busy': 'true'});
+      _setAttrs(container, {'aria-busy': 'true'});
       doTransform(indexGap);
       if (!TRANSITIONEND) { onTransitionEnd(); }
     }
@@ -767,14 +794,14 @@ var tinySlider = (function () {
         updateControlsStatus();
         lazyLoad();
         runAutoHeight();
-        _removeAttrs(slideContainer, 'aria-busy');
+        _removeAttrs(container, 'aria-busy');
       }
     }
 
     // # ACTIONS
     // on controls click
     function move(dir) {
-      if (_getAttr(slideContainer, 'aria-busy') !== 'true') {
+      if (_getAttr(container, 'aria-busy') !== 'true') {
         var indexOld = index,
             indexTem = index + dir * slideBy,
             indexGap = Math.abs(dir * slideBy);
@@ -798,10 +825,10 @@ var tinySlider = (function () {
 
     // on doc click
     function onClickNav(e) {
-      if (_getAttr(slideContainer, 'aria-busy') !== 'true') {
+      if (_getAttr(container, 'aria-busy') !== 'true') {
         var clickTarget = e.target || e.srcElement, navIndex, indexGap;
 
-        while (gn.indexOf(allNavs, clickTarget) === -1) {
+        while (gn.indexOf(navItems, clickTarget) === -1) {
           clickTarget = clickTarget.parentNode;
         }
 
@@ -915,7 +942,7 @@ var tinySlider = (function () {
           break;
         case KEY.UP:
         case KEY.HOME:
-          if (dataSlide !== 0) { changeFocus(curElement, allNavs[0]); }
+          if (dataSlide !== 0) { changeFocus(curElement, navItems[0]); }
           break;
         case KEY.RIGHT:
         case KEY.PAGEDOWN:
@@ -923,7 +950,7 @@ var tinySlider = (function () {
           break;
         case KEY.DOWN:
         case KEY.END:
-          if (dataSlide < navCountVisible - 1) { changeFocus(curElement, allNavs[navCountVisible - 1]); }
+          if (dataSlide < navCountVisible - 1) { changeFocus(curElement, navItems[navCountVisible - 1]); }
           break;
         case KEY.ENTER:
         case KEY.SPACE:
@@ -934,14 +961,14 @@ var tinySlider = (function () {
 
     // IE10 scroll function
     function ie10Scroll() {
-      doTransform(0, slideContainer.scrollLeft());
+      doTransform(0, container.scrollLeft());
     }
 
     function onPanStart(e) {
       var touchObj = e.changedTouches[0];
       startX = parseInt(touchObj.clientX);
       startY = parseInt(touchObj.clientY);
-      translateXInit = Number(slideContainer.style[TRANSFORM].slice(12, -13));
+      translateXInit = Number(container.style[TRANSFORM].slice(12, -13));
     }
 
     function onPanMove(e) {
@@ -987,9 +1014,10 @@ var tinySlider = (function () {
         if (vw !== vwNew) {
           vw = vwNew;
           getVariables();
+          if (direction === 'vertical') { getSlideEdges(); }
           checkSlideCount();
 
-          if (!fixedWidth || edgePadding) { updateSlideWidth(); }
+          if (!fixedWidth || edgePadding) { updateSlideSize(); }
           updateNavDisplay();
           if (navigator.msMaxTouchPoints) { setSnapInterval(); }
 
@@ -1012,13 +1040,13 @@ var tinySlider = (function () {
     return {
       init: sliderInit,
       destory: function () {
-        // slideWrapper
-        gn.unwrap(slideWrapper);
-        gn.unwrap(slideWrapperInner);
-        slideWrapper = slideWrapperInner = null;
+        // wrapper
+        gn.unwrap(wrapper);
+        gn.unwrap(contentWrapper);
+        wrapper = contentWrapper = null;
 
-        // slideContainer
-        _removeAttrs(slideContainer, ['id', 'style', 'data-tns-role', 'data-tns-features']);
+        // container
+        _removeAttrs(container, ['id', 'style', 'data-tns-role', 'data-tns-features']);
 
         // cloned items
         if (loop) {
@@ -1051,10 +1079,10 @@ var tinySlider = (function () {
             navContainer = null;
           } else {
             _removeAttrs(navContainer, ['aria-label']);
-            _removeAttrs(allNavs, ['aria-selected', 'aria-controls', 'tabindex']);
+            _removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
             _removeEvents(navContainer);
           }
-          allNavs = null;
+          navItems = null;
         }
 
         // auto
@@ -1068,8 +1096,8 @@ var tinySlider = (function () {
         }
 
         // remove slider container events at the end
-        // because this will make slideContainer = null
-        _removeEvents(slideContainer);
+        // because this will make container = null
+        _removeEvents(container);
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
@@ -1113,14 +1141,14 @@ var tinySlider = (function () {
       index: function () { return index; },
       slideWidth: function () { return slideWidth; },
       
-      slideContainer: slideContainer,
+      container: container,
       slideItems: slideItems,
       slideCount: slideCount,
       controlsContainer: function () { return controlsContainer; },
       prevButton: function () { return prevButton; }, 
       nextButton: function () { return nextButton; }, 
       navContainer: function () { return navContainer; },
-      allNavs: function () { return allNavs; },
+      navItems: function () { return navItems; },
     };
   }
 

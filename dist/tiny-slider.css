@@ -1,5 +1,4 @@
 [data-tns-role="wrapper"] {
-  overflow: hidden;
   padding: 0 !important; }
   [data-tns-role="wrapper"].ms-touch {
     overflow-x: scroll;
@@ -59,5 +58,11 @@
   cursor: pointer;
   border-width: 0;
   padding: 0; }
+
+[data-tns-hidden="x"] {
+  overflow-x: hidden; }
+
+[data-tns-hidden="y"] {
+  overflow-y: hidden; }
 
 /*# sourceMappingURL=sourcemaps/tiny-slider.css.map */
