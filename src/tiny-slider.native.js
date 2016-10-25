@@ -238,9 +238,8 @@ var tinySlider = (function () {
               transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
           container.style.cssText += size + transforms;
         } else {
-          var y = -slideEdges[index],
-              transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
-          container.style.cssText += transforms;
+          var y = -slideEdges[index];
+          container.style.cssText += (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
         }
       }
     }
@@ -552,7 +551,7 @@ var tinySlider = (function () {
       } else {
         return function () {
           contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
-        }
+        };
       }
     })();
 
