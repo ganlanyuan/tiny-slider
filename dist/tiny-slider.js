@@ -1051,9 +1051,14 @@ var tinySlider = (function () {
     } 
 
     function sliderInit() {
+      // First thing first, wrap container with "wrapper > contentWrapper",
+      // to get the correct view width
       gn.wrap(container, contentWrapper);
       gn.wrap(contentWrapper, wrapper);
 
+      // get view width, 
+      // get items (rely on view width), 
+      // variables (rely on itmes): indexMax, slideWidth, navCountVisible, slideBy
       getVariables();
       slideItemsInit();
       if (direction === 'vertical') { getSlideEdges(); }
