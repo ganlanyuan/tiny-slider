@@ -390,7 +390,7 @@ tinySlider({
   edgePadding: 50,
   fixedWidth: 200,
   arrowKeys: true,
-  rewind: true,
+  // rewind: true,
   slideByPage: true,
   loop: false,
 }).init();
@@ -444,7 +444,7 @@ tinySlider({
   container: tt.dom.sliders.vertical,
   items: 2,
   mode: 'carousel',
-  direction: 'vertical',
+  axis: 'vertical',
   arrowKeys: true,
   edgePadding: 50,
   gutter: 10,

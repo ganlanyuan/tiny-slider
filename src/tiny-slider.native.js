@@ -40,7 +40,7 @@ var tinySlider = (function () {
     options = gn.extend({
       container: document.querySelector('.slider'),
       mode: 'carousel',
-      direction: 'horizontal',
+      axis: 'horizontal',
       items: 1,
       gutter: 0,
       edgePadding: 0,
@@ -76,7 +76,7 @@ var tinySlider = (function () {
 
     // === define and set variables ===
     var mode = options.mode,
-        direction = options.direction,
+        axis = options.axis,
         items = options.items,
         container = options.container,
         wrapper = document.createElement('div'),
@@ -127,7 +127,7 @@ var tinySlider = (function () {
         resizeTimer,
         vw,
         ticking = false;
-    if (mode === 'carousel' && direction === 'vertical') {
+    if (mode === 'carousel' && axis === 'vertical') {
       var slideHeights, 
           slideEdges;
     }
@@ -141,9 +141,9 @@ var tinySlider = (function () {
     if (touch) {
       var startX = 0,
           startY = 0,
-          translateXInit,
-          distX,
-          distY,
+          translateInit,
+          disX,
+          disY,
           touchStarted;
     }
 
@@ -185,7 +185,7 @@ var tinySlider = (function () {
     })();
 
     var getViewWidth = (function () {
-      if (fixedWidth || !edgePadding || direction === 'vertical') { 
+      if (fixedWidth || !edgePadding || axis === 'vertical') { 
         return function () { return wrapper.clientWidth; };
       } else {
         return function () { return wrapper.clientWidth - (edgePadding + gutter) * 2; };
@@ -195,7 +195,7 @@ var tinySlider = (function () {
     function wrapperInit() {
       _setAttrs(wrapper, {'data-tns-role': 'wrapper'});
       _setAttrs(contentWrapper, {'data-tns-role': 'content-wrapper'});
-      if (direction === 'vertical') { 
+      if (axis === 'vertical') { 
         _setAttrs(contentWrapper, {'data-tns-hidden': 'y'}); 
       } else {
         _setAttrs(wrapper, {'data-tns-hidden': 'x'}); 
@@ -203,15 +203,18 @@ var tinySlider = (function () {
 
       if (mode === 'carousel') {
         var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
-        contentWrapper.style.cssText = (direction === 'horizontal') ? 'margin: 0 ' + gap + 'px;' : 'padding: ' + gap + 'px 0 ' + edgePadding + 'px; height: ' + getVerticalWrapperHeight() + 'px;'; 
+        contentWrapper.style.cssText = (axis === 'horizontal') ? 'margin: 0 ' + gap + 'px;' : 'padding: ' + gap + 'px 0 ' + edgePadding + 'px; height: ' + getVerticalWrapperHeight() + 'px;'; 
       }
     }
 
     function getVariables() {
       vw = getViewWidth();
       items = getItems();
-      indexMax = slideCountNew - items - indexAdjust;
-      if (!fixedWidth) { slideWidth = getSlideWidth(); }
+
+      var adjust = (fixedWidth && vw%slideWidth !== 0) ? 1 : indexAdjust;
+      indexMax = slideCountNew - items - adjust;
+
+      if (axis === 'horizontal' && !fixedWidth) { slideWidth = getSlideWidth(); }
       navCountVisible = getVisibleNavCount();
       slideBy = (slideByPage || options.slideBy === 'page') ? items : options.slideBy;
     }
@@ -224,7 +227,7 @@ var tinySlider = (function () {
       }
 
       var features = '';
-      if (direction) { features += direction + ' '; }
+      if (axis) { features += axis + ' '; }
       if (autoHeight) { features += 'autoheight'; }
       _setAttrs(container, {
         'data-tns-role': 'content', 
@@ -232,7 +235,7 @@ var tinySlider = (function () {
         'data-tns-features': features
       });
       if (mode === 'carousel') {
-        if (direction === 'horizontal') {
+        if (axis === 'horizontal') {
           var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
               x = (-index * slideWidth),
               transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
@@ -259,7 +262,7 @@ var tinySlider = (function () {
         item.id = slideId + '-item' + x;
 
         // set slide width
-        if (mode === 'carousel' && direction === 'horizontal') {
+        if (mode === 'carousel' && axis === 'horizontal') {
           _setAttrs(item, {'style': 'width: ' + (slideWidth) + 'px'});
         }
 
@@ -268,7 +271,7 @@ var tinySlider = (function () {
 
         // wrap innerHTML with item-wrapper and
         // set gutter
-        var marginPosition = (mode === 'carousel' && direction === 'vertical') ? 'bottom' : 'right';
+        var marginPosition = (mode === 'carousel' && axis === 'vertical') ? 'bottom' : 'right';
         item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + marginPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
       }
 
@@ -490,7 +493,7 @@ var tinySlider = (function () {
       // variables (rely on itmes): indexMax, slideWidth, navCountVisible, slideBy
       getVariables();
       slideItemsInit();
-      if (direction === 'vertical') { getSlideEdges(); }
+      if (axis === 'vertical') { getSlideEdges(); }
 
       wrapperInit();
       containerInit();
@@ -534,7 +537,7 @@ var tinySlider = (function () {
     }
 
     var updateSlideSize = (function () {
-      if (direction === 'horizontal') {
+      if (axis === 'horizontal') {
         if (!fixedWidth) {
           return function () {
             // + 1: fixed half-pixel issue
@@ -720,7 +723,7 @@ var tinySlider = (function () {
     function setTransitionDuration (indexGap) {
       var duration = speed * indexGap / 1000 + 's';
       container.style[TRANSITIONDURATION] = duration;
-      if (direction === 'vertical') {
+      if (axis === 'vertical') {
         contentWrapper.style[TRANSITIONDURATION] = duration;
       }
     }
@@ -731,7 +734,7 @@ var tinySlider = (function () {
     var transformCore = (function () {
       return function (distance) {
         var d, value, attr = TRANSFORM;
-        if (direction === 'horizontal') {
+        if (axis === 'horizontal') {
           d = distance || -slideWidth * index;
           if (TRANSFORM) {
             value = 'translate3d(' + d + 'px, 0, 0)';
@@ -740,7 +743,7 @@ var tinySlider = (function () {
             value = d + 'px';
           }
         } else {
-          d = -slideEdges[index];
+          d = distance || -slideEdges[index];
           if (TRANSFORM) {
             value = 'translate3d(0, ' + d + 'px, 0)';
           } else {
@@ -749,7 +752,7 @@ var tinySlider = (function () {
           }
         }
         container.style[attr] = value;
-        if (direction === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
+        if (axis === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
       };
     })();
 
@@ -972,39 +975,60 @@ var tinySlider = (function () {
       var touchObj = e.changedTouches[0];
       startX = parseInt(touchObj.clientX);
       startY = parseInt(touchObj.clientY);
-      translateXInit = Number(container.style[TRANSFORM].slice(12, -13));
+      var slicePositions = (axis === 'horizontal') ? [12, -13] : [17, -8];
+      translateInit = Number(container.style[TRANSFORM].slice(slicePositions[0], slicePositions[1]));
     }
 
     function onPanMove(e) {
       var touchObj = e.changedTouches[0];
-      distX = parseInt(touchObj.clientX) - startX;
-      distY = parseInt(touchObj.clientY) - startY;
+      disX = parseInt(touchObj.clientX) - startX;
+      disY = parseInt(touchObj.clientY) - startY;
 
-      if (_getPanDirection(_toDegree(distY, distX), 15) === 'horizontal') { 
+      if (_getPanDirection(_toDegree(disY, disX), 15) === axis) { 
         touchStarted = true;
         e.preventDefault();
-        doTransform(0, translateXInit + distX);
+        var distance = (axis === 'horizontal') ? disX : disY;
+        doTransform(0, translateInit + distance);
       }
     }
 
     function onPanEnd(e) {
       var touchObj = e.changedTouches[0];
-      distX = parseInt(touchObj.clientX) - startX;
+      disX = parseInt(touchObj.clientX) - startX;
+      disY = parseInt(touchObj.clientY) - startY;
 
-      if (touchStarted && distX !== 0) {
+      if (touchStarted) {
         touchStarted = false;
         e.preventDefault();
 
-        var indexTem = - (translateXInit + distX) / slideWidth;
-        indexTem = (distX > 0) ? Math.floor(indexTem) : Math.ceil(indexTem);
-        index = Math.max(indexMin, Math.min(indexTem, indexMax));
-
-        var translateXEnd = - index * slideWidth;
-        if (!loop && !edgePadding && fixedWidth) {
-          translateXEnd = Math.max(- (slideWidth * slideCount - vw), translateXEnd);
+        var indexTem;
+        if (axis === 'horizontal') {
+          indexTem = - (translateInit + disX) / slideWidth;
+          indexTem = (disX > 0) ? Math.floor(indexTem) : Math.ceil(indexTem);
+        } else {
+          var moved = - (translateInit + disY);
+          if (moved <= 0) {
+            indexTem = indexMin;
+          } else if (moved >= slideEdges[slideEdges.length - 1]) {
+            indexTem = indexMax;
+          } else {
+            var i = 0;
+            do {
+              i++;
+              indexTem = (disY < 0) ? i + 1 : i;
+            } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
+          }
         }
 
-        doTransform(1, translateXEnd);
+        // constrain the index
+        index = Math.max(indexMin, Math.min(indexTem, indexMax));
+
+        var translated = (axis === 'horizontal') ? - index * slideWidth : - slideEdges[index];
+        if (fixedWidth && !loop && !edgePadding && index === indexMax) {
+          translated = - slideCountNew * slideWidth + vw + gutter;
+        }
+
+        doTransform(1, translated);
         if (!TRANSITIONEND) { onTransitionEnd(); }
       }
     }
@@ -1018,7 +1042,7 @@ var tinySlider = (function () {
         if (vw !== vwNew) {
           vw = vwNew;
           getVariables();
-          if (direction === 'vertical') { getSlideEdges(); }
+          if (axis === 'vertical') { getSlideEdges(); }
           checkSlideCount();
 
           if (!fixedWidth || edgePadding) { updateSlideSize(); }
@@ -1126,7 +1150,7 @@ var tinySlider = (function () {
       showElement: _showElement, 
       
       mode: mode,
-      direction: direction,
+      axis: axis,
       gutter: gutter,
       edgePadding: edgePadding,
       fixedWidth: fixedWidth,
