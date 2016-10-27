@@ -34,12 +34,11 @@
 [data-tns-features*="autoheight"] {
   overflow: hidden; }
 
-[data-tns-mode="fade"] > div, [data-tns-mode="fade"] > li, [data-tns-mode="fade"] > span, [data-tns-mode="fade"] > a {
+[data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
   position: absolute;
   left: 0;
-  opacity: 0;
   z-index: 0;
-  transition: transform 0s, opacity 0s, height 0s; }
+  transition: transform 0s, opacity 0s; }
 
 [data-tns-role="nav"] button {
   vertical-align: middle; }
@@ -64,5 +63,13 @@
 
 [data-tns-hidden="y"] {
   overflow-y: hidden; }
+
+.tns-normal, .tns-fadeOut {
+  opacity: 0;
+  z-index: -1; }
+
+.tns-fadeIn {
+  opacity: 1;
+  z-index: 0; }
 
 /*# sourceMappingURL=sourcemaps/tiny-slider.css.map */

@@ -43,13 +43,12 @@
 }
 [data-tns-features*="autoheight"] { overflow: hidden; }
 
-[data-tns-mode="fade"] {
+[data-tns-mode="gallery"] {
   > div, > li, > span, > a {
     position: absolute;
     left: 0;
-    opacity: 0;
     z-index: 0;
-    transition: transform 0s, opacity 0s, height 0s;
+    transition: transform 0s, opacity 0s;
   }
 }
 [data-tns-role="nav"] {
@@ -69,3 +68,11 @@
 }
 [data-tns-hidden="x"] { overflow-x: hidden; }
 [data-tns-hidden="y"] { overflow-y: hidden; }
+.tns-normal, .tns-fadeOut {
+  opacity: 0;
+  z-index: -1;
+}
+.tns-fadeIn {
+  opacity: 1;
+  z-index: 0;
+}

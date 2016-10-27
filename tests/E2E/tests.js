@@ -2,7 +2,7 @@ var tt = (function () {
   var my = {}, 
       doc = document,
       sliderNames = ['responsive', 'fixedWidth'],
-      sliderNames = ['vertical', 'fade', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
+      sliderNames = ['fade', 'vertical', 'responsive', 'fixedWidth', 'nonLoop', 'slideByPage', 'autoplay', 'arrowKeys'],
       div = doc.createElement('div');
       ul = doc.createElement('ul');
       li = doc.createElement('li');
@@ -387,7 +387,7 @@ responsiveSD.init();
 tinySlider({
   container: tt.dom.sliders.fixedWidth,
   gutter: 10,
-  edgePadding: 50,
+  // edgePadding: 50,
   fixedWidth: 200,
   arrowKeys: true,
   // rewind: true,
@@ -454,8 +454,17 @@ tinySlider({
   //   1706: 4,
   // }
 }).init();
-// var myWindow = window.open('http://192.168.103.82:3000/tests/E2E/index.html', 'test window', 'innerWidth=1024, height=800, resizable, scrollbars, status');
-// setTimeout(function () {
-//   myWindow.resizeTo(800, 1024);
-// }, 1000);
 
+tinySlider({
+  container: tt.dom.sliders.fade,
+  items: 3,
+  mode: 'gallery',
+  arrowKeys: true,
+  // edgePadding: 50,
+  gutter: 10,
+  // slideBy: 'page',
+  // responsive: {
+  //   1280: 3,
+  //   1706: 4,
+  // }
+}).init();

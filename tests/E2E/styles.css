@@ -118,6 +118,5 @@ button[aria-selected="true"] { background: #999; }
 .vertical .img-8 { height: 164px; }
 .vertical p { display: none; }
 /*.vertical_wrapper,*/
-.html_template,
-.fade_wrapper 
-{ display: none; }
+/*.fade_wrapper */
+.html_template { display: none; }
