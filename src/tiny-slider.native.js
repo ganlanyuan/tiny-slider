@@ -768,7 +768,7 @@ var tinySlider = (function () {
     var transformCore = (function () {
       if (mode === 'carousel') {
         return function (distance) {
-          var d = distance || (axis === 'horizontal') ? -slideWidth * index : -slideEdges[index],
+          var d = (distance) ? distance : (axis === 'horizontal') ? -slideWidth * index : -slideEdges[index],
               tran = 'translate3d(',
               data = {
                 x: [TRANSFORM, tran, d, 'px, 0px, 0px)'],
