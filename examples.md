@@ -2,7 +2,7 @@
 #### Responsive
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 1,
     responsive: {
@@ -10,19 +10,17 @@ gn.ready(function () {
       800: 3,
     }
   });
-  slider.init();
 });
 ```
 
 #### Fixed width items
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     fixedWidth: 200,
     maxContainerWidth: 900
   });
-  slider.init();
 });
 ```
 
@@ -30,12 +28,11 @@ gn.ready(function () {
 Loop is `true` by default.
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     loop: false
   });
-  slider.init();
 });
 ```
 #### Customize
@@ -59,13 +56,12 @@ gn.ready(function () {
 ```
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     controlsContainer: document.querySelector('.controls'),
     navContainer: document.querySelector('.thumbnails')
   });
-  slider.init();
 });
 ```
 
@@ -83,12 +79,11 @@ Add a placeholder image to the image `src` attribute, save the real image sourse
 ```
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     lazyload: true
   });
-  slider.init();
 });
 ```
 
@@ -96,19 +91,18 @@ gn.ready(function () {
 Default setting is slide by item.
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     slideByPage: true
   });
-  slider.init();
 });
 ```
 
 #### Autoplay
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     autoplay: true,
@@ -116,29 +110,26 @@ gn.ready(function () {
     speed: 300,
     autoplayTimeout: 3000
   });
-  slider.init();
 });
 ```
 
 #### Arrow keys
 Run slider by pressing left or right arrow key.
 ```javascript
-var slider = tinySlider({
+tns({
   container: document.querySelector('.slider'),
   items: 3,
   arrowKeys: true
 });
-slider.init();
 ```
 
 #### Auto height
 ```javascript
 gn.ready(function () {
-  var slider = tinySlider({
+  tns({
     container: document.querySelector('.slider'),
     items: 3,
     autoHeight: true
   });
-  slider.init();
 });
 ```

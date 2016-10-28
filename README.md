@@ -16,8 +16,10 @@ npm install tiny-slider
 ```
 
 ## Features
+- animation
 - responsive
 - fixed width
+- vertical slider
 - gutter
 - edge padding (center)
 - loop
@@ -70,21 +72,18 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 ```html
 <script>
   gn.ready(function () {
-    var slider = tinySlider({
+    var slider = tns({
       container: document.querySelector('.slider'),
       items: 3,
       slideByPage: true,
       autoplay: true
     });
-    slider.init();
   });
 </script>
 ```
 ## Methods
 ```javascript
-var slider = tinySlider(...);
-// init
-slider.init();
+var slider = tns(...);
 
 // destory
 slider.destory();
