@@ -352,12 +352,11 @@ tt.createSliderHtml();
 tt.cacheSliders();
 
 // # base
-var baseSD = tinySlider({
+var baseSD = tns({
   container: tt.dom.sliders.base,
   items: 3,
   speed: 10,
 });
-// baseSD.init();
 
 // var baseContainer = tt.createSuiteContainer();
 // tt.createSuiteTitle(baseContainer, 'base');
@@ -365,7 +364,7 @@ var baseSD = tinySlider({
 // tt.checkFunctions(baseContainer, baseSD);
 
 // # responsive
-var responsiveSD = tinySlider({
+var responsiveSD = tns({
   container: tt.dom.sliders.responsive,
   gutter: 10,
   gutterPosition: 'left',
@@ -377,14 +376,13 @@ var responsiveSD = tinySlider({
   },
   // rewind: true,
 });
-responsiveSD.init();
 
 // var responsiveContainer = tt.createSuiteContainer();
 // tt.createSuiteTitle(responsiveContainer, 'responsive');
 // tt.checkInit(responsiveContainer, responsiveSD);
 // tt.checkFunctions(responsiveContainer, responsiveSD);
 
-tinySlider({
+tns({
   container: tt.dom.sliders.fixedWidth,
   gutter: 10,
   // edgePadding: 50,
@@ -393,54 +391,54 @@ tinySlider({
   // rewind: true,
   slideByPage: true,
   loop: false,
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.nonLoop,
   items: 3,
   edgePadding: 50,
   loop: false,
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.slideByPage,
   items: 3,
   slideByPage: true,
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.autoplay,
   items: 3,
   // autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.arrowKeys,
   items: 3,
   // edgePadding: 50,
   arrowKeys: true,
   // slideByPage: true,
-}).init();
+});
 
-tinySlider({
+tns({
   container: document.querySelector('.customize'),
   items: 3,
   edgePadding: 40,
   controlsContainer: document.querySelector('.customize-tools .controls'),
   navContainer: document.querySelector('.customize-tools .thumbnails'),
   lazyload: true,
-}).init();
+});
 
-tinySlider({
+tns({
   container: document.querySelector('.auto-height'),
   autoHeight: true,
   items: 1,
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.vertical,
   items: 2,
   mode: 'carousel',
@@ -453,9 +451,9 @@ tinySlider({
   //   1280: 3,
   //   1706: 4,
   // }
-}).init();
+});
 
-tinySlider({
+tns({
   container: tt.dom.sliders.fade,
   items: 3,
   mode: 'gallery',
@@ -467,4 +465,4 @@ tinySlider({
   //   1280: 3,
   //   1706: 4,
   // }
-}).init();
+});

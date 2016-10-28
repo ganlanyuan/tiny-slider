@@ -1106,6 +1106,7 @@ var tns = (function () {
       lazyLoad();
       runAutoHeight();
     }
+    sliderInit();
 
     function checkSlideCount() {
       if (slideCount <= items) { 
@@ -1714,7 +1715,6 @@ var tns = (function () {
     }
 
     return {
-      init: sliderInit,
       destory: function () {
         // wrapper
         gn.unwrap(wrapper);
