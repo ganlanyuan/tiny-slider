@@ -587,21 +587,23 @@ var tns = (function () {
         'OTransform'
       ]),
       transitions = {
-        'transitionDuration': 'transitionend',
-        'WebkitTransitionDuration': 'oTransitionEnd',
-        'MozTransitionDuration': 'transitionend',
-        'OTransitionDuration': 'webkitTransitionEnd'
+        'transitionDuration': ['transitionDelay', 'transitionend'],
+        'WebkitTransitionDuration': ['WebkitTransitionDelay', 'oTransitionEnd'],
+        'MozTransitionDuration': ['MozTransitionDelay', 'transitionend'],
+        'OTransitionDuration': ['OTransitionDelay', 'webkitTransitionEnd']
       },
       animations = {
-        'animationDuration': 'animationend',
-        'WebkitAnimationDuration': 'oAnimationEnd',
-        'MozAnimationDuration': 'animationend',
-        'OAnimationDuration': 'webkitAnimationEnd'
+        'animationDuration': ['animationDelay', 'animationend'],
+        'WebkitAnimationDuration': ['WebkitAnimationDelay', 'oAnimationEnd'],
+        'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
+        'OAnimationDuration': ['OAnimationDelay', 'webkitAnimationEnd']
       },
       TRANSITIONDURATION = whichProperty(transitions)[0],
-      TRANSITIONEND = whichProperty(transitions)[1],
+      TRANSITIONDELAY = whichProperty(transitions)[1],
+      TRANSITIONEND = whichProperty(transitions)[2],
       ANIMATIONDURATION = whichProperty(animations)[0],
-      ANIMATIONEND = whichProperty(animations)[1],
+      ANIMATIONDELAY = whichProperty(animations)[1],
+      ANIMATIONEND = whichProperty(animations)[2],
       KEY = {
         ENTER: 13,
         SPACE: 32,
@@ -614,6 +616,14 @@ var tns = (function () {
         RIGHT: 39,
         DOWN: 40
       };
+// console.log(
+//   TRANSITIONDURATION,
+//   TRANSITIONDELAY,
+//   TRANSITIONEND,
+//   ANIMATIONDURATION,
+//   ANIMATIONDELAY,
+//   ANIMATIONEND
+//   );
 
   function core (options) {
     options = gn.extend({
@@ -633,15 +643,12 @@ var tns = (function () {
       navContainer: false,
       arrowKeys: false,
       speed: 300,
+      delay: false,
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
       autoplayText: ['start', 'pause'],
-      animate: {
-        in: 'tns-fadeIn',
-        out: 'tns-fadeOut',
-        normal: 'tns-normal',
-      },
+      animate: {},
       loop: true,
       autoHeight: false,
       responsive: false,
@@ -677,7 +684,8 @@ var tns = (function () {
         nav = options.nav,
         navContainer = (!options.navContainer) ? false : options.navContainer,
         arrowKeys = options.arrowKeys,
-        speed = (!TRANSITIONDURATION) ? 0 : options.speed,
+        speed = options.speed,
+        delay = options.delay,
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
@@ -1935,7 +1943,7 @@ var tns = (function () {
 
     for(t in obj){
       if( el.style[t] !== undefined ){
-        return [t, obj[t]];
+        return [t, obj[t][0], obj[t][1]];
       }
     }
 
