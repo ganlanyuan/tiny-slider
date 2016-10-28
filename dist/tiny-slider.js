@@ -576,7 +576,7 @@ gn.unwrap = function (els) {
   * @github https://github.com/ganlanyuan/tiny-slider/
   */
 
-var tinySlider = (function () {
+var tns = (function () {
   'use strict';
 
   // get supported property, KEYs
@@ -1830,8 +1830,8 @@ var tinySlider = (function () {
 
   // === Private helper functions === //
   function _getSlideId() {
-    window.tinySliderNumber = (window.tinySliderNumber) ? window.tinySliderNumber++ : 1;
-    return 'tns' + window.tinySliderNumber;
+    window.tnsNumber = (window.tnsNumber) ? window.tnsNumber++ : 1;
+    return 'tns' + window.tnsNumber;
   }
 
   function _toDegree (y, x) {
