@@ -142,7 +142,6 @@ Now you can set the gutter using `gutter` option.
 ```
 
 ## Todo
-- vertical slider
 
 
 ## Browser Support
