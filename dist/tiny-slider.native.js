@@ -406,19 +406,16 @@ var tinySlider = (function () {
     }
 
     function addSliderEvents() {
-      if (TRANSITIONEND) {
-        container.addEventListener(TRANSITIONEND, onTransitionEnd, false);
-        if (mode === 'gallery') {
-          for (var i = slideCountNew; i--;) {
-            slideItems[i].addEventListener(TRANSITIONEND, onTransitionEnd, false);
-          }
+      if (mode === 'carousel') {
+        if (TRANSITIONEND) {
+          container.addEventListener(TRANSITIONEND, onTransitionEnd, false);
         }
-      }
-      if (touch) {
-        container.addEventListener('touchstart', onPanStart, false);
-        container.addEventListener('touchmove', onPanMove, false);
-        container.addEventListener('touchend', onPanEnd, false);
-        container.addEventListener('touchcancel', onPanEnd, false);
+        if (touch) {
+          container.addEventListener('touchstart', onPanStart, false);
+          container.addEventListener('touchmove', onPanMove, false);
+          container.addEventListener('touchend', onPanEnd, false);
+          container.addEventListener('touchcancel', onPanEnd, false);
+        }
       }
       if (nav) {
         for (var y = 0; y < slideCount; y++) {
@@ -573,6 +570,11 @@ var tinySlider = (function () {
             container.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
             for (var i = slideCountNew; i--;) {
               slideItems[i].style.width = slideWidth + 'px';
+              if (mode === 'gallery') {
+                if (i > index && i < index + items) {
+                  slideItems[i].style.marginLeft = slideWidth * (i - index) + 'px';
+                }
+              }
             }
           };
         } else if (edgePadding) {
@@ -599,8 +601,10 @@ var tinySlider = (function () {
       }
       maxHeight = Math.max.apply(null, heights);
 
-      if (TRANSITIONDURATION) { setTransitionDuration(1); }
-      container.style.height = maxHeight + 'px';
+      if (container.style.height !== maxHeight) {
+        if (TRANSITIONDURATION) { setTransitionDuration(1); }
+        container.style.height = maxHeight + 'px';
+      }
     }
 
     function getSlideEdges() {
@@ -779,11 +783,14 @@ var tinySlider = (function () {
       } else {
         return function () {
           // constrain index
-          if (index === indexMax) { index -= slideCount; }
+          while (index > indexMax) { index -= slideCount; }
+          while (index < indexMin) { index += slideCount; }
           slideItemsOut = [];
+          slideItems[indexCached].removeEventListener(TRANSITIONEND, onTransitionEnd, false);
+          slideItems[index].addEventListener(TRANSITIONEND, onTransitionEnd, false);
 
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
-            var a = (i <= slideCountNew) ? i : i - slideCount,
+            var a = (i < slideCountNew) ? i : i - slideCount,
                 item = slideItems[a];
             if (TRANSITIONDURATION) { setTransitionDuration(1, item); }
             item.classList.remove(animate.in);
@@ -793,7 +800,7 @@ var tinySlider = (function () {
 
           var x = 0;
           for (var j = index, m = index + items; j < m; j++) {
-            var b = (j <= slideCountNew) ? j : j - slideCount,
+            var b = (j < slideCountNew) ? j : j - slideCount,
                 itemNew = slideItems[b];
             if (TRANSITIONDURATION) { setTransitionDuration(1, itemNew); }
             itemNew.classList.remove(animate.normal);
@@ -819,13 +826,15 @@ var tinySlider = (function () {
       var leftEdge = slideBy + indexAdjust,
           rightEdge = slideCountNew - items - slideBy - 1; // -1: index starts form 0
 
+      // if (mode === 'gallery') { console.log(index, leftEdge, rightEdge); }
       if (index < leftEdge || index > rightEdge) {
+        updateIndexCache();
         var newIndex1 = index - slideCount,
             newIndex2 = index + slideCount;
         index = (newIndex1 >= leftEdge && newIndex1 <= rightEdge) ? newIndex1 : newIndex2;
 
         doTransform(0);
-        updateIndexCache();
+        // if (mode === 'gallery') { console.log(indexCached, index); }
       }
     }
 
@@ -844,23 +853,17 @@ var tinySlider = (function () {
     // 5. lazyload images
     // 6. update container height
     function onTransitionEnd(e) {
-      if (!TRANSITIONEND && slideItemsOut.length > 0) {
+      if (mode === 'gallery' && slideItemsOut.length > 0) {
         for (var i = 0; i < items; i++) {
           var item = slideItemsOut[i];
           item.classList.remove(animate.out);
           item.classList.add(animate.normal);
           item.style.marginLeft = '';
         }
-      } else if (e.target.classList.contains(animate.out)) {
-        var target = e.target;
-        if (TRANSITIONDURATION) { setTransitionDuration(0, target); }
-        target.classList.remove(animate.out);
-        target.classList.add(animate.normal);
-        target.style.marginLeft = '';
       }
 
-      if (!TRANSITIONEND || e.propertyName !== 'height') {
-        if (loop) { resetIndexAndContainer(); }
+      if (!TRANSITIONEND || e && e.propertyName !== 'height') {
+        if (loop && mode === 'carousel') { resetIndexAndContainer(); }
         updateSlideStatus();
         updateNavStatus();
         updateControlsStatus();
@@ -1121,9 +1124,11 @@ var tinySlider = (function () {
           updateNavDisplay();
           if (navigator.msMaxTouchPoints) { setSnapInterval(); }
 
-          doTransform(0);
-          onTransitionEnd(); 
-          updateIndexCache();
+          if (mode === 'carousel') {
+            doTransform(0);
+            onTransitionEnd(); 
+            updateIndexCache();
+          }
         }
       }, 100);
     }

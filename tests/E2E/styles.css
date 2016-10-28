@@ -117,6 +117,16 @@ button[aria-selected="true"] { background: #999; }
 .vertical .img-7 { height: 223px; }
 .vertical .img-8 { height: 164px; }
 .vertical p { display: none; }
+
+/*.fade .img-1 { height: 137px; }
+.fade .img-2 { height: 122px; }
+.fade .img-3 { height: 143px; }
+.fade .img-4 { height: 325px; }
+.fade .img-5 { height: 140px; }
+.fade .img-6 { height: 119px; }
+.fade .img-7 { height: 223px; }
+.fade .img-8 { height: 164px; }*/
+
 /*.vertical_wrapper,*/
 /*.fade_wrapper */
 .html_template { display: none; }

@@ -46,7 +46,6 @@
 [data-tns-mode="gallery"] {
   > div, > li, > span, > a {
     position: absolute;
-    left: 0;
     z-index: 0;
     transition: transform 0s, opacity 0s;
   }
