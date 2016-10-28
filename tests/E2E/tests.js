@@ -459,7 +459,12 @@ tns({
   mode: 'gallery',
   arrowKeys: true,
   // edgePadding: 50,
+  speed: 1000,
   gutter: 10,
+  animate: {
+    in: 'rotateInDownLeft',
+    out: 'fadeOutDown',
+  },
   // slideBy: 'page',
   // responsive: {
   //   1280: 3,

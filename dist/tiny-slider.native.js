@@ -10,19 +10,28 @@ var tns = (function () {
   'use strict';
 
   // get supported property, KEYs
-  var TRANSITIONDURATION = gn.getSupportedProp([
-        'transitionDuration', 
-        'WebkitTransitionDuration', 
-        'MozTransitionDuration', 
-        'OTransitionDuration'
-      ]),
-      TRANSFORM = gn.getSupportedProp([
+  var TRANSFORM = gn.getSupportedProp([
         'transform', 
         'WebkitTransform', 
         'MozTransform', 
         'OTransform'
       ]),
-      TRANSITIONEND = whichTransitionEvent(),
+      transitions = {
+        'transitionDuration': 'transitionend',
+        'WebkitTransitionDuration': 'oTransitionEnd',
+        'MozTransitionDuration': 'transitionend',
+        'OTransitionDuration': 'webkitTransitionEnd'
+      },
+      animations = {
+        'animationDuration': 'animationend',
+        'WebkitAnimationDuration': 'oAnimationEnd',
+        'MozAnimationDuration': 'animationend',
+        'OAnimationDuration': 'webkitAnimationEnd'
+      },
+      TRANSITIONDURATION = whichProperty(transitions)[0],
+      TRANSITIONEND = whichProperty(transitions)[1],
+      ANIMATIONDURATION = whichProperty(animations)[0],
+      ANIMATIONEND = whichProperty(animations)[1],
       KEY = {
         ENTER: 13,
         SPACE: 32,
@@ -53,7 +62,7 @@ var tns = (function () {
       nav: true,
       navContainer: false,
       arrowKeys: false,
-      speed: 250,
+      speed: 300,
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
@@ -155,9 +164,9 @@ var tns = (function () {
     }
 
     // set animate default classes
-    animate.in = animate.in || '';
-    animate.out = animate.out || '';
-    animate.normal = animate.normal || '';
+    animate.in = animate.in || 'tns-fadeIn';
+    animate.out = animate.out || 'tns-fadeOut';
+    animate.normal = animate.normal || 'tns-normal';
 
     // get items, slideWidth, navCountVisible
     function getSlideBy () {
@@ -758,6 +767,9 @@ var tns = (function () {
       target = target || container;
       target.style[TRANSITIONDURATION] = duration;
 
+      if (mode === 'gallery') {
+        target.style[ANIMATIONDURATION] = duration;
+      }
       if (axis === 'vertical') {
         contentWrapper.style[TRANSITIONDURATION] = duration;
       }
@@ -794,7 +806,9 @@ var tns = (function () {
 
           slideItemsOut = [];
           slideItems[indexCached].removeEventListener(TRANSITIONEND, onTransitionEnd, false);
+          slideItems[indexCached].removeEventListener(ANIMATIONEND, onTransitionEnd, false);
           slideItems[index].addEventListener(TRANSITIONEND, onTransitionEnd, false);
+          slideItems[index].addEventListener(ANIMATIONEND, onTransitionEnd, false);
 
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
             var a = (i < slideCountNew) ? i : i - slideCount,
@@ -861,6 +875,7 @@ var tns = (function () {
       if (mode === 'gallery' && slideItemsOut.length > 0) {
         for (var i = 0; i < items; i++) {
           var item = slideItemsOut[i];
+          if (TRANSITIONDURATION) { setTransitionDuration(0, item); }
           item.classList.remove(animate.out);
           item.classList.add(animate.normal);
           item.style.marginLeft = '';
@@ -1344,19 +1359,13 @@ var tns = (function () {
   }
 
   // From Modernizr
-  function whichTransitionEvent(){
+  function whichProperty(obj){
     var t,
-        el = document.createElement('fakeelement'),
-        transitions = {
-          'transition':'transitionend',
-          'OTransition':'oTransitionEnd',
-          'MozTransition':'transitionend',
-          'WebkitTransition':'webkitTransitionEnd'
-        };
+        el = document.createElement('fakeelement');
 
-    for(t in transitions){
+    for(t in obj){
       if( el.style[t] !== undefined ){
-        return transitions[t];
+        return [t, obj[t]];
       }
     }
 

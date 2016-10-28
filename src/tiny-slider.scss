@@ -67,11 +67,10 @@
 }
 [data-tns-hidden="x"] { overflow-x: hidden; }
 [data-tns-hidden="y"] { overflow-y: hidden; }
+.tns-fadeIn {
+  opacity: 1;
+}
 .tns-normal, .tns-fadeOut {
   opacity: 0;
   z-index: -1;
-}
-.tns-fadeIn {
-  opacity: 1;
-  z-index: 0;
 }
