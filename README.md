@@ -130,15 +130,8 @@ Now you can set the gutter using `gutter` option.
 
 #### Fallback
 ```css
-.no-js .your-slider { 
-  overflow-x: auto; 
-  white-space: nowrap; /* make child elements stay in one row */
-}
-.no-js .your-slider > div { 
-  float: none; /* reset float */
-  display: inline-block;
-  white-space: normal; /* reset white-space */
-}
+.no-js .your-slider { overflow-x: auto; }
+.no-js .your-slider > div { float: none; }
 ```
 
 ## Todo

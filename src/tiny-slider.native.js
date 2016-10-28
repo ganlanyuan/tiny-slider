@@ -57,7 +57,7 @@ var tns = (function () {
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
-      autoplayText: ['start', 'stop'],
+      autoplayText: ['start', 'pause'],
       animate: {
         in: 'tns-fadeIn',
         out: 'tns-fadeOut',
@@ -116,7 +116,7 @@ var tns = (function () {
         slideId = container.id || _getSlideId(),
         slideWidth = fixedWidth || 0,
         slideItemsOut = [],
-        cloneCount = (mode === 'gallery') ? slideCount: (loop) ? Math.ceil(slideCount*1.5) : (edgePadding) ? 1 : 0,
+        cloneCount = (mode === 'gallery') ? slideCount * 2: (loop) ? Math.ceil(slideCount*1.5) : (edgePadding) ? 1 : 0,
         slideCountNew = (mode === 'gallery') ? slideCount + cloneCount : slideCount + cloneCount * 2,
         prevButton,
         nextButton,
@@ -784,8 +784,14 @@ var tns = (function () {
       } else {
         return function () {
           // constrain index
-          while (index > indexMax) { index -= slideCount; }
-          while (index < indexMin) { index += slideCount; }
+          // |----------|----------|----------|
+          // |slideCount|slideCount|slideCount|
+          if (index > indexMax) {
+            while (index >= slideCount) { index -= slideCount; }
+          } else if (index < indexMin) {
+            while (index <= indexMax - slideCount) { index += slideCount; }
+          }
+
           slideItemsOut = [];
           slideItems[indexCached].removeEventListener(TRANSITIONEND, onTransitionEnd, false);
           slideItems[index].addEventListener(TRANSITIONEND, onTransitionEnd, false);
@@ -827,7 +833,6 @@ var tns = (function () {
       var leftEdge = slideBy + indexAdjust,
           rightEdge = slideCountNew - items - slideBy - 1; // -1: index starts form 0
 
-      // if (mode === 'gallery') { console.log(index, leftEdge, rightEdge); }
       if (index < leftEdge || index > rightEdge) {
         updateIndexCache();
         var newIndex1 = index - slideCount,
@@ -835,7 +840,6 @@ var tns = (function () {
         index = (newIndex1 >= leftEdge && newIndex1 <= rightEdge) ? newIndex1 : newIndex2;
 
         doTransform(0);
-        // if (mode === 'gallery') { console.log(indexCached, index); }
       }
     }
 
