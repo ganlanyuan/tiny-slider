@@ -632,6 +632,7 @@ var tns = (function () {
       axis: 'horizontal',
       items: 1,
       gutter: 0,
+      gutterPosition: 'right',
       edgePadding: 0,
       fixedWidth: false,
       slideByPage: false,
@@ -675,6 +676,7 @@ var tns = (function () {
         slideItems = container.children,
         slideCount = slideItems.length,
         gutter = options.gutter,
+        gutterPosition = (options.gutterPosition === 'left' || options.gutterPosition === 'top') ? options.gutterPosition : (axis === 'horizontal') ? 'right' : 'bottom',
         edgePadding = (mode === 'vertical') ? false : options.edgePadding,
         indexAdjust = (edgePadding) ? 1 : 0,
         fixedWidth = options.fixedWidth,
@@ -823,12 +825,14 @@ var tns = (function () {
     }
 
     function containerInit() {
+      // add id
       if (container.id === '') { 
         container.id = slideId = _getSlideId(); 
       } else {
         slideId = container.id;
       }
 
+      // add attributes
       var features = '';
       if (axis) { features += axis + ' '; }
       if (autoHeight) { features += 'autoheight'; }
@@ -837,6 +841,8 @@ var tns = (function () {
         'data-tns-mode': mode, 
         'data-tns-features': features
       });
+
+      // init transform
       if (mode === 'carousel') {
         if (axis === 'horizontal') {
           var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
@@ -847,6 +853,11 @@ var tns = (function () {
           var y = -slideEdges[index];
           container.style.cssText += (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
         }
+      }
+
+      // fix gutter
+      if (gutterPosition === 'left' || gutterPosition === 'top') {
+        container.style.cssText += 'margin-' + gutterPosition + ': ' + -gutter + 'px';
       }
     }
 
@@ -877,8 +888,7 @@ var tns = (function () {
 
         // wrap innerHTML with item-wrapper and
         // set gutter
-        var marginPosition = (mode === 'carousel' && axis === 'vertical') ? 'bottom' : 'right';
-        item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + marginPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
+        item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + gutterPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
       }
 
       // clone slides
