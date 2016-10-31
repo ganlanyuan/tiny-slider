@@ -462,11 +462,9 @@ tns({
   // edgePadding: 50,
   speed: 1000,
   gutter: 10,
-  animate: {
-    in: 'fadeInDown',
-    out: 'fadeOutDown',
-    delay: 300,
-  },
+  animateIn: 'fadeInDown',
+  animateOut: 'fadeOutDown',
+  animateDelay: 300,
   // slideBy: 'page',
   // responsive: {
   //   1280: 3,

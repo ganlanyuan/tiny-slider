@@ -46,7 +46,6 @@
 [data-tns-mode="gallery"] {
   > div, > li, > span, > a {
     position: absolute;
-    z-index: 0;
     transition: transform 0s, opacity 0s;
   }
 }
@@ -69,8 +68,11 @@
 [data-tns-hidden="y"] { overflow-y: hidden; }
 .tns-fadeIn {
   opacity: 1;
+  filter: alpha(opacity=100);
+  z-index: 0;
 }
 .tns-normal, .tns-fadeOut {
   opacity: 0;
+  filter: alpha(opacity=0);
   z-index: -1;
 }

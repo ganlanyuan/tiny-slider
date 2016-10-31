@@ -647,7 +647,10 @@ var tns = (function () {
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
       autoplayText: ['start', 'pause'],
-      animate: {},
+      animateIn: 'tns-fadeIn',
+      animateOut: 'tns-fadeOut',
+      animateNormal: 'tns-normal',
+      animateDelay: false,
       loop: true,
       autoHeight: false,
       responsive: false,
@@ -684,13 +687,15 @@ var tns = (function () {
         navContainer = (!options.navContainer) ? false : options.navContainer,
         arrowKeys = options.arrowKeys,
         speed = options.speed,
-        delay = options.delay,
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         autoplayText = options.autoplayText,
         rewind = options.rewind,
-        animate = options.animate,
+        animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
+        animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
+        animateNormal = (ANIMATIONDURATION) ? options.animateNormal : 'tns-normal',
+        animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false,
         loop = (options.rewind) ? false : options.loop,
         autoHeight = (mode === 'gallery') ? true : options.autoHeight,
         responsive = (fixedWidth) ? false : options.responsive,
@@ -738,11 +743,6 @@ var tns = (function () {
           disY,
           touchStarted;
     }
-
-    // set animate default classes
-    animate.in = animate.in || 'tns-fadeIn';
-    animate.out = animate.out || 'tns-fadeOut';
-    animate.normal = animate.normal || 'tns-normal';
 
     // get items, slideWidth, navCountVisible
     function getSlideBy () {
@@ -868,18 +868,16 @@ var tns = (function () {
         item.id = slideId + '-item' + x;
 
         // add class
-        if (mode === 'gallery' && animate.normal) { item.classList.add(animate.normal); }
+        if (mode === 'gallery' && animateNormal) { item.classList.add(animateNormal); }
 
         // add aria-hidden attribute
         _setAttrs(item, {'aria-hidden': 'true'});
 
         // set slide width & gutter
         var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
-            styles = 'margin-' + gutterPosition + ': ' + gutter + 'px;';
-
-        if (axis === 'horizontal') {
-          styles += ' width: ' + (slideWidth - gutter) + 'px';
-        }
+            styles = '';
+        if (mode === 'carousel') { styles = 'margin-' + gutterPosition + ': ' + gutter + 'px;'; }
+        if (axis === 'horizontal') { styles = 'width: ' + (slideWidth - gutter) + 'px; ' + styles; }
         item.style.cssText += styles;
       }
 
@@ -976,11 +974,17 @@ var tns = (function () {
 
     function activateSlider() {
       for (var i = index; i < index + items; i++) {
-        _setAttrs(slideItems[i], {'aria-hidden': 'false'});
+        var item = slideItems[i];
+        _setAttrs(item, {'aria-hidden': 'false'});
         if (mode === 'gallery') { 
-          slideItems[i].style.marginLeft = slideWidth * (i - index) + 'px'; 
-          slideItems[i].classList.remove(animate.normal);
-          slideItems[i].classList.add(animate.in);
+          if (animateDelay && TRANSITIONDELAY) {
+            var d = animateDelay * (i - index) / 1000; 
+            item.style[TRANSITIONDELAY] = d + 's'; 
+            item.style[ANIMATIONDELAY] = d + 's'; 
+          }
+          item.style.marginLeft = slideWidth * (i - index) + 'px'; 
+          item.classList.remove(animateNormal);
+          item.classList.add(animateIn);
         }
       }
       if (controls) {
@@ -1343,7 +1347,7 @@ var tns = (function () {
 
     // set duration
     function setDurations (indexGap, target) {
-      var duration = speed * indexGap / 1000 + 's';
+      var duration = (indexGap)? speed * indexGap / 1000 + 's' : '';
       target = target || container;
       target.style[TRANSITIONDURATION] = duration;
 
@@ -1394,30 +1398,28 @@ var tns = (function () {
             var a = (i < slideCountNew) ? i : i - slideCount,
                 item = slideItems[a];
             if (TRANSITIONDURATION) { setDurations(1, item); }
-            if (animate.delay && TRANSITIONDELAY) {
-              var d = animate.delay * (i - indexCached) / 1000; 
+            if (animateDelay && TRANSITIONDELAY) {
+              var d = animateDelay * (i - indexCached) / 1000; 
               item.style[TRANSITIONDELAY] = d + 's'; 
               item.style[ANIMATIONDELAY] = d + 's'; 
             }
-            item.classList.remove(animate.in);
-            item.classList.add(animate.out);
+            item.classList.remove(animateIn);
+            item.classList.add(animateOut);
             slideItemsOut.push(item);
           }
 
-          var x = 0;
           for (var j = index, m = index + items; j < m; j++) {
             var b = (j < slideCountNew) ? j : j - slideCount,
                 itemNew = slideItems[b];
             if (TRANSITIONDURATION) { setDurations(1, itemNew); }
-            if (animate.delay && TRANSITIONDELAY) {
-              var d = animate.delay * (j - index) / 1000; 
-              item.style[TRANSITIONDELAY] = d + 's'; 
-              item.style[ANIMATIONDELAY] = d + 's'; 
+            if (animateDelay && TRANSITIONDELAY) {
+              var d = animateDelay * (j - index) / 1000; 
+              itemNew.style[TRANSITIONDELAY] = d + 's'; 
+              itemNew.style[ANIMATIONDELAY] = d + 's'; 
             }
-            itemNew.classList.remove(animate.normal);
-            itemNew.classList.add(animate.in);
-            if (x > 0) { itemNew.style.marginLeft = x * slideWidth + 'px'; }
-            x++;
+            itemNew.classList.remove(animateNormal);
+            itemNew.classList.add(animateIn);
+            if (j > index) { itemNew.style.marginLeft = (j - index) * slideWidth + 'px'; }
           }
         };
       }
@@ -1466,9 +1468,11 @@ var tns = (function () {
         for (var i = 0; i < items; i++) {
           var item = slideItemsOut[i];
           if (TRANSITIONDURATION) { setDurations(0, item); }
-          if (animate.delay && TRANSITIONDELAY) { item.style[TRANSITIONDELAY] = ''; }
-          item.classList.remove(animate.out);
-          item.classList.add(animate.normal);
+          if (animateDelay && TRANSITIONDELAY) { 
+            item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = '';
+          }
+          item.classList.remove(animateOut);
+          item.classList.add(animateNormal);
           item.style.marginLeft = '';
         }
       }

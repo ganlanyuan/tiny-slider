@@ -36,7 +36,6 @@
 
 [data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
   position: absolute;
-  z-index: 0;
   transition: transform 0s, opacity 0s; }
 
 [data-tns-role="nav"] button {
@@ -64,10 +63,13 @@
   overflow-y: hidden; }
 
 .tns-fadeIn {
-  opacity: 1; }
+  opacity: 1;
+  filter: alpha(opacity=100);
+  z-index: 0; }
 
 .tns-normal, .tns-fadeOut {
   opacity: 0;
+  filter: alpha(opacity=0);
   z-index: -1; }
 
 /*# sourceMappingURL=sourcemaps/tiny-slider.css.map */
