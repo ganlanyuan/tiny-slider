@@ -1,5 +1,5 @@
 # tiny-slider
-![version](https://img.shields.io/badge/Version-0.6.2-green.svg)   
+![version](https://img.shields.io/badge/Version-0.6.3-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
 [demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
