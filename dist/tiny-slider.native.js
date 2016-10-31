@@ -43,6 +43,7 @@ var tinySlider = (function () {
       direction: 'horizontal',
       items: 1,
       gutter: 0,
+      gutterPosition: 'right',
       edgePadding: 0,
       fixedWidth: false,
       slideByPage: false,
@@ -83,6 +84,8 @@ var tinySlider = (function () {
         slideItems = slideContainer.children,
         slideCount = slideItems.length,
         gutter = options.gutter,
+        gutterPosition = (options.gutterPosition === 'right') ? 'margin-right' : 'margin-left',
+        gapAdjust = (options.gutterPosition === 'left') ? gutter : 0,
         edgePadding = options.edgePadding,
         indexAdjust = (edgePadding) ? 1 : 0,
         fixedWidth = options.fixedWidth,
@@ -202,7 +205,14 @@ var tinySlider = (function () {
     }
 
     function containerInit() {
-      var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? (edgePadding + gutter) : 0;
+      var gap = - gapAdjust;
+      if (edgePadding) {
+        if (fixedWidth) {
+          gap = getFixedWidthEdgePadding();
+        } else {
+          gap += edgePadding + gutter;
+        }
+      }
       slideContainer.classList.add('tiny-content', mode, direction);
       slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
           'margin-left: ' + gap + 'px; ' + TRANSFORM + ': translate3d(' + (-index * slideWidth) + 'px, 0px, 0px);';
@@ -253,7 +263,7 @@ var tinySlider = (function () {
         slideItems = slideContainer.children;
       }
       _setAttrs(slideItems, {
-        'style': 'width: ' + (slideWidth - gutter) + 'px; margin-right: ' + gutter + 'px',
+        'style': 'width: ' + (slideWidth - gutter) + 'px; ' + gutterPosition + ': ' + gutter + 'px',
         'aria-hidden': 'true'
       });
     }
