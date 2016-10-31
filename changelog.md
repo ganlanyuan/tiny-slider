@@ -1,5 +1,14 @@
 # Changelog
 
+#### v0.6.3
+- Added: `getIndex` method.
+- Improved: set index to real index.
+- Improved: use `transitionend` listener instead of `setTimeout`.
+- Improved: listen to view width change only on resize.
+- Improved: half-pixel issue on IE8.
+- Fixed: update clone count to fix a loop issue.
+- Fixed: a fixedWidth edgePadding issue.
+
 #### v0.6.2
 - Fixed: a conditional statement issue in function `updateLayout`.
 - Improved: performance.

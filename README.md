@@ -83,11 +83,10 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 ## Methods
 ```javascript
 var slider = tinySlider(...);
-// init
-slider.init();
 
-// destory
+slider.init();
 slider.destory();
+slider.getIndex();
 ```
 ## Options
 Default:
