@@ -632,7 +632,6 @@ var tns = (function () {
       axis: 'horizontal',
       items: 1,
       gutter: 0,
-      gutterPosition: 'right',
       edgePadding: 0,
       fixedWidth: false,
       slideByPage: false,
@@ -676,7 +675,6 @@ var tns = (function () {
         slideItems = container.children,
         slideCount = slideItems.length,
         gutter = options.gutter,
-        gutterPosition = (options.gutterPosition === 'left' || options.gutterPosition === 'top') ? options.gutterPosition : (axis === 'horizontal') ? 'right' : 'bottom',
         edgePadding = (mode === 'vertical') ? false : options.edgePadding,
         indexAdjust = (edgePadding) ? 1 : 0,
         fixedWidth = options.fixedWidth,
@@ -716,7 +714,6 @@ var tns = (function () {
         navCurrent = 0,
         navCurrentCached = 0,
         index = (mode === 'gallery') ? 0 : cloneCount,
-        // cache index for function updateSlideStatus
         indexCached = index,
         indexMin = indexAdjust,
         indexMax,
@@ -854,11 +851,6 @@ var tns = (function () {
           container.style.cssText += (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
         }
       }
-
-      // fix gutter
-      if (gutterPosition === 'left' || gutterPosition === 'top') {
-        container.style.cssText += 'margin-' + gutterPosition + ': ' + -gutter + 'px';
-      }
     }
 
     // for IE10
@@ -876,19 +868,20 @@ var tns = (function () {
         // add slide id
         item.id = slideId + '-item' + x;
 
+        // add class
         if (mode === 'gallery' && animate.normal) { item.classList.add(animate.normal); }
-
-        // set slide width
-        if (axis !== 'vertical') {
-          _setAttrs(item, {'style': 'width: ' + (slideWidth) + 'px'});
-        }
 
         // add aria-hidden attribute
         _setAttrs(item, {'aria-hidden': 'true'});
 
-        // wrap innerHTML with item-wrapper and
-        // set gutter
-        item.innerHTML = '<div data-tns-role="item-wrapper" style="margin-' + gutterPosition + ': ' + gutter + 'px">' + item.innerHTML + '</div>';
+        // set slide width & gutter
+        var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
+            styles = 'margin-' + gutterPosition + ': ' + gutter + 'px;';
+
+        if (axis === 'horizontal') {
+          styles += ' width: ' + (slideWidth - gutter) + 'px';
+        }
+        item.style.cssText += styles;
       }
 
       // clone slides
@@ -1167,7 +1160,7 @@ var tns = (function () {
             // + 1: fixed half-pixel issue
             container.style.width = (slideWidth + 1) * slideCountNew + 'px'; 
             for (var i = slideCountNew; i--;) {
-              slideItems[i].style.width = slideWidth + 'px';
+              slideItems[i].style.width = (slideWidth - gutter) + 'px';
               if (mode === 'gallery') {
                 if (i > index && i < index + items) {
                   slideItems[i].style.marginLeft = slideWidth * (i - index) + 'px';
@@ -1821,6 +1814,7 @@ var tns = (function () {
         window.removeEventListener('resize', onResize, false);
         window.removeEventListener('scroll', onScroll, false);
       },
+      getIndex: function () { return index; },
 
       // $ Private methods, for test only
       hasAttr: _hasAttr, 
@@ -1851,7 +1845,6 @@ var tns = (function () {
       items: getItems(),
       cloneCount: cloneCount,
       navCountVisible: function () { return navCountVisible; },
-      index: function () { return index; },
       slideWidth: function () { return slideWidth; },
       
       container: container,

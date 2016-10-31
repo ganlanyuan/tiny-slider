@@ -398,6 +398,7 @@ tns({
   items: 3,
   edgePadding: 50,
   loop: false,
+  rewind: true,
 });
 
 tns({
