@@ -463,8 +463,9 @@ tns({
   speed: 1000,
   gutter: 10,
   animate: {
-    in: 'rotateInDownLeft',
+    in: 'fadeInDown',
     out: 'fadeOutDown',
+    delay: 300,
   },
   // slideBy: 'page',
   // responsive: {

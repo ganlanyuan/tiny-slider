@@ -643,7 +643,6 @@ var tns = (function () {
       navContainer: false,
       arrowKeys: false,
       speed: 300,
-      delay: false,
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
@@ -1193,7 +1192,7 @@ var tns = (function () {
       maxHeight = Math.max.apply(null, heights);
 
       if (container.style.height !== maxHeight) {
-        if (TRANSITIONDURATION) { setTransitionDuration(1); }
+        if (TRANSITIONDURATION) { setDurations(1); }
         container.style.height = maxHeight + 'px';
       }
     }
@@ -1342,8 +1341,8 @@ var tns = (function () {
       }
     }
 
-    // set transition duration
-    function setTransitionDuration (indexGap, target) {
+    // set duration
+    function setDurations (indexGap, target) {
       var duration = speed * indexGap / 1000 + 's';
       target = target || container;
       target.style[TRANSITIONDURATION] = duration;
@@ -1394,7 +1393,12 @@ var tns = (function () {
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
             var a = (i < slideCountNew) ? i : i - slideCount,
                 item = slideItems[a];
-            if (TRANSITIONDURATION) { setTransitionDuration(1, item); }
+            if (TRANSITIONDURATION) { setDurations(1, item); }
+            if (animate.delay && TRANSITIONDELAY) {
+              var d = animate.delay * (i - indexCached) / 1000; 
+              item.style[TRANSITIONDELAY] = d + 's'; 
+              item.style[ANIMATIONDELAY] = d + 's'; 
+            }
             item.classList.remove(animate.in);
             item.classList.add(animate.out);
             slideItemsOut.push(item);
@@ -1404,7 +1408,12 @@ var tns = (function () {
           for (var j = index, m = index + items; j < m; j++) {
             var b = (j < slideCountNew) ? j : j - slideCount,
                 itemNew = slideItems[b];
-            if (TRANSITIONDURATION) { setTransitionDuration(1, itemNew); }
+            if (TRANSITIONDURATION) { setDurations(1, itemNew); }
+            if (animate.delay && TRANSITIONDELAY) {
+              var d = animate.delay * (j - index) / 1000; 
+              item.style[TRANSITIONDELAY] = d + 's'; 
+              item.style[ANIMATIONDELAY] = d + 's'; 
+            }
             itemNew.classList.remove(animate.normal);
             itemNew.classList.add(animate.in);
             if (x > 0) { itemNew.style.marginLeft = x * slideWidth + 'px'; }
@@ -1415,7 +1424,7 @@ var tns = (function () {
     })();
 
     function doTransform (indexGap, distance) {
-      if (TRANSITIONDURATION) { setTransitionDuration(indexGap); }
+      if (TRANSITIONDURATION) { setDurations(indexGap); }
       transformCore(distance);
     }
 
@@ -1456,7 +1465,8 @@ var tns = (function () {
       if (mode === 'gallery' && slideItemsOut.length > 0) {
         for (var i = 0; i < items; i++) {
           var item = slideItemsOut[i];
-          if (TRANSITIONDURATION) { setTransitionDuration(0, item); }
+          if (TRANSITIONDURATION) { setDurations(0, item); }
+          if (animate.delay && TRANSITIONDELAY) { item.style[TRANSITIONDELAY] = ''; }
           item.classList.remove(animate.out);
           item.classList.add(animate.normal);
           item.style.marginLeft = '';
