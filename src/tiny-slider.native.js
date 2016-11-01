@@ -1173,6 +1173,8 @@ var tns = (function () {
             doTransform(0);
             onTransitionEnd(); 
             updateIndexCache();
+          } else {
+            runAutoHeight();
           }
         }
       }, 100);
