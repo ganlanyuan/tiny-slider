@@ -385,7 +385,7 @@ var responsiveSD = tns({
 tns({
   container: tt.dom.sliders.fixedWidth,
   gutter: 10,
-  edgePadding: 50,
+  // edgePadding: 50,
   fixedWidth: 200,
   arrowKeys: true,
   // rewind: true,
@@ -395,7 +395,7 @@ tns({
 
 tns({
   container: tt.dom.sliders.nonLoop,
-  items: 3,
+  items: 1,
   edgePadding: 50,
   loop: false,
   responsive: {
