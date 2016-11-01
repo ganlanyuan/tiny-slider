@@ -19,7 +19,6 @@ gn.ready(function () {
   tns({
     container: document.querySelector('.slider'),
     fixedWidth: 200,
-    maxContainerWidth: 900
   });
 });
 ```
@@ -94,7 +93,7 @@ gn.ready(function () {
   tns({
     container: document.querySelector('.slider'),
     items: 3,
-    slideByPage: true
+    slideBy: 'page'
   });
 });
 ```

@@ -24,7 +24,6 @@ npm install tiny-slider
 - edge padding (center)
 - loop
 - rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
-- slide by page
 - slide by
 - customize controls / nav
 - autoplay
@@ -75,7 +74,7 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
     var slider = tns({
       container: document.querySelector('.slider'),
       items: 3,
-      slideByPage: true,
+      slideBy: 'page',
       autoplay: true
     });
   });
@@ -97,11 +96,8 @@ Default:
   direction: 'horizontal',
   items: 1,
   gutter: 0,
-  // gutterPosition: 'right',
   edgePadding: 0,
   fixedWidth: false,
-  // maxContainerWidth: false,
-  slideByPage: false,
   slideBy: 1,
   controls: true,
   controlsText: ['prev', 'next'],
@@ -122,11 +118,6 @@ Default:
   rewind: false
 }
 ```
-**Note:** `maxContainerWidth` has been removed. `slideByPage` will be removed from version 1.
-
-#### Padding
-<del>There is no option for `padding`, but you can add it by css </del>
-Now you can set the gutter using `gutter` option.
 
 #### Fallback
 ```css
