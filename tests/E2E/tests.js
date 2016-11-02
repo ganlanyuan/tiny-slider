@@ -365,7 +365,7 @@ var baseSD = tns({
 
 tns().events.on('initialized', function(info) {
   // if (info.container.id === 'vertical') {
-    console.log(info.index, info.container.id);
+    // console.log(info.index, info.container.id);
   // }
 });
 // # responsive
