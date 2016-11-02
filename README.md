@@ -32,6 +32,7 @@ npm install tiny-slider
 - touch support
 - arrow keys
 - accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- events
 
 ## Usage
 ##### 1. Include tiny-slider
@@ -50,7 +51,7 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 <script src="go-native.js"></script>
 <script src="tiny-slider.native.js"></script>
 ```
-##### 2. Add your markup
+##### 2. Add markup
 ```html
 <!-- markup -->
 <div class="slider">
