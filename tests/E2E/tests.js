@@ -370,6 +370,8 @@ var responsiveSD = tns({
   gutterPosition: 'left',
   edgePadding: 50,
   slideBy: 'page',
+  speed: 600,
+  // arrowKeys: true,
   responsive: {
     600: 2,
     900: 3,
@@ -385,9 +387,9 @@ var responsiveSD = tns({
 tns({
   container: tt.dom.sliders.fixedWidth,
   gutter: 10,
-  // edgePadding: 50,
+  edgePadding: 50,
   fixedWidth: 200,
-  arrowKeys: true,
+  // arrowKeys: true,
   // rewind: true,
   slideByPage: true,
   loop: false,
@@ -424,7 +426,7 @@ tns({
   container: tt.dom.sliders.arrowKeys,
   items: 3,
   // edgePadding: 50,
-  arrowKeys: true,
+  // arrowKeys: true,
   // slideByPage: true,
 });
 
@@ -448,7 +450,7 @@ tns({
   items: 2,
   mode: 'carousel',
   axis: 'vertical',
-  arrowKeys: true,
+  // arrowKeys: true,
   edgePadding: 50,
   gutter: 10,
   // slideBy: 'page',
@@ -469,6 +471,7 @@ tns({
   animateIn: 'fadeInDown',
   animateOut: 'fadeOutDown',
   animateDelay: 300,
+  loop: false,
   // slideBy: 'page',
   // responsive: {
   //   1280: 3,
