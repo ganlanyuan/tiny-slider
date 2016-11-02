@@ -363,6 +363,11 @@ var baseSD = tns({
 // tt.checkInit(baseContainer, baseSD);
 // tt.checkFunctions(baseContainer, baseSD);
 
+tns().events.on('initialized', function(info) {
+  // if (info.container.id === 'vertical') {
+    console.log(info.index, info.container.id);
+  // }
+});
 // # responsive
 var responsiveSD = tns({
   container: tt.dom.sliders.responsive,
@@ -416,7 +421,7 @@ tns({
 tns({
   container: tt.dom.sliders.autoplay,
   items: 3,
-  // autoplay: true,
+  autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],
@@ -460,7 +465,7 @@ tns({
   // }
 });
 
-tns({
+var fade = tns({
   container: tt.dom.sliders.fade,
   items: 3,
   mode: 'gallery',
