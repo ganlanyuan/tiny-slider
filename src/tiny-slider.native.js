@@ -852,7 +852,7 @@ var tns = (function () {
       if (checkIndexBeforeTransform) { checkIndex(); }
 
       if (index !== indexCached) { events.emit('indexChanged', info()); }
-      if (TRANSFORM) { events.emit('transformStart', info()); }
+      if (TRANSFORM) { events.emit('transitionStart', info()); }
 
       doTransform();
       if (!TRANSITIONEND) { onTransitionEnd(); }
@@ -867,7 +867,7 @@ var tns = (function () {
     // 5. lazyload images
     // 6. update container height
     function onTransitionEnd(e) {
-      if (TRANSITIONEND) { events.emit('transformEnd', info(e)); }
+      if (TRANSITIONEND) { events.emit('transitionEnd', info(e)); }
 
       if (mode === 'gallery' && slideItemsOut.length > 0) {
         for (var i = 0; i < items; i++) {
