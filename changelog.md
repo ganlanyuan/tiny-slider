@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.6.4
+- Fixed: an initialization issue on IE8-9.
+
 #### v0.6.3
 - Added: `getIndex` method.
 - Improved: set index to real index.

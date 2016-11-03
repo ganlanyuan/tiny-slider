@@ -570,7 +570,7 @@ gn.unwrap = function (els) {
 };
 /**
   * tiny-slider
-  * @version 0.6.3
+  * @version 0.6.4
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -784,8 +784,10 @@ var tinySlider = (function () {
         }
       }
       slideContainer.classList.add('tiny-content', mode, direction);
-      slideContainer.style.cssText += 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ' + 
-          'margin-left: ' + gap + 'px; ' + TRANSFORM + ': translate3d(' + (-index * slideWidth) + 'px, 0px, 0px);';
+      var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
+          x = (-index * slideWidth),
+          transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
+      slideContainer.style.cssText += size + transforms;
     }
 
     // for IE10
