@@ -609,11 +609,13 @@ var tinySlider = (function () {
     function updateNavStatus() {
       if (nav) {
         if (navClicked === -1) {
-          var absoluteIndex = (index < cloneCount) ? index + slideCount : (index - cloneCount)%slideCount;
+          var absIndex = index;
+          while (absIndex < cloneCount) { absIndex += slideCount; }
+          absIndex = (absIndex - cloneCount)%slideCount;
           if (options.navContainer) {
-            navCurrent = absoluteIndex;
+            navCurrent = absIndex;
           } else {
-            navCurrent = Math.floor(absoluteIndex / items);
+            navCurrent = Math.floor(absIndex / items);
             // non-loop & reach the edge
             if (!loop && slideCount%items !== 0 && index === indexMax) { navCurrent += 1; }
           }
