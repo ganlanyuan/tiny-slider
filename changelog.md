@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.6.5
+- Fixed: a variable issue in function `updateNavStatus`.
+
 #### v0.6.4
 - Fixed: an initialization issue on IE8-9.
 
