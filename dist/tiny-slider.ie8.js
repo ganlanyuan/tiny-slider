@@ -10,6 +10,12 @@ if (!Object.keys) {
         return keys;
     };
 }
+// Array.isArray
+if (!Array.isArray) {
+    Array.isArray = function(obj) {
+        return Object.prototype.toString.call(obj) == "[object Array]";
+    };
+}
 // addEventListener
 // removeEventListener
 // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener?redirectlocale=en-US&redirectslug=DOM%2FEventTarget.addEventListener#Compatibility

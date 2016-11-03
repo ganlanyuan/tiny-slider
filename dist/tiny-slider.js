@@ -570,7 +570,7 @@ gn.unwrap = function (els) {
 };
 /**
   * tiny-slider
-  * @version 0.6.2
+  * @version 1.0.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -579,7 +579,6 @@ gn.unwrap = function (els) {
 var tns = (function () {
   'use strict';
 
-  // get supported property, KEYs
   var TRANSFORM = gn.getSupportedProp([
         'transform', 
         'WebkitTransform', 
@@ -889,7 +888,7 @@ var tns = (function () {
     function msInit() {
       if (navigator.msMaxTouchPoints) {
         wrapper.classList.add('ms-touch');
-        wrapper.addEventListener('scroll', ie10Scroll, false);
+        addEvents(wrapper, ['scroll', ie10Scroll]);
       }
     }
 
@@ -1029,46 +1028,56 @@ var tns = (function () {
     function addSliderEvents() {
       if (mode === 'carousel') {
         if (TRANSITIONEND) {
-          container.addEventListener(TRANSITIONEND, onTransitionEnd, false);
+          addEvents(container, [TRANSITIONEND, onTransitionEnd]);
         }
         if (touch) {
-          container.addEventListener('touchstart', onTouchStart, false);
-          container.addEventListener('touchmove', onTouchMove, false);
-          container.addEventListener('touchend', onTouchEnd, false);
-          container.addEventListener('touchcancel', onTouchEnd, false);
+          addEvents(container, [
+            ['touchstart', onTouchStart],
+            ['touchmove', onTouchMove],
+            ['touchend', onTouchEnd],
+            ['touchcancel', onTouchEnd]
+          ]);
         }
       }
       if (nav) {
         for (var y = 0; y < slideCount; y++) {
-          navItems[y].addEventListener('click', onClickNav, false);
-          navItems[y].addEventListener('keydown', onKeydownNav, false);
+          addEvents(navItems[y],[
+            ['click', onClickNav],
+            ['keydown', onKeydownNav]
+          ]);
         }
       }
       if (controls) {
-        prevButton.addEventListener('click', onClickPrev, false);
-        nextButton.addEventListener('click', onClickNext, false);
-        prevButton.addEventListener('keydown', onKeydownControl, false);
-        nextButton.addEventListener('keydown', onKeydownControl, false);
+        addEvents(prevButton,[
+          ['click', onClickPrev],
+          ['keydown', onKeydownControl]
+        ]);
+        addEvents(nextButton,[
+          ['click', onClickNext],
+          ['keydown', onKeydownControl]
+        ]);
       }
       if (autoplay) {
-        autoplayButton.addEventListener('click', toggleAnimation, false);
+        addEvents(autoplayButton, ['click', toggleAnimation]);
 
         if (controls) {
-          prevButton.addEventListener('click', stopAnimation, false );
-          nextButton.addEventListener('click', stopAnimation, false );
+          addEvents(prevButton, ['click', stopAnimation]);
+          addEvents(nextButton, ['click', stopAnimation]);
         }
 
         if (nav) {
-          for (var b = 0; b < slideCount; b++) {
-            navItems[b].addEventListener('click', stopAnimation, false);
+          for (var b = slideCount; b--;) {
+            addEvents(navItems[b], ['click', stopAnimation]);
           }
         }
       }
       if (arrowKeys) {
-        document.addEventListener('keydown', onKeydownDocument, false);
+        addEvents(document, ['keydown', onKeydownDocument]);
       }
-      window.addEventListener('resize', onResize, false);
-      window.addEventListener('scroll', onScroll, false);
+      addEvents(window, [
+        ['resize', onResize],
+        ['scroll', onScroll]
+      ]);
     }
 
     // lazyload
@@ -1179,7 +1188,6 @@ var tns = (function () {
       }
     }
 
-    // === VERTICAL CAROUSEL FUNCTIONS === //
     // get the distance from the top edge of the first slide to each slide
     // (init) => slideTopEdges
     function getSlideTopEdges() {
@@ -1354,8 +1362,8 @@ var tns = (function () {
       } else {
         return function () {
           slideItemsOut = [];
-          slideItems[indexCached].removeEventListener(TRANSITIONEND, onTransitionEnd, false);
-          slideItems[index].addEventListener(TRANSITIONEND, onTransitionEnd, false);
+          removeEvents(slideItems[indexCached], [TRANSITIONEND, onTransitionEnd]);
+          addEvents(slideItems[index], [TRANSITIONEND, onTransitionEnd]);
           // slideItems[indexCached].removeEventListener(ANIMATIONEND, onTransitionEnd, false);
           // slideItems[index].addEventListener(ANIMATIONEND, onTransitionEnd, false);
 
@@ -1880,25 +1888,27 @@ var tns = (function () {
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
-          document.removeEventListener('keydown', onKeydownDocument, false);
+          removeEvents(document, ['keydown', onKeydownDocument]);
         }
 
         // remove window event listeners
-        window.removeEventListener('resize', onResize, false);
-        window.removeEventListener('scroll', onScroll, false);
+        removeEvents(window, [
+          ['resize', onResize],
+          ['scroll', onScroll]
+        ]);
       },
 
       // $ Private methods, for test only
-      hasAttr: hasAttr, 
-      getAttr: getAttr, 
-      setAttrs: setAttrs, 
-      removeAttrs: removeAttrs, 
-      removeEvents: removeEvents, 
-      getSlideId: getSlideId, 
-      toDegree: toDegree, 
-      getTouchDirection: getTouchDirection, 
-      hideElement: hideElement, 
-      showElement: showElement,
+      // hasAttr: hasAttr, 
+      // getAttr: getAttr, 
+      // setAttrs: setAttrs, 
+      // removeAttrs: removeAttrs, 
+      // removeEvents: removeEvents, 
+      // getSlideId: getSlideId, 
+      // toDegree: toDegree, 
+      // getTouchDirection: getTouchDirection, 
+      // hideElement: hideElement, 
+      // showElement: showElement,
     };
   }
 
@@ -1993,6 +2003,38 @@ var tns = (function () {
     }
 
     return false; // explicit for ie9-
+  }
+
+  function addEvents(el, events) {
+    function add(arr) {
+      el.addEventListener(arr[0], arr[1], false);
+    }
+
+    if (Array.isArray(events)) {
+      if (Array.isArray(events[0])) {
+        for (var i = events.length; i--;) {
+          add(events[i]);
+        }
+      } else {
+        add(events);
+      }
+    }
+  }
+
+  function removeEvents(el, events) {
+    function remove(arr) {
+      el.removeEventListener(arr[0], arr[1], false);
+    }
+
+    if (Array.isArray(events)) {
+      if (Array.isArray(events[0])) {
+        for (var i = events.length; i--;) {
+          remove(events[i]);
+        }
+      } else {
+        remove(events);
+      }
+    }
   }
 
   var events = {
