@@ -854,11 +854,7 @@ var tns = (function () {
 
     function containerInit() {
       // add id
-      if (container.id === '') { 
-        container.id = slideId = getSlideId(); 
-      } else {
-        slideId = container.id;
-      }
+      if (container.id === '') { container.id = slideId; }
 
       // add attributes
       var features = '';
@@ -1894,8 +1890,12 @@ var tns = (function () {
 
   // === Private helper functions === //
   function getSlideId() {
-    window.tnsID = (window.tnsID) ? window.tnsID++ : 1;
-    return 'tns' + window.tnsID;
+    if (window.tnsId === undefined) {
+      window.tnsId = 1;
+    } else {
+      window.tnsId++;
+    }
+    return 'tns' + window.tnsId;
   }
 
   function toDegree (y, x) {
