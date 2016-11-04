@@ -858,8 +858,8 @@ var tns = (function () {
 
       // add attributes
       var features = '';
-      if (axis) { features += axis + ' '; }
-      if (autoHeight) { features += 'autoheight'; }
+      if (axis) { features += axis; }
+      if (autoHeight) { features += ' autoheight'; }
       setAttrs(container, {
         'data-tns-role': 'content', 
         'data-tns-mode': mode, 
@@ -1490,7 +1490,7 @@ var tns = (function () {
         navIndex = navClicked = Number(getAttr(clickTarget, 'data-slide'));
         index = (options.navContainer) ? navIndex + cloneCount : navIndex * items + cloneCount;
 
-        render();
+        if (index !== indexCached) { render(); }
       }
     }
 
