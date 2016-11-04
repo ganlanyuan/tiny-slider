@@ -695,7 +695,7 @@ var tns = (function () {
         slideWidth = fixedWidth || 0,
         slideTopEdges, // collection of slide top edges
         slideItemsOut = [],
-        cloneCount = (mode === 'gallery') ? slideCount * 2: (loop) ? Math.ceil(slideCount*1.5) : (edgePadding) ? 1 : 0,
+        cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
         slideCountNew = (mode === 'gallery') ? slideCount + cloneCount : slideCount + cloneCount * 2,
         hasRightDeadZone = (fixedWidth && !loop && !edgePadding)? true : false,
         checkIndexBeforeTransform = (mode === 'gallery' || !loop)? true : false,
@@ -1242,39 +1242,15 @@ var tns = (function () {
       }
     }
 
-    // get current nav
-    function getNavCurrent() {
-      var navCurrentTem;
-      if (navClicked === -1) {
-        var absoluteIndex = (index < cloneCount) ? index + slideCount : index%slideCount;
-        if (options.navContainer) {
-          return absoluteIndex;
-        } else {
-          navCurrentTem = Math.floor(absoluteIndex / items);
-          // non-loop & reach the edge
-          if (!loop && slideCount%items !== 0 && index === slideCount - items) { navCurrentTem += 1; }
-          return navCurrentTem;
-        }
-      } else {
-        navCurrentTem = navClicked;
-        navClicked = -1;
-      }
-
-      return navCurrentTem;
-    }
-
     // set tabindex & aria-selected on Nav
     function updateNavStatus() {
+      // get current nav
       if (nav) {
         if (navClicked === -1) {
-          var absIndex = index;
-          while (absIndex < cloneCount) { absIndex += slideCount; }
-          absIndex = (absIndex - cloneCount)%slideCount;
-
           if (options.navContainer) {
-            navCurrent = absIndex;
+            navCurrent = index%slideCount;
           } else {
-            navCurrent = Math.floor(absIndex / items);
+            navCurrent = Math.floor(index%slideCount / items);
             // non-loop & reach the edge
             if (!loop && slideCount%items !== 0 && index === indexMax) { navCurrent += 1; }
           }
@@ -1855,7 +1831,7 @@ var tns = (function () {
           } else {
             removeAttrs(controlsContainer, ['aria-label']);
             removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
-            removeEvents(controlsContainer);
+            removeEventsByClone(controlsContainer);
           }
         }
 
@@ -1867,7 +1843,7 @@ var tns = (function () {
           } else {
             removeAttrs(navContainer, ['aria-label']);
             removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
-            removeEvents(navContainer);
+            removeEventsByClone(navContainer);
           }
           navItems = null;
         }
@@ -1878,13 +1854,13 @@ var tns = (function () {
             navContainer.remove();
             navContainer = null;
           } else {
-            removeEvents(autoplayButton);
+            removeEventsByClone(autoplayButton);
           }
         }
 
         // remove slider container events at the end
         // because this will make container = null
-        removeEvents(container);
+        removeEventsByClone(container);
 
         // remove arrowKeys eventlistener
         if (arrowKeys) {
@@ -1903,7 +1879,7 @@ var tns = (function () {
       // getAttr: getAttr, 
       // setAttrs: setAttrs, 
       // removeAttrs: removeAttrs, 
-      // removeEvents: removeEvents, 
+      // removeEventsByClone: removeEventsByClone, 
       // getSlideId: getSlideId, 
       // toDegree: toDegree, 
       // getTouchDirection: getTouchDirection, 
@@ -1963,7 +1939,7 @@ var tns = (function () {
     }
   }
 
-  function removeEvents(el) {
+  function removeEventsByClone(el) {
     var elClone = el.cloneNode(true), parent = el.parentNode;
     parent.insertBefore(elClone, el);
     el.remove();
