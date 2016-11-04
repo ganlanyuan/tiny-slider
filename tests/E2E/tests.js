@@ -384,6 +384,10 @@ var responsiveSD = tns({
   // rewind: true,
 });
 
+// document.querySelector('.responsive_wrapper [data-controls="next"]').addEventListener('click', function () {
+//   var info = responsiveSD.getInfo();
+//   alert(info.indexCached + ' : ' + info.index);
+// }, false);
 // var responsiveContainer = tt.createSuiteContainer();
 // tt.createSuiteTitle(responsiveContainer, 'responsive');
 // tt.checkInit(responsiveContainer, responsiveSD);

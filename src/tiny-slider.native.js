@@ -1166,6 +1166,9 @@ var tns = (function () {
         nextButton: nextButton,
         items: items,
         index: index,
+        indexCached: indexCached,
+        navCurrent: navCurrent,
+        navCurrentCached: navCurrentCached,
         slideCount: slideCount,
         cloneCount: cloneCount,
         slideCountNew: slideCountNew,
@@ -1231,6 +1234,7 @@ var tns = (function () {
     }
 
     return {
+      getInfo: info,
       events: events,
       destory: function () {
         // wrapper
