@@ -2,12 +2,14 @@ import { expect } from 'chai';
 import { Selector } from 'testcafe';
 
 const select = Selector(id => document.querySelector(`${id}`));
+const speed1 = 100;
 
 fixture `Init`
-  .page('http://192.168.103.82:3000/tests/index.html');
+  .page('http://172.20.20.20:3000/tests/index.html');
+  // .page('http://192.168.103.82:3000/tests/index.html');
 
 // $base
-test('base init', async t => {
+test('base: init', async t => {
   await t;
 
   const base = await select('#base');
@@ -21,8 +23,10 @@ test('base init', async t => {
   expect(base.attributes['data-tns-features']).to.equal('horizontal');
   expect(base.childElementCount).to.equal(25);
 
+  // const child1 = await base.getChildElement(1);
   const child10 = await base.getChildElement(10);
   const child12 = await base.getChildElement(12);
+  // expect(child1.attributes['aria-hidden']).to.be.true;
   expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
   expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
 
@@ -49,7 +53,26 @@ test('base init', async t => {
   expect(navContainer.attributes['aria-label']).to.equal('Carousel Pagination');
 });
 
-test('base nav click', async t => {
+test('base: resize', async t => {
+  const base = await select('#base');
+  const parent = await base.getParentNode();
+
+  const child10 = await base.getChildElement(10);
+  const child12 = await base.getChildElement(12);
+
+  await t.resizeWindow(900, 900);
+
+  expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+  expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+
+  await t.resizeWindow(1200, 900);
+
+  expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+  expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+
+});
+
+test('base: nav click', async t => {
   await t;
 
   const base = await select('#base');
@@ -57,7 +80,7 @@ test('base nav click', async t => {
 
   await t
     .click('.base_wrapper [data-slide="1"]')
-    .wait(100);
+    .wait(speed1);
 
   const child14 = await base.getChildElement(14);
   const child16 = await base.getChildElement(16);
@@ -66,7 +89,7 @@ test('base nav click', async t => {
   
   await t
     .click('.base_wrapper [data-slide="0"]')
-    .wait(100);
+    .wait(speed1);
 
   const child11 = await base.getChildElement(11);
   const child13 = await base.getChildElement(13);
@@ -75,7 +98,7 @@ test('base nav click', async t => {
 
 });
 
-test('base controls click', async t => {
+test('base: controls click', async t => {
   await t;
 
   const base = await select('#base');
@@ -83,7 +106,7 @@ test('base controls click', async t => {
 
   await t
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100);
+    .wait(speed1);
 
   const child11 = await base.getChildElement(11);
   const child13 = await base.getChildElement(13);
@@ -92,25 +115,25 @@ test('base controls click', async t => {
   
   await t
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100);
+    .wait(speed1);
 
   const child21 = await base.getChildElement(21);
   const child23 = await base.getChildElement(23);
@@ -119,7 +142,7 @@ test('base controls click', async t => {
 
   await t
     .click('.base_wrapper [data-controls="next"]')
-    .wait(100);
+    .wait(speed1);
 
   const child3 = await base.getChildElement(3);
   const child5 = await base.getChildElement(5);
@@ -128,11 +151,39 @@ test('base controls click', async t => {
 
   await t
     .click('.base_wrapper [data-controls="prev"]')
-    .wait(100)
+    .wait(speed1)
     .click('.base_wrapper [data-controls="prev"]')
-    .wait(100);
+    .wait(speed1);
 
   expect(child21.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
   expect(child23.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
 
 });
+
+// test('base: keys', async t => {
+//   const base = await select('#base');
+//   const parent = await base.getParentNode();
+//   const prevBtn = await select('.base_wrapper [data-controls="prev"]');
+//   const nextBtn = await select('.base_wrapper [data-controls="next"]');
+//   const nav0 = await select('.base_wrapper [data-slide="0"]');
+//   const nav1 = await select('.base_wrapper [data-slide="1"]');
+
+//   nav0.focus();
+//   await t
+//     .pressKey('enter')
+//     .wait(speed1);
+
+//   const child14 = await base.getChildElement(14);
+//   const child16 = await base.getChildElement(16);
+//   expect(child14.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+//   expect(child16.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+  
+//   await t
+//     .pressKey('right enter')
+//     .wait(speed1);
+
+//   const child11 = await base.getChildElement(11);
+//   const child13 = await base.getChildElement(13);
+//   expect(child11.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+//   expect(child13.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+// });

@@ -14,6 +14,7 @@ var config = {
 
   watch: {
     js: 'src/**/*.js',
+    testcafe: 'src/tiny-slider.native.js, tests/tests.js',
     html: ['**/*.html', 'tests/**/*.js']
   },
 
@@ -73,6 +74,11 @@ var config = {
       }
     },
   },
+
+  testcafe: {
+    src: 'tests/tests.js',
+    options: { browsers: ['chrome', 'safari'] },
+  }
 };
 
 var gulp = require('gulp');
@@ -94,6 +100,7 @@ var inject = require('gulp-inject');
 var browserSync = require('browser-sync').create();
 var rename = require('gulp-rename');
 var mergeStream = require('merge-stream');
+var testcafe = require('gulp-testcafe');
 
 function errorlog (error) {  
   console.error.bind(error);  
@@ -147,6 +154,12 @@ gulp.task('js', function () {
       .pipe(browserSync.stream());
 });
 
+// testcafe
+gulp.task('testcafe', () => {
+  return gulp.src(config.testcafe.src)
+    .pipe(testcafe(config.testcafe.options));
+});
+
 // browser-sync
 gulp.task('sync', function() {
   browserSync.init(config.browserSync);
@@ -156,6 +169,7 @@ gulp.task('sync', function() {
 gulp.task('watch', function () {
   gulp.watch(config.sass, ['sass']);
   gulp.watch(config.watch.js, ['js']).on('change', browserSync.reload);
+  // gulp.watch(config.watch.testcafe, ['testcafe']);
   gulp.watch(config.watch.html).on('change', browserSync.reload);
 });
 

@@ -592,23 +592,17 @@ var tns = (function () {
         'OTransitionDuration': ['OTransitionDelay', 'webkitTransitionEnd']
       },
       animations = {
-        'animationDuration': ['animationDelay'],
-        'WebkitAnimationDuration': ['WebkitAnimationDelay'],
-        'MozAnimationDuration': ['MozAnimationDelay'],
-        'OAnimationDuration': ['OAnimationDelay']
+        'animationDuration': ['animationDelay', 'animationend'],
+        'WebkitAnimationDuration': ['WebkitAnimationDelay', 'oAnimationEnd'],
+        'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
+        'OAnimationDuration': ['OAnimationDelay', 'webkitAnimationEnd']
       },
-      // animations = {
-      //   'animationDuration': ['animationDelay', 'animationend'],
-      //   'WebkitAnimationDuration': ['WebkitAnimationDelay', 'oAnimationEnd'],
-      //   'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
-      //   'OAnimationDuration': ['OAnimationDelay', 'webkitAnimationEnd']
-      // },
       TRANSITIONDURATION = whichProperty(transitions)[0],
       TRANSITIONDELAY = whichProperty(transitions)[1],
       TRANSITIONEND = whichProperty(transitions)[2],
       ANIMATIONDURATION = whichProperty(animations)[0],
       ANIMATIONDELAY = whichProperty(animations)[1],
-      // ANIMATIONEND = whichProperty(animations)[2],
+      ANIMATIONEND = whichProperty(animations)[2],
       KEY = {
         ENTER: 13,
         SPACE: 32,
@@ -1334,10 +1328,14 @@ var tns = (function () {
       } else {
         return function () {
           slideItemsOut = [];
-          removeEvents(slideItems[indexCached], [TRANSITIONEND, onTransitionEnd]);
-          addEvents(slideItems[index], [TRANSITIONEND, onTransitionEnd]);
-          // slideItems[indexCached].removeEventListener(ANIMATIONEND, onTransitionEnd, false);
-          // slideItems[index].addEventListener(ANIMATIONEND, onTransitionEnd, false);
+          removeEvents(slideItems[indexCached], [
+            [TRANSITIONEND, onTransitionEnd],
+            [ANIMATIONEND, onTransitionEnd]
+          ]);
+          addEvents(slideItems[index], [
+            [TRANSITIONEND, onTransitionEnd],
+            [ANIMATIONEND, onTransitionEnd]
+          ]);
 
           (function () {
             for (var i = indexCached, l = indexCached + items; i < l; i++) {
