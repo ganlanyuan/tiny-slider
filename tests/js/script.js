@@ -19,12 +19,90 @@ var tt = (function () {
       div = doc.createElement('div'),
       ul = doc.createElement('ul'),
       li = doc.createElement('li'),
+      speed = 100,
       sliderSetting= {
         'base': {
           container: '',
           items: 3,
-          speed: 100,
+          speed: speed,
         },
+        'gutter': {
+          container: '',
+          items: 3,
+          speed: speed,
+          gutter: 10,
+        },
+        'edgePadding': {
+          container: '',
+          items: 3,
+          speed: speed,
+          gutter: 10,
+          edgePadding: 50,
+        },
+        'nonLoop': {
+          container: '',
+          items: 3,
+          loop: false,
+          // rewind: true,
+        }, 
+        'slideByPage': {
+          container: '',
+          items: 3,
+          slideByPage: true,
+        }, 
+        'fixedWidth': {
+          container: '',
+          gutter: 10,
+          edgePadding: 50,
+          fixedWidth: 200,
+          // arrowKeys: true,
+          // rewind: true,
+          slideByPage: true,
+          loop: false,
+        }, 
+        'responsive': {
+          container: '',
+          gutter: 10,
+          gutterPosition: 'left',
+          edgePadding: 50,
+          slideBy: 'page',
+          speed: 600,
+          // arrowKeys: true,
+          responsive: {
+            600: 2,
+            900: 3,
+          },
+          // rewind: true,
+        }, 
+        'arrowKeys': {
+          container: '',
+          items: 3,
+          // edgePadding: 50,
+          // arrowKeys: true,
+          // slideByPage: true,
+        },
+        'autoplay': {
+          container: '',
+          items: 3,
+          autoplay: true,
+          speed: 300,
+          autoplayTimeout: 3000,
+          autoplayText: ['▶', '❚❚'],
+        }, 
+        'vertical': {
+          container: '',
+          items: 2,
+          mode: 'carousel',
+          axis: 'vertical',
+          // arrowKeys: true,
+          edgePadding: 50,
+          gutter: 10,
+          // slideBy: 'page',
+          // responsive: {
+          //   1280: 3,
+          //   1706: 4,
+          // }
+        }, 
         'fade': {
           container: '',
           items: 3,
@@ -42,76 +120,7 @@ var tt = (function () {
           //   1280: 3,
           //   1706: 4,
           // }
-        }, 
-        'vertical': {
-          container: '',
-          items: 2,
-          mode: 'carousel',
-          axis: 'vertical',
-          // arrowKeys: true,
-          edgePadding: 50,
-          gutter: 10,
-          // slideBy: 'page',
-          // responsive: {
-          //   1280: 3,
-          //   1706: 4,
-          // }
-        }, 
-        'responsive': {
-          container: '',
-          gutter: 10,
-          gutterPosition: 'left',
-          edgePadding: 50,
-          slideBy: 'page',
-          speed: 600,
-          // arrowKeys: true,
-          responsive: {
-            600: 2,
-            900: 3,
-          },
-          // rewind: true,
-        }, 
-        'fixedWidth': {
-          container: '',
-          gutter: 10,
-          edgePadding: 50,
-          fixedWidth: 200,
-          // arrowKeys: true,
-          // rewind: true,
-          slideByPage: true,
-          loop: false,
-        }, 
-        'nonLoop': {
-          container: '',
-          items: 1,
-          edgePadding: 50,
-          loop: false,
-          responsive: {
-            800: 2,
-            1200: 3,
-          }
-          // rewind: true,
-        }, 
-        'slideByPage': {
-          container: '',
-          items: 3,
-          slideByPage: true,
-        }, 
-        'autoplay': {
-          container: '',
-          items: 3,
-          autoplay: true,
-          speed: 300,
-          autoplayTimeout: 3000,
-          autoplayText: ['▶', '❚❚'],
-        }, 
-        'arrowKeys': {
-          container: '',
-          items: 3,
-          // edgePadding: 50,
-          // arrowKeys: true,
-          // slideByPage: true,
-        }
+        } 
       };
 
   my.createSliderHtml = function () {

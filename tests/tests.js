@@ -187,3 +187,35 @@ test('base: controls click', async t => {
 //   expect(child11.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
 //   expect(child13.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
 // });
+
+test('gutter: ', async t => {
+  await t;
+
+  const base = await select('#base');
+  const parent = await base.getParentNode();
+  const child10 = await base.getChildElement(10);
+  const child12 = await base.getChildElement(12);
+  expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+  expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+  // const child11 = await base.getChildElement(11);
+  // expect(child10.boundingClientRect.right + 10).to.equal(child11.boundingClientRect.left);
+});
+
+test('edgePadding: ', async t => {
+  await t;
+
+  const base = await select('#base');
+  const parent = await base.getParentNode();
+  const child10 = await base.getChildElement(10);
+  const child12 = await base.getChildElement(12);
+  expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+  expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+
+  await t
+    .resizeWindow(600, 400)
+    .resizeWindow(900, 800);
+    
+  expect(child10.boundingClientRect.left).to.equal(parent.boundingClientRect.left);
+  expect(child12.boundingClientRect.right).to.equal(parent.boundingClientRect.right);
+
+});
