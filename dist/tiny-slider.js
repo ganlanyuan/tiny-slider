@@ -784,10 +784,11 @@ var tinySlider = (function () {
         }
       }
       slideContainer.classList.add('tiny-content', mode, direction);
-      var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
+      var width = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
           x = (-index * slideWidth),
+          margin = 'margin-left: ' + gap + 'px; ',
           transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
-      slideContainer.style.cssText += size + transforms;
+      slideContainer.style.cssText += width + margin + transforms;
     }
 
     // for IE10
@@ -1064,7 +1065,7 @@ var tinySlider = (function () {
     }
 
     function getFixedWidthEdgePadding() {
-      return ((vw - slideWidth * Math.floor(vw / slideWidth) + gutter) / 2);
+      return ((vw%slideWidth + gutter) / 2 - gapAdjust);
     }
 
     var updateLayout = (function () {
