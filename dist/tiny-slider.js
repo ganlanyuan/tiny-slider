@@ -1267,20 +1267,37 @@ var tns = (function () {
     // set 'disabled' to true on controls when reach the edge
     function updateControlsStatus() {
       if (controls && !loop) {
-        if (index === indexMin || !rewind && index === indexMax) {
-          var inactive = (index === indexMin) ? prevButton : nextButton,
-              active = (index === indexMin) ? nextButton : prevButton;
-
-          changeFocus(inactive, active);
-
-          inactive.disabled = true;
-          setAttrs(inactive, {'tabindex': '-1'});
-
-          active.disabled = false;
-          setAttrs(active, {'tabindex': '0'});
+        var disable = [], active = [];
+        if (index === indexMin) {
+          disable.push(prevButton);
+          active.push(nextButton);
+          changeFocus(prevButton, nextButton);
+        } else if (!rewind && index === indexMax) {
+          disable.push(nextButton);
+          active.push(prevButton);
+          changeFocus(nextButton, prevButton);
         } else {
-          prevButton.disabled = false;
-          nextButton.disabled = false;
+          active.push(prevButton, nextButton);
+        }
+
+        if (disable.length > 0) {
+          for (var i = disable.length; i--;) {
+            var button = disable[i];
+            if (!button.disabled) {
+              button.disabled = true;
+              setAttrs(button, {'tabindex': '-1'});
+            }
+          }
+        }
+
+        if (active.length > 0) {
+          for (var j = active.length; j--;) {
+            var button = active[j];
+            if (button.disabled) {
+              button.disabled = false;
+              setAttrs(button, {'tabindex': '0'});
+            }
+          }
         }
       }
     }

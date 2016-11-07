@@ -100,7 +100,7 @@ var inject = require('gulp-inject');
 var browserSync = require('browser-sync').create();
 var rename = require('gulp-rename');
 var mergeStream = require('merge-stream');
-var testcafe = require('gulp-testcafe');
+// var testcafe = require('gulp-testcafe');
 
 function errorlog (error) {  
   console.error.bind(error);  
@@ -155,10 +155,10 @@ gulp.task('js', function () {
 });
 
 // testcafe
-gulp.task('testcafe', () => {
-  return gulp.src(config.testcafe.src)
-    .pipe(testcafe(config.testcafe.options));
-});
+// gulp.task('testcafe', () => {
+//   return gulp.src(config.testcafe.src)
+//     .pipe(testcafe(config.testcafe.options));
+// });
 
 // browser-sync
 gulp.task('sync', function() {
