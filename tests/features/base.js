@@ -1,16 +1,7 @@
 import { expect } from 'chai';
 import { Selector } from 'testcafe';
 import { ClientFunction } from 'testcafe';
-
-// const address = 'http://172.20.20.20:3000/tests/index.html';
-const address = 'http://192.168.103.82:3000/tests/index.html';
-const speed1 = 100;
-const gutter = 10;
-const edgePadding = 50;
-const windowWidthes = [400, 800, 1200, 1600];
-const windowHeight = 900;
-
-const select = Selector(id => document.querySelector(`${id}`));
+import { address, speed1, gutter, edgePadding, windowWidthes, windowHeight, select } from './setting.js';
 
 fixture `base`
   .page(address);
@@ -43,9 +34,9 @@ test('base: init', async t => {
   const nextBtn = await select('.base_wrapper [data-controls="next"]');
   const controlsContainer = await prevBtn.getParentNode();
   expect(prevBtn.attributes['aria-controls']).to.equal('base');
-  expect(prevBtn.attributes['tabindex']).to.equal('-1');
+  expect(prevBtn.attributes['tabIndex']).to.equal('-1');
   expect(nextBtn.attributes['aria-controls']).to.equal('base');
-  expect(nextBtn.attributes['tabindex']).to.equal('0');
+  expect(nextBtn.attributes['tabIndex']).to.equal('0');
   expect(controlsContainer.attributes['data-tns-role']).to.equal('controls');
   expect(controlsContainer.attributes['aria-label']).to.equal('Carousel Navigation');
 
@@ -54,9 +45,9 @@ test('base: init', async t => {
   const nav2 = await select('.base_wrapper [data-slide="2"]');
   const navContainer = await nav0.getParentNode();
   expect(nav0.attributes['aria-selected']).to.equal('true');
-  expect(nav0.attributes['tabindex']).to.equal('0');
+  expect(nav0.attributes['tabIndex']).to.equal('0');
   expect(nav1.attributes['aria-selected']).to.equal('false');
-  expect(nav1.attributes['tabindex']).to.equal('-1');
+  expect(nav1.attributes['tabIndex']).to.equal('-1');
   expect(nav2.visible).to.be.false;
   expect(navContainer.attributes['data-tns-role']).to.equal('nav');
   expect(navContainer.attributes['aria-label']).to.equal('Carousel Pagination');
