@@ -360,7 +360,7 @@ var tns = (function () {
     function controlsInit() {
       if (controls) {
         if (!options.controlsContainer) {
-          gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabIndex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabIndex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+          gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
           controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
         }
@@ -368,11 +368,11 @@ var tns = (function () {
         prevButton = controlsContainer.querySelector('[data-controls="prev"]');
         nextButton = controlsContainer.querySelector('[data-controls="next"]');
 
-        if (!hasAttr(controlsContainer, 'tabIndex')) {
+        if (!hasAttr(controlsContainer, 'tabindex')) {
           setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
           setAttrs(controlsContainer.children, {
             'aria-controls': slideId,
-            'tabIndex': '-1',
+            'tabindex': '-1',
           });
         }
       }
@@ -383,7 +383,7 @@ var tns = (function () {
         if (!options.navContainer) {
           var navHtml = '';
           for (var i = 0; i < slideCount; i++) {
-            navHtml += '<button data-slide="' + i +'" tabIndex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
+            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
           }
           if (autoplay) {
             navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
@@ -399,7 +399,7 @@ var tns = (function () {
           setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
           for (var y = 0; y < slideCount; y++) {
             setAttrs(navItems[y], {
-              'tabIndex': '-1',
+              'tabindex': '-1',
               'aria-selected': 'false',
               'aria-controls': slideId + '-item' + y,
             });
@@ -435,13 +435,13 @@ var tns = (function () {
         }
       }
       if (controls) {
-        setAttrs(nextButton, {'tabIndex': '0'});
+        setAttrs(nextButton, {'tabindex': '0'});
         if (index === indexMin && !loop || rewind) {
           prevButton.disabled = true;
         }
       }
       if (nav) {
-        setAttrs(navItems[0], {'tabIndex': '0', 'aria-selected': 'true'});
+        setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
       }
     }
 
@@ -662,7 +662,7 @@ var tns = (function () {
       }
     }
 
-    // set tabIndex & aria-selected on Nav
+    // set tabindex & aria-selected on Nav
     function updateNavStatus() {
       // get current nav
       if (nav) {
@@ -681,12 +681,12 @@ var tns = (function () {
 
         if (navCurrent !== navCurrentCached) {
           setAttrs(navItems[navCurrentCached], {
-            'tabIndex': '-1',
+            'tabindex': '-1',
             'aria-selected': 'false'
           });
 
           setAttrs(navItems[navCurrent], {
-            'tabIndex': '0',
+            'tabindex': '0',
             'aria-selected': 'true'
           });
           navCurrentCached = navCurrent;
@@ -715,7 +715,7 @@ var tns = (function () {
             var button = disable[i];
             if (!button.disabled) {
               button.disabled = true;
-              setAttrs(button, {'tabIndex': '-1'});
+              setAttrs(button, {'tabindex': '-1'});
             }
           }
         }
@@ -725,7 +725,7 @@ var tns = (function () {
             var button = active[j];
             if (button.disabled) {
               button.disabled = false;
-              setAttrs(button, {'tabIndex': '0'});
+              setAttrs(button, {'tabindex': '0'});
             }
           }
         }
@@ -1275,7 +1275,7 @@ var tns = (function () {
             controlsContainer = prevButton = nextButton = null;
           } else {
             removeAttrs(controlsContainer, ['aria-label']);
-            removeAttrs(controlsContainer.children, ['aria-controls', 'tabIndex']);
+            removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
             removeEventsByClone(controlsContainer);
           }
         }
@@ -1287,7 +1287,7 @@ var tns = (function () {
             navContainer = null;
           } else {
             removeAttrs(navContainer, ['aria-label']);
-            removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabIndex']);
+            removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
             removeEventsByClone(navContainer);
           }
           navItems = null;

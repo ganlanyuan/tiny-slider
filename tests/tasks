@@ -1,5 +1,4 @@
 Tests:
-  ☐ base
   ☐ responsive
   ☐ fixed width
   ☐ autoplay
@@ -11,6 +10,7 @@ Tests:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ base @done (16-11-08 15:56) @project(Tests)
  ✔ non-loop @done (16-11-08 11:58) @project(Tests)
  ✔ rewind @done (16-11-08 11:02) @project(Tests)
  ✔ edgepadding @done (16-11-08 10:45) @project(Tests)
