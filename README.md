@@ -111,6 +111,8 @@ Default:
   autoplayTimeout: 5000,
   autoplayDirection: 'forward',
   autoplayText: ['start', 'stop'],
+  autoplayHoverPause: false,
+  autoplayButton: false,
   loop: true,
   autoHeight: false,
   responsive: false,

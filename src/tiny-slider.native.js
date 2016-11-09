@@ -76,6 +76,7 @@ var tns = (function () {
       autoplayDirection: 'forward',
       autoplayText: ['start', 'pause'],
       autoplayHoverPause: false,
+      autoplayButton: false,
       animateIn: 'tns-fadeIn',
       animateOut: 'tns-fadeOut',
       animateNormal: 'tns-normal',
@@ -153,7 +154,7 @@ var tns = (function () {
         autoplayText = options.autoplayText,
         autoplayHoverPause = options.autoplayHoverPause,
         autoplayTimer,
-        autoplayButton,
+        autoplayButton = options.autoplayButton,
         animating = false,
         // touch
         touch = options.touch,
@@ -421,7 +422,9 @@ var tns = (function () {
           gn.append(wrapper, '<div data-tns-role="nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
           navContainer = wrapper.querySelector('[data-tns-role="nav"]');
         }
-        autoplayButton = navContainer.querySelector('[data-action]');
+        if (!autoplayButton) {
+          autoplayButton = navContainer.querySelector('[data-action]');
+        }
         startAction();
       }
     }
