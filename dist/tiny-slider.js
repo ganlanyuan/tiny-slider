@@ -726,6 +726,7 @@ var tns = (function () {
         autoplayTimer,
         autoplayButton = options.autoplayButton,
         animating = false,
+        autoplayHoverStopped = false,
         // touch
         touch = options.touch,
         startX = 0,
@@ -1055,8 +1056,18 @@ var tns = (function () {
       if (autoplay) {
         addEvents(autoplayButton, ['click', toggleAnimation]);
         if (autoplayHoverPause) {
-          addEvents(container, ['mouseover', stopAnimation]);
-          addEvents(container, ['mouseout', startAnimation]);
+          addEvents(container, ['mouseover', function () {
+            if (animating) { 
+              stopAction(); 
+              autoplayHoverStopped = true;
+            }
+          }]);
+          addEvents(container, ['mouseout', function () {
+            if (!animating && autoplayHoverStopped) { 
+              startAction(); 
+              autoplayHoverStopped = false;
+            }
+          }]);
         }
       }
       if (arrowKeys) {
@@ -1533,14 +1544,6 @@ var tns = (function () {
       } else {
         startAction();
       }
-    }
-
-    function startAnimation() {
-      if (!animating) { startAction(); }
-    }
-
-    function stopAnimation() {
-      if (animating) { stopAction(); }
     }
 
     // 

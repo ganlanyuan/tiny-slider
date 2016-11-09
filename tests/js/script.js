@@ -109,7 +109,7 @@ var tt = (function () {
           items: 3,
           autoplay: true,
           autoplayHoverPause: true,
-          autoplayTimeout: 3000,
+          autoplayTimeout: speed * 9,
           autoplayText: ['▶', '❚❚'],
         }, 
         'vertical': {
