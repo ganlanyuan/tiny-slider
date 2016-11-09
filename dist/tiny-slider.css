@@ -51,7 +51,7 @@
 [hidden] {
   display: none !important; }
 
-[data-controls], [data-action], [data-slide] {
+[data-controls], [data-action], [data-nav] {
   cursor: pointer;
   border-width: 0;
   padding: 0; }

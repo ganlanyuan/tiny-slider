@@ -961,7 +961,7 @@ var tns = (function () {
           navItems = navContainer.children;
           for (var x = navItems.length; x--;) {
             setAttrs(navItems[x], {
-              'data-slide': x,
+              'data-nav': x,
               'tabindex': '-1',
               'aria-selected': 'false',
               'aria-controls': slideId + '-item' + x,
@@ -970,7 +970,7 @@ var tns = (function () {
         } else {
           var navHtml = '';
           for (var i = 0; i < slideCount; i++) {
-            navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
+            navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
           }
           navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
           gn.append(wrapper, navHtml);
@@ -1522,7 +1522,7 @@ var tns = (function () {
           clickTarget = clickTarget.parentNode;
         }
 
-        navIndex = navClicked = Number(getAttr(clickTarget, 'data-slide'));
+        navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
         index = (options.navContainer) ? navIndex + cloneCount : navIndex * items + cloneCount;
 
         if (index !== indexCached) { render(); }
@@ -1533,7 +1533,7 @@ var tns = (function () {
       autoplayTimer = setInterval(function () {
         onClickControl(autoplayDirection);
       }, autoplayTimeout);
-      autoplayButton.setAttribute('data-action', 'stop');
+      setAttrs(autoplayButton, {'data-action': 'stop'});
       autoplayButton.innerHTML = autoplayHtmlString + autoplayText[1];
 
       animating = true;
@@ -1541,7 +1541,7 @@ var tns = (function () {
 
     function stopAction() {
       clearInterval(autoplayTimer);
-      autoplayButton.setAttribute('data-action', 'start');
+      setAttrs(autoplayButton, {'data-action': 'start'});
       autoplayButton.innerHTML = autoplayHtmlString.replace('Stop', 'Start') + autoplayText[0];
 
       animating = false;
@@ -1616,7 +1616,7 @@ var tns = (function () {
       e = e || window.event;
       var code = e.keyCode,
           curElement = document.activeElement,
-          dataSlide = getAttr(curElement, 'data-slide');
+          dataSlide = getAttr(curElement, 'data-nav');
 
       switch(code) {
         case KEY.LEFT:

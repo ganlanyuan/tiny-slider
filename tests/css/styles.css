@@ -86,7 +86,7 @@ button[disabled] {
   text-align: center;
   margin: 10px 0;
 }
-button[data-slide] {
+button[data-nav] {
   width: 9px;
   height: 9px;
   margin: 0 5px;
