@@ -1399,6 +1399,8 @@ var tns = (function () {
           var leftEdge = (mode === 'carousel')? slideBy + indexMin : indexMin, 
               rightEdge = (mode === 'carousel')? indexMax - slideBy : indexMax;
 
+          if (fixedWidth && vw%slideWidth !== 0) { rightEdge -= 1; }
+
           if (index > rightEdge) {
             while(index >= leftEdge + slideCount) { index -= slideCount; }
           } else if(index < leftEdge) {

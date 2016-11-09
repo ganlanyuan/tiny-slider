@@ -1,7 +1,5 @@
 Tests:
-  ☐ slide by page
   ☐ responsive
-  ☐ fixed width
   ☐ autoplay
   ☐ auto height
   ☐ lazyload
@@ -11,6 +9,8 @@ Tests:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ fixed width @done (16-11-09 11:29) @project(Tests)
+ ✔ slide by page @done (16-11-09 11:03) @project(Tests)
  ✔ base @done (16-11-08 15:56) @project(Tests)
  ✔ non-loop @done (16-11-08 11:58) @project(Tests)
  ✔ rewind @done (16-11-08 11:02) @project(Tests)
