@@ -108,6 +108,7 @@ var tt = (function () {
           speed: speed,
           items: 3,
           autoplay: true,
+          autoplayHoverPause: true,
           autoplayTimeout: 3000,
           autoplayText: ['▶', '❚❚'],
         }, 

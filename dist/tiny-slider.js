@@ -645,6 +645,7 @@ var tns = (function () {
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
       autoplayText: ['start', 'pause'],
+      autoplayHoverPause: false,
       animateIn: 'tns-fadeIn',
       animateOut: 'tns-fadeOut',
       animateNormal: 'tns-normal',
@@ -720,6 +721,7 @@ var tns = (function () {
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
         autoplayText = options.autoplayText,
+        autoplayHoverPause = options.autoplayHoverPause,
         autoplayTimer,
         autoplayButton,
         animating = false,
@@ -1049,16 +1051,9 @@ var tns = (function () {
       }
       if (autoplay) {
         addEvents(autoplayButton, ['click', toggleAnimation]);
-
-        if (controls) {
-          addEvents(prevButton, ['click', stopAnimation]);
-          addEvents(nextButton, ['click', stopAnimation]);
-        }
-
-        if (nav) {
-          for (var b = slideCount; b--;) {
-            addEvents(navItems[b], ['click', stopAnimation]);
-          }
+        if (autoplayHoverPause) {
+          addEvents(container, ['mouseover', stopAnimation]);
+          addEvents(container, ['mouseout', startAnimation]);
         }
       }
       if (arrowKeys) {
@@ -1292,10 +1287,10 @@ var tns = (function () {
 
         if (active.length > 0) {
           for (var j = active.length; j--;) {
-            var button = active[j];
-            if (button.disabled) {
-              button.disabled = false;
-              setAttrs(button, {'tabindex': '0'});
+            var button2 = active[j];
+            if (button2.disabled) {
+              button2.disabled = false;
+              setAttrs(button2, {'tabindex': '0'});
             }
           }
         }
@@ -1535,6 +1530,10 @@ var tns = (function () {
       } else {
         startAction();
       }
+    }
+
+    function startAnimation() {
+      if (!animating) { startAction(); }
     }
 
     function stopAnimation() {

@@ -11,7 +11,6 @@ test('fixedWidth: click function', async t => {
     .resizeWindow(1000, windowHeight);
 
   // check sliders position
-  var innerWidth = await getWindowInnerWidth();
   var container = await select('#fixedWidth');
   var slide10 = await container.getChildElement(10);
   var slide12 = await container.getChildElement(12);
@@ -63,7 +62,6 @@ test('fixedWidthGutter: ', async t => {
   await t;
 
   // check sliders position
-  var innerWidth = await getWindowInnerWidth();
   var container = await select('#fixedWidthGutter');
   var slide10 = await container.getChildElement(10);
   var slide12 = await container.getChildElement(12);
@@ -77,7 +75,6 @@ test('fixedWidthEdgePadding: ', async t => {
     .resizeWindow(1000, windowHeight);
 
   // check sliders position
-  var innerWidth = await getWindowInnerWidth();
   var container = await select('#fixedWidthEdgePadding');
   var slide10 = await container.getChildElement(10);
   var slide12 = await container.getChildElement(12);
@@ -113,7 +110,6 @@ test('fixedWidthEdgePaddingGutter: ', async t => {
     .resizeWindow(1000, windowHeight);
 
   // check sliders position
-  var innerWidth = await getWindowInnerWidth();
   var container = await select('#fixedWidthEdgePaddingGutter');
   var slide10 = await container.getChildElement(10);
   var slide12 = await container.getChildElement(12);
