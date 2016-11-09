@@ -116,7 +116,7 @@ var tns = (function () {
         responsive = (fixedWidth) ? false : options.responsive,
         lazyload = options.lazyload,
         slideId = container.id || getSlideId(),
-        slideWidth = fixedWidth || 0,
+        slideWidth = (fixedWidth)? fixedWidth + gutter : 0,
         slideTopEdges, // collection of slide top edges
         slideItemsOut = [],
         cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
@@ -587,7 +587,7 @@ var tns = (function () {
 
     // (vw) => edgePadding
     function getFixedWidthEdgePadding() {
-      return (vw%fixedWidth + gutter) / 2;
+      return (vw%slideWidth + gutter) / 2;
     }
 
     // update container height
