@@ -1,5 +1,4 @@
 Tests:
-  ☐ auto height
   ☐ lazyload
   ☐ vertical
   ☐ animation
@@ -7,6 +6,7 @@ Tests:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ auto height @done (16-11-09 15:06) @project(Tests)
  ✔ autoplay @done (16-11-09 14:07) @project(Tests)
  ✔ arrowKeys @done (16-11-09 13:08) @project(Tests)
  ✔ responsive @done (16-11-09 12:37) @project(Tests)

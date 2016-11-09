@@ -1,16 +1,23 @@
+var speed = 100;
+tns({
+  container: document.querySelector('.lazyload'),
+  items: 3,
+  edgePadding: 40,
+  lazyload: true,
+  speed: speed,
+});
 tns({
   container: document.querySelector('.customize'),
   items: 3,
-  edgePadding: 40,
   controlsContainer: document.querySelector('.customize-tools .controls'),
   navContainer: document.querySelector('.customize-tools .thumbnails'),
-  lazyload: true,
+  speed: speed,
 });
-
 tns({
-  container: document.querySelector('.auto-height'),
+  container: document.querySelector('.autoHeight'),
   autoHeight: true,
   items: 1,
+  speed: speed,
 });
 
 var tt = (function () {
@@ -19,7 +26,6 @@ var tt = (function () {
       div = doc.createElement('div'),
       ul = doc.createElement('ul'),
       li = doc.createElement('li'),
-      speed = 100,
       edgepadding = 50,
       gutter = 10,
       sliderSetting= {

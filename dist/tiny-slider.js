@@ -703,7 +703,7 @@ var tns = (function () {
         nextButton,
         // nav
         nav = options.nav,
-        navContainer = (!options.navContainer) ? false : options.navContainer,
+        navContainer = options.navContainer || false,
         navItems,
         navCountVisible,
         navCountVisibleCached = slideCount,
@@ -727,6 +727,7 @@ var tns = (function () {
         autoplayButton = options.autoplayButton,
         animating = false,
         autoplayHoverStopped = false,
+        autoplayHtmlString = '<span hidden>Stop Animation</span>',
         // touch
         touch = options.touch,
         startX = 0,
@@ -933,69 +934,77 @@ var tns = (function () {
 
     function controlsInit() {
       if (controls) {
-        if (!options.controlsContainer) {
-          gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
-
-          controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
-        }
-
-        prevButton = controlsContainer.querySelector('[data-controls="prev"]');
-        nextButton = controlsContainer.querySelector('[data-controls="next"]');
-
-        if (!hasAttr(controlsContainer, 'tabindex')) {
+        if (options.controlsContainer) {
+          prevButton = controlsContainer.children[0];
+          nextButton = controlsContainer.children[1];
           setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
+          setAttrs(prevButton, {'data-controls' : 'prev'});
+          setAttrs(nextButton, {'data-controls' : 'next'});
           setAttrs(controlsContainer.children, {
             'aria-controls': slideId,
             'tabindex': '-1',
           });
+        } else {
+          gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+
+          controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
+          prevButton = controlsContainer.children[0];
+          nextButton = controlsContainer.children[1];
         }
       }
     }
 
     function navInit() {
       if (nav) {
-        if (!options.navContainer) {
+        if (options.navContainer) {
+          setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
+          navItems = navContainer.children;
+          for (var x = navItems.length; x--;) {
+            setAttrs(navItems[x], {
+              'data-slide': x,
+              'tabindex': '-1',
+              'aria-selected': 'false',
+              'aria-controls': slideId + '-item' + x,
+            });
+          }
+        } else {
           var navHtml = '';
           for (var i = 0; i < slideCount; i++) {
             navHtml += '<button data-slide="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
           }
-          if (autoplay) {
-            navHtml += '<button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button>';
-          }
           navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
           gn.append(wrapper, navHtml);
+
           navContainer = wrapper.querySelector('[data-tns-role="nav"]');
-        }
-        navItems = navContainer.querySelectorAll('[data-slide]');
+          navItems = navContainer.children;
 
-        // for customized nav container
-        if (!hasAttr(navContainer, 'aria-label')) {
-          setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
-          for (var y = 0; y < slideCount; y++) {
-            setAttrs(navItems[y], {
-              'tabindex': '-1',
-              'aria-selected': 'false',
-              'aria-controls': slideId + '-item' + y,
-            });
+          // hide navs
+          for (var j = navCountVisible; j < slideCount; j++) {
+            setAttrs(navItems[j], {'hidden': ''});
           }
+
+          // update navCountVisibleCached
+          navCountVisibleCached = navCountVisible;
         }
 
-        for (var j = navCountVisible; j < slideCount; j++) {
-          setAttrs(navItems[j], {'hidden': ''});
-        }
-        navCountVisibleCached = navCountVisible;
       }
     }
 
     function autoplayInit() {
       if (autoplay) {
-        if (!navContainer) {
-          gn.append(wrapper, '<div data-tns-role="nav" aria-label="Carousel Pagination"><button data-action="stop" type="button"><span hidden>Stop Animation</span>' + autoplayText[0] + '</button></div>');
-          navContainer = wrapper.querySelector('[data-tns-role="nav"]');
-        }
-        if (!autoplayButton) {
+        if (autoplayButton) {
+          setAttrs(autoplayButton, {'data-action': 'stop'});
+        } else {
+          if (!navContainer) {
+            gn.append(wrapper, '<div data-tns-role="nav" aria-label="Carousel Pagination"></div>');
+            navContainer = wrapper.querySelector('[data-tns-role="nav"]');
+          }
+
+          gn.append(navContainer, '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
           autoplayButton = navContainer.querySelector('[data-action]');
         }
+
+        // start autoplay
         startAction();
       }
     }
@@ -1525,7 +1534,7 @@ var tns = (function () {
         onClickControl(autoplayDirection);
       }, autoplayTimeout);
       autoplayButton.setAttribute('data-action', 'stop');
-      autoplayButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[1];
+      autoplayButton.innerHTML = autoplayHtmlString + autoplayText[1];
 
       animating = true;
     }
@@ -1533,7 +1542,7 @@ var tns = (function () {
     function stopAction() {
       clearInterval(autoplayTimer);
       autoplayButton.setAttribute('data-action', 'start');
-      autoplayButton.innerHTML = '<span hidden>Stop Animation</span>' + autoplayText[0];
+      autoplayButton.innerHTML = autoplayHtmlString.replace('Stop', 'Start') + autoplayText[0];
 
       animating = false;
     }
