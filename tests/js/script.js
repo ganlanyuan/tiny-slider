@@ -127,6 +127,28 @@ var tt = (function () {
           items: 3,
           axis: 'vertical',
         }, 
+        'verticalGutter': {
+          container: '',
+          speed: speed,
+          items: 3,
+          axis: 'vertical',
+          gutter: gutter,
+        }, 
+        'verticalEdgepadding': {
+          container: '',
+          speed: speed,
+          items: 3,
+          axis: 'vertical',
+          edgePadding: edgepadding,
+        }, 
+        'verticalEdgepaddingGutter': {
+          container: '',
+          speed: speed,
+          items: 3,
+          axis: 'vertical',
+          gutter: gutter,
+          edgePadding: edgepadding,
+        }, 
         'animation': {
           container: '',
           speed: speed * 10,

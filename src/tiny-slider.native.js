@@ -286,14 +286,12 @@ var tns = (function () {
       if (container.id === '') { container.id = slideId; }
 
       // add attributes
-      var features = '';
-      if (axis) { features += axis; }
-      if (autoHeight) { features += ' autoheight'; }
       setAttrs(container, {
         'data-tns-role': 'content', 
         'data-tns-mode': mode, 
-        'data-tns-features': features
+        'data-tns-axis': axis
       });
+      if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
 
       // init transform
       if (mode === 'carousel') {
@@ -584,7 +582,7 @@ var tns = (function () {
 
       getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
       slideItemsInit();
-      if (axis === 'vertical') { getSlideTopEdges(); } // (init) => slideTopEdges
+      if (axis === 'vertical') { getSlideTopEdges(); console.log(slideTopEdges);} // (init) => slideTopEdges
 
       wrapperInit();
       containerInit();

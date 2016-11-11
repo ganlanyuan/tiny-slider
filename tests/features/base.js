@@ -17,7 +17,7 @@ test('base: init', async t => {
   expect(parent.attributes['data-tns-role']).to.equal('content-wrapper');
   expect(container.attributes['data-tns-role']).to.equal('content');
   expect(container.attributes['data-tns-mode']).to.equal('carousel');
-  expect(container.attributes['data-tns-features']).to.equal('horizontal');
+  expect(container.attributes['data-tns-axis']).to.equal('horizontal');
   expect(container.childElementCount).to.equal(25);
 
   container = await select('#base');

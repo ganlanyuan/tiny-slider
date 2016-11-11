@@ -14,25 +14,18 @@
   -moz-transition: transform 0s, height 0s;
   transition: transform 0s, height 0s; }
 
-[data-tns-mode="carousel"][data-tns-features*="horizontal"] {
+[data-tns-mode="carousel"][data-tns-axis="horizontal"] {
   left: 0; }
-  [data-tns-mode="carousel"][data-tns-features*="horizontal"]:after {
+  [data-tns-mode="carousel"][data-tns-axis="horizontal"]:after {
     content: '';
     display: table;
     clear: both; }
-  [data-tns-mode="carousel"][data-tns-features*="horizontal"] > div, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > li, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > span, [data-tns-mode="carousel"][data-tns-features*="horizontal"] > a {
+  [data-tns-mode="carousel"][data-tns-axis="horizontal"] > div, [data-tns-mode="carousel"][data-tns-axis="horizontal"] > li, [data-tns-mode="carousel"][data-tns-axis="horizontal"] > span, [data-tns-mode="carousel"][data-tns-axis="horizontal"] > a {
     float: left;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     overflow: hidden; }
-
-[data-tns-mode="carousel"][data-tns-features*="vertical"] > div:after,
-[data-tns-mode="carousel"][data-tns-features*="vertical"] > li:after {
-  content: '';
-  display: table;
-  clear: both; }
-
-[data-tns-features*="autoheight"] {
-  overflow: hidden; }
 
 [data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
   position: absolute;

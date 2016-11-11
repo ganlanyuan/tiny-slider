@@ -16,7 +16,7 @@
   -moz-transition: transform 0s, height 0s;
   transition: transform 0s, height 0s;
 }
-[data-tns-mode="carousel"][data-tns-features*="horizontal"] {
+[data-tns-mode="carousel"][data-tns-axis="horizontal"] {
   left: 0;
   &:after {
     content: '';
@@ -25,24 +25,12 @@
   }
   > div, > li, > span, > a {
     float: left;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     overflow: hidden;
   }
 }
-[data-tns-features*="horizontal"] {
-}
-[data-tns-mode="carousel"][data-tns-features*="vertical"] {
-  > div,
-  > li {
-    &:after {
-      content: '';
-      display: table;
-      clear: both;
-    }
-  }
-}
-[data-tns-features*="autoheight"] { overflow: hidden; }
-
 [data-tns-mode="gallery"] {
   > div, > li, > span, > a {
     position: absolute;
