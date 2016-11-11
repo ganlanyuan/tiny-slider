@@ -1,20 +1,24 @@
-var speed = 100;
+var speed = 100,
+    doc = document;
+
 tns({
-  container: document.querySelector('.lazyload'),
+  container: doc.querySelector('.lazyload'),
   items: 3,
   edgePadding: 40,
   lazyload: true,
   speed: speed,
 });
 tns({
-  container: document.querySelector('.customize'),
+  container: doc.querySelector('.customize'),
   items: 3,
-  controlsContainer: document.querySelector('.customize-tools .controls'),
-  navContainer: document.querySelector('.customize-tools .thumbnails'),
+  controlsContainer: doc.querySelector('.customize-tools .controls'),
+  navContainer: doc.querySelector('.customize-tools .thumbnails'),
+  autoplay: true,
+  autoplayButton: doc.querySelector('.playbutton-wrapper > button'),
   speed: speed,
 });
 tns({
-  container: document.querySelector('.autoHeight'),
+  container: doc.querySelector('.autoHeight'),
   autoHeight: true,
   items: 1,
   speed: speed,
@@ -22,7 +26,6 @@ tns({
 
 var tt = (function () {
   var my = {}, 
-      doc = document,
       div = doc.createElement('div'),
       ul = doc.createElement('ul'),
       li = doc.createElement('li'),

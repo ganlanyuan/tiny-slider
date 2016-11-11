@@ -644,7 +644,7 @@ var tns = (function () {
       autoplay: false,
       autoplayTimeout: 5000,
       autoplayDirection: 'forward',
-      autoplayText: ['start', 'pause'],
+      autoplayText: ['start', 'stop'],
       autoplayHoverPause: false,
       autoplayButton: false,
       animateIn: 'tns-fadeIn',

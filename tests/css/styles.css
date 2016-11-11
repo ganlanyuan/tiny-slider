@@ -94,6 +94,8 @@ button[data-nav] {
   background: #ddd;
 }
 button[aria-selected="true"] { background: #999; }
+.playbutton-wrapper { text-align: center; }
+.playbutton-wrapper button { height: 34px; padding: 0 10px; font-size: 14px; background: #fff; border-radius: 3px; border: 1px solid  #ccc; cursor: pointer; }
 .wrapper { padding: 0 5em; }
 .suite-container .title, 
 .suite-container .subtitle, 

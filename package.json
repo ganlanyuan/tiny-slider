@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ganlanyuan/tiny-slider#readme",
   "devDependencies": {
-    "chai": "^3.5.0"
+    "chai": "^3.5.0",
+    "testcafe-browser-provider-saucelabs": "^1.1.0"
   }
 }
