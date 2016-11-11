@@ -12,7 +12,7 @@ test('autoplay: run', async t => {
   // 2. wait for 1 slide time
   await t
     .click('.autoplay_wrapper [data-action]')
-    .click('.autoplay_wrapper [data-slide="0"]')
+    .click('.autoplay_wrapper [data-nav="0"]')
     .click('.autoplay_wrapper [data-action]')
     .wait(speed1 * 10);
 

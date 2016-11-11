@@ -1,11 +1,11 @@
 Tests:
-  ☐ customize
   ☐ vertical
   ☐ animation
   ☐ custom Events
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ customize @done (16-11-11 07:27) @project(Tests)
  ✔ lazyload @done (16-11-09 16:33) @project(Tests)
  ✔ auto height @done (16-11-09 15:06) @project(Tests)
  ✔ autoplay @done (16-11-09 14:07) @project(Tests)

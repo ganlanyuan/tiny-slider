@@ -11,8 +11,10 @@ test('customize: init', async t => {
 
   // check autoplay button
   var autoplayButton = await select('.playbutton-wrapper > button');
+  var autoplayButtonInner = await autoplayButton.getChildElement(0);
   expect(autoplayButton.attributes['data-action']).to.equal('stop');
-  expect(autoplayButton.innerText.indexOf('Stop Animation')).to.be.true;
+  expect(autoplayButton.innerText).to.equal('stop');
+  expect(autoplayButtonInner.innerText).to.equal('Stop Animation');
 
   // check controls
   var controlsContainer = await select('.customize_wrapper .controls');
@@ -26,15 +28,18 @@ test('customize: init', async t => {
   expect(nextButton.attributes['aria-controls']).to.equal('customize');
   expect(nextButton.attributes[tabindex]).to.equal('0');
 
+  var navContainer = await select('.customize_wrapper .thumbnails');
+  var nav0 = await navContainer.getChildElement(0);
+  var nav1 = await navContainer.getChildElement(1);
+  // const nav0 = await Selector('.customize_wrapper .thumbnails > li', { index: 0 })();
+  // const nav1 = await Selector('.customize_wrapper .thumbnails > li', { index: 1 })();
+
   await t
-    .click(autoplayButton)
+    .click('.playbutton-wrapper > button')
     .click(nav0)
     .wait(speed1);
 
   // check nav
-  var navContainer = await select('.customize_wrapper .thumbnails');
-  var nav0 = await navContainer.getChildElement(0);
-  var nav1 = await navContainer.getChildElement(1);
   expect(navContainer.attributes['aria-label']).to.equal('Carousel Pagination');
   expect(nav0.attributes['data-nav']).to.equal('0');
   expect(nav0.attributes['aria-selected']).to.equal('true');
@@ -46,9 +51,11 @@ test('customize: init', async t => {
   expect(nav1.attributes[tabindex]).to.equal('-1');
 
   // check autoplay button
-  var autoplayButton = await select('.playbutton-wrapper > button');
+  autoplayButton = await select('.playbutton-wrapper > button');
+  autoplayButtonInner = await autoplayButton.getChildElement(0);
   expect(autoplayButton.attributes['data-action']).to.equal('start');
-  expect(autoplayButton.innerText.indexOf('Start Animation')).to.be.true;
+  expect(autoplayButton.innerText).to.equal('start');
+  expect(autoplayButtonInner.innerText).to.equal('Start Animation');
 
   // check slides
   const innerWidth = await getWindowInnerWidth();
