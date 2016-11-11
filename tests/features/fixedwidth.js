@@ -97,7 +97,6 @@ test('fixedWidthEdgePadding: ', async t => {
   await t
     .resizeWindow(800, windowHeight);
 
-  innerWidth = await getWindowInnerWidth();
   slide13 = await container.getChildElement(13);
   var slide14 = await container.getChildElement(14);
   expect(Math.round(slide13.boundingClientRect.left)).to.equal(100);
@@ -118,7 +117,9 @@ test('fixedWidthEdgePaddingGutter: ', async t => {
 
   await t
     .click('.fixedWidthEdgePaddingGutter_wrapper [data-controls="next"]')
+    .wait(speed1)
     .click('.fixedWidthEdgePaddingGutter_wrapper [data-controls="next"]')
+    .wait(speed1)
     .click('.fixedWidthEdgePaddingGutter_wrapper [data-controls="next"]')
     .wait(speed1);
 
@@ -130,7 +131,6 @@ test('fixedWidthEdgePaddingGutter: ', async t => {
   await t
     .resizeWindow(800, windowHeight);
 
-  innerWidth = await getWindowInnerWidth();
   slide13 = await container.getChildElement(13);
   var slide14 = await container.getChildElement(14);
   expect(Math.round(slide13.boundingClientRect.left)).to.equal(95);

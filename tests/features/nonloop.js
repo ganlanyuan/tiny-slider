@@ -18,9 +18,9 @@ test('nonLoop: init', async t => {
   expect(nextBtn.attributes['disabled']).to.be.undefined;
   expect(nextBtn.attributes[tabindex]).to.equal('0');
   // check navs
-  var nav0 = await select('.nonLoop_wrapper [data-slide="0"]');
-  var nav1 = await select('.nonLoop_wrapper [data-slide="1"]');
-  var nav2 = await select('.nonLoop_wrapper [data-slide="2"]');
+  var nav0 = await select('.nonLoop_wrapper [data-nav="0"]');
+  var nav1 = await select('.nonLoop_wrapper [data-nav="1"]');
+  var nav2 = await select('.nonLoop_wrapper [data-nav="2"]');
   expect(nav2.visible).to.be.false;
   expect(nav0.attributes['aria-selected']).to.equal('true');
   expect(nav0.attributes[tabindex]).to.equal('0');
@@ -37,7 +37,8 @@ test('nonLoop: init', async t => {
 
 test('nonLoop: click', async t => {
   await t
-    .click('.nonLoop_wrapper [data-controls="next"]');
+    .click('.nonLoop_wrapper [data-controls="next"]')
+    .wait(speed1);
 
   // check controls
   var prevBtn = await select('.nonLoop_wrapper [data-controls="prev"]');
@@ -53,7 +54,8 @@ test('nonLoop: click', async t => {
   expect(Math.round(slide3.boundingClientRect.right)).to.equal(innerWidth);
 
   await t
-    .click('.nonLoop_wrapper [data-controls="next"]');
+    .click('.nonLoop_wrapper [data-controls="next"]')
+    .wait(speed1);
 
   // check controls
   prevBtn = await select('.nonLoop_wrapper [data-controls="prev"]');
@@ -63,8 +65,8 @@ test('nonLoop: click', async t => {
   expect(nextBtn.attributes['disabled']).to.equal('');
   expect(nextBtn.attributes[tabindex]).to.equal('-1');
   // check navs
-  var nav0 = await select('.nonLoop_wrapper [data-slide="0"]');
-  var nav1 = await select('.nonLoop_wrapper [data-slide="1"]');
+  var nav0 = await select('.nonLoop_wrapper [data-nav="0"]');
+  var nav1 = await select('.nonLoop_wrapper [data-nav="1"]');
   expect(nav0.attributes['aria-selected']).to.equal('false');
   expect(nav0.attributes[tabindex]).to.equal('-1');
   expect(nav1.attributes['aria-selected']).to.equal('true');

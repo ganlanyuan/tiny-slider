@@ -13,7 +13,7 @@ tns({
   items: 3,
   controlsContainer: doc.querySelector('.customize-tools .controls'),
   navContainer: doc.querySelector('.customize-tools .thumbnails'),
-  // autoplay: true,
+  autoplay: true,
   autoplayButton: doc.querySelector('.playbutton-wrapper > button'),
   speed: speed,
 });
@@ -116,7 +116,7 @@ var tt = (function () {
           container: '',
           speed: speed,
           items: 3,
-          // autoplay: true,
+          autoplay: true,
           autoplayHoverPause: true,
           autoplayTimeout: speed * 9,
           autoplayText: ['▶', '❚❚'],

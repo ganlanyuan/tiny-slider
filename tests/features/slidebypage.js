@@ -60,7 +60,7 @@ test('slideByPage: click next button', async t => {
 test('slideByPage: click prev button', async t => {
   // back to the original point
   await t
-    .click('.slideByPage_wrapper [data-slide="0"]')
+    .click('.slideByPage_wrapper [data-nav="0"]')
     .wait(speed1);
 
   await t

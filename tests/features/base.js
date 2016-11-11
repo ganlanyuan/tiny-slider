@@ -41,9 +41,9 @@ test('base: init', async t => {
   expect(controlsContainer.attributes['data-tns-role']).to.equal('controls');
   expect(controlsContainer.attributes['aria-label']).to.equal('Carousel Navigation');
 
-  const nav0 = await select('.base_wrapper [data-slide="0"]');
-  const nav1 = await select('.base_wrapper [data-slide="1"]');
-  const nav2 = await select('.base_wrapper [data-slide="2"]');
+  const nav0 = await select('.base_wrapper [data-nav="0"]');
+  const nav1 = await select('.base_wrapper [data-nav="1"]');
+  const nav2 = await select('.base_wrapper [data-nav="2"]');
   const navContainer = await nav0.getParentNode();
   expect(nav0.attributes['aria-selected']).to.equal('true');
   expect(nav0.attributes[tabindex]).to.equal('0');
@@ -71,7 +71,7 @@ test('base: resize', async t => {
 
 test('base: nav click', async t => {
   await t
-    .click('.base_wrapper [data-slide="1"]')
+    .click('.base_wrapper [data-nav="1"]')
     .wait(speed1);
 
   var innerWidth = await getWindowInnerWidth();
@@ -84,7 +84,7 @@ test('base: nav click', async t => {
   expect(Math.round(slide15.boundingClientRect.right)).to.equal(innerWidth);
   
   await t
-    .click('.base_wrapper [data-slide="0"]')
+    .click('.base_wrapper [data-nav="0"]')
     .wait(speed1);
 
   const slide10 = await container.getChildElement(10);

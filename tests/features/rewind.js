@@ -21,7 +21,8 @@ test('rewind: init', async t => {
 test('rewind: click', async t => {
   await t
     .resizeWindow(windowWidthes[1], windowHeight)
-    .click('.rewind_wrapper [data-controls="next"]');
+    .click('.rewind_wrapper [data-controls="next"]')
+    .wait(speed1);
 
   // check the controls buttons
   var prevBtn = await select('.rewind_wrapper [data-controls="prev"]');
@@ -38,7 +39,9 @@ test('rewind: click', async t => {
 
   await t
     .click('.rewind_wrapper [data-controls="next"]')
-    .click('.rewind_wrapper [data-controls="next"]');
+    .wait(speed1)
+    .click('.rewind_wrapper [data-controls="next"]')
+    .wait(speed1);
 
   prevBtn = await select('.rewind_wrapper [data-controls="prev"]');
   nextBtn = await select('.rewind_wrapper [data-controls="next"]');
