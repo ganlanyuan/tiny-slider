@@ -1,9 +1,9 @@
 Tests:
-  ☐ animation
   ☐ custom Events
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ animation @done (16-11-11 17:27) @project(Tests)
  ✔ vertical @done (16-11-11 15:45) @project(Tests)
  ✔ customize @done (16-11-11 07:27) @project(Tests)
  ✔ lazyload @done (16-11-09 16:33) @project(Tests)

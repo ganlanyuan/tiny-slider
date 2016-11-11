@@ -582,7 +582,7 @@ var tns = (function () {
 
       getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
       slideItemsInit();
-      if (axis === 'vertical') { getSlideTopEdges(); console.log(slideTopEdges);} // (init) => slideTopEdges
+      if (axis === 'vertical') { getSlideTopEdges(); } // (init) => slideTopEdges
 
       wrapperInit();
       containerInit();
@@ -951,7 +951,8 @@ var tns = (function () {
         }
 
         navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
-        index = (options.navContainer) ? navIndex + cloneCount : navIndex * items + cloneCount;
+        var adjust = (mode === 'gallery')? 0 : cloneCount;
+        index = (options.navContainer) ? navIndex + adjust : navIndex * items + adjust;
 
         if (index !== indexCached) { render(); }
       }
