@@ -191,11 +191,11 @@ var tt = (function () {
 tt.createSliderHtml();
 tt.initSliders();
 
-tns().events.on('initialized', function(info) {
-  // if (info.container.id === 'vertical') {
-    // console.log(info.index, info.container.id);
-  // }
-});
+// tns().events.on('transitionEnd', function(info) {
+//   if (info.container.id === 'base') {
+//     console.log(e.type, info.container.id);
+//   }
+// });
 
 // document.querySelector('.responsive_wrapper [data-controls="next"]').addEventListener('click', function () {
 //   var info = responsiveSD.getInfo();

@@ -17,15 +17,15 @@ var tns = (function () {
       ]),
       transitions = {
         'transitionDuration': ['transitionDelay', 'transitionend'],
-        'WebkitTransitionDuration': ['WebkitTransitionDelay', 'oTransitionEnd'],
+        'WebkitTransitionDuration': ['WebkitTransitionDelay', 'webkitTransitionEnd'],
         'MozTransitionDuration': ['MozTransitionDelay', 'transitionend'],
-        'OTransitionDuration': ['OTransitionDelay', 'webkitTransitionEnd']
+        'OTransitionDuration': ['OTransitionDelay', 'oTransitionEnd']
       },
       animations = {
         'animationDuration': ['animationDelay', 'animationend'],
-        'WebkitAnimationDuration': ['WebkitAnimationDelay', 'oAnimationEnd'],
+        'WebkitAnimationDuration': ['WebkitAnimationDelay', 'webkitAnimationEnd'],
         'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
-        'OAnimationDuration': ['OAnimationDelay', 'webkitAnimationEnd']
+        'OAnimationDuration': ['OAnimationDelay', 'oAnimationEnd']
       },
       TRANSITIONDURATION = whichProperty(transitions)[0],
       TRANSITIONDELAY = whichProperty(transitions)[1],
@@ -200,13 +200,9 @@ var tns = (function () {
       }
     })();
 
-    var getSlideWidth = (function () {
-      if (navigator.appVersion.indexOf("MSIE 8") > 0) {
-        return function () { return Math.round((vw + gutter) / items); };
-      } else {
-        return function () { return (vw + gutter) / items; };
-      }
-    })();
+    var getSlideWidth = function () {
+      return Math.round((vw + gutter) / items);
+    };
 
     var getVisibleNavCount = (function () {
       if (options.navContainer) {
