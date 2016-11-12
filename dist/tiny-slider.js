@@ -859,17 +859,22 @@ var tns = (function () {
       });
       if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
 
-      // init transform
+      // init width & transform
       if (mode === 'carousel') {
+        var val, transformAttr, transformVal;
         if (axis === 'horizontal') {
-          var size = 'width: ' + (slideWidth + 1) * slideCountNew + 'px; ',
-              x = (-index * slideWidth),
-              transforms = (TRANSFORM) ? TRANSFORM + ': translate3d(' + x + 'px, 0px, 0px)' : 'left: ' + x + 'px';
-          container.style.cssText += size + transforms;
+          var width = (slideWidth + 1) * slideCountNew + 'px';
+          container.style.width = width;
+
+          val = (-index * slideWidth);
+          transformAttr = (TRANSFORM) ? TRANSFORM : 'left';
+          transformVal = (TRANSFORM) ? 'translate3d(' + val + 'px, 0px, 0px)' : val + 'px';
         } else {
-          var y = -slideTopEdges[index];
-          container.style.cssText += (TRANSFORM) ? TRANSFORM + ': translate3d(0px, ' + y + 'px, 0px)' : 'top: ' + y + 'px';
+          val = -slideTopEdges[index];
+          transformAttr = (TRANSFORM) ? TRANSFORM : 'top';
+          transformVal = (TRANSFORM) ? 'translate3d(0px, ' + val + 'px, 0px)' : val + 'px';
         }
+        container.style[transformAttr] = transformVal;
       }
     }
 
