@@ -1,6 +1,12 @@
 Tests:
   ☐ custom Events
 
+Browser Test:
+  ☐ IE9- (slideBy not correct)
+  ☐ firefox 16- (transition don't work)
+  ☐ Chrome 14- (can't test)
+  ☐ Opera 12- (don't support 3d transform)
+  ☐ Safari 3- (don't support 3d transform)
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
  ✔ animation @done (16-11-11 17:27) @project(Tests)
