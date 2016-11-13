@@ -1,8 +1,10 @@
 Tests:
   ☐ custom Events
+  ☐ translate3d : translateX ? for IE9
+  ☐ aria-busy & transition ? for old firefox, chrome, ...
 
 Browser Test:
-  ☐ IE9- (slideBy not correct)
+  ☐ IE7- ()
   ☐ firefox 16- (transition don't work)
   ☐ Chrome 14- (can't test)
   ☐ Opera 12- (don't support 3d transform)
