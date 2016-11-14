@@ -12,9 +12,9 @@
 }
 [data-tns-role="content"] {
   position: relative;
-  -webkit-transition: transform 0s, height 0s;
-  -moz-transition: transform 0s, height 0s;
-  transition: transform 0s, height 0s;
+  -webkit-transition: all 0s;
+  -moz-transition: all 0s;
+  transition: all 0s;
 }
 [data-tns-mode="carousel"][data-tns-axis="horizontal"] {
   left: 0;

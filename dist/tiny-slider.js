@@ -583,6 +583,7 @@ var tns = (function () {
         'transform', 
         'WebkitTransform', 
         'MozTransform', 
+        'msTransform',
         'OTransform'
       ]),
       transitions = {
@@ -783,11 +784,11 @@ var tns = (function () {
     })();
 
     var getViewWidth = (function () {
-      // horizantal carousel: fluid width && edge padding
+      // horizontal carousel: fluid width && edge padding
       //  => inner wrapper view width
       if (axis === 'horizontal' && !fixedWidth && edgePadding) { 
         return function () { return wrapper.clientWidth - (edgePadding + gutter) * 2; };
-      // horizantal carousel: fixed width || fluid width but no edge padding
+      // horizontal carousel: fixed width || fluid width but no edge padding
       // vertical carousel
       //  => wrapper view width
       } else {
@@ -861,20 +862,36 @@ var tns = (function () {
 
       // init width & transform
       if (mode === 'carousel') {
-        var val, transformAttr, transformVal;
+        // modern browsers will use 'transform: translateX(Y)'
+        // legacy browsers will use 'left | top' (IE8-, firefox3-, opera 10-, Opera Mini)
+        var attr = TRANSFORM,
+            attrLegacy = 'left',
+            tran = 'translate',
+            prefix = '',
+            postfix = '', 
+            dir = 'X',
+            distance;
+
         if (axis === 'horizontal') {
+          // init container width
           var width = (slideWidth + 1) * slideCountNew + 'px';
           container.style.width = width;
 
-          val = (-index * slideWidth);
-          transformAttr = (TRANSFORM) ? TRANSFORM : 'left';
-          transformVal = (TRANSFORM) ? 'translate3d(' + val + 'px, 0px, 0px)' : val + 'px';
+          distance = -index * slideWidth;
         } else {
-          val = -slideTopEdges[index];
-          transformAttr = (TRANSFORM) ? TRANSFORM : 'top';
-          transformVal = (TRANSFORM) ? 'translate3d(0px, ' + val + 'px, 0px)' : val + 'px';
+          distance = -slideTopEdges[index];
+          dir = 'Y';
+          attrLegacy = 'top';
         }
-        container.style[transformAttr] = transformVal;
+
+        if (TRANSFORM) {
+          prefix = tran + dir + '(';
+          postfix = ')';
+        } else {
+          attr = attrLegacy;
+        }
+
+        container.style[attr] = prefix + distance + 'px' + postfix;
       }
     }
 
@@ -1348,15 +1365,29 @@ var tns = (function () {
             distance = Math.max(distance, -slideCountNew * slideWidth + vw + gutter);
           }
 
-          var tran = 'translate3d(',
-              map = {
-                x: [TRANSFORM, tran, distance, 'px, 0px, 0px)'],
-                y: [TRANSFORM, tran + '0px, ', distance, 'px, 0px)'],
-                l: ['left', '', distance, 'px'],
-                t: ['top', '', distance, 'px'],
-              },
-              attr = (axis === 'horizontal') ? (TRANSFORM) ? 'x' : 'l' : (TRANSFORM) ? 'y' : 't';
-          container.style[map[attr][0]] = map[attr][1] + map[attr][2] + map[attr][3];
+          // modern browsers will use 'transform: translateX(Y)'
+          // legacy browsers will use 'left | top' (IE8-, firefox3-, opera 10-, Opera Mini)
+          var attr = TRANSFORM,
+              attrLegacy = 'left',
+              tran = 'translate',
+              prefix = '',
+              postfix = '', 
+              dir = 'X';
+
+          if (axis === 'vertical') {
+            dir = 'Y';
+            attrLegacy = 'top';
+          }
+
+          if (TRANSFORM) {
+            prefix = tran + dir + '(';
+            postfix = ')';
+          } else {
+            attr = attrLegacy;
+          }
+
+          container.style[attr] = prefix + distance + 'px' + postfix;
+
           if (axis === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
         };
       } else {
@@ -1432,7 +1463,7 @@ var tns = (function () {
     })();
 
     function render() {
-      setAttrs(container, {'aria-busy': 'true'});
+      if (TRANSITIONEND) { setAttrs(container, {'aria-busy': 'true'}); }
       if (checkIndexBeforeTransform) { checkIndex(); }
 
       if (index !== indexCached) { events.emit('indexChanged', info()); }
@@ -1481,7 +1512,7 @@ var tns = (function () {
         lazyLoad();
         runAutoHeight();
 
-        removeAttrs(container, 'aria-busy');
+        if (TRANSITIONEND) { removeAttrs(container, 'aria-busy'); }
         updateIndexCache();
       }
     }
@@ -1652,8 +1683,7 @@ var tns = (function () {
       var touchObj = e.changedTouches[0];
       startX = parseInt(touchObj.clientX);
       startY = parseInt(touchObj.clientY);
-      var slicePositions = (axis === 'horizontal') ? [12, -13] : [17, -8];
-      translateInit = Number(container.style[TRANSFORM].slice(slicePositions[0], slicePositions[1]));
+      translateInit = Number(container.style[TRANSFORM].slice(11, -3));
       events.emit('touchStart', info(e));
     }
 
@@ -1667,15 +1697,10 @@ var tns = (function () {
         e.preventDefault();
         events.emit('touchMove', info(e));
 
-        var x = 0, y = 0;
-        if (axis === 'horizontal') {
-          x = translateInit + disX;
-        } else {
-          y = translateInit + disY;
-        }
+        var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
 
         setDurations(0);
-        container.style[TRANSFORM] = 'translate3d(' + x + 'px, ' + y + 'px, 0px';
+        container.style[TRANSFORM] = 'translate' + x + 'px)';
       }
     }
 

@@ -128,11 +128,15 @@ Default:
 .no-js .your-slider > div { float: none; }
 ```
 
-## Todo
-
-
 ## Browser Support
-Tested on IE8+ and mordern browsers.
+Firefox 8+ ✓  
+Chrome 15+ ✓  
+Safari 4+ ✓  
+Opera 11.5+ ✓  
+IE 8+ ✓  
+
+_It should works on Chrome 4-14 as well, but I couldn't test it.  
+No animation on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions)._
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  

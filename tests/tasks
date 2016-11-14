@@ -1,7 +1,5 @@
 Tests:
   ☐ custom Events
-  ☐ translate3d : translateX ? for IE9
-  ☐ aria-busy & transition ? for old firefox, chrome, ...
 
 Browser Test:
   ☐ IE7- ()
@@ -11,6 +9,8 @@ Browser Test:
   ☐ Safari 3- (don't support 3d transform)
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ translate3d : translateX ? for IE9 @done (16-11-14 14:11) @project(Tests)
+ ✔ aria-busy & transition ? for old firefox, chrome, ... @done (16-11-14 14:11) @project(Tests)
  ✔ animation @done (16-11-11 17:27) @project(Tests)
  ✔ vertical @done (16-11-11 15:45) @project(Tests)
  ✔ customize @done (16-11-11 07:27) @project(Tests)
