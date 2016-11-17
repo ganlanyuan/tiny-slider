@@ -27,9 +27,11 @@
     box-sizing: border-box;
     overflow: hidden; }
 
-[data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
-  position: absolute;
-  transition: transform 0s, opacity 0s; }
+[data-tns-mode="gallery"] {
+  overflow: hidden; }
+  [data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
+    position: absolute;
+    transition: transform 0s, opacity 0s; }
 
 [data-tns-role="nav"] button {
   vertical-align: middle; }

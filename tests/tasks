@@ -2,13 +2,13 @@ Tests:
   ☐ custom Events
 
 Browser Test:
-  ☐ IE7- ()
-  ☐ firefox 16- (transition don't work)
-  ☐ Chrome 14- (can't test)
-  ☐ Opera 12- (don't support 3d transform)
-  ☐ Safari 3- (don't support 3d transform)
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ IE7- () @done (16-11-16 22:09) @project(Browser Test)
+ ✔ firefox 16- (transition don't work) @done (16-11-16 22:09) @project(Browser Test)
+ ✔ Chrome 14- (can't test) @done (16-11-16 22:09) @project(Browser Test)
+ ✔ Opera 12- (don't support 3d transform) @done (16-11-16 22:09) @project(Browser Test)
+ ✔ Safari 3- (don't support 3d transform) @done (16-11-16 22:09) @project(Browser Test)
  ✔ translate3d : translateX ? for IE9 @done (16-11-14 14:11) @project(Tests)
  ✔ aria-busy & transition ? for old firefox, chrome, ... @done (16-11-14 14:11) @project(Tests)
  ✔ animation @done (16-11-11 17:27) @project(Tests)

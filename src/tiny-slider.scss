@@ -32,6 +32,7 @@
   }
 }
 [data-tns-mode="gallery"] {
+  overflow: hidden;
   > div, > li, > span, > a {
     position: absolute;
     transition: transform 0s, opacity 0s;

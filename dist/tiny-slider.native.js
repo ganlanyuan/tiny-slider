@@ -288,12 +288,12 @@ var tns = (function () {
         'data-tns-mode': mode, 
         'data-tns-axis': axis
       });
-      if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
 
       // init width & transform
       if (mode === 'carousel') {
+        if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
         // modern browsers will use 'transform: translateX(Y)'
-        // legacy browsers will use 'left | top' (IE8-, firefox3-, opera 10-, Opera Mini)
+        // legacy browsers will use 'left | top' 
         var attr = TRANSFORM,
             attrLegacy = 'left',
             tran = 'translate',
@@ -460,7 +460,7 @@ var tns = (function () {
         var item = slideItems[i];
         setAttrs(item, {'aria-hidden': 'false'});
         if (mode === 'gallery') { 
-          item.style.marginLeft = slideWidth * (i - index) + 'px'; 
+          item.style.left = slideWidth * (i - index) + 'px'; 
           item.classList.remove(animateNormal);
           item.classList.add(animateIn);
         }
@@ -796,7 +796,7 @@ var tns = (function () {
           }
 
           // modern browsers will use 'transform: translateX(Y)'
-          // legacy browsers will use 'left | top' (IE8-, firefox3-, opera 10-, Opera Mini)
+          // legacy browsers will use 'left | top' 
           var attr = TRANSFORM,
               attrLegacy = 'left',
               tran = 'translate',
@@ -858,7 +858,7 @@ var tns = (function () {
               }
               item.classList.remove(animateNormal);
               item.classList.add(animateIn);
-              if (i > index) { item.style.marginLeft = (i - index) * slideWidth + 'px'; }
+              if (i > index) { item.style.left = (i - index) * slideWidth + 'px'; }
             }
           })();
         };
@@ -923,7 +923,7 @@ var tns = (function () {
           }
           item.classList.remove(animateOut);
           item.classList.add(animateNormal);
-          item.style.marginLeft = '';
+          item.style.left = '';
         }
       }
 
@@ -1175,10 +1175,10 @@ var tns = (function () {
       }
     }
 
-    // (slideWidth, index, items) => gallery_visible_slide.marginLeft
+    // (slideWidth, index, items) => gallery_visible_slide.left
     function updateSlidePosition() {
       for (var i = index + 1, len = index + items; i < len; i++) {
-        slideItems[i].style.marginLeft = slideWidth * (i - index) + 'px';
+        slideItems[i].style.left = slideWidth * (i - index) + 'px';
       }
     }
 
@@ -1244,7 +1244,7 @@ var tns = (function () {
             } else {
               updateSlideWidth(); // (slideWidth) => container.width, slide.width
               if (mode === 'gallery') {
-                updateSlidePosition(); // (slideWidth, index, items) => gallery_visible_slide.marginLeft
+                updateSlidePosition(); // (slideWidth, index, items) => gallery_visible_slide.left
               }
             }
           } else {
