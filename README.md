@@ -113,7 +113,7 @@ Default:
 ## Get slider information
 There are two ways to get slider information:   
 1. `getInfo` method.   
-2. Subscribe to a event.   
+2. Subscribe to an event.   
 Both will return `info` Object:
 ```javascript
 info = {
