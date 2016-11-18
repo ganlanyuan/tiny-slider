@@ -52,9 +52,6 @@
 #### v0.3.2
 - A lots of works around accessibility.
 
-#### v0.3.2
-- Fixed: an issue when `fixedWidth: true`, and slider items are not enough to fill their parent.
-
 #### v0.3.1
 - Improved: performance.
 - Improved: classList related functions.
