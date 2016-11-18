@@ -1,8 +1,10 @@
 {
   "name": "tiny-slider",
-  "version": "0.3.2",
+  "version": "0.6.6",
   "description": "Pure tiny javascript slider for all purposes.",
-  "main": "tiny-slider.js",
+  "main": "dist/tiny-slider.js",
+  "style": "dist/tiny-slider.css",
+  "sass": "src/tiny-slider.scss",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

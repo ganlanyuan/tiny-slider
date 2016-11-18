@@ -1,64 +1,58 @@
 # tiny-slider
-Pure javascript slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
+![version](https://img.shields.io/badge/Version-0.6.6-green.svg)   
+Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).
 Works on morden browsers and IE8+.   
-[demo](http://creatiointl.org/gallery/william/tiny-slider/demo/)   
-[changelog](https://github.com/ganlanyuan/tiny-slider/blob/master/changelog.md)  
+[demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
+[changelog](changelog.md)  
+[examples](examples.md)  
 
 ## Install
-via bower
 ```
 bower install tiny-slider
 ```
-via npm
+or
 ```
 npm install tiny-slider
 ```
+
 ## Features
-+ responsive
-+ fixed width
-+ loop
-+ slide by page
-+ customize nav / dots
-+ autoplay
-+ lazyload
-+ touch support
-+ arrow keys
+- responsive
+- fixed width
+- gutter
+- edge padding (center)
+- loop
+- rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
+- slide by page
+- slide by
+- customize controls / nav
+- autoplay
+- auto height
+- lazyload
+- touch support
+- arrow keys
+- accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 
-## Default setting
-```javascript
-options = {
-  container: document.querySelector('.slider'),
-  items: 1,
-  fixedWidth: false,
-  maxContainerWidth: false,
-  slideByPage: false,
-  nav: true,
-  navText: ['prev', 'next'],
-  navContainer: false,
-  dots: true,
-  dotsContainer: false,
-  arrowKeys: false,
-  speed: 250,
-  autoplay: false,
-  autoplayTimeout: 5000,
-  autoplayDirection: 'forward',
-  loop: true,
-  responsive: false,
-  lazyload: false,
-  offset: 0,
-  touch: true
-};
-```
 ## Usage
-Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
+##### 1. Include tiny-slider
+Include tiny-slider
 ```html
-<link rel="stylesheet" href="path/to/tiny-slider.css">
-<script src="path/to/tiny-slider.js"></script>
+<link rel="stylesheet" href="tiny-slider.css">
 
+<!--[if (lt IE 9)]><script src="tiny-slider.ie8.js"></script><![endif]-->
+<script src="tiny-slider.js"></script>
+```
+Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
+```html
+<link rel="stylesheet" href="tiny-slider.css">
+
+<!--[if (lt IE 9)]><script src="go-native.ie8.js"></script><![endif]-->
+<script src="go-native.js"></script>
+<script src="tiny-slider.native.js"></script>
+```
+##### 2. Add your markup
+```html
 <!-- markup -->
 <div class="slider">
-  <div></div>
-  <div></div>
   <div></div>
   <div></div>
   <div></div>
@@ -69,136 +63,72 @@ Include `tiny-slider.js` and `tiny.css` in your html, then call `tinySlider`.
   <li></li>
   <li></li>
   <li></li>
-  <li></li>
-  <li></li>
 </ul> 
 -->
-
+```
+##### 3. Call tiny-slider on DOM ready
+```html
 <script>
-  tinySlider({
-    container: document.querySelector('.slider'),
-    items: 3,
-    slideByPage: true,
-    autoplay: true
+  gn.ready(function () {
+    var slider = tinySlider({
+      container: document.querySelector('.slider'),
+      items: 3,
+      slideByPage: true,
+      autoplay: true
+    });
+    slider.init();
   });
 </script>
 ```
-#### Responsive
+## Methods
 ```javascript
-tinySlider({
+var slider = tinySlider(...);
+
+slider.init();
+slider.destory();
+slider.getIndex();
+```
+## Options
+Default:
+```javascript
+{
   container: document.querySelector('.slider'),
+  mode: 'carousel',
+  direction: 'horizontal',
   items: 1,
-  responsive: {
-    500: 2,
-    800: 3,
-  }
-});
-```
-
-#### Fixed width items
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  fixedWidth: 200,
-  maxContainerWidth: 900
-});
-```
-
-#### Non-loop
-Loop is `true` by default.
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  loop: false
-});
-```
-#### Customize
-```html
-<div class="slider">
-</div>
-
-<!-- customized nav & dots -->
-<div class="slider-nav">
-  <div></div>
-  <div></div>
-</div>
-<div class="thumbnails">
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
-</div>
-```
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  navContainer: document.querySelector('.slider-nav'),
-  dotsContainer: document.querySelector('.thumbnails')
-});
-```
-
-#### Lazyload
-Add a placeholder image to the image `src` attribute, save the real image sourse in the `data-src` attribute, then add class `tiny-lazy`. 
-```html
-<div class="slider">
-  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
-  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
-  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
-  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
-  <div><img src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="path/to/img.jpg" alt="" class="tiny-lazy" width="300" height="300"></div>
-</div>
-```
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  lazyload: true
-});
-```
-
-#### Slide by page
-Default setting is slide by item.
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  slideByPage: true
-});
-```
-
-#### Autoplay
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  autoplay: true,
+  gutter: 0,
+  gutterPosition: 'right',
+  edgePadding: 0,
+  fixedWidth: false,
+  // maxContainerWidth: false,
+  slideByPage: false,
+  slideBy: 1,
+  controls: true,
+  controlsText: ['prev', 'next'],
+  controlsContainer: false,
+  nav: true,
+  navContainer: false,
+  arrowKeys: false,
+  speed: 250,
+  autoplay: false,
+  autoplayTimeout: 5000,
   autoplayDirection: 'forward',
-  speed: 300,
-  autoplayTimeout: 3000
-});
+  autoplayText: ['start', 'stop'],
+  loop: true,
+  autoHeight: false,
+  responsive: false,
+  lazyload: false,
+  touch: true,
+  rewind: false
+}
 ```
+**Note:** `maxContainerWidth` has been removed. `slideByPage` will be removed from version 1.
 
-#### Arrow keys
-Run slider by pressing left or right arrow key.
-```javascript
-tinySlider({
-  container: document.querySelector('.slider'),
-  items: 3,
-  arrowKeys: true
-});
-```
+#### Padding
+<del>There is no option for `padding`, but you can add it by css </del>
+Now you can set the gutter using `gutter` option.
 
-#### * Padding
-There is no option for `padding`, but you can add it by css 
-```css
-.tiny-slider { margin-right: -10px; }
-.your-slider > div { padding-right: 10px; }
-``` 
-
-#### * Non-javascirpt fallback
+#### Fallback
 ```css
 .no-js .your-slider { 
   overflow-x: auto; 
@@ -212,4 +142,11 @@ There is no option for `padding`, but you can add it by css
 ```
 
 ## Todo
+- vertical slider
 
+
+## Browser Support
+Tested on IE8+ and mordern browsers.
+
+## License
+This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  

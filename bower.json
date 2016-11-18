@@ -1,14 +1,14 @@
 {
   "name": "tiny-slider",
-  "version": "0.3.2",
+  "version": "0.6.6",
   "homepage": "https://github.com/ganlanyuan/tiny-slider",
   "authors": [
     "WilliamLin <ganlanyuan@gmail.com>"
   ],
-  "description": "Pure tiny javascript slider for all purposes.",
+  "description": "Tiny slider for all purposes.",
   "main": [
-    "src/css/tiny-slider.css",
-    "src/js/tiny-slider.min.js"
+    "dist/tiny-slider.css",
+    "dist/tiny-slider.js"
   ],
   "moduleType": [],
   "keywords": [
@@ -21,6 +21,13 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
-  ]
+    "tests",
+    ".env",
+    "docker-compose.yml",
+    "gulpfile.js"
+  ],
+  "devDependencies": {
+    "go-native": "0.x"
+  },
+  "dependencies": {}
 }
