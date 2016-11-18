@@ -155,8 +155,8 @@ var tt = (function () {
           items: 3,
           mode: 'gallery',
           arrowKeys: true,
-          animateIn: 'fadeInDown',
-          animateOut: 'fadeOutDown',
+          animateIn: 'jello',
+          animateOut: 'rollOut',
           animateDelay: speed * 3,
         } 
       };

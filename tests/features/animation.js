@@ -24,9 +24,9 @@ test('animation: init, resize', async t => {
   const slide0 = await container.getChildElement(0);
   var slide2 = await container.getChildElement(2);
   const slide3 = await container.getChildElement(3);
-  expect(slide0.hasClass('fadeInDown')).to.be.true;
-  expect(slide2.hasClass('fadeInDown')).to.be.true;
-  expect(slide3.hasClass('fadeInDown')).to.be.false;
+  expect(slide0.hasClass('jello')).to.be.true;
+  expect(slide2.hasClass('jello')).to.be.true;
+  expect(slide3.hasClass('jello')).to.be.false;
   expect(Math.round(slide0.boundingClientRect.left)).to.equal(0);
   expect(Math.round(slide2.boundingClientRect.right)).to.equal(innerWidth);
 
@@ -50,14 +50,14 @@ test('animation: controls click', async t => {
 
   for (let i = 0; i < 3; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.false;
-    expect(slide.hasClass('fadeOutDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1) / 3));
   }
 
   for (let i = 3; i < 6; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 3) / 3));
   }
 
@@ -66,7 +66,7 @@ test('animation: controls click', async t => {
 
   for (let i = 0; i < 3; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeOutDown')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.false;
     expect(Math.round(slide.boundingClientRect.left)).to.equal(0);
   }
 
@@ -76,14 +76,14 @@ test('animation: controls click', async t => {
 
   for (let i = 3; i < 6; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.false;
-    expect(slide.hasClass('fadeOutDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 3) / 3));
   }
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 6) / 3));
   }
 
@@ -92,7 +92,7 @@ test('animation: controls click', async t => {
 
   for (let i = 3; i < 6; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeOutDown')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.false;
     expect(Math.round(slide.boundingClientRect.left)).to.equal(0);
   }
 
@@ -102,14 +102,14 @@ test('animation: controls click', async t => {
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.false;
-    expect(slide.hasClass('fadeOutDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 6) / 3));
   }
 
   for (let i = 9; i < 12; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 9) / 3));
   }
 
@@ -118,7 +118,7 @@ test('animation: controls click', async t => {
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeOutDown')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.false;
     expect(Math.round(slide.boundingClientRect.left)).to.equal(0);
   }
 
@@ -128,14 +128,14 @@ test('animation: controls click', async t => {
 
   for (let i = 9; i < 12; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.false;
-    expect(slide.hasClass('fadeOutDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 9) / 3));
   }
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 6) / 3));
   }
 
@@ -144,7 +144,7 @@ test('animation: controls click', async t => {
 
   for (let i = 9; i < 12; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeOutDown')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.false;
     expect(Math.round(slide.boundingClientRect.left)).to.equal(0);
   }
 
@@ -154,14 +154,14 @@ test('animation: controls click', async t => {
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.false;
-    expect(slide.hasClass('fadeOutDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 6) / 3));
   }
 
   for (let i = 3; i < 6; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 3) / 3));
   }
 
@@ -170,7 +170,7 @@ test('animation: controls click', async t => {
 
   for (let i = 6; i < 9; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeOutDown')).to.be.false;
+    expect(slide.hasClass('rollOut')).to.be.false;
     expect(Math.round(slide.boundingClientRect.left)).to.equal(0);
   }
 
@@ -181,7 +181,7 @@ test('animation: controls click', async t => {
 
   for (let i = 3; i < 6; i++) {
     let slide = await Selector('#animation > div', { index: i })();
-    expect(slide.hasClass('fadeInDown')).to.be.true;
+    expect(slide.hasClass('jello')).to.be.true;
     expect(Math.round(slide.boundingClientRect.right)).to.equal(Math.round(innerWidth * (i + 1 - 3) / 3));
   }
 
