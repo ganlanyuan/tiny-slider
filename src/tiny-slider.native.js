@@ -683,7 +683,31 @@ var tinySlider = (function () {
       } else {
         return function (distance) {
           var x = distance || -slideWidth * index;
-          slideContainer.style.left = x + 'px';
+          var animationInterval = 20;
+          var transitionSpeed = speed || options.speed;
+          var currPos = parseInt(slideContainer.style.left && slideContainer.style.left.replace('px', '') || 0);
+          var posDiff = x - currPos;
+          var posInc = posDiff / transitionSpeed * animationInterval;
+          var updatePos = currPos;
+          var inter = null;
+          var nextDir = posDiff < 0;
+
+          inter = setInterval(function animSlide() {
+            updatePos = parseFloat(updatePos + posInc);
+            slideContainer.style.left = parseInt(updatePos) + 'px';
+            if ((nextDir && updatePos <= x) || (!nextDir && updatePos >= x)) {
+              clearInterval(inter);
+            }
+          }, animationInterval);
+
+          setTimeout(function stopSlideAnim() {
+            if (inter) {// safe exit
+              clearInterval(inter);
+            }
+            if (updatePos !== x) {// jump to last step if not reached yet (setInterval not 100%  accurate)
+              slideContainer.style.left = x + 'px';
+            }
+          }, transitionSpeed);
         };
       }
     })();
