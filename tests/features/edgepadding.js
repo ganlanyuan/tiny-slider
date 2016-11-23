@@ -7,7 +7,8 @@ fixture `gutter`
   .page(address);
 
 test('gutter: ', async t => {
-  await t.resizeWindow(windowWidthes[1], windowHeight);
+  await t
+    .resizeWindow(windowWidthes[1] + 20, windowHeight);
 
   var container = await select('#gutter');
   const innerWidth = await getWindowInnerWidth();
@@ -26,7 +27,7 @@ fixture `edgePadding`
   .page(address);
 
 test('edgePadding: ', async t => {
-  await t.resizeWindow(windowWidthes[2], windowHeight);
+  await t.resizeWindow(windowWidthes[2] + 100, windowHeight);
 
   var container = await select('#edgePadding');
   var innerWidth = await getWindowInnerWidth();
@@ -37,7 +38,7 @@ test('edgePadding: ', async t => {
   expect(Math.round(slide10.boundingClientRect.left)).to.equal(edgePadding);
   expect(Math.round(slide12.boundingClientRect.right)).to.equal(innerWidth - edgePadding);
 
-  await t.resizeWindow(windowWidthes[1], windowHeight);
+  await t.resizeWindow(windowWidthes[1] + 100, windowHeight);
     
   // get the children again to clean the cache
   var innerWidth = await getWindowInnerWidth();
@@ -52,7 +53,7 @@ fixture `edgePaddingGutter`
   .page(address);
 
 test('edgePaddingGutter: ', async t => {
-  await t.resizeWindow(windowWidthes[0], windowHeight);
+  await t.resizeWindow(windowWidthes[0] + 110, windowHeight);
 
   var container = await select('#edgePaddingGutter');
   var innerWidth = await getWindowInnerWidth();
@@ -64,7 +65,7 @@ test('edgePaddingGutter: ', async t => {
   expect(Math.round(slide12.boundingClientRect.right)).to.equal(innerWidth - edgePadding - gutter);
 
   await t
-    .resizeWindow(windowWidthes[2], windowHeight);
+    .resizeWindow(windowWidthes[2] + 110, windowHeight);
     
   // get the children again to clean the cache
   var innerWidth = await getWindowInnerWidth();

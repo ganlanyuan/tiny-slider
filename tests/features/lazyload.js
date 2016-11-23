@@ -7,7 +7,8 @@ fixture `lazyload`
   .page(address);
 
 test('lazyload: init', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   for (var i = 9; i < 13; i++) {
     var img = await Selector('#lazyload img', { index: i })();

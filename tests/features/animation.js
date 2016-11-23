@@ -7,7 +7,7 @@ fixture `animation`
   .page(address);
 
 test('animation: init, resize', async t => {
-  await t;
+  await t.resizeWindow(windowWidthes[1], windowHeight);
 
   // check container
   var container = await select('#animation');
@@ -15,7 +15,6 @@ test('animation: init, resize', async t => {
   expect(container.attributes['data-tns-role']).to.equal('content');
   expect(container.attributes['data-tns-mode']).to.equal('gallery');
   expect(container.attributes['data-tns-axis']).to.equal('horizontal');
-  expect(container.attributes['data-tns-hidden']).to.equal('y');
   expect(parent.attributes['data-tns-role']).to.equal('content-wrapper');
 
   // check slide
@@ -31,7 +30,6 @@ test('animation: init, resize', async t => {
   expect(Math.round(slide2.boundingClientRect.right)).to.equal(innerWidth);
 
   await t
-    .resizeWindow(windowWidthes[0], windowHeight)
     .resizeWindow(windowWidthes[2], windowHeight);
 
   innerWidth = await getWindowInnerWidth();

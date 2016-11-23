@@ -7,7 +7,8 @@ fixture `autoHeight`
   .page(address);
 
 test('autoHeight: ', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   // check sliders position
   var container = await select('#autoHeight');

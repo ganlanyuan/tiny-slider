@@ -2,6 +2,7 @@
 ![version](https://img.shields.io/badge/Version-1.0.0-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).   
 [demo](http://creatiointl.org/william/tiny-slider/v1/demo/)   
+The previous version is still available in branch [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0), you may want to know how to [transfer from v0](transfer.md).
 
 ## Install
 `bower install tiny-slider` or `npm install tiny-slider`
@@ -17,9 +18,9 @@ Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlg
 - rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
 - slide by
 - customize controls / nav
+- lazyload
 - autoplay
 - auto height
-- lazyload
 - touch support
 - arrow keys
 - accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))

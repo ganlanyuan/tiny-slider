@@ -7,7 +7,8 @@ fixture `rewind`
   .page(address);
 
 test('rewind: init', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   // check the controls buttons
   const prevBtn = await select('.rewind_wrapper [data-controls="prev"]');

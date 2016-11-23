@@ -7,7 +7,8 @@ fixture `base`
   .page(address);
 
 test('base: init', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   var container = await select('#base');
   const parent = await container.getParentNode();

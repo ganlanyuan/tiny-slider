@@ -7,7 +7,8 @@ fixture `vertical`
   .page(address);
 
 test('vertical: init', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   var container = await select('#vertical');
   var parent = await container.getParentNode();

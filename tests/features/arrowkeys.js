@@ -7,7 +7,8 @@ fixture `arrowKeys`
   .page(address);
 
 test('arrowKeys: ', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   // check sliders position
   var innerWidth = await getWindowInnerWidth();

@@ -1,5 +1,16 @@
 # Changelog
 
+#### v1.0.0
+- Added: mode `gallery` which you can use customized animations.
+- Added: axis `vertical`.
+- Added: custom events.
+- Added: access to slider information.
+- Improved: using `transitionend` instead of `setTimeout`.
+- Improved: simplify functions.
+- Changed: API name from `tinySlider` to `tns`.
+- Removed: `init` function. The slider will be automatically initilized.
+And many fixes.
+
 #### v0.6.2
 - Fixed: a conditional statement issue in function `updateLayout`.
 - Improved: performance.

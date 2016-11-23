@@ -1,4 +1,15 @@
 # Examples
+#### Gallery
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    mode: 'gallery',
+    items: 1
+  });
+});
+```
+
 #### Responsive
 ```javascript
 gn.ready(function () {
@@ -23,6 +34,39 @@ gn.ready(function () {
 });
 ```
 
+#### vertical slider
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    axis: 'vertical',
+    items: 3,
+  });
+});
+```
+
+#### vertical slider
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    gutter: 10,
+    items: 3,
+  });
+});
+```
+
+#### edge padding
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    edgePadding: 50,
+    items: 3,
+  });
+});
+```
+
 #### Non-loop
 Loop is `true` by default.
 ```javascript
@@ -34,6 +78,29 @@ gn.ready(function () {
   });
 });
 ```
+
+#### rewind
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    rewind: true,
+    items: 3,
+  });
+});
+```
+
+#### slide by
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    slideBy: 0.5,
+    items: 3,
+  });
+});
+```
+
 #### Customize
 ```html
 <div class="slider">
@@ -85,18 +152,6 @@ gn.ready(function () {
 });
 ```
 
-#### Slide by page
-Default setting is slide by item.
-```javascript
-gn.ready(function () {
-  tns({
-    container: document.querySelector('.slider'),
-    items: 3,
-    slideBy: 'page'
-  });
-});
-```
-
 #### Autoplay
 ```javascript
 gn.ready(function () {
@@ -111,16 +166,6 @@ gn.ready(function () {
 });
 ```
 
-#### Arrow keys
-Run slider by pressing left or right arrow key.
-```javascript
-tns({
-  container: document.querySelector('.slider'),
-  items: 3,
-  arrowKeys: true
-});
-```
-
 #### Auto height
 ```javascript
 gn.ready(function () {
@@ -131,3 +176,14 @@ gn.ready(function () {
   });
 });
 ```
+
+#### Arrow keys
+Run slider by pressing left or right arrow key.
+```javascript
+tns({
+  container: document.querySelector('.slider'),
+  items: 3,
+  arrowKeys: true
+});
+```
+

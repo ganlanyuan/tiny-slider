@@ -7,7 +7,8 @@ fixture `customize`
   .page(address);
 
 test('customize: init', async t => {
-  await t;
+  await t
+    .resizeWindow(windowWidthes[1], windowHeight);
 
   // check autoplay button
   var autoplayButton = await select('.playbutton-wrapper > button');

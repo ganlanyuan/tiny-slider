@@ -11,6 +11,7 @@ test('autoplay: run', async t => {
   // 1. stop, reset and start again
   // 2. wait for 1 slide time
   await t
+    .resizeWindow(windowWidthes[1], windowHeight)
     .click('.autoplay_wrapper [data-action]')
     .click('.autoplay_wrapper [data-nav="0"]')
     .click('.autoplay_wrapper [data-action]')

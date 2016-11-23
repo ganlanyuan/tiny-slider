@@ -8,7 +8,7 @@ fixture `responsive`
 
 test('responsive: breakpoints', async t => {
   await t
-    .resizeWindow(1000, windowHeight);
+    .resizeWindow(900, windowHeight);
 
   // check sliders position
   var innerWidth = await getWindowInnerWidth();
@@ -19,7 +19,7 @@ test('responsive: breakpoints', async t => {
   expect(Math.round(slide12.boundingClientRect.right)).to.equal(innerWidth);
   
   await t
-    .resizeWindow(899, windowHeight);
+    .resizeWindow(720, windowHeight);
 
   innerWidth = await getWindowInnerWidth();
   slide10 = await container.getChildElement(10);
@@ -28,7 +28,7 @@ test('responsive: breakpoints', async t => {
   expect(Math.round(slide11.boundingClientRect.right)).to.equal(innerWidth);
 
   await t
-    .resizeWindow(599, windowHeight);
+    .resizeWindow(540, windowHeight);
 
   innerWidth = await getWindowInnerWidth();
   slide10 = await container.getChildElement(10);
@@ -36,7 +36,7 @@ test('responsive: breakpoints', async t => {
   expect(Math.round(slide10.boundingClientRect.right)).to.equal(innerWidth);
 
   await t
-    .resizeWindow(910, windowHeight);
+    .resizeWindow(930, windowHeight);
 
   innerWidth = await getWindowInnerWidth();
   slide10 = await container.getChildElement(10);

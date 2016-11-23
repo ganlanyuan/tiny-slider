@@ -71,7 +71,7 @@ var tt = (function () {
         'slideByPage': {
           container: '',
           speed: speed,
-          items: 4,
+          items: 3,
           slideBy: 'page',
         }, 
         'fixedWidth': {
