@@ -393,7 +393,7 @@ var tns = (function () {
         } else {
           gn.append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
-          controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
+          controlsContainer = contentWrapper.nextElementSibling;
           prevButton = controlsContainer.children[0];
           nextButton = controlsContainer.children[1];
         }
@@ -421,7 +421,7 @@ var tns = (function () {
           navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
           gn.append(wrapper, navHtml);
 
-          navContainer = wrapper.querySelector('[data-tns-role="nav"]');
+          navContainer = controlsContainer.nextElementSibling;
           navItems = navContainer.children;
 
           // hide navs
@@ -1110,6 +1110,7 @@ var tns = (function () {
     }
 
     function onTouchStart(e) {
+      e.stopPropagation();
       var touchObj = e.changedTouches[0];
       startX = parseInt(touchObj.clientX);
       startY = parseInt(touchObj.clientY);
@@ -1118,6 +1119,7 @@ var tns = (function () {
     }
 
     function onTouchMove(e) {
+      e.stopPropagation();
       var touchObj = e.changedTouches[0];
       disX = parseInt(touchObj.clientX) - startX;
       disY = parseInt(touchObj.clientY) - startY;
@@ -1135,6 +1137,7 @@ var tns = (function () {
     }
 
     function onTouchEnd(e) {
+      e.stopPropagation();
       var touchObj = e.changedTouches[0];
       disX = parseInt(touchObj.clientX) - startX;
       disY = parseInt(touchObj.clientY) - startY;
