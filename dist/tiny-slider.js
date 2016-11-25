@@ -1835,10 +1835,8 @@ var tns = (function () {
           } 
 
           if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
-          if (index !== indexTem || items !== itemsTem || mode === 'gallery') { 
-            runAutoHeight(); 
-            lazyLoad();
-          }
+          if (autoHeight) { runAutoHeight(); }
+          if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
 
           if (navigator.msMaxTouchPoints) { setSnapInterval(); }
         }
