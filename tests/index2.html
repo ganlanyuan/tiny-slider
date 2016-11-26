@@ -17,10 +17,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .img { padding: 8% 0; }
+  </style>
 </head>
 <body>
 <div class="container">
-  <h2>Title</h2>
   <div class="outer">
     <div class="item">
       <div class="img img-1">1</div>
@@ -73,14 +75,16 @@
 <script>
 gn.ready(function () {
   tns({
-    container: document.querySelector('.inner'),
-    items: 3,
-  });
-  tns({
     container: document.querySelector('.outer'),
     items: 1,
     loop: false,
     autoHeight: true,
+    nested: 'outer'
+  });
+  tns({
+    container: document.querySelector('.inner'),
+    items: 3,
+    nested: 'inner'
   });
 });
 </script>

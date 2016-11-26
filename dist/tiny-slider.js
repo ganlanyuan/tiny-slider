@@ -657,7 +657,8 @@ var tns = (function () {
       responsive: false,
       lazyload: false,
       touch: true,
-      rewind: false
+      rewind: false,
+      nested: false
     }, options || {});
 
     // make sure slide container exists
@@ -678,6 +679,7 @@ var tns = (function () {
         slideCount = slideItems.length,
         items = options.items,
         slideBy = getSlideBy(),
+        nested = options.nested,
         gutter = options.gutter,
         edgePadding = (mode === 'gallery') ? false : options.edgePadding,
         fixedWidth = options.fixedWidth,
@@ -1098,10 +1100,20 @@ var tns = (function () {
       if (arrowKeys) {
         addEvents(document, ['keydown', onKeydownDocument]);
       }
-      addEvents(window, [
-        ['resize', onResize],
-        ['scroll', onScroll]
-      ]);
+
+      if (nested === 'inner') {
+        events.on('outerResized', function () {
+          resizeTasks();
+          events.emit('innerLoaded', info());
+        });
+      } else {
+        addEvents(window, ['resize', onResize]);
+        if (nested === 'outer') {
+          events.on('innerLoaded', runAutoHeight);
+        }
+      }
+
+      addEvents(window, ['scroll', onScroll]);
     }
 
     // lazyload
@@ -1127,22 +1139,20 @@ var tns = (function () {
     // check if all visible images are loaded
     // and update container height if it's done
     function runAutoHeight() {
-      if (autoHeight) {
-        // get all images inside visible slide items
-        var images = [];
+      // get all images inside visible slide items
+      var images = [];
 
-        for (var i = index; i < index + items; i++) {
-          var imagesTem = slideItems[i].querySelectorAll('img');
-          for (var j = imagesTem.length; j--;) {
-            images.push(imagesTem[j]);
-          }
+      for (var i = index; i < index + items; i++) {
+        var imagesTem = slideItems[i].querySelectorAll('img');
+        for (var j = imagesTem.length; j--;) {
+          images.push(imagesTem[j]);
         }
+      }
 
-        if (images.length === 0) {
-          updateContainerHeight(); 
-        } else {
-          checkImagesLoaded(images);
-        }
+      if (images.length === 0) {
+        updateContainerHeight(); 
+      } else {
+        checkImagesLoaded(images);
       }
     }
 
@@ -1184,8 +1194,12 @@ var tns = (function () {
       checkSlideCount(); // (items) => nav, controls, autoplay
 
       lazyLoad();
-      runAutoHeight();
+      if (autoHeight && !nested) { runAutoHeight(); }
+
       events.emit('initialized', info());
+      if (nested === 'inner') { 
+        events.emit('innerLoaded', info()); 
+      }
     }
     sliderInit();
 
@@ -1510,8 +1524,11 @@ var tns = (function () {
         updateNavStatus();
         updateControlsStatus();
         lazyLoad();
-        runAutoHeight();
+        if (autoHeight) { runAutoHeight(); }
 
+        if (nested === 'inner') { 
+          events.emit('innerLoaded', info()); 
+        } 
         if (TRANSITIONEND) { removeAttrs(container, 'aria-busy'); }
         updateIndexCache();
       }
@@ -1801,47 +1818,52 @@ var tns = (function () {
       };
     }
 
-    function onResize() {
+    function resizeTasks() {
+      var indexTem = index,
+          itemsTem = items;
+      getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
+      checkSlideCount(); // (items) => nav, controls, autoplay
+      checkIndex(); // (slideBy, indexMin, indexMax) => index
+
+      if (axis === 'horizontal') {
+        if (fixedWidth && edgePadding) {
+          updateFixedWidthEdgePadding(); // (vw) => fixedWidth_contentWrapper.edgePadding
+        } else {
+          updateSlideWidth(); // (slideWidth) => container.width, slide.width
+          if (mode === 'gallery') {
+            updateSlidePosition(); // (slideWidth, index, items) => gallery_visible_slide.left
+          }
+        }
+      } else {
+        getSlideTopEdges(); // (init) => slideTopEdges
+        updateWrapperHeight(); // (slideTopEdges, index, items) => vertical_conentWrapper.height
+      }
+
+      if (index !== indexTem) { 
+        events.emit('indexChanged', info());
+        updateSlideStatus();
+        if (!loop) { updateControlsStatus(); }
+      }
+
+      // (navCountVisible) => nav.[hidden]
+      if (items !== itemsTem && !options.navContainer) { 
+        updateNavDisplay(); 
+        updateNavStatus();
+      } 
+
+      if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
+      if (autoHeight && !nested) { runAutoHeight(); }
+      if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
+
+      if (navigator.msMaxTouchPoints) { setSnapInterval(); }
+    }
+
+    function onResize(e) {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (vw !== getViewWidth()) {
-          var indexTem = index,
-              itemsTem = items;
-          getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
-          checkSlideCount(); // (items) => nav, controls, autoplay
-          checkIndex(); // (slideBy, indexMin, indexMax) => index
-
-          if (axis === 'horizontal') {
-            if (fixedWidth && edgePadding) {
-              updateFixedWidthEdgePadding(); // (vw) => fixedWidth_contentWrapper.edgePadding
-            } else {
-              updateSlideWidth(); // (slideWidth) => container.width, slide.width
-              if (mode === 'gallery') {
-                updateSlidePosition(); // (slideWidth, index, items) => gallery_visible_slide.left
-              }
-            }
-          } else {
-            getSlideTopEdges(); // (init) => slideTopEdges
-            updateWrapperHeight(); // (slideTopEdges, index, items) => vertical_conentWrapper.height
-          }
-
-          if (index !== indexTem) { 
-            events.emit('indexChanged', info());
-            updateSlideStatus();
-            if (!loop) { updateControlsStatus(); }
-          }
-
-          // (navCountVisible) => nav.[hidden]
-          if (items !== itemsTem && !options.navContainer) { 
-            updateNavDisplay(); 
-            updateNavStatus();
-          } 
-
-          if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
-          if (autoHeight) { runAutoHeight(); }
-          if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
-
-          if (navigator.msMaxTouchPoints) { setSnapInterval(); }
+          resizeTasks();
+          if (nested === 'outer') { events.emit('outerResized', info(e)); }
         }
       }, 100); // update after stop resizing for 100 ms
     }
