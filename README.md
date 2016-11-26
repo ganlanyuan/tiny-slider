@@ -25,6 +25,7 @@ The previous version is still available in branch [v0](https://github.com/ganlan
 - arrow keys
 - accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 - custom events
+- nested slider
 
 ## Usage
 ##### 1. Include tiny-slider
@@ -108,7 +109,8 @@ Default:
   responsive: false,
   lazyload: false,
   touch: true,
-  rewind: false
+  rewind: false,
+  nested: false
 }
 ```
 ## Get slider information
