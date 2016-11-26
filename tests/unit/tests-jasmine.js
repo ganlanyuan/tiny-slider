@@ -4,13 +4,13 @@ var doc = document,
 var tests = (function () {
   function createSlider() {
     var slider = document.createElement('div');
-    slider.className = 'slider';
+    slider.className = 'node-test';
     body.appendChild(slider);
     return slider;
   }
 
   function getSliderObject() {
-    return tinySlider();
+    return tns({container: doc.querySelector('.slider')});
   }
 
   function createList() {
@@ -43,7 +43,7 @@ describe('hasAttr:', function () {
 // # getAttr
 describe('getAttr:', function () {
   it('get an element attribute', function () {
-    expect(so.getAttr(slider, 'class')).toBe('slider');
+    expect(so.getAttr(slider, 'class')).toBe('node-test');
     expect(so.getAttr(slider, 'id')).toBe(null);
   });
 });
@@ -168,11 +168,11 @@ list.addEventListener('click', clickTwice);
 list.addEventListener('keydown', keydownEvent);
 listItems[0].addEventListener('click', clickOnce);
 listItems[1].addEventListener('keydown', keydownEvent);
-so.removeEvents(list);
+so.removeEventsByClone(list);
 var newList = doc.querySelector('.setAttrs_removeAttrs');
 
-// # removeEvents
-describe('removeEvents:', function () {
+// # removeEventsByClone
+describe('removeEventsByClone:', function () {
   it('remove event listeners on one element', function () {
     expect(newList.getEventListeners().length).toBe(0);
   });
@@ -182,14 +182,14 @@ describe('removeEvents:', function () {
   });
 });
 
-// # getSliderId
-describe('getSliderId: ', function () {
+// # getSlideId
+describe('getSlideId: ', function () {
   it('get a unit id for each slider on the page', function () {
-    expect(so.getSliderId()).toBe('tinySlider1');
-    expect(so.getSliderId()).toBe('tinySlider2');
-    expect(so.getSliderId()).toBe('tinySlider3');
-    expect(so.getSliderId()).toBe('tinySlider4');
-    expect(so.getSliderId()).toBe('tinySlider5');
+    expect(so.getSlideId()).toBe('tns2');
+    expect(so.getSlideId()).toBe('tns3');
+    expect(so.getSlideId()).toBe('tns4');
+    expect(so.getSlideId()).toBe('tns5');
+    expect(so.getSlideId()).toBe('tns6');
   });
 });
 
@@ -205,20 +205,20 @@ describe('toDegree: ', function () {
   });
 });
 
-// # getPanDirection
-describe('getPanDirection: ', function () {
+// # getTouchDirection
+describe('getTouchDirection: ', function () {
   it('check if the given angle is inside a range', function () {
-    expect(so.getPanDirection(15, 15)).toBe('horizontal');
-    expect(so.getPanDirection(-15, 15)).toBe('horizontal');
-    expect(so.getPanDirection(-165, 15)).toBe('horizontal');
-    expect(so.getPanDirection(165, 15)).toBe('horizontal');
-    expect(so.getPanDirection(75, 15)).toBe('vertical');
-    expect(so.getPanDirection(105, 15)).toBe('vertical');
-    expect(so.getPanDirection(-75, 15)).toBe('vertical');
-    expect(so.getPanDirection(-105, 15)).toBe('vertical');
-    expect(so.getPanDirection(30, 15)).toBe(false);
-    expect(so.getPanDirection(60, 15)).toBe(false);
-    expect(so.getPanDirection(135, 15)).toBe(false);
+    expect(so.getTouchDirection(15, 15)).toBe('horizontal');
+    expect(so.getTouchDirection(-15, 15)).toBe('horizontal');
+    expect(so.getTouchDirection(-165, 15)).toBe('horizontal');
+    expect(so.getTouchDirection(165, 15)).toBe('horizontal');
+    expect(so.getTouchDirection(75, 15)).toBe('vertical');
+    expect(so.getTouchDirection(105, 15)).toBe('vertical');
+    expect(so.getTouchDirection(-75, 15)).toBe('vertical');
+    expect(so.getTouchDirection(-105, 15)).toBe('vertical');
+    expect(so.getTouchDirection(30, 15)).toBe(false);
+    expect(so.getTouchDirection(60, 15)).toBe(false);
+    expect(so.getTouchDirection(135, 15)).toBe(false);
   })
 })
 
