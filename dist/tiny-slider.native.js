@@ -122,12 +122,19 @@ var tns = (function () {
         lazyload = options.lazyload,
         slideId = container.id || getSlideId(),
         slideWidth = (fixedWidth)? fixedWidth + gutter : 0,
-        slideTopEdges, // collection of slide top edges
+        slideEdges, // collection of slide edges
         slideItemsOut = [],
         cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
         slideCountNew = (mode === 'gallery') ? slideCount + cloneCount : slideCount + cloneCount * 2,
         hasRightDeadZone = (fixedWidth && !loop && !edgePadding)? true : false,
         checkIndexBeforeTransform = (mode === 'gallery' || !loop)? true : false,
+        // transform
+        transformDir = (axis === 'horizontal')? 'X' : 'Y',
+        transformAttrLegacy = (axis === 'horizontal')? 'left' : 'top', 
+        transformAttr = transformAttrLegacy,
+        transformType = 'translate',
+        transformPrefix = '',
+        transformPostfix = '',
         // controls
         controls = options.controls,
         controlsText = options.controlsText,
@@ -177,6 +184,12 @@ var tns = (function () {
         // resize and scroll
         resizeTimer,
         ticking = false;
+
+    if (TRANSFORM) {
+      transformAttr = TRANSFORM;
+      transformPrefix = transformType + transformDir + '(';
+      transformPostfix = ')';
+    }
 
     // === COMMON FUNCTIONS === //
     function getSlideBy () {
@@ -284,7 +297,6 @@ var tns = (function () {
     function containerInit() {
       // add id
       if (container.id === '') { container.id = slideId; }
-
       // add attributes
       setAttrs(container, {
         'data-tns-role': 'content', 
@@ -292,39 +304,16 @@ var tns = (function () {
         'data-tns-axis': axis
       });
 
+      if (axis === 'horizontal') {
+        container.style.width = (slideWidth + 1) * slideCountNew + 'px';
+      }
+    }
+
+    function containerInitStyle() {
       // init width & transform
       if (mode === 'carousel') {
         if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
-        // modern browsers will use 'transform: translateX(Y)'
-        // legacy browsers will use 'left | top' 
-        var attr = TRANSFORM,
-            attrLegacy = 'left',
-            tran = 'translate',
-            prefix = '',
-            postfix = '', 
-            dir = 'X',
-            distance;
-
-        if (axis === 'horizontal') {
-          // init container width
-          var width = (slideWidth + 1) * slideCountNew + 'px';
-          container.style.width = width;
-
-          distance = -index * slideWidth;
-        } else {
-          distance = -slideTopEdges[index];
-          dir = 'Y';
-          attrLegacy = 'top';
-        }
-
-        if (TRANSFORM) {
-          prefix = tran + dir + '(';
-          postfix = ')';
-        } else {
-          attr = attrLegacy;
-        }
-
-        container.style[attr] = prefix + Math.round(distance) + 'px' + postfix;
+        container.style[transformAttr] = transformPrefix + Math.round(-slideEdges[index]) + 'px' + transformPostfix;
       }
     }
 
@@ -348,7 +337,6 @@ var tns = (function () {
 
         // add aria-hidden attribute
         setAttrs(item, {'aria-hidden': 'true'});
-        if (TRANSITIONDURATION) { setDurations(1, item); }
 
         // set slide width & gutter
         var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
@@ -546,26 +534,22 @@ var tns = (function () {
           events.on('innerLoaded', runAutoHeight);
         }
       }
-
-      addEvents(window, ['scroll', onScroll]);
     }
 
     // lazyload
     function lazyLoad() {
-      if (lazyload && gn.isInViewport(container)) {
-        var arr = [];
-        for(var i = index - 1; i < index + items + 1; i++) {
-          var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
-          for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
-          arr.unshift();
-        }
+      var arr = [];
+      for(var i = index - 1; i < index + items + 1; i++) {
+        var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
+        for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
+        arr.unshift();
+      }
 
-        for (var h = arr.length; h--;) {
-          var img = arr[h];
-          if (!img.classList.contains('loaded')) {
-            img.src = getAttr(img, 'data-src');
-            img.classList.add('loaded');
-          }
+      for (var h = arr.length; h--;) {
+        var img = arr[h];
+        if (!img.classList.contains('loaded')) {
+          img.src = getAttr(img, 'data-src');
+          img.classList.add('loaded');
         }
       }
     }
@@ -612,12 +596,13 @@ var tns = (function () {
       gn.wrap(container, contentWrapper);
       gn.wrap(contentWrapper, wrapper);
 
-      getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
+      getVariables();
+      containerInit();
       slideItemsInit();
-      if (axis === 'vertical') { getSlideTopEdges(); } // (init) => slideTopEdges
+      getSlideEdges();
 
       wrapperInit();
-      containerInit();
+      containerInitStyle();
       msInit();
       controlsInit();
       navInit();
@@ -625,9 +610,9 @@ var tns = (function () {
 
       activateSlider();
       addSliderEvents();
-      checkSlideCount(); // (items) => nav, controls, autoplay
+      checkSlideCount();
 
-      lazyLoad();
+      if (lazyload) { lazyLoad(); }
       if (autoHeight && !nested) { runAutoHeight(); }
 
       events.emit('initialized', info());
@@ -661,20 +646,20 @@ var tns = (function () {
     }
 
     // get the distance from the top edge of the first slide to each slide
-    // (init) => slideTopEdges
-    function getSlideTopEdges() {
-      slideTopEdges = [0];
-      var topFirst = slideItems[0].getBoundingClientRect().top, top;
+    // (init) => slideEdges
+    function getSlideEdges() {
+      slideEdges = [0];
+      var topFirst = slideItems[0].getBoundingClientRect()[transformAttrLegacy], attr;
       for (var i = 1; i < slideCountNew; i++) {
-        top = slideItems[i].getBoundingClientRect().top;
-        slideTopEdges.push(top - topFirst);
+        attr = slideItems[i].getBoundingClientRect()[transformAttrLegacy];
+        slideEdges.push(attr - topFirst);
       }
     }
 
     // get wrapper height
-    // (slideTopEdges, index, items) => vertical_conentWrapper.height
+    // (slideEdges, index, items) => vertical_conentWrapper.height
     function getVerticalWrapperHeight() {
-      return slideTopEdges[index + items] - slideTopEdges[index];
+      return slideEdges[index + items] - slideEdges[index];
     }
 
     // set snapInterval (for IE10)
@@ -804,37 +789,13 @@ var tns = (function () {
     var transformCore = (function () {
       if (mode === 'carousel') {
         return function (distance) {
-          // if distance is not given, calculate the distance use index
-          if (!distance) {
-            distance = (axis === 'horizontal') ? -slideWidth * index : -slideTopEdges[index];
-          }
+          if (!distance) { distance = -slideEdges[index]; }
           // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
           if (hasRightDeadZone && index === indexMax) {
             distance = Math.max(distance, -slideCountNew * slideWidth + vw + gutter);
           }
 
-          // modern browsers will use 'transform: translateX(Y)'
-          // legacy browsers will use 'left | top' 
-          var attr = TRANSFORM,
-              attrLegacy = 'left',
-              tran = 'translate',
-              prefix = '',
-              postfix = '', 
-              dir = 'X';
-
-          if (axis === 'vertical') {
-            dir = 'Y';
-            attrLegacy = 'top';
-          }
-
-          if (TRANSFORM) {
-            prefix = tran + dir + '(';
-            postfix = ')';
-          } else {
-            attr = attrLegacy;
-          }
-
-          container.style[attr] = prefix + Math.round(distance) + 'px' + postfix;
+          container.style[transformAttr] = transformPrefix + Math.round(distance) + 'px' + transformPostfix;
 
           if (axis === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
         };
@@ -957,7 +918,7 @@ var tns = (function () {
         updateSlideStatus();
         updateNavStatus();
         updateControlsStatus();
-        lazyLoad();
+        if (lazyload) { lazyLoad(); }
         if (autoHeight) { runAutoHeight(); }
 
         if (nested === 'inner') { 
@@ -1175,14 +1136,14 @@ var tns = (function () {
           var moved = - (translateInit + disY);
           if (moved <= 0) {
             index = indexMin;
-          } else if (moved >= slideTopEdges[slideTopEdges.length - 1]) {
+          } else if (moved >= slideEdges[slideEdges.length - 1]) {
             index = indexMax;
           } else {
             var i = 0;
             do {
               i++;
               index = (disY < 0) ? i + 1 : i;
-            } while (i < slideCountNew && moved >= Math.round(slideTopEdges[i + 1]));
+            } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
           }
         }
 
@@ -1211,8 +1172,8 @@ var tns = (function () {
       contentWrapper.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
     }
 
-    // (slideTopEdges, index, items) => vertical_conentWrapper.height
-    function updateWrapperHeight() {
+    // (slideEdges, index, items) => vertical_conentWrapper.height
+    function updateContentWrapperHeight() {
       contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
     }
 
@@ -1255,22 +1216,24 @@ var tns = (function () {
     function resizeTasks() {
       var indexTem = index,
           itemsTem = items;
-      getVariables(); // vw => items => indexMax, slideWidth, navCountVisible, slideBy
-      checkSlideCount(); // (items) => nav, controls, autoplay
-      checkIndex(); // (slideBy, indexMin, indexMax) => index
+      getVariables();
+      checkSlideCount();
+      checkIndex();
 
       if (axis === 'horizontal') {
         if (fixedWidth && edgePadding) {
-          updateFixedWidthEdgePadding(); // (vw) => fixedWidth_contentWrapper.edgePadding
+          updateFixedWidthEdgePadding();
         } else {
-          updateSlideWidth(); // (slideWidth) => container.width, slide.width
+          updateSlideWidth();
+
           if (mode === 'gallery') {
-            updateSlidePosition(); // (slideWidth, index, items) => gallery_visible_slide.left
+            updateSlidePosition(); 
           }
         }
+        getSlideEdges();
       } else {
-        getSlideTopEdges(); // (init) => slideTopEdges
-        updateWrapperHeight(); // (slideTopEdges, index, items) => vertical_conentWrapper.height
+        getSlideEdges();
+        updateContentWrapperHeight();
       }
 
       if (index !== indexTem) { 
@@ -1279,13 +1242,12 @@ var tns = (function () {
         if (!loop) { updateControlsStatus(); }
       }
 
-      // (navCountVisible) => nav.[hidden]
       if (items !== itemsTem && !options.navContainer) { 
         updateNavDisplay(); 
         updateNavStatus();
       } 
 
-      if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(1); }
+      if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
       if (autoHeight && !nested) { runAutoHeight(); }
       if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
 
@@ -1300,16 +1262,6 @@ var tns = (function () {
           if (nested === 'outer') { setTimeout(function(){ events.emit('outerResized', info(e)); }, (TRANSITIONDURATION)? speed : 0); }
         }
       }, 100); // update after stop resizing for 100 ms
-    }
-
-    function onScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(function() {
-          lazyLoad();
-          ticking = false;
-        });
-      }
-      ticking = true;
     }
 
     return {
@@ -1381,10 +1333,7 @@ var tns = (function () {
         }
 
         // remove window event listeners
-        removeEvents(window, [
-          ['resize', onResize],
-          ['scroll', onScroll]
-        ]);
+        removeEvents(window, ['resize', onResize]);
       },
 
       // $ Private methods, for test only

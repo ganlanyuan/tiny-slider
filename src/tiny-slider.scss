@@ -15,11 +15,6 @@
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
-  > div {
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    transition: all 0.3s;
-  }
 }
 [data-tns-mode="carousel"][data-tns-axis="horizontal"] {
   left: 0;
