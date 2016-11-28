@@ -204,7 +204,8 @@ var tns = (function () {
     })();
 
     var getSlideWidth = function () {
-      return Math.round((vw + gutter) / items);
+      return (vw + gutter) / items;
+      // return Math.round((vw + gutter) / items);
     };
 
     var getVisibleNavCount = (function () {
@@ -323,7 +324,7 @@ var tns = (function () {
           attr = attrLegacy;
         }
 
-        container.style[attr] = prefix + distance + 'px' + postfix;
+        container.style[attr] = prefix + Math.round(distance) + 'px' + postfix;
       }
     }
 
@@ -347,6 +348,7 @@ var tns = (function () {
 
         // add aria-hidden attribute
         setAttrs(item, {'aria-hidden': 'true'});
+        if (TRANSITIONDURATION) { setDurations(1, item); }
 
         // set slide width & gutter
         var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
@@ -534,7 +536,9 @@ var tns = (function () {
       if (nested === 'inner') {
         events.on('outerResized', function () {
           resizeTasks();
-          events.emit('innerLoaded', info());
+          setTimeout(function () {
+            events.emit('innerLoaded', info());
+          }, (TRANSITIONDURATION)? speed : 0);
         });
       } else {
         addEvents(window, ['resize', onResize]);
@@ -830,7 +834,7 @@ var tns = (function () {
             attr = attrLegacy;
           }
 
-          container.style[attr] = prefix + distance + 'px' + postfix;
+          container.style[attr] = prefix + Math.round(distance) + 'px' + postfix;
 
           if (axis === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
         };
@@ -1281,7 +1285,7 @@ var tns = (function () {
         updateNavStatus();
       } 
 
-      if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
+      if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(1); }
       if (autoHeight && !nested) { runAutoHeight(); }
       if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
 
@@ -1293,7 +1297,7 @@ var tns = (function () {
       resizeTimer = setTimeout(function () {
         if (vw !== getViewWidth()) {
           resizeTasks();
-          if (nested === 'outer') { events.emit('outerResized', info(e)); }
+          if (nested === 'outer') { setTimeout(function(){ events.emit('outerResized', info(e)); }, (TRANSITIONDURATION)? speed : 0); }
         }
       }, 100); // update after stop resizing for 100 ms
     }
