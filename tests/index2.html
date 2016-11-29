@@ -75,16 +75,16 @@
 <script>
 gn.ready(function () {
   tns({
+    container: document.querySelector('.inner'),
+    items: 3,
+    nested: 'inner'
+  });
+  tns({
     container: document.querySelector('.outer'),
     items: 1,
     loop: false,
     autoHeight: true,
     nested: 'outer'
-  });
-  tns({
-    container: document.querySelector('.inner'),
-    items: 3,
-    nested: 'inner'
   });
 });
 </script>

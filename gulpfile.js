@@ -54,6 +54,7 @@ var config = {
       ], [
         "bower_components/go-native/src/es5/object/keys.js",
         "bower_components/go-native/src/es5/array/isArray.js",
+        "bower_components/go-native/src/es5/array/forEach.js",
         "bower_components/go-native/src/ie8/addEventListener.js",
         "bower_components/go-native/src/ie8/firstElementChild.js",
         "bower_components/go-native/src/ie8/lastElementChild.js",

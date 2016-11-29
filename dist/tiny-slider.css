@@ -31,6 +31,8 @@
   overflow: hidden; }
   [data-tns-mode="gallery"] > div, [data-tns-mode="gallery"] > li, [data-tns-mode="gallery"] > span, [data-tns-mode="gallery"] > a {
     position: absolute;
+    -webkit-transition: transform 0s, opacity 0s;
+    -moz-transition: transform 0s, opacity 0s;
     transition: transform 0s, opacity 0s; }
 
 [data-tns-role="nav"] button {
@@ -38,6 +40,7 @@
 
 [data-tns-role="lazy-img"] {
   -webkit-transition: opacity 0.6s;
+  -moz-transition: opacity 0.6s;
   transition: opacity 0.6s;
   opacity: 0.6; }
   [data-tns-role="lazy-img"].loaded {

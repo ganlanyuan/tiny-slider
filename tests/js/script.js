@@ -31,11 +31,13 @@ var tt = (function () {
       li = doc.createElement('li'),
       edgepadding = 50,
       gutter = 10,
+      // sliderSetting = {};
       sliderSetting= {
         'base': {
           container: '',
           speed: speed,
           items: 3,
+          slideBy: 'page'
         },
         'gutter': {
           container: '',

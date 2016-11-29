@@ -774,10 +774,9 @@ var tns = (function () {
       }
     })();
 
-    var getSlideWidth = function () {
+    function getSlideWidth() {
       return (vw + gutter) / items;
-      // return Math.round((vw + gutter) / items);
-    };
+    }
 
     var getVisibleNavCount = (function () {
       if (options.navContainer) {
@@ -1198,7 +1197,7 @@ var tns = (function () {
       maxHeight = Math.max.apply(null, heights);
 
       if (container.style.height !== maxHeight) {
-        if (TRANSITIONDURATION) { setDurations(1); }
+        if (TRANSITIONDURATION) { setDurations(speed); }
         container.style.height = maxHeight + 'px';
       }
     }
@@ -1329,7 +1328,7 @@ var tns = (function () {
 
     // set duration
     function setDurations (duration, target) {
-      duration = (duration === 0)? '' : speed / 1000 + 's';
+      duration = (!duration)? '' : duration / 1000 + 's';
       target = target || container;
       target.style[TRANSITIONDURATION] = duration;
 
@@ -1346,14 +1345,18 @@ var tns = (function () {
     // 2. change 'left' property for legacy browsers
     var transformCore = (function () {
       if (mode === 'carousel') {
-        return function (distance) {
+        return function (duration, distance) {
           if (!distance) { distance = -slideEdges[index]; }
           // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
           if (hasRightDeadZone && index === indexMax) {
             distance = Math.max(distance, -slideCountNew * slideWidth + vw + gutter);
           }
 
-          container.style[transformAttr] = transformPrefix + Math.round(distance) + 'px' + transformPostfix;
+          if (TRANSITIONDURATION || !duration) {
+            container.style[transformAttr] = transformPrefix + Math.round(distance) + 'px' + transformPostfix;
+          } else {
+            jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
+          }
 
           if (axis === 'vertical') { contentWrapper.style.height = getVerticalWrapperHeight() + 'px'; }
         };
@@ -1372,7 +1375,7 @@ var tns = (function () {
           (function () {
             for (var i = indexCached, l = indexCached + items; i < l; i++) {
               var item = slideItems[i];
-              if (TRANSITIONDURATION) { setDurations(1, item); }
+              if (TRANSITIONDURATION) { setDurations(speed, item); }
               if (animateDelay && TRANSITIONDELAY) {
                 var d = animateDelay * (i - indexCached) / 1000; 
                 item.style[TRANSITIONDELAY] = d + 's'; 
@@ -1387,7 +1390,7 @@ var tns = (function () {
           (function () {
             for (var i = index, l = index + items; i < l; i++) {
               var item = slideItems[i];
-              if (TRANSITIONDURATION) { setDurations(1, item); }
+              if (TRANSITIONDURATION) { setDurations(speed, item); }
               if (animateDelay && TRANSITIONDELAY) {
                 var d = animateDelay * (i - index) / 1000; 
                 item.style[TRANSITIONDELAY] = d + 's'; 
@@ -1403,8 +1406,9 @@ var tns = (function () {
     })();
 
     function doTransform (duration, distance) {
+      if (duration === undefined) { duration = speed; }
       if (TRANSITIONDURATION) { setDurations(duration); }
-      transformCore(distance);
+      transformCore(duration, distance);
     }
 
     // (slideBy, indexMin, indexMax) => index
@@ -1430,14 +1434,14 @@ var tns = (function () {
     })();
 
     function render() {
-      if (TRANSITIONEND) { setAttrs(container, {'aria-busy': 'true'}); }
+      setAttrs(container, {'aria-busy': 'true'});
       if (checkIndexBeforeTransform) { checkIndex(); }
 
+      // events
       if (index !== indexCached) { events.emit('indexChanged', info()); }
-      if (TRANSFORM) { events.emit('transitionStart', info()); }
+      events.emit('transitionStart', info());
 
       doTransform();
-      if (!TRANSITIONEND) { onTransitionEnd(); }
     }
 
     // AFTER TRANSFORM
@@ -1448,8 +1452,8 @@ var tns = (function () {
     // 4. update nav status
     // 5. lazyload images
     // 6. update container height
-    function onTransitionEnd(e) {
-      if (TRANSITIONEND) { events.emit('transitionEnd', info(e)); }
+    function onTransitionEnd(event) {
+      events.emit('transitionEnd', info(event));
 
       if (mode === 'gallery' && slideItemsOut.length > 0) {
         for (var i = 0; i < items; i++) {
@@ -1464,10 +1468,10 @@ var tns = (function () {
         }
       }
 
-      if (!TRANSITIONEND || e && e.propertyName !== 'height') {
+      if (!event || event.target === container && event.propertyName !== 'height') {
         if (!checkIndexBeforeTransform) { 
           var indexTem = index;
-          checkIndex(); // (slideBy, indexMin, indexMax) => index
+          checkIndex();
           if (index !== indexTem) { 
             doTransform(0); 
             events.emit('indexChanged', info());
@@ -1482,7 +1486,7 @@ var tns = (function () {
         if (nested === 'inner') { 
           events.emit('innerLoaded', info()); 
         } 
-        if (TRANSITIONEND) { removeAttrs(container, 'aria-busy'); }
+        removeAttrs(container, 'aria-busy');
         updateIndexCache();
       }
     }
@@ -2061,6 +2065,25 @@ var tns = (function () {
       }
     }
   };
+
+  function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
+    var tick = Math.min(duration, 10),
+        from = Number(element.style[attr].slice(prefix.length, - (postfix.length + 2))),
+        positionTick = (to - from) / duration * tick,
+        running;
+
+    setTimeout(moveElement, tick);
+    function moveElement() {
+      duration -= tick;
+      from += positionTick;
+      element.style[attr] = prefix + from + 'px' + postfix;
+      if (duration > 0) { 
+        setTimeout(moveElement, tick); 
+      } else {
+        callback();
+      }
+    }
+  }
 
   return core;
 })();
