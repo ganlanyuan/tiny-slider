@@ -1081,9 +1081,7 @@ var tns = (function () {
       if (nested === 'inner') {
         events.on('outerResized', function () {
           resizeTasks();
-          setTimeout(function () {
-            events.emit('innerLoaded', info());
-          }, (TRANSITIONDURATION)? speed : 0);
+          events.emit('innerLoaded', info());
         });
       } else {
         addEvents(window, ['resize', onResize]);
@@ -1170,7 +1168,7 @@ var tns = (function () {
       checkSlideCount();
 
       if (lazyload) { lazyLoad(); }
-      if (autoHeight && !nested) { runAutoHeight(); }
+      if (autoHeight) { runAutoHeight(); }
 
       events.emit('initialized', info());
       if (nested === 'inner') { 
@@ -1468,7 +1466,7 @@ var tns = (function () {
         }
       }
 
-      if (!event || event.target === container && event.propertyName !== 'height') {
+      if (!event || event.target === container && event.propertyName === transformAttr) {
         if (!checkIndexBeforeTransform) { 
           var indexTem = index;
           checkIndex();
@@ -1685,7 +1683,6 @@ var tns = (function () {
       var touchObj = e.changedTouches[0];
       disX = parseInt(touchObj.clientX) - startX;
       disY = parseInt(touchObj.clientY) - startY;
-      events.emit('touchEnd', info(e));
 
       if (touchStarted) {
         touchStarted = false;
@@ -1708,6 +1705,7 @@ var tns = (function () {
             } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
           }
         }
+        events.emit('touchEnd', info(e));
 
         render();
       }
@@ -1810,7 +1808,7 @@ var tns = (function () {
       } 
 
       if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
-      if (autoHeight && !nested) { runAutoHeight(); }
+      if (autoHeight) { runAutoHeight(); }
       if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
 
       if (navigator.msMaxTouchPoints) { setSnapInterval(); }
@@ -1821,7 +1819,9 @@ var tns = (function () {
       resizeTimer = setTimeout(function () {
         if (vw !== getViewWidth()) {
           resizeTasks();
-          if (nested === 'outer') { setTimeout(function(){ events.emit('outerResized', info(e)); }, (TRANSITIONDURATION)? speed : 0); }
+          if (nested === 'outer') { 
+            events.emit('outerResized', info(e)); 
+          }
         }
       }, 100); // update after stop resizing for 100 ms
     }
