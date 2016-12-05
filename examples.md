@@ -10,6 +10,20 @@ gn.ready(function () {
 });
 ```
 
+#### Animation
+```javascript
+gn.ready(function () {
+  tns({
+    container: document.querySelector('.slider'),
+    mode: 'gallery',
+    items: 1,
+    animateIn: 'jello',
+    animateOut: 'rollOut',
+    animateDelay: speed * 3,
+  });
+});
+```
+
 #### Responsive
 ```javascript
 gn.ready(function () {
@@ -45,7 +59,7 @@ gn.ready(function () {
 });
 ```
 
-#### vertical slider
+#### gutter
 ```javascript
 gn.ready(function () {
   tns({

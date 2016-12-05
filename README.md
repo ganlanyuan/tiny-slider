@@ -189,8 +189,8 @@ Safari 4+ ✓
 Opera 11.5+ ✓  
 IE 8+ ✓  
 
-_It should works on Chrome 4-14 as well, but I couldn't test it.  
-No animation on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions)._
+It should works on _Chrome 4-14_ as well, but I couldn't test it.  
+<del>No animation on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions).</del> Animation for legacy browsers has been added in [v1.0.2](https://github.com/ganlanyuan/tiny-slider/releases/tag/v1.0.2).
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
