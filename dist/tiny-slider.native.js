@@ -535,8 +535,16 @@ var tns = (function () {
 
     // lazyload
     function lazyLoad() {
-      var arr = [];
-      for(var i = index - 1; i < index + items + 1; i++) {
+      var arr = [], 
+          i = index, 
+          len = index + items;
+          
+      if (edgePadding) {
+        i -=1;
+        len +=1;
+      }
+
+      for(; i < len; i++) {
         var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
         for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
         arr.unshift();
