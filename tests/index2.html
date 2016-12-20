@@ -23,6 +23,7 @@
 </head>
 <body>
 <div class="container">
+  <button id="goto">Go to</button>
   <div class="outer">
     <div class="item">
       <div class="img img-1">1</div>
@@ -74,7 +75,7 @@
 <script src="../src/tiny-slider.native.js"></script>
 <script>
 gn.ready(function () {
-  tns({
+  var inner = tns({
     container: document.querySelector('.inner'),
     items: 3,
     nested: 'inner'
@@ -86,6 +87,11 @@ gn.ready(function () {
     autoHeight: true,
     nested: 'outer'
   });
+
+  var btn = document.querySelector('#goto');
+  btn.onclick = function () {
+    inner.goTo('prev');
+  }
 });
 </script>
 </body>

@@ -1837,6 +1837,40 @@ var tns = (function () {
     return {
       getInfo: info,
       events: events,
+      goTo: function (targetIndex) {
+        var indexBase = (mode === 'gallery') ? 0 : cloneCount;
+        switch (targetIndex) {
+          case 'first':
+            targetIndex = indexBase;
+            break;
+          case 'last':
+            targetIndex = indexBase + slideCount - 1;
+            break;
+          case 'prev':
+          case 'previous':
+            targetIndex = index - 1;
+            break;
+          case 'next':
+            targetIndex = index + 1;
+            break;
+        }
+
+        var absIndex = index%slideCount,
+            absTargetIndex = targetIndex%slideCount;
+
+        if (absIndex < 0) { absIndex += slideCount; }
+        if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+
+          console.log(index, absTargetIndex, absIndex);
+        if (absIndex !== absTargetIndex) {
+          index += absTargetIndex - absIndex;
+          console.log(index);
+          checkIndex();
+
+          // render();
+        }
+
+      },
       destory: function () {
         // wrapper
         gn.unwrap(wrapper);
