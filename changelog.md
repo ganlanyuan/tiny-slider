@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.7.0
+- Added: slide animation for legacy browsers.
+
 #### v0.6.6
 - Fixed: an edge padding issue.
 

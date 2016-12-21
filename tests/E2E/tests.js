@@ -410,7 +410,7 @@ tinySlider({
 tinySlider({
   container: tt.dom.sliders.autoplay,
   items: 3,
-  // autoplay: true,
+  autoplay: true,
   speed: 300,
   autoplayTimeout: 3000,
   autoplayText: ['▶', '❚❚'],

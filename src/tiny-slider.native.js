@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 0.6.6
+  * @version 0.7.0
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -95,7 +95,7 @@ var tinySlider = (function () {
         nav = options.nav,
         navContainer = (!options.navContainer) ? false : options.navContainer,
         arrowKeys = options.arrowKeys,
-        speed = (!TRANSITIONDURATION) ? 0 : options.speed,
+        speed = options.speed,
         autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
@@ -683,31 +683,8 @@ var tinySlider = (function () {
       } else {
         return function (distance) {
           var x = distance || -slideWidth * index;
-          var animationInterval = 20;
-          var transitionSpeed = speed || options.speed;
-          var currPos = parseInt(slideContainer.style.left && slideContainer.style.left.replace('px', '') || 0);
-          var posDiff = x - currPos;
-          var posInc = posDiff / transitionSpeed * animationInterval;
-          var updatePos = currPos;
-          var inter = null;
-          var nextDir = posDiff < 0;
-
-          inter = setInterval(function animSlide() {
-            updatePos = parseFloat(updatePos + posInc);
-            slideContainer.style.left = parseInt(updatePos) + 'px';
-            if ((nextDir && updatePos <= x) || (!nextDir && updatePos >= x)) {
-              clearInterval(inter);
-            }
-          }, animationInterval);
-
-          setTimeout(function stopSlideAnim() {
-            if (inter) {// safe exit
-              clearInterval(inter);
-            }
-            if (updatePos !== x) {// jump to last step if not reached yet (setInterval not 100%  accurate)
-              slideContainer.style.left = x + 'px';
-            }
-          }, transitionSpeed);
+          transformAttr = (direction === 'horizontal')? 'left' : 'top';
+          jsTransform(slideContainer, transformAttr, x, speed, onTransitionEnd);
         };
       }
     })();
@@ -1218,6 +1195,25 @@ var tinySlider = (function () {
     }
 
     return false; // explicit for ie9-
+  }
+
+  function jsTransform(element, attr, to, duration, callback) {
+    var tick = Math.min(duration, 10),
+        from = Number(element.style[attr].slice(0, -2)),
+        positionTick = (to - from) / duration * tick,
+        running;
+
+    setTimeout(moveElement, tick);
+    function moveElement() {
+      duration -= tick;
+      from += positionTick;
+      element.style[attr] = from + 'px';
+      if (duration > 0) { 
+        setTimeout(moveElement, tick); 
+      } else {
+        callback();
+      }
+    }
   }
 
   return core;
