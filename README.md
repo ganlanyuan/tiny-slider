@@ -1,5 +1,5 @@
 # tiny-slider
-![version](https://img.shields.io/badge/Version-1.0.4-green.svg)   
+![version](https://img.shields.io/badge/Version-1.1.4-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).   
 <!-- [demo](http://creatiointl.org/william/tiny-slider/v1-new/demo/)    -->
 The previous version is still available in branch [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0), you may want to know how to [transfer from v0](transfer.md).
@@ -138,14 +138,13 @@ info = {
 ```
 
 ## Methods
+#####getInfo
 ```javascript
+// get info object
 var slider = tns(...);
-
-// getInfo:
-// return info object
 slider.getInfo();
 
-document.querySelector('.my-next-button').addEventListener('click', function () {
+document.querySelector('.next-button').onclick = function () {
   // get slider info
   var info = slider.getInfo(),
       indexPrev = info.indexCached;
@@ -154,14 +153,32 @@ document.querySelector('.my-next-button').addEventListener('click', function () 
   // update style based on index
   info.slideItems[indexPrev].classList.remove('active');
   info.slideItems[indexCurrent].classList.add('active');
-}, false);
+};
+```
 
-// destory
+##### goTo
+```javascript
+// go to slides by number or keywords
+var slider = tns(...);
+slider.goTo(3);
+slider.goTo('prev');
+slider.goTo('previous');
+slider.goTo('next');
+slider.goTo('first');
+slider.goTo('last');
+
+document.querySelector('.goto-button').onclick = function () {
+  slider.goTo(3);
+};
+```
+
+##### destory
+```javascript
+var slider = tns(...);
 slider.destory();
 ```
 ## Custom Events
-Available events:   
-`indexChanged`, `initialized`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
+Available events include: `initialized`, `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
 var slider = tns(...);
 
@@ -170,10 +187,10 @@ var customizedFunction = function (info) {
   console.log(info.event.type, info.container.id);
 }
 
-// do something on transitionend
+// bind function to event
 slider.events.on('transitionEnd', customizedFunction);
 
-// remove event binding
+// remove function binding
 slider.events.off('transitionEnd', customizedFunction);
 ```
 #### Fallback

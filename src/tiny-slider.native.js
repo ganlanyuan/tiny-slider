@@ -1,6 +1,6 @@
 /**
   * tiny-slider
-  * @version 1.0.4
+  * @version 1.1.4
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -1280,36 +1280,50 @@ var tns = (function () {
       getInfo: info,
       events: events,
       goTo: function (targetIndex) {
-        var indexBase = (mode === 'gallery') ? 0 : cloneCount;
-        switch (targetIndex) {
-          case 'first':
-            targetIndex = indexBase;
-            break;
-          case 'last':
-            targetIndex = indexBase + slideCount - 1;
-            break;
-          case 'prev':
-          case 'previous':
-            targetIndex = index - 1;
-            break;
-          case 'next':
-            targetIndex = index + 1;
-            break;
+        // define: absolute index
+        // define: absolute target index
+        // define: task completed status, initilized to false
+        var absIndex = index%slideCount,
+            absTargetIndex,
+            completed = false;
+        // redefine: absolute index when it's minus
+        if (absIndex < 0) { absIndex += slideCount; }
+
+        if (typeof targetIndex === 'string') {
+          switch (targetIndex) {
+            // run click functions when target is 'prev' or 'next'
+            // set completed status to true
+            case 'prev':
+            case 'previous':
+              onClickPrev();
+              completed = true;
+              break;
+            case 'next':
+              onClickNext();
+              completed = true;
+              break;
+            // set absolute target index
+            case 'first':
+              absTargetIndex = 0;
+              break;
+            case 'last':
+              absTargetIndex = slideCount - 1;
+              break;
+          }
+        } else {
+          // set absolute target index
+          absTargetIndex = targetIndex%slideCount;
+          if (absTargetIndex < 0) { absTargetIndex += slideCount; }
         }
 
-        var absIndex = index%slideCount,
-            absTargetIndex = targetIndex%slideCount;
-
-        if (absIndex < 0) { absIndex += slideCount; }
-        if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-
-          console.log(index, absTargetIndex, absIndex);
-        if (absIndex !== absTargetIndex) {
+        // when it's not completed and
+        // absolute index not equal to absolute target index
+        // => reset index and render
+        if (!completed && absIndex !== absTargetIndex) {
           index += absTargetIndex - absIndex;
-          console.log(index);
           checkIndex();
 
-          // render();
+          render();
         }
 
       },
