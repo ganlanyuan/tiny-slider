@@ -558,7 +558,7 @@ gn.unwrap = function (els) {
 };
 /**
   * tiny-slider
-  * @version 1.1.0
+  * @version 1.1.1
   * @author William Lin
   * @license The MIT License (MIT)
   * @github https://github.com/ganlanyuan/tiny-slider/
@@ -1838,49 +1838,39 @@ var tns = (function () {
       getInfo: info,
       events: events,
       goTo: function (targetIndex) {
-        // define: absolute index
-        // define: absolute target index
-        // define: task completed status, initilized to false
-        var absIndex = index%slideCount,
-            absTargetIndex,
-            completed = false;
-        // redefine: absolute index when it's minus
-        if (absIndex < 0) { absIndex += slideCount; }
+        // ** goal: renew index and render smoothly **
 
-        if (typeof targetIndex === 'string') {
-          switch (targetIndex) {
-            // run click functions when target is 'prev' or 'next'
-            // set completed status to true
-            case 'prev':
-            case 'previous':
-              onClickPrev();
-              completed = true;
-              break;
-            case 'next':
-              onClickNext();
-              completed = true;
-              break;
-            // set absolute target index
-            case 'first':
-              absTargetIndex = 0;
-              break;
-            case 'last':
-              absTargetIndex = slideCount - 1;
-              break;
-          }
+        // if target is prev or next, 
+        // get the index right away
+        if (targetIndex === 'next') {
+          index += 1;
+        } else if (targetIndex === 'prev' || targetIndex === 'previous' ) {
+          index -= 1;
         } else {
-          // set absolute target index
-          absTargetIndex = targetIndex%slideCount;
+        // if target is not prev or next, 
+        // get index by comparing absolute target index and absolute index
+
+          // get: absolute index
+          var absIndex = index%slideCount, absTargetIndex;
+          if (absIndex < 0) { absIndex += slideCount; }
+
+          // get: absolute target index
+          if (targetIndex === 'first') {
+            absTargetIndex = 0;
+          } else if (targetIndex === 'last') {
+            absTargetIndex = slideCount - 1;
+          } else if (typeof targetIndex === 'number') {
+            absTargetIndex = targetIndex%slideCount;
+          }
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+
+          // get index
+          index += absTargetIndex - absIndex;
         }
 
-        // when it's not completed and
-        // absolute index not equal to absolute target index
-        // => reset index and render
-        if (!completed && absIndex !== absTargetIndex) {
-          index += absTargetIndex - absIndex;
+        // if index is changed, check it and render
+        if (index !== indexCached) {
           checkIndex();
-
           render();
         }
 

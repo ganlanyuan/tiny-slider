@@ -78,7 +78,8 @@ gn.ready(function () {
   var inner = tns({
     container: document.querySelector('.inner'),
     items: 3,
-    nested: 'inner'
+    nested: 'inner',
+    slideBy: 'page'
   });
   tns({
     container: document.querySelector('.outer'),
@@ -90,7 +91,7 @@ gn.ready(function () {
 
   var btn = document.querySelector('#goto');
   btn.onclick = function () {
-    inner.goTo(33);
+    inner.goTo(4);
   }
 });
 </script>
