@@ -26,8 +26,8 @@
     "docker-compose.yml",
     "gulpfile.js"
   ],
-  "devDependencies": {
-    "go-native": "0.x"
-  },
-  "dependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "go-native": "dev"
+  }
 }
