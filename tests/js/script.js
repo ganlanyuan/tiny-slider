@@ -1,14 +1,14 @@
 var speed = 100,
     doc = document;
 
-tns({
+tns.tns({
   container: doc.querySelector('.lazyload'),
   items: 3,
   edgePadding: 40,
   lazyload: true,
   speed: speed,
 });
-tns({
+tns.tns({
   container: doc.querySelector('.customize'),
   items: 3,
   controlsContainer: doc.querySelector('.customize-tools .controls'),
@@ -17,7 +17,7 @@ tns({
   autoplayButton: doc.querySelector('.playbutton-wrapper > button'),
   speed: speed,
 });
-tns({
+tns.tns({
   container: doc.querySelector('.autoHeight'),
   autoHeight: true,
   items: 1,
@@ -183,7 +183,7 @@ var tt = (function () {
   my.initSliders = function () {
     for (i in sliderSetting) {
       sliderSetting[i].container = doc.querySelector('#' + i);
-      tns(sliderSetting[i]);
+      tns.tns(sliderSetting[i]);
     }
   };
 
@@ -193,7 +193,7 @@ var tt = (function () {
 tt.createSliderHtml();
 tt.initSliders();
 
-// tns().events.on('transitionEnd', function(info) {
+// tns.tns().events.on('transitionEnd', function(info) {
 //   if (info.container.id === 'base') {
 //     console.log(e.type, info.container.id);
 //   }

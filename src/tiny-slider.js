@@ -1,692 +1,3 @@
-(function (exports) {
-'use strict';
-
-// ChildNode.remove
-(function () {
-  "use strict";
-
-  if(!("remove" in Element.prototype)){
-    Element.prototype.remove = function(){
-      if(this.parentNode) {
-        this.parentNode.removeChild(this);
-      }
-    };
-  }
-})();
-
-// Adapted from https://gist.github.com/paulirish/1579671 which derived from 
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-// requestAnimationFrame polyfill by Erik Möller.
-// Fixes from Paul Irish, Tino Zijdel, Andrew Mao, Klemen Slavič, Darius Bacon
-
-// MIT license
-
-if (!Date.now)
-    Date.now = function() { return new Date().getTime(); };
-
-(function() {
-    'use strict';
-    
-    var vendors = ['webkit', 'moz'];
-    for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
-        var vp = vendors[i];
-        window.requestAnimationFrame = window[vp+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = (window[vp+'CancelAnimationFrame']
-                                   || window[vp+'CancelRequestAnimationFrame']);
-    }
-    if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
-        || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
-        var lastTime = 0;
-        window.requestAnimationFrame = function(callback) {
-            var now = Date.now();
-            var nextTime = Math.max(lastTime + 16, now);
-            return setTimeout(function() { callback(lastTime = nextTime); },
-                              nextTime - now);
-        };
-        window.cancelAnimationFrame = clearTimeout;
-    }
-}());
-
-/** DOMTokenList polyfill */
-(function(){
-	"use strict";
-	
-	/*<*/
-	var UNDEF,
-	WIN   = window,
-	DOC   = document,
-	OBJ   = Object,
-	NULL  = null,
-	TRUE  = true,
-	FALSE = false,
-	/*>*/
-	
-	/** Munge the hell out of our string literals. Saves a tonne of space after compression. */
-	SPACE           = " ",
-	ELEMENT         = "Element",
-	CREATE_ELEMENT  = "create"+ELEMENT,
-	DOM_TOKEN_LIST  = "DOMTokenList",
-	DEFINE_GETTER   = "__defineGetter__",
-	DEFINE_PROPERTY = "defineProperty",
-	CLASS_          = "class",
-	LIST            = "List",
-	CLASS_LIST      = CLASS_+LIST,
-	REL             = "rel",
-	REL_LIST        = REL+LIST,
-	DIV             = "div",
-	LENGTH          = "length",
-	CONTAINS        = "contains",
-	APPLY           = "apply",
-	HTML_           = "HTML",
-	METHODS         = ("item "+CONTAINS+" add remove toggle toString toLocaleString").split(SPACE),
-	ADD             = METHODS[2],
-	REMOVE          = METHODS[3],
-	TOGGLE          = METHODS[4],
-	PROTOTYPE       = "prototype",
-	
-	
-	
-	/** Ascertain browser support for Object.defineProperty */
-	dpSupport       = DEFINE_PROPERTY in OBJ || DEFINE_GETTER in OBJ[ PROTOTYPE ] || NULL,
-	
-	
-	/** Wrapper for Object.defineProperty that falls back to using the legacy __defineGetter__ method if available. */
-	defineGetter    = function(object, name, fn, configurable){
-		if(OBJ[ DEFINE_PROPERTY ])
-			OBJ[ DEFINE_PROPERTY ](object, name, {
-				configurable: FALSE === dpSupport ? TRUE : !!configurable,
-				get:          fn
-			});
-		
-		else object[ DEFINE_GETTER ](name, fn);
-	},
-	
-	
-	
-	
-	/** DOMTokenList interface replacement */
-	DOMTokenList = function(el, prop){
-		var THIS    = this,
-		
-		/** Private variables */
-		tokens      = [],
-		tokenMap    = {},
-		length      = 0,
-		maxLength   = 0,
-		
-		
-		reindex     = function(){
-			
-			/** Define getter functions for array-like access to the tokenList's contents. */
-			if(length >= maxLength)
-				for(; maxLength < length; ++maxLength) (function(i){
-					
-					defineGetter(THIS, i, function(){
-						preop();
-						return tokens[i];
-					}, FALSE);
-					
-				})(maxLength);
-		},
-		
-		
-		
-		/** Helper function called at the start of each class method. Internal use only. */
-		preop = function(){
-			var error, i,
-			args    = arguments,
-			rSpace  = /\s+/;
-			
-			/** Validate the token/s passed to an instance method, if any. */
-			if(args[ LENGTH ])
-				for(i = 0; i < args[ LENGTH ]; ++i)
-					if(rSpace.test(args[i])){
-						error       = new SyntaxError('String "' + args[i] + '" ' + CONTAINS + ' an invalid character');
-						error.code  = 5;
-						error.name  = "InvalidCharacterError";
-						throw error;
-					}
-			
-			
-			/** Split the new value apart by whitespace*/
-			tokens = ("" + el[prop]).replace(/^\s+|\s+$/g, "").split(rSpace);
-			
-			/** Avoid treating blank strings as single-item token lists */
-			if("" === tokens[0]) tokens = [];
-			
-			/** Repopulate the internal token lists */
-			tokenMap = {};
-			for(i = 0; i < tokens[ LENGTH ]; ++i)
-				tokenMap[tokens[i]] = TRUE;
-			length = tokens[ LENGTH ];
-			reindex();
-		};
-		
-		
-		
-		/** Populate our internal token list if the targeted attribute of the subject element isn't empty. */
-		preop();
-		
-		
-		
-		/** Return the number of tokens in the underlying string. Read-only. */
-		defineGetter(THIS, LENGTH, function(){
-			preop();
-			return length;
-		});
-		
-		
-		/** Override the default toString/toLocaleString methods to return a space-delimited list of tokens when typecast. */
-		THIS[ METHODS[6] /** toLocaleString */ ] =
-		THIS[ METHODS[5] /** toString       */ ] = function(){
-			preop();
-			return tokens.join(SPACE);
-		};
-		
-		
-		
-		/** Return an item in the list by its index (or undefined if the number is greater than or equal to the length of the list) */
-		THIS.item = function(idx){
-			preop();
-			return tokens[idx];
-		};
-		
-		
-		/** Return TRUE if the underlying string contains `token`; otherwise, FALSE. */
-		THIS[ CONTAINS ] = function(token){
-			preop();
-			return !!tokenMap[token];
-		};
-		
-		
-		
-		/** Add one or more tokens to the underlying string. */
-		THIS[ADD] = function(){
-			preop[APPLY](THIS, args = arguments);
-
-			for(var args, token, i = 0, l = args[ LENGTH ]; i < l; ++i){
-				token = args[i];
-				if(!tokenMap[token]){
-					tokens.push(token);
-					tokenMap[token] = TRUE;
-				}
-			}
-			
-			/** Update the targeted attribute of the attached element if the token list's changed. */
-			if(length  !== tokens[ LENGTH ]){
-				length   = tokens[ LENGTH ] >>> 0;
-				el[prop] = tokens.join(SPACE);
-				reindex();
-			}
-		};
-		
-		
-		
-		/** Remove one or more tokens from the underlying string. */
-		THIS[ REMOVE ] = function(){
-			preop[APPLY](THIS, args = arguments);
-			
-			/** Build a hash of token names to compare against when recollecting our token list. */
-			for(var args, ignore = {}, i = 0, t = []; i < args[ LENGTH ]; ++i){
-				ignore[args[i]] = TRUE;
-				delete tokenMap[args[i]];
-			}
-			
-			/** Run through our tokens list and reassign only those that aren't defined in the hash declared above. */
-			for(i = 0; i < tokens[ LENGTH ]; ++i)
-				if(!ignore[tokens[i]]) t.push(tokens[i]);
-			
-			tokens   = t;
-			length   = t[ LENGTH ] >>> 0;
-			
-			/** Update the targeted attribute of the attached element. */
-			el[prop] = tokens.join(SPACE);
-			reindex();
-		};
-		
-		
-		
-		/** Add or remove a token depending on whether it's already contained within the token list. */
-		THIS[TOGGLE] = function(token, force){
-			preop[APPLY](THIS, [token]);
-			
-			/** Token state's being forced. */
-			if(UNDEF !== force){
-				if(force) { THIS[ADD](token);     return TRUE;  }
-				else      { THIS[REMOVE](token);  return FALSE; }
-			}
-			
-			/** Token already exists in tokenList. Remove it, and return FALSE. */
-			if(tokenMap[token]){
-				THIS[ REMOVE ](token);
-				return FALSE;
-			}
-			
-			/** Otherwise, add the token and return TRUE. */
-			THIS[ADD](token);
-			return TRUE;
-		};
-		
-		
-		/** Mark our newly-assigned methods as non-enumerable. */
-		(function(o, defineProperty){
-			if(defineProperty)
-				for(var i = 0; i < 7; ++i)
-					defineProperty(o, METHODS[i], {enumerable: FALSE});
-		}(THIS, OBJ[ DEFINE_PROPERTY ]));
-		
-		return THIS;
-	},
-	
-	
-	
-	/** Polyfills a property with a DOMTokenList */
-	addProp = function(o, name, attr){
-		
-		defineGetter(o[PROTOTYPE], name, function(){
-			var tokenList,
-			THIS = this,
-			
-			/** Prevent this from firing twice for some reason. What the hell, IE. */
-			gibberishProperty           = DEFINE_GETTER + DEFINE_PROPERTY + name;
-			if(THIS[gibberishProperty]) return tokenList;
-			THIS[gibberishProperty]     = TRUE;
-			
-			
-			/**
-			 * IE8 can't define properties on native JavaScript objects, so we'll use a dumb hack instead.
-			 *
-			 * What this is doing is creating a dummy element ("reflection") inside a detached phantom node ("mirror")
-			 * that serves as the target of Object.defineProperty instead. While we could simply use the subject HTML
-			 * element instead, this would conflict with element types which use indexed properties (such as forms and
-			 * select lists).
-			 */
-			if(FALSE === dpSupport){
-				
-				var visage,
-				mirror      = addProp.mirror = addProp.mirror || DOC[ CREATE_ELEMENT ](DIV),
-				reflections = mirror.childNodes,
-				
-				/** Iterator variables */
-				l = reflections[ LENGTH ],
-				i = 0;
-				
-				for(; i < l; ++i)
-					if(reflections[i]._R === THIS){
-						visage = reflections[i];
-						break;
-					}
-				
-				/** Couldn't find an element's reflection inside the mirror. Materialise one. */
-				visage || (visage = mirror.appendChild(DOC[ CREATE_ELEMENT ](DIV)));
-				
-				tokenList = DOMTokenList.call(visage, THIS, attr);
-			}
-			
-			else tokenList = new DOMTokenList(THIS, attr);
-			
-			
-			defineGetter(THIS, name, function(){ return tokenList; });
-			delete THIS[gibberishProperty];
-			
-			return tokenList;
-		}, TRUE);
-	},
-
-	/** Variables used for patching native methods that're partially implemented (IE doesn't support adding/removing multiple tokens, for instance). */
-	testList,
-	nativeAdd,
-	nativeRemove;
-	
-	
-	
-	
-	/** No discernible DOMTokenList support whatsoever. Time to remedy that. */
-	if(!WIN[ DOM_TOKEN_LIST ]){
-		
-		/** Ensure the browser allows Object.defineProperty to be used on native JavaScript objects. */
-		if(dpSupport)
-			try{ defineGetter({}, "support"); }
-			catch(e){ dpSupport = FALSE; }
-		
-		
-		DOMTokenList.polyfill   = TRUE;
-		WIN[ DOM_TOKEN_LIST ]   = DOMTokenList;
-		
-		addProp( WIN[ ELEMENT ], CLASS_LIST, CLASS_ + "Name");      /* Element.classList */
-		addProp( WIN[ HTML_+ "Link"   + ELEMENT ], REL_LIST, REL);  /* HTMLLinkElement.relList */
-		addProp( WIN[ HTML_+ "Anchor" + ELEMENT ], REL_LIST, REL);  /* HTMLAnchorElement.relList */
-		addProp( WIN[ HTML_+ "Area"   + ELEMENT ], REL_LIST, REL);  /* HTMLAreaElement.relList */
-	}
-	
-	
-	/**
-	 * Possible support, but let's check for bugs.
-	 *
-	 * Where arbitrary values are needed for performing a test, previous variables
-	 * are recycled to save space in the minified file.
-	 */
-	else{
-		testList = DOC[ CREATE_ELEMENT ](DIV)[CLASS_LIST];
-		
-		/** We'll replace a "string constant" to hold a reference to DOMTokenList.prototype (filesize optimisation, yaddah-yaddah...) */
-		PROTOTYPE = WIN[DOM_TOKEN_LIST][PROTOTYPE];
-		
-		
-		/** Check if we can pass multiple arguments to add/remove. To save space, we'll just recycle a previous array of strings. */
-		testList[ADD][APPLY](testList, METHODS);
-		if(2 > testList[LENGTH]){
-			nativeAdd      = PROTOTYPE[ADD];
-			nativeRemove   = PROTOTYPE[REMOVE];
-			
-			PROTOTYPE[ADD] = function(){
-				for(var i = 0, args = arguments; i < args[LENGTH]; ++i)
-					nativeAdd.call(this, args[i]);
-			};
-			
-			PROTOTYPE[REMOVE] = function(){
-				for(var i = 0, args = arguments; i < args[LENGTH]; ++i)
-					nativeRemove.call(this, args[i]);
-			};
-		}
-		
-		
-		/** Check if the "force" option of .toggle is supported. */
-		if(testList[TOGGLE](LIST, FALSE))
-			PROTOTYPE[TOGGLE] = function(token, force){
-				var THIS = this;
-				THIS[(force = UNDEF === force ? !THIS[CONTAINS](token) : force) ? ADD : REMOVE](token);
-				return !!force;
-			};
-	}
-}());
-
-function extend() {
-  var obj, name, copy,
-      target = arguments[0] || {},
-      i = 1,
-      length = arguments.length;
-
-  for (; i < length; i++) {
-    if ((obj = arguments[i]) !== null) {
-      for (name in obj) {
-        copy = obj[name];
-
-        if (target === copy) {
-          continue;
-        } else if (copy !== undefined) {
-          target[name] = copy;
-        }
-      }
-    }
-  }
-  return target;
-}
-
-function indexOf(array, item) {
-  for (var i = 0; i < array.length; i++) {
-    if (array[i] === item) { return i; }
-  }
-  return -1;
-}
-
-function getSupportedProp(proparray){
-  var root = document.documentElement;
-  for (var i=0; i<proparray.length; i++){
-    if (proparray[i] in root.style){
-      return proparray[i];
-    }
-  }
-}
-
-// var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-// getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
-
-function isNodeList(el) {
-  // Only NodeList has the "item()" function
-  return typeof el.item !== "undefined"; 
-}
-
-function append(els, data) {
-  var els_new = (isNodeList(els)) ? els : [els], i;
-
-  if (typeof data.nodeType !== "undefined" && data.nodeType === 1) {
-    for (i = els_new.length; i--;) {
-      els_new[i].appendChild(data);
-    }
-  } else if (typeof data === "string") {
-    for (i = els_new.length; i--;) {
-      els_new[i].insertAdjacentHTML("beforeend", data);
-    }
-  } else if (isNodeList(data)) {
-    var fragment = document.createDocumentFragment();
-    for (i = data.length; i--;) {
-      fragment.insertBefore(data[i], fragment.firstChild);
-    }
-    for (var j = els_new.length; j--;) {
-      els_new[j].appendChild(fragment);
-    }
-  }
-}
-
-function wrap(els, obj) {
-  var elsNew = (isNodeList(els)) ? els : [els];
-  // Loops backwards to prevent having to clone the wrapper on the
-  // first element (see `wrapper` below).
-  for (var i = elsNew.length; i--;) {
-    var wrapper = (i > 0) ? obj.cloneNode(true) : obj,
-      el = elsNew[i];
-
-    // Cache the current parent and sibling.
-    var parent = el.parentNode,
-      sibling = el.nextSibling;
-
-    // Wrap the element (is automatically removed from its current parent).
-    wrapper.appendChild(el);
-
-    // If the element had a sibling, insert the wrapper before
-    // the sibling to maintain the HTML structure; otherwise, just
-    // append it to the parent.
-    if (sibling) {
-      parent.insertBefore(wrapper, sibling);
-    } else {
-      parent.appendChild(wrapper);
-    }
-  }
-}
-
-function unwrap(els) {
-  var elsNew = (isNodeList(els)) ? els : [els];
-  for (var i = elsNew.length; i--;) {
-    var el = elsNew[i];
-
-    // get the element's parent node
-    var parent = el.parentNode;
-    
-    // move all children out of the element
-    while (el.firstChild) { 
-      parent.insertBefore(el.firstChild, el); 
-    }
-    
-    // remove the empty element
-    parent.removeChild(el);
-  }
-}
-
-function getSlideId() {
-  if (window.tnsId === undefined) {
-    window.tnsId = 1;
-  } else {
-    window.tnsId++;
-  }
-  return 'tns' + window.tnsId;
-}
-
-function toDegree (y, x) {
-  return Math.atan2(y, x) * (180 / Math.PI);
-}
-
-function getTouchDirection(angle, range) {
-  if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
-    return 'horizontal';
-  } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
-    return 'vertical';
-  } else {
-    return false;
-  }
-}
-
-function hasAttr(el, attr) {
-  return el.hasAttribute(attr);
-}
-
-function getAttr(el, attr) {
-  return el.getAttribute(attr);
-}
-
-function setAttrs(els, attrs) {
-  els = (isNodeList(els) || els instanceof Array) ? els : [els];
-  if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
-
-  for (var i = els.length; i--;) {
-    for(var key in attrs) {
-      els[i].setAttribute(key, attrs[key]);
-    }
-  }
-}
-
-function removeAttrs(els, attrs) {
-  els = (isNodeList(els) || els instanceof Array) ? els : [els];
-  attrs = (attrs instanceof Array) ? attrs : [attrs];
-
-  var attrLength = attrs.length;
-  for (var i = els.length; i--;) {
-    for (var j = attrLength; j--;) {
-      els[i].removeAttribute(attrs[j]);
-    }
-  }
-}
-
-function removeEventsByClone(el) {
-  var elClone = el.cloneNode(true), parent = el.parentNode;
-  parent.insertBefore(elClone, el);
-  el.remove();
-  el = null;
-}
-
-function hideElement(el) {
-  if (!hasAttr(el, 'hidden')) {
-    setAttrs(el, {'hidden': ''});
-  }
-}
-
-function showElement(el) {
-  if (hasAttr(el, 'hidden')) {
-    removeAttrs(el, 'hidden');
-  }
-}
-
-// check if an image is loaded
-// 1. See if "naturalWidth" and "naturalHeight" properties are available.
-// 2. See if "complete" property is available.
-
-function imageLoaded(img) {
-  if (typeof img.complete === 'boolean') {
-    return img.complete;
-  } else if (typeof img.naturalWidth === 'number') {
-    return img.naturalWidth !== 0;
-  }
-}
-
-function whichProperty(obj){
-  var t, el = document.createElement('fakeelement');
-  for(t in obj){
-    if( el.style[t] !== undefined ){
-      return [t, obj[t][0], obj[t][1]];
-    }
-  }
-
-  return false; // explicit for ie9-
-}
-
-function addEvents(el, events) {
-  function add(arr) {
-    el.addEventListener(arr[0], arr[1], false);
-  }
-
-  if (Array.isArray(events)) {
-    if (Array.isArray(events[0])) {
-      for (var i = events.length; i--;) {
-        add(events[i]);
-      }
-    } else {
-      add(events);
-    }
-  }
-}
-
-function removeEvents(el, events) {
-  function remove(arr) {
-    el.removeEventListener(arr[0], arr[1], false);
-  }
-
-  if (Array.isArray(events)) {
-    if (Array.isArray(events[0])) {
-      for (var i = events.length; i--;) {
-        remove(events[i]);
-      }
-    } else {
-      remove(events);
-    }
-  }
-}
-
-var events = {
-  events: {},
-  on: function (eventName, fn) {
-    this.events[eventName] = this.events[eventName] || [];
-    this.events[eventName].push(fn);
-  },
-  off: function(eventName, fn) {
-    if (this.events[eventName]) {
-      for (var i = 0; i < this.events[eventName].length; i++) {
-        if (this.events[eventName][i] === fn) {
-          this.events[eventName].splice(i, 1);
-          break;
-        }
-      }
-    }
-  },
-  emit: function (eventName, data) {
-    if (this.events[eventName]) {
-      this.events[eventName].forEach(function(fn) {
-        fn(data);
-      });
-    }
-  }
-};
-
-function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
-  var tick = Math.min(duration, 10),
-      from = Number(element.style[attr].slice(prefix.length, - (postfix.length + 2))),
-      positionTick = (to - from) / duration * tick,
-      running;
-
-  setTimeout(moveElement, tick);
-  function moveElement() {
-    duration -= tick;
-    from += positionTick;
-    element.style[attr] = prefix + from + 'px' + postfix;
-    if (duration > 0) { 
-      setTimeout(moveElement, tick); 
-    } else {
-      callback();
-    }
-  }
-}
-
 /**
   * tiny-slider
   * @version 1.1.1
@@ -696,33 +7,63 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   */
 
 // from go-native
+import "../bower_components/go-native/src/utilities/childNode.remove";
+import "../bower_components/go-native/src/vendors/requestAnimationFrame";
+import "../bower_components/go-native/src/vendors/token-list";
+
+import { extend } from "../bower_components/go-native/src/gn/extend";
+import { indexOf } from "../bower_components/go-native/src/gn/indexOf";
+import { getSupportedProp } from "../bower_components/go-native/src/gn/getSupportedProp";
+import { ready } from "../bower_components/go-native/src/gn/ready";
+import { isNodeList } from "../bower_components/go-native/src/gn/isNodeList";
+import { append } from "../bower_components/go-native/src/gn/append";
+import { wrap } from "../bower_components/go-native/src/gn/wrap";
+import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
+
 // helper functions
+import { getSlideId } from './helpers/getSlideId';
+import { toDegree } from './helpers/toDegree';
+import { getTouchDirection } from './helpers/getTouchDirection';
+import { hasAttr } from './helpers/hasAttr';
+import { getAttr } from './helpers/getAttr';
+import { setAttrs } from './helpers/setAttrs';
+import { removeAttrs } from './helpers/removeAttrs';
+import { removeEventsByClone } from './helpers/removeEventsByClone';
+import { hideElement } from './helpers/hideElement';
+import { showElement } from './helpers/showElement';
+import { imageLoaded } from './helpers/imageLoaded';
+import { whichProperty } from './helpers/whichProperty';
+import { addEvents } from './helpers/addEvents';
+import { removeEvents } from './helpers/removeEvents';
+import { events } from './helpers/events';
+import { jsTransform } from './helpers/jsTransform';
+
 var TRANSFORM = getSupportedProp([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform',
       'OTransform'
-    ]);
-var transitions = {
+    ]),
+    transitions = {
       'transitionDuration': ['transitionDelay', 'transitionend'],
       'WebkitTransitionDuration': ['WebkitTransitionDelay', 'webkitTransitionEnd'],
       'MozTransitionDuration': ['MozTransitionDelay', 'transitionend'],
       'OTransitionDuration': ['OTransitionDelay', 'oTransitionEnd']
-    };
-var animations = {
+    },
+    animations = {
       'animationDuration': ['animationDelay', 'animationend'],
       'WebkitAnimationDuration': ['WebkitAnimationDelay', 'webkitAnimationEnd'],
       'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
       'OAnimationDuration': ['OAnimationDelay', 'oAnimationEnd']
-    };
-var TRANSITIONDURATION = whichProperty(transitions)[0];
-var TRANSITIONDELAY = whichProperty(transitions)[1];
-var TRANSITIONEND = whichProperty(transitions)[2];
-var ANIMATIONDURATION = whichProperty(animations)[0];
-var ANIMATIONDELAY = whichProperty(animations)[1];
-var ANIMATIONEND = whichProperty(animations)[2];
-var KEY = {
+    },
+    TRANSITIONDURATION = whichProperty(transitions)[0],
+    TRANSITIONDELAY = whichProperty(transitions)[1],
+    TRANSITIONEND = whichProperty(transitions)[2],
+    ANIMATIONDURATION = whichProperty(animations)[0],
+    ANIMATIONDELAY = whichProperty(animations)[1],
+    ANIMATIONEND = whichProperty(animations)[2],
+    KEY = {
       ENTER: 13,
       SPACE: 32,
       PAGEUP: 33,
@@ -743,7 +84,7 @@ var KEY = {
 //   ANIMATIONEND
 //   );
 
-function tns(options) {
+export function tns(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',
@@ -2088,7 +1429,3 @@ function tns(options) {
     // showElement: showElement,
   };
 }
-
-exports.tns = tns;
-
-}((this.tns = this.tns || {})));
