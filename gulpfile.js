@@ -5,8 +5,10 @@ const sourcemaps = require('gulp-sourcemaps');
 const modernizr = require('gulp-modernizr');
 const uglify = require('gulp-uglify');
 const jshint = require('gulp-jshint');
+const rename = require('gulp-rename');
 const stylish = require('jshint-stylish');
 const browserSync = require('browser-sync').create();
+const fs = require("fs");
 
 const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
@@ -39,56 +41,6 @@ gulp.task('sass', function () {
     .pipe(browserSync.stream());
 });  
 
-let config = {
-  js: {
-    src: [[
-        "bower_components/domtokenlist/src/token-list.js",
-        "bower_components/requestAnimationFrame/requestAnimationFrame.js",
-
-        "bower_components/go-native/src/utilities/childNode.remove.js",
-        "bower_components/go-native/src/gn/base.js",
-        "bower_components/go-native/src/gn/extend.js",
-        "bower_components/go-native/src/gn/indexOf.js",
-        "bower_components/go-native/src/gn/getSupportedProp.js",
-        "bower_components/go-native/src/gn/DOM.ready.js",
-        "bower_components/go-native/src/gn/isNodeList.js",
-        "bower_components/go-native/src/gn/append.js",
-        "bower_components/go-native/src/gn/wrap.js",
-        "bower_components/go-native/src/gn/unwrap.js",
-
-        "src/tiny-slider.native.js",
-      ], [
-      "bower_components/domtokenlist/src/token-list.js",
-      "bower_components/requestAnimationFrame/requestAnimationFrame.js",
-
-      "bower_components/go-native/src/utilities/childNode.remove.js",
-      "bower_components/go-native/src/gn/base.js",
-      "bower_components/go-native/src/gn/extend.js",
-      "bower_components/go-native/src/gn/indexOf.js",
-      "bower_components/go-native/src/gn/getSupportedProp.js",
-      "bower_components/go-native/src/gn/DOM.ready.js",
-      "bower_components/go-native/src/gn/isNodeList.js",
-      "bower_components/go-native/src/gn/append.js",
-      "bower_components/go-native/src/gn/wrap.js",
-      "bower_components/go-native/src/gn/unwrap.js",
-      ], [
-        "src/tiny-slider.native.js",
-      ], [
-        "bower_components/go-native/src/es5/object/keys.js",
-        "bower_components/go-native/src/es5/array/isArray.js",
-        "bower_components/go-native/src/es5/array/forEach.js",
-        "bower_components/go-native/src/ie8/addEventListener.js",
-        "bower_components/go-native/src/ie8/firstElementChild.js",
-        "bower_components/go-native/src/ie8/lastElementChild.js",
-        "bower_components/go-native/src/ie8/previousElementSibling.js",
-        "bower_components/go-native/src/ie8/nextElementSibling.js",
-        "bower_components/go-native/src/ie8/getComputedStyle.js",
-      ]],
-    name: ['tiny-slider.js', 'tiny-slider.helper.js', 'tiny-slider.native.js', 'tiny-slider.ie8.js'],
-  }
-
-};
-
 // Script Task
 gulp.task('script', function () {
   return rollup({
@@ -109,6 +61,17 @@ gulp.task('script', function () {
     });
   });
 });
+
+// gulp.task('makeDevCopy', function () {
+//   let filepath = 'src/tiny-slider.js';
+
+//   return gulp.src(filepath, { base: process.cwd() })
+//     .pipe(rename({ basename: 'tiny-slider.dev' }))
+//     .pipe(fs.readFileSync(filepath, 'utf8', function (err, data) {
+//       return data.replace('PRODUCTION', 'DEVELOPMENT');
+//     }))
+//     .pipe(gulp.dest('.'));
+// });
 
 gulp.task('script-ie8', function () {
   return rollup({
@@ -162,8 +125,9 @@ gulp.task('watch', function () {
 // Default Task
 gulp.task('default', [
   // 'sass',
-  'script-min',
+  // 'script-min',
   // 'script-ie8',
+  // 'makeDevCopy',
   'server', 
   'watch', 
 ]);  

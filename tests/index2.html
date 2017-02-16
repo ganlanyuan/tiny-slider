@@ -73,14 +73,14 @@
 <script src="../dist/tiny-slider.helper.ie8.js"></script>
 <script src="../dist/tiny-slider.js"></script>
 <script>
-gn.ready(function () {
-  var inner = tns({
+tns.ready(function () {
+  var inner = tns.core({
     container: document.querySelector('.inner'),
     items: 3,
     nested: 'inner',
     slideBy: 'page'
   });
-  tns({
+  tns.core({
     container: document.querySelector('.outer'),
     items: 1,
     loop: false,

@@ -444,6 +444,19 @@ function getSupportedProp(proparray){
 // var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
 // getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
 
+function ready(fn) {
+  // Sanity check
+  if ( typeof fn !== "function" ) { return; }
+
+  // If document is already loaded, run method
+  if ( document.readyState === "complete"  ) {
+    return fn();
+  }
+
+  // Otherwise, wait until document is loaded
+  document.addEventListener( "DOMContentLoaded", fn, false );
+}
+
 function isNodeList(el) {
   // Only NodeList has the "item()" function
   return typeof el.item !== "undefined"; 
@@ -687,13 +700,8 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-/**
-  * tiny-slider
-  * @version 1.1.1
-  * @author William Lin
-  * @license The MIT License (MIT)
-  * @github https://github.com/ganlanyuan/tiny-slider/
-  */
+// @version 1.1.1
+// PRODUCTION
 
 // from go-native
 // helper functions
@@ -743,7 +751,7 @@ var KEY = {
 //   ANIMATIONEND
 //   );
 
-function tns(options) {
+function core(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',
@@ -2089,6 +2097,7 @@ function tns(options) {
   };
 }
 
-exports.tns = tns;
+exports.core = core;
+exports.ready = ready;
 
 }((this.tns = this.tns || {})));
