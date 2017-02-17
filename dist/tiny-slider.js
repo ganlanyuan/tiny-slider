@@ -1,6 +1,3 @@
-(function (exports) {
-'use strict';
-
 // ChildNode.remove
 (function () {
   "use strict";
@@ -751,7 +748,7 @@ var KEY = {
 //   ANIMATIONEND
 //   );
 
-function core(options) {
+function tns(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',
@@ -2096,8 +2093,3 @@ function core(options) {
     // showElement: showElement,
   };
 }
-
-exports.core = core;
-exports.ready = ready;
-
-}((this.tns = this.tns || {})));

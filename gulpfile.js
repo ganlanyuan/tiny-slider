@@ -46,6 +46,7 @@ gulp.task('script', function () {
   return rollup({
     entry: 'src/tiny-slider.js',
     context: 'window',
+    treeshake: false,
     plugins: [
       resolve({
         jsnext: true,
@@ -56,8 +57,8 @@ gulp.task('script', function () {
   }).then(function (bundle) {
     return bundle.write({
       dest: 'dist/tiny-slider.js',
-      format: 'iife',
-      moduleName: 'tns',
+      format: 'es',
+      // moduleName: 'tns',
     });
   });
 });
@@ -125,7 +126,7 @@ gulp.task('watch', function () {
 // Default Task
 gulp.task('default', [
   // 'sass',
-  // 'script-min',
+  'script-min',
   // 'script-ie8',
   // 'makeDevCopy',
   'server', 
