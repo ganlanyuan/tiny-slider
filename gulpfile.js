@@ -168,10 +168,10 @@ gulp.task('watch', function () {
 // Default Task
 gulp.task('default', [
   // 'sass',
-  // 'min',
+  'min',
   // 'helper-ie8',
   // 'makeDevCopy',
-  // 'test',
+  'test',
   'server', 
   'watch', 
 ]);  

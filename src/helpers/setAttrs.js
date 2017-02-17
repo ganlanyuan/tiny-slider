@@ -1,4 +1,4 @@
-import { isNodeList } from "../../bower_components/go-native/src/gn/isNodeList";
+import { isNodeList } from "./isNodeList";
 
 export function setAttrs(els, attrs) {
   els = (isNodeList(els) || els instanceof Array) ? els : [els];

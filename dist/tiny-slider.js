@@ -544,8 +544,13 @@ function getAttr(el, attr) {
   return el.getAttribute(attr);
 }
 
+function isNodeList$1(el) {
+  // Only NodeList has the "item()" function
+  return typeof el.item !== "undefined"; 
+}
+
 function setAttrs(els, attrs) {
-  els = (isNodeList(els) || els instanceof Array) ? els : [els];
+  els = (isNodeList$1(els) || els instanceof Array) ? els : [els];
   if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
 
   for (var i = els.length; i--;) {
@@ -556,7 +561,7 @@ function setAttrs(els, attrs) {
 }
 
 function removeAttrs(els, attrs) {
-  els = (isNodeList(els) || els instanceof Array) ? els : [els];
+  els = (isNodeList$1(els) || els instanceof Array) ? els : [els];
   attrs = (attrs instanceof Array) ? attrs : [attrs];
 
   var attrLength = attrs.length;

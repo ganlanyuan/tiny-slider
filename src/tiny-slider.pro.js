@@ -9,7 +9,6 @@ import "../bower_components/go-native/src/vendors/token-list";
 import { extend } from "../bower_components/go-native/src/gn/extend";
 import { indexOf } from "../bower_components/go-native/src/gn/indexOf";
 import { getSupportedProp } from "../bower_components/go-native/src/gn/getSupportedProp";
-import { isNodeList } from "../bower_components/go-native/src/gn/isNodeList";
 import { append } from "../bower_components/go-native/src/gn/append";
 import { wrap } from "../bower_components/go-native/src/gn/wrap";
 import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
