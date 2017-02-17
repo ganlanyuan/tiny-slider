@@ -1,17 +1,18 @@
 // @version 1.1.1
+// PRODUCTION
 
 // from go-native
-import "../../go-native/src/utilities/childNode.remove";
-import "../../go-native/src/vendors/requestAnimationFrame";
-import "../../go-native/src/vendors/token-list";
+import "../bower_components/go-native/src/utilities/childNode.remove";
+import "../bower_components/go-native/src/vendors/requestAnimationFrame";
+import "../bower_components/go-native/src/vendors/token-list";
 
-import { extend } from "../../go-native/src/gn/extend";
-import { indexOf } from "../../go-native/src/gn/indexOf";
-import { getSupportedProp } from "../../go-native/src/gn/getSupportedProp";
-import { isNodeList } from "../../go-native/src/gn/isNodeList";
-import { append } from "../../go-native/src/gn/append";
-import { wrap } from "../../go-native/src/gn/wrap";
-import { unwrap } from "../../go-native/src/gn/unwrap";
+import { extend } from "../bower_components/go-native/src/gn/extend";
+import { indexOf } from "../bower_components/go-native/src/gn/indexOf";
+import { getSupportedProp } from "../bower_components/go-native/src/gn/getSupportedProp";
+import { isNodeList } from "../bower_components/go-native/src/gn/isNodeList";
+import { append } from "../bower_components/go-native/src/gn/append";
+import { wrap } from "../bower_components/go-native/src/gn/wrap";
+import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
 
 // helper functions
 import { getSlideId } from './helpers/getSlideId';

@@ -1,3 +1,5 @@
+import { tns } from '../../src/tiny-slider.pro';
+
 var speed = 100,
     doc = document;
 
@@ -169,7 +171,7 @@ var tt = (function () {
         docContainer = doc.querySelector('.container'),
         divider = docContainer.querySelector('.divider');
 
-    for (i in sliderSetting) {
+    for (var i in sliderSetting) {
       var sd = htmlTemplate.cloneNode(true);
       sd.className = i + '_wrapper';
       sd.querySelector('h2').innerHTML = i;
@@ -181,7 +183,7 @@ var tt = (function () {
   };
 
   my.initSliders = function () {
-    for (i in sliderSetting) {
+    for (var i in sliderSetting) {
       sliderSetting[i].container = doc.querySelector('#' + i);
       tns(sliderSetting[i]);
     }

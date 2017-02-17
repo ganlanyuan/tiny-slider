@@ -73,14 +73,13 @@
 <script src="../dist/tiny-slider.helper.ie8.js"></script>
 <script src="../dist/tiny-slider.js"></script>
 <script>
-tns.ready(function () {
-  var inner = tns.core({
+  var inner = tns({
     container: document.querySelector('.inner'),
     items: 3,
     nested: 'inner',
     slideBy: 'page'
   });
-  tns.core({
+  tns({
     container: document.querySelector('.outer'),
     items: 1,
     loop: false,
@@ -92,7 +91,6 @@ tns.ready(function () {
   btn.onclick = function () {
     inner.goTo(4);
   }
-});
 </script>
 </body>
 </html>
