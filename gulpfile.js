@@ -160,8 +160,8 @@ gulp.task('watch', function () {
   gulp.watch(pathSrc + 'sassFile', ['sass']);
   gulp.watch(pathSrc + proScript, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
-  gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']).on('change', browserSync.reload);
-  gulp.watch('**/*.html').on('change', browserSync.reload);
+  gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']);
+  gulp.watch(['**/*.html', pathTest + testName + '.min.js']).on('change', browserSync.reload);
   // gulp.watch('src/tiny-slider.native.js, tests/tests.js', ['testcafe']);
 });
 
