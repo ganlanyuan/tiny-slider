@@ -1,4 +1,4 @@
-// @version 1.1.1
+// @version 1.2.0
 // DEVELOPMENT
 
 // from go-native
@@ -110,16 +110,12 @@ export function tns(options) {
     lazyload: false,
     touch: true,
     rewind: false,
-    nested: false
+    nested: false,
+    onInit: false,
   }, options || {});
 
   // make sure slide container exists
-  if (typeof options.container !== 'object' || options.container === null) {
-    return {
-      destory: function () {},
-      events: new Events(),
-    }; 
-  }
+  if (typeof options.container !== 'object' || options.container === null) { return; }
 
   // === define and set variables ===
   var mode = options.mode,
@@ -206,6 +202,7 @@ export function tns(options) {
       // resize and scroll
       resizeTimer,
       ticking = false,
+      onInit = options.onInit,
       events = new Events();
 
   if (TRANSFORM) {
@@ -575,6 +572,10 @@ export function tns(options) {
 
     for (var h = arr.length; h--;) {
       var img = arr[h];
+
+      // stop propagationl transitionend event to container
+      addEvents(img, [TRANSITIONEND, function (e) { e.stopPropagation(); }]);
+
       if (!img.classList.contains('loaded')) {
         img.src = getAttr(img, 'data-src');
         img.classList.add('loaded');
@@ -643,7 +644,10 @@ export function tns(options) {
     if (lazyload) { lazyLoad(); }
     if (autoHeight) { runAutoHeight(); }
 
-    events.emit('initialized', info());
+    if (typeof onInit === 'function') {
+      onInit(info());
+    }
+
     if (nested === 'inner') { 
       events.emit('innerLoaded', info()); 
     }

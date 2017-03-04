@@ -3,9 +3,9 @@ import { tns } from '../../src/tiny-slider.pro';
 var speed = 100,
     doc = document;
 
-tns().events.on('initilized', function(info) {
-  console.log(info.container.id);
-});
+// tns().events.on('initilized', function(info) {
+//   console.log(info.container.id);
+// });
 
 var lazyloadS = tns({
   container: doc.querySelector('.lazyload'),
@@ -13,6 +13,9 @@ var lazyloadS = tns({
   edgePadding: 40,
   lazyload: true,
   speed: speed,
+  onInit: function (info) {
+    console.log(info.items);
+  }
 });
 var customizeS = tns({
   container: doc.querySelector('.customize'),
@@ -201,8 +204,8 @@ var tt = (function () {
   return my;
 })();
 
-// tt.createSliderHtml();
-// tt.initSliders();
+tt.createSliderHtml();
+tt.initSliders();
 
 // tns().events.on('transitionEnd', function(info) {
 //   if (info.container.id === 'base') {

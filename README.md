@@ -1,5 +1,5 @@
 # tiny-slider
-![version](https://img.shields.io/badge/Version-1.1.1-green.svg)   
+![version](https://img.shields.io/badge/Version-1.2.0-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).   
 <!-- [demo](http://creatiointl.org/william/tiny-slider/v1-new/demo/)    -->
 The previous version is still available in branch [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0), you may want to know how to [transfer from v0](transfer.md).
@@ -110,7 +110,8 @@ Default:
   lazyload: false,
   touch: true,
   rewind: false,
-  nested: false
+  nested: false,
+  onInit: false
 }
 ```
 ## Get slider information
@@ -178,7 +179,7 @@ var slider = tns(...);
 slider.destory();
 ```
 ## Custom Events
-Available events include: `initialized`, `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
+Available events include: <del>`initialized`, </del>`indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
 var slider = tns(...);
 
@@ -193,6 +194,18 @@ slider.events.on('transitionEnd', customizedFunction);
 // remove function binding
 slider.events.off('transitionEnd', customizedFunction);
 ```
+**Initialized**  
+The `initialized` event doesn't work actually because the initialization has been finished when you call `var slider = tns(...);`, and it won't fire when you bind function to the event later.   
+You can use a fallback function `onInit` instead from [v1.2.0](https://github.com/ganlanyuan/tiny-slider/tree/v1.2.0).
+```javascript
+var slider = tns({
+  // other options
+  // ...
+  onInit: function (info) {
+    console.log(info.container);
+  }
+})
+```  
 #### Fallback
 ```css
 .no-js .your-slider { overflow-x: auto; }
