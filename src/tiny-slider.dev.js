@@ -28,7 +28,7 @@ import { imageLoaded } from './helpers/imageLoaded';
 import { whichProperty } from './helpers/whichProperty';
 import { addEvents } from './helpers/addEvents';
 import { removeEvents } from './helpers/removeEvents';
-import { events } from './helpers/events';
+import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
 var TRANSFORM = getSupportedProp([
@@ -117,7 +117,7 @@ export function tns(options) {
   if (typeof options.container !== 'object' || options.container === null) {
     return {
       destory: function () {},
-      events: events,
+      events: new Events(),
     }; 
   }
 
@@ -205,7 +205,8 @@ export function tns(options) {
       animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false,
       // resize and scroll
       resizeTimer,
-      ticking = false;
+      ticking = false,
+      events = new Events();
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;

@@ -3,14 +3,18 @@ import { tns } from '../../src/tiny-slider.pro';
 var speed = 100,
     doc = document;
 
-tns({
+tns().events.on('initilized', function(info) {
+  console.log(info.container.id);
+});
+
+var lazyloadS = tns({
   container: doc.querySelector('.lazyload'),
   items: 3,
   edgePadding: 40,
   lazyload: true,
   speed: speed,
 });
-tns({
+var customizeS = tns({
   container: doc.querySelector('.customize'),
   items: 3,
   controlsContainer: doc.querySelector('.customize-tools .controls'),
@@ -26,6 +30,11 @@ tns({
   speed: speed,
 });
 
+console.log(lazyloadS.events === customizeS.events);
+lazyloadS.events.on('transitionEnd', function(info) {
+  console.log(info.container.id);
+});
+
 var tt = (function () {
   var my = {}, 
       div = doc.createElement('div'),
@@ -35,12 +44,12 @@ var tt = (function () {
       gutter = 10,
       // sliderSetting = {};
       sliderSetting= {
-        'base': {
-          container: '',
-          speed: speed,
-          items: 3,
-          slideBy: 'page'
-        },
+        // 'base': {
+        //   container: '',
+        //   speed: speed,
+        //   items: 3,
+        //   slideBy: 'page'
+        // },
         'gutter': {
           container: '',
           speed: speed,
@@ -192,8 +201,8 @@ var tt = (function () {
   return my;
 })();
 
-tt.createSliderHtml();
-tt.initSliders();
+// tt.createSliderHtml();
+// tt.initSliders();
 
 // tns().events.on('transitionEnd', function(info) {
 //   if (info.container.id === 'base') {

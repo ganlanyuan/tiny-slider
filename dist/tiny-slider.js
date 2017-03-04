@@ -646,30 +646,32 @@ function removeEvents(el, events) {
   }
 }
 
-var events = {
-  events: {},
-  on: function (eventName, fn) {
-    this.events[eventName] = this.events[eventName] || [];
-    this.events[eventName].push(fn);
-  },
-  off: function(eventName, fn) {
-    if (this.events[eventName]) {
-      for (var i = 0; i < this.events[eventName].length; i++) {
-        if (this.events[eventName][i] === fn) {
-          this.events[eventName].splice(i, 1);
-          break;
+function Events() {
+  return {
+    topics: {},
+    on: function (eventName, fn) {
+      this.topics[eventName] = this.topics[eventName] || [];
+      this.topics[eventName].push(fn);
+    },
+    off: function(eventName, fn) {
+      if (this.topics[eventName]) {
+        for (var i = 0; i < this.topics[eventName].length; i++) {
+          if (this.topics[eventName][i] === fn) {
+            this.topics[eventName].splice(i, 1);
+            break;
+          }
         }
       }
+    },
+    emit: function (eventName, data) {
+      if (this.topics[eventName]) {
+        this.topics[eventName].forEach(function(fn) {
+          fn(data);
+        });
+      }
     }
-  },
-  emit: function (eventName, data) {
-    if (this.events[eventName]) {
-      this.events[eventName].forEach(function(fn) {
-        fn(data);
-      });
-    }
-  }
-};
+  };
+}
 
 function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   var tick = Math.min(duration, 10),
@@ -781,7 +783,7 @@ function tns(options) {
   if (typeof options.container !== 'object' || options.container === null) {
     return {
       destory: function () {},
-      events: events,
+      events: new Events(),
     }; 
   }
 
@@ -869,7 +871,8 @@ function tns(options) {
       animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false,
       // resize and scroll
       resizeTimer,
-      ticking = false;
+      ticking = false,
+      events = new Events();
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
