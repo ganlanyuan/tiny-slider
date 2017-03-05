@@ -1,4 +1,3 @@
-// @version 1.2.0
 // DEVELOPMENT
 
 // from go-native

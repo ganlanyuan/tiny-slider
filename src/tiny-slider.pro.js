@@ -1,4 +1,3 @@
-// @version 1.2.0
 // PRODUCTION
 
 // from go-native

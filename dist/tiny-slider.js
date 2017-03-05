@@ -692,7 +692,6 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// @version 1.2.0
 // PRODUCTION
 
 // from go-native
