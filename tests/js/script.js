@@ -1,4 +1,4 @@
-import { tns } from '../../src/tiny-slider.pro';
+// import { tns } from '../../src/tiny-slider.pro';
 
 var speed = 100,
     doc = document;

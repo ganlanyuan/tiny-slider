@@ -404,7 +404,7 @@ export function tns(options) {
       } else {
         append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
-        controlsContainer = contentWrapper.nextElementSibling;
+        controlsContainer = wrapper.querySelector('[data-tns-role="controls"]');
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
       }
@@ -432,7 +432,7 @@ export function tns(options) {
         navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         append(wrapper, navHtml);
 
-        navContainer = controlsContainer.nextElementSibling;
+        navContainer = wrapper.querySelector('[data-tns-role="nav"]');
         navItems = navContainer.children;
 
         // hide navs
