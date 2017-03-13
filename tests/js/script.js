@@ -47,12 +47,12 @@ var tt = (function () {
       gutter = 10,
       // sliderSetting = {};
       sliderSetting= {
-        // 'base': {
-        //   container: '',
-        //   speed: speed,
-        //   items: 3,
-        //   slideBy: 'page'
-        // },
+        'base': {
+          container: '',
+          speed: speed,
+          items: 3,
+          slideBy: 'page'
+        },
         'gutter': {
           container: '',
           speed: speed,

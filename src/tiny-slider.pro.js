@@ -942,7 +942,11 @@ export function tns(options) {
       }
     }
 
-    if (!event || event.target === container && event.propertyName === transformAttr) {
+    function strTrans(str) {
+      return str.toLowerCase().replace(/-/g, '');
+    }
+
+    if (!event || event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
       if (!checkIndexBeforeTransform) { 
         var indexTem = index;
         checkIndex();
