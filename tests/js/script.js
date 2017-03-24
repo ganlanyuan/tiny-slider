@@ -1,4 +1,4 @@
-// import { tns } from '../../src/tiny-slider.pro';
+// import { tns } from '../../src/tiny-slider';
 
 var speed = 100,
     doc = document;
@@ -14,7 +14,7 @@ var lazyloadS = tns({
   lazyload: true,
   speed: speed,
   onInit: function (info) {
-    console.log(info.items);
+    // console.log(info.items);
   }
 });
 var customizeS = tns({
@@ -33,10 +33,10 @@ tns({
   speed: speed,
 });
 
-console.log(lazyloadS.events === customizeS.events);
-lazyloadS.events.on('transitionEnd', function(info) {
-  console.log(info.container.id);
-});
+// console.log(lazyloadS.events === customizeS.events);
+// lazyloadS.events.on('transitionEnd', function(info) {
+//   console.log(info.container.id);
+// });
 
 var tt = (function () {
   var my = {}, 

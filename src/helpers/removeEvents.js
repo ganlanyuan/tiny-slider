@@ -1,15 +1,8 @@
-export function removeEvents(el, events) {
-  function remove(arr) {
-    el.removeEventListener(arr[0], arr[1], false);
-  }
+import { passiveOption } from './passiveOption';
 
-  if (Array.isArray(events)) {
-    if (Array.isArray(events[0])) {
-      for (var i = events.length; i--;) {
-        remove(events[i]);
-      }
-    } else {
-      remove(events);
-    }
+export function removeEvents(el, obj) {
+  for (var prop in obj) {
+    var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
+    el.removeEventListener(prop, obj[prop], option);
   }
 }

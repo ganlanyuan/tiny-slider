@@ -614,35 +614,29 @@ function whichProperty(obj){
   return false; // explicit for ie9-
 }
 
-function addEvents(el, events) {
-  function add(arr) {
-    el.addEventListener(arr[0], arr[1], false);
-  }
-
-  if (Array.isArray(events)) {
-    if (Array.isArray(events[0])) {
-      for (var i = events.length; i--;) {
-        add(events[i]);
-      }
-    } else {
-      add(events);
+// Test via a getter in the options object to see if the passive property is accessed
+var supportsPassive = false;
+try {
+  var opts = Object.defineProperty({}, 'passive', {
+    get: function() {
+      supportsPassive = true;
     }
+  });
+  window.addEventListener("test", null, opts);
+} catch (e) {}
+var passiveOption = supportsPassive ? { passive: true } : false;
+
+function addEvents(el, obj) {
+  for (var prop in obj) {
+    var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
+    el.addEventListener(prop, obj[prop], option);
   }
 }
 
-function removeEvents(el, events) {
-  function remove(arr) {
-    el.removeEventListener(arr[0], arr[1], false);
-  }
-
-  if (Array.isArray(events)) {
-    if (Array.isArray(events[0])) {
-      for (var i = events.length; i--;) {
-        remove(events[i]);
-      }
-    } else {
-      remove(events);
-    }
+function removeEvents(el, obj) {
+  for (var prop in obj) {
+    var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
+    el.removeEventListener(prop, obj[prop], option);
   }
 }
 
@@ -1005,7 +999,7 @@ function tns(options) {
   function msInit() {
     if (navigator.msMaxTouchPoints) {
       wrapper.classList.add('ms-touch');
-      addEvents(wrapper, ['scroll', ie10Scroll]);
+      addEvents(wrapper, {'scroll': ie10Scroll});
     }
   }
 
@@ -1155,54 +1149,56 @@ function tns(options) {
   function addSliderEvents() {
     if (mode === 'carousel') {
       if (TRANSITIONEND) {
-        addEvents(container, [TRANSITIONEND, onTransitionEnd]);
+        var eve = {};
+        eve[TRANSITIONEND] = onTransitionEnd;
+        addEvents(container, eve);
       }
       if (touch) {
-        addEvents(container, [
-          ['touchstart', onTouchStart],
-          ['touchmove', onTouchMove],
-          ['touchend', onTouchEnd],
-          ['touchcancel', onTouchEnd]
-        ]);
+        addEvents(container, {
+          'touchstart': onTouchStart,
+          'touchmove': onTouchMove,
+          'touchend': onTouchEnd,
+          'touchcancel': onTouchEnd
+        });
       }
     }
     if (nav) {
       for (var y = 0; y < slideCount; y++) {
-        addEvents(navItems[y],[
-          ['click', onClickNav],
-          ['keydown', onKeydownNav]
-        ]);
+        addEvents(navItems[y],{
+          'click': onClickNav,
+          'keydown': onKeydownNav
+        });
       }
     }
     if (controls) {
-      addEvents(prevButton,[
-        ['click', onClickPrev],
-        ['keydown', onKeydownControl]
-      ]);
-      addEvents(nextButton,[
-        ['click', onClickNext],
-        ['keydown', onKeydownControl]
-      ]);
+      addEvents(prevButton,{
+        'click': onClickPrev,
+        'keydown': onKeydownControl
+      });
+      addEvents(nextButton,{
+        'click': onClickNext,
+        'keydown': onKeydownControl
+      });
     }
     if (autoplay) {
-      addEvents(autoplayButton, ['click', toggleAnimation]);
+      addEvents(autoplayButton, {'click': toggleAnimation});
       if (autoplayHoverPause) {
-        addEvents(container, ['mouseover', function () {
+        addEvents(container, {'mouseover': function () {
           if (animating) { 
             stopAction(); 
             autoplayHoverStopped = true;
           }
-        }]);
-        addEvents(container, ['mouseout', function () {
+        }});
+        addEvents(container, {'mouseout': function () {
           if (!animating && autoplayHoverStopped) { 
             startAction(); 
             autoplayHoverStopped = false;
           }
-        }]);
+        }});
       }
     }
     if (arrowKeys) {
-      addEvents(document, ['keydown', onKeydownDocument]);
+      addEvents(document, {'keydown': onKeydownDocument});
     }
 
     if (nested === 'inner') {
@@ -1211,7 +1207,7 @@ function tns(options) {
         events.emit('innerLoaded', info());
       });
     } else {
-      addEvents(window, ['resize', onResize]);
+      addEvents(window, {'resize': onResize});
       if (nested === 'outer') {
         events.on('innerLoaded', runAutoHeight);
       }
@@ -1239,7 +1235,9 @@ function tns(options) {
       var img = arr[h];
 
       // stop propagationl transitionend event to container
-      addEvents(img, [TRANSITIONEND, function (e) { e.stopPropagation(); }]);
+      var eve = {};
+      eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
+      addEvents(img, eve);
 
       if (!img.classList.contains('loaded')) {
         img.src = getAttr(img, 'data-src');
@@ -1503,14 +1501,16 @@ function tns(options) {
     } else {
       return function () {
         slideItemsOut = [];
-        removeEvents(slideItems[indexCached], [
-          [TRANSITIONEND, onTransitionEnd],
-          [ANIMATIONEND, onTransitionEnd]
-        ]);
-        addEvents(slideItems[index], [
-          [TRANSITIONEND, onTransitionEnd],
-          [ANIMATIONEND, onTransitionEnd]
-        ]);
+
+        var eve1 = {};
+        eve1[TRANSITIONEND] = onTransitionEnd;
+        eve1[ANIMATIONEND] = onTransitionEnd;
+        removeEvents(slideItems[indexCached], eve1);
+
+        var eve2 = {};
+        eve2[TRANSITIONEND] = onTransitionEnd;
+        eve2[ANIMATIONEND] = onTransitionEnd;
+        addEvents(slideItems[index], eve2);
 
         (function () {
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
@@ -2076,11 +2076,11 @@ function tns(options) {
 
       // remove arrowKeys eventlistener
       if (arrowKeys) {
-        removeEvents(document, ['keydown', onKeydownDocument]);
+        removeEvents(document, {'keydown': onKeydownDocument});
       }
 
       // remove window event listeners
-      removeEvents(window, ['resize', onResize]);
+      removeEvents(window, {'resize': onResize});
     },
 
     // $ Private methods, for test only

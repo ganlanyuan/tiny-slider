@@ -20,18 +20,17 @@ const uglifyRollup = require('rollup-plugin-uglify');
 let sourcemapsDest = 'sourcemaps';
 let libName = 'tiny-slider',
     testName = 'script',
-    proPostfix = '.pro',
-    devPostfix = '.dev',
+    modulePostfix = '.module',
     helperIEPostfix = '.helper.ie8',
-    proScript = libName + proPostfix + '.js',
-    devScript = libName + devPostfix + '.js',
+    script = libName + '.js',
+    moduleScript = libName + modulePostfix + '.js',
     helperIEScript = libName + helperIEPostfix + '.js',
     testScript = testName + '.js',
     sassFile = libName + '.scss',
     pathSrc = 'src/',
     pathDest = 'dist/',
     pathTest = 'tests/js/',
-    scriptSources = [pathSrc + '**/*.js', '!' + pathSrc + devScript, '!' + pathSrc + helperIEScript];
+    scriptSources = [pathSrc + '**/*.js', '!' + pathSrc + moduleScript, '!' + pathSrc + helperIEScript];
 
 
 function errorlog (error) {  
@@ -41,7 +40,7 @@ function errorlog (error) {
 
 // SASS Task
 gulp.task('sass', function () {  
-  return gulp.src(sassFile)  
+  return gulp.src(pathSrc + sassFile)  
     .pipe(sourcemaps.init())
     .pipe(libsass({
       outputStyle: 'compressed', 
@@ -55,7 +54,7 @@ gulp.task('sass', function () {
 // Script Task
 gulp.task('script', function () {
   return rollup({
-    entry: pathSrc + proScript,
+    entry: pathSrc + script,
     context: 'window',
     treeshake: false,
     plugins: [
@@ -94,13 +93,13 @@ gulp.task('editPro', ['script'], function() {
 });
 
 gulp.task('makeDevCopy', function() {
-  return gulp.src(pathSrc + proScript)
+  return gulp.src(pathSrc + script)
     .pipe(change(function (content) {
       return content
         .replace('PRODUCTION', 'DEVELOPMENT')
         .replace(/bower_components/g, '..');
     }))
-    .pipe(rename({ basename: libName + devPostfix }))
+    .pipe(rename({ basename: libName + modulePostfix }))
     .pipe(gulp.dest(pathSrc))
 });
 
@@ -153,25 +152,21 @@ gulp.task('server', function() {
     open: false,
     notify: false
   });
-});
 
-// Watch
-gulp.task('watch', function () {
-  gulp.watch(pathSrc + 'sassFile', ['sass']);
-  gulp.watch(pathSrc + proScript, ['makeDevCopy']);
+  gulp.watch(pathSrc + sassFile, ['sass']);
+  gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
   gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']);
-  gulp.watch(['**/*.html', pathTest + testName + '.min.js']).on('change', browserSync.reload);
+  gulp.watch(['**/*.html', pathTest + testName + '.min.js', pathDest + '*.css']).on('change', browserSync.reload);
   // gulp.watch('src/tiny-slider.native.js, tests/tests.js', ['testcafe']);
 });
 
 // Default Task
 gulp.task('default', [
   // 'sass',
-  'min',
+  // 'min',
   // 'helper-ie8',
   // 'makeDevCopy',
-  'test',
+  // 'test',
   'server', 
-  'watch', 
 ]);  

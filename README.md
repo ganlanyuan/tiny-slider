@@ -43,6 +43,15 @@ Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
 <script src="go-native.js"></script>
 <script src="tiny-slider.native.js"></script>
 ```
+You can import it via `webpack` or `rollup`:
+```javascript
+import { tns } from "path/to/src/tiny-slider.module"
+
+var slider = tns({
+  key: value
+});
+```
+
 ##### 2. Add markup
 ```html
 <!-- markup -->
