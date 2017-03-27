@@ -148,7 +148,7 @@ info = {
 ```
 
 ## Methods
-#####getInfo
+##### getInfo
 ```javascript
 // get info object
 var slider = tns(...);
