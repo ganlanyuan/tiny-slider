@@ -1945,10 +1945,10 @@ function tns(options) {
     if (index !== indexTem) { 
       events.emit('indexChanged', info());
       updateSlideStatus();
-      if (!loop) { updateControlsStatus(); }
+      if (controls && !loop) { updateControlsStatus(); }
     }
 
-    if (items !== itemsTem && !options.navContainer) { 
+    if (nav && items !== itemsTem && !options.navContainer) { 
       updateNavDisplay(); 
       updateNavStatus();
     } 
