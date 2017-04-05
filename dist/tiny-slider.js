@@ -759,6 +759,7 @@ function tns(options) {
     autoplayText: ['start', 'stop'],
     autoplayHoverPause: false,
     autoplayButton: false,
+    autoplayResetOnVisibility: true,
     animateIn: 'tns-fadeIn',
     animateOut: 'tns-fadeOut',
     animateNormal: 'tns-normal',
@@ -770,7 +771,7 @@ function tns(options) {
     touch: true,
     rewind: false,
     nested: false,
-    onInit: false,
+    onInit: false
   }, options || {});
 
   // make sure slide container exists
@@ -845,6 +846,8 @@ function tns(options) {
       animating = false,
       autoplayHoverStopped = false,
       autoplayHtmlString = '<span hidden>Stop Animation</span>',
+      autoplayResetOnVisibility = options.autoplayResetOnVisibility,
+      autoplayResetVisibilityState = false,
       // touch
       touch = options.touch,
       startX = 0,
@@ -1195,6 +1198,9 @@ function tns(options) {
             autoplayHoverStopped = false;
           }
         }});
+      }
+      if (autoplayResetOnVisibility) {
+        addEvents(document, {'visibilitychange': onVisibilityChange});
       }
     }
     if (arrowKeys) {
@@ -1641,11 +1647,15 @@ function tns(options) {
 
   // # ACTIONS
   // on controls click
-  function onClickControl(dir) {
+  function onClickControl(dir, auto) {
     if (getAttr(container, 'aria-busy') !== 'true') {
       index = index + dir * slideBy;
 
       render();
+    }
+    // If the user clicks a navigation tab we don't want to whisk them away because of this timer
+    if (!auto) {
+      resetActionTimer();
     }
   }
 
@@ -1679,9 +1689,7 @@ function tns(options) {
   }
 
   function startAction() {
-    autoplayTimer = setInterval(function () {
-      onClickControl(autoplayDirection);
-    }, autoplayTimeout);
+    resetActionTimer();
     setAttrs(autoplayButton, {'data-action': 'stop'});
     autoplayButton.innerHTML = autoplayHtmlString + autoplayText[1];
 
@@ -1689,11 +1697,22 @@ function tns(options) {
   }
 
   function stopAction() {
-    clearInterval(autoplayTimer);
+    pauseActionTimer();
     setAttrs(autoplayButton, {'data-action': 'start'});
     autoplayButton.innerHTML = autoplayHtmlString.replace('Stop', 'Start') + autoplayText[0];
 
     animating = false;
+  }
+
+  function pauseActionTimer() {
+    clearInterval(autoplayTimer);
+  }
+
+  function resetActionTimer() {
+    clearInterval(autoplayTimer);
+    autoplayTimer = setInterval(function () {
+      onClickControl(autoplayDirection, true);
+    }, autoplayTimeout);
   }
 
   function toggleAnimation() {
@@ -1702,6 +1721,13 @@ function tns(options) {
     } else {
       startAction();
     }
+  }
+
+  function onVisibilityChange() {
+    if (autoplayResetVisibilityState != document.hidden && animating) {
+      document.hidden ? pauseActionTimer() : resetActionTimer();
+    }
+    autoplayResetVisibilityState = document.hidden;
   }
 
   // 
@@ -2068,6 +2094,7 @@ function tns(options) {
         } else {
           removeEventsByClone(autoplayButton);
         }
+        removeEvents(document, {'visibilitychange': onVisibilityChange});
       }
 
       // remove slider container events at the end
