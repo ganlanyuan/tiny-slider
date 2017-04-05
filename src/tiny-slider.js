@@ -987,20 +987,17 @@ export function tns(options) {
 
   // # ACTIONS
   // on controls click
-  function onClickControl(dir, auto) {
+  function onClickControl(dir) {
     if (getAttr(container, 'aria-busy') !== 'true') {
       index = index + dir * slideBy;
 
       render();
     }
-    // If the user clicks a navigation tab we don't want to whisk them away because of this timer
-    if (!auto) {
-      resetActionTimer();
-    }
   }
 
   function onClickPrev() {
     onClickControl(-1);
+    resetActionTimer();
   }
 
   function onClickNext() {
@@ -1009,6 +1006,7 @@ export function tns(options) {
     }else{
       onClickControl(1);
     }
+    resetActionTimer();
   }
 
   // on doc click
@@ -1025,6 +1023,7 @@ export function tns(options) {
       index = (options.navContainer) ? navIndex + adjust : navIndex * items + adjust;
 
       if (index !== indexCached) { render(); }
+      resetActionTimer();
     }
   }
 
@@ -1049,6 +1048,9 @@ export function tns(options) {
   }
 
   function resetActionTimer() {
+    if (!animating) {
+      return;
+    }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
       onClickControl(autoplayDirection, true);
