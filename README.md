@@ -1,6 +1,6 @@
 # tiny-slider
 ![version](https://img.shields.io/badge/Version-1.3.1-green.svg)   
-Tiny slider for all purposes, inspired by [Owl Carousel](http://owlcarousel.owlgraphic.com/).   
+Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 <!-- [demo](http://creatiointl.org/william/tiny-slider/v1-new/demo/)    -->
 The previous version is still available in branch [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0), you may want to know how to [transfer from v0](transfer.md).
 
