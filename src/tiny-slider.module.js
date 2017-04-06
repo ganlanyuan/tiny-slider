@@ -99,6 +99,7 @@ export function tns(options) {
     autoplayText: ['start', 'stop'],
     autoplayHoverPause: false,
     autoplayButton: false,
+    autoplayResetOnVisibility: true,
     animateIn: 'tns-fadeIn',
     animateOut: 'tns-fadeOut',
     animateNormal: 'tns-normal',
@@ -110,7 +111,7 @@ export function tns(options) {
     touch: true,
     rewind: false,
     nested: false,
-    onInit: false,
+    onInit: false
   }, options || {});
 
   // make sure slide container exists
@@ -185,6 +186,8 @@ export function tns(options) {
       animating = false,
       autoplayHoverStopped = false,
       autoplayHtmlString = '<span hidden>Stop Animation</span>',
+      autoplayResetOnVisibility = options.autoplayResetOnVisibility,
+      autoplayResetVisibilityState = false,
       // touch
       touch = options.touch,
       startX = 0,
@@ -535,6 +538,9 @@ export function tns(options) {
             autoplayHoverStopped = false;
           }
         }});
+      }
+      if (autoplayResetOnVisibility) {
+        addEvents(document, {'visibilitychange': onVisibilityChange});
       }
     }
     if (arrowKeys) {
@@ -991,6 +997,7 @@ export function tns(options) {
 
   function onClickPrev() {
     onClickControl(-1);
+    resetActionTimer();
   }
 
   function onClickNext() {
@@ -999,6 +1006,7 @@ export function tns(options) {
     }else{
       onClickControl(1);
     }
+    resetActionTimer();
   }
 
   // on doc click
@@ -1015,13 +1023,12 @@ export function tns(options) {
       index = (options.navContainer) ? navIndex + adjust : navIndex * items + adjust;
 
       if (index !== indexCached) { render(); }
+      resetActionTimer();
     }
   }
 
   function startAction() {
-    autoplayTimer = setInterval(function () {
-      onClickControl(autoplayDirection);
-    }, autoplayTimeout);
+    resetActionTimer();
     setAttrs(autoplayButton, {'data-action': 'stop'});
     autoplayButton.innerHTML = autoplayHtmlString + autoplayText[1];
 
@@ -1029,11 +1036,25 @@ export function tns(options) {
   }
 
   function stopAction() {
-    clearInterval(autoplayTimer);
+    pauseActionTimer();
     setAttrs(autoplayButton, {'data-action': 'start'});
     autoplayButton.innerHTML = autoplayHtmlString.replace('Stop', 'Start') + autoplayText[0];
 
     animating = false;
+  }
+
+  function pauseActionTimer() {
+    clearInterval(autoplayTimer);
+  }
+
+  function resetActionTimer() {
+    if (!animating) {
+      return;
+    }
+    clearInterval(autoplayTimer);
+    autoplayTimer = setInterval(function () {
+      onClickControl(autoplayDirection, true);
+    }, autoplayTimeout);
   }
 
   function toggleAnimation() {
@@ -1042,6 +1063,13 @@ export function tns(options) {
     } else {
       startAction();
     }
+  }
+
+  function onVisibilityChange() {
+    if (autoplayResetVisibilityState != document.hidden && animating) {
+      document.hidden ? pauseActionTimer() : resetActionTimer();
+    }
+    autoplayResetVisibilityState = document.hidden;
   }
 
   // 
@@ -1408,6 +1436,7 @@ export function tns(options) {
         } else {
           removeEventsByClone(autoplayButton);
         }
+        removeEvents(document, {'visibilitychange': onVisibilityChange});
       }
 
       // remove slider container events at the end

@@ -109,6 +109,7 @@ Default:
   autoplayText: ['start', 'stop'],
   autoplayHoverPause: false,
   autoplayButton: false,
+  autoplayResetOnVisibility: true,
   animateIn: 'tns-fadeIn',
   animateOut: 'tns-fadeOut',
   animateNormal: 'tns-normal',
