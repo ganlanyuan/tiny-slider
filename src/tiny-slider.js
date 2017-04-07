@@ -226,9 +226,9 @@ export function tns(options) {
             bpKeys = (typeof responsive === 'object') ? Object.keys(responsive) : false;
 
         if (bpKeys) {
-          for (var i = 0; i < bpKeys.length; i++) {
-            if (vw >= bpKeys[i]) { itemsTem = responsive[bpKeys[i]]; }
-          }
+          bpKeys.forEach(function (key) {
+            if (vw >= key) { itemsTem = responsive[key]; }
+          });
         }
         return Math.max(1, Math.min(slideCount, itemsTem));
       };
@@ -418,14 +418,14 @@ export function tns(options) {
       if (options.navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        for (var x = navItems.length; x--;) {
-          setAttrs(navItems[x], {
-            'data-nav': x,
+        [].forEach.call(navItems, function (item, index) {
+          setAttrs(item, {
+            'data-nav': index,
             'tabindex': '-1',
             'aria-selected': 'false',
-            'aria-controls': slideId + '-item' + x,
+            'aria-controls': slideId + '-item' + index,
           });
-        }
+        });
       } else {
         var navHtml = '';
         for (var i = 0; i < slideCount; i++) {
@@ -566,8 +566,8 @@ export function tns(options) {
 
   // lazyload
   function lazyLoad() {
-    var arr = [], 
-        i = index, 
+    // var arr = [], 
+    var i = index, 
         len = index + items;
         
     if (edgePadding) {
@@ -576,23 +576,17 @@ export function tns(options) {
     }
 
     for(; i < len; i++) {
-      var imgsTem = slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]');
-      for(var j = imgsTem.length; j--; arr.unshift(imgsTem[j]));
-      arr.unshift();
-    }
+      [].forEach.call(slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]'), function (img) {
+        // stop propagationl transitionend event to container
+        var eve = {};
+        eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
+        addEvents(img, eve);
 
-    for (var h = arr.length; h--;) {
-      var img = arr[h];
-
-      // stop propagationl transitionend event to container
-      var eve = {};
-      eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
-      addEvents(img, eve);
-
-      if (!img.classList.contains('loaded')) {
-        img.src = getAttr(img, 'data-src');
-        img.classList.add('loaded');
-      }
+        if (!img.classList.contains('loaded')) {
+          img.src = getAttr(img, 'data-src');
+          img.classList.add('loaded');
+        }
+      });
     }
   }
 
@@ -603,10 +597,9 @@ export function tns(options) {
     var images = [];
 
     for (var i = index; i < index + items; i++) {
-      var imagesTem = slideItems[i].querySelectorAll('img');
-      for (var j = imagesTem.length; j--;) {
-        images.push(imagesTem[j]);
-      }
+      [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        images.push(img);
+      });
     }
 
     if (images.length === 0) {
@@ -617,11 +610,9 @@ export function tns(options) {
   }
 
   function checkImagesLoaded(images) {
-    for (var i = images.length; i--;) {
-      if (imageLoaded(images[i])) {
-        images.splice(i, 1);
-      }
-    }
+    images.forEach(function (img, index) {
+      if (imageLoaded(img)) { images.splice(index, 1); }
+    });
 
     if (images.length === 0) {
       updateContainerHeight();
@@ -793,23 +784,21 @@ export function tns(options) {
       }
 
       if (disable.length > 0) {
-        for (var i = disable.length; i--;) {
-          var button = disable[i];
+        disable.forEach(function (button) {
           if (!button.disabled) {
             button.disabled = true;
             setAttrs(button, {'tabindex': '-1'});
           }
-        }
+        });
       }
 
       if (active.length > 0) {
-        for (var j = active.length; j--;) {
-          var button2 = active[j];
-          if (button2.disabled) {
-            button2.disabled = false;
-            setAttrs(button2, {'tabindex': '0'});
+        active.forEach(function (button) {
+          if (button.disabled) {
+            button.disabled = false;
+            setAttrs(button, {'tabindex': '0'});
           }
-        }
+        });
       }
     }
   }
@@ -971,21 +960,21 @@ export function tns(options) {
 
     /*
      * update slides, nav, controls after checking ...
+     *
+     * => legacy browsers who don't support 'event' 
+     *    have to check event first, otherwise event.target will cause an error 
      * 
-     * => 'gallery' mode: 
+     * => or 'gallery' mode: 
      *   + event target is slide item
      *
      * => or 'carousel' mode: 
      *   + event target is container, 
      *   + event.property is the same with transform attribute
      *
-     * => or legacy browsers who don't support 'event' 
-     *
      */
-    var eventTarget = event.target;
-    if (mode === 'gallery' && eventTarget.parentNode === container || 
-        eventTarget === container && strTrans(event.propertyName) === strTrans(transformAttr) || 
-        !event) {
+    if (!event || 
+        mode === 'gallery' && event.target.parentNode === container || 
+        event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
 
       if (!checkIndexBeforeTransform) { 
         var indexTem = index;
@@ -995,7 +984,7 @@ export function tns(options) {
           events.emit('indexChanged', info());
         }
       } 
-      
+
       updateSlideStatus();
       updateNavStatus();
       updateControlsStatus();
