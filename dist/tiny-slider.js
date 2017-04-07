@@ -1165,6 +1165,7 @@ function tns(options) {
         });
       }
     }
+
     if (nav) {
       for (var y = 0; y < slideCount; y++) {
         addEvents(navItems[y],{
@@ -1173,6 +1174,7 @@ function tns(options) {
         });
       }
     }
+
     if (controls) {
       addEvents(prevButton,{
         'click': onClickPrev,
@@ -1183,6 +1185,7 @@ function tns(options) {
         'keydown': onKeydownControl
       });
     }
+
     if (autoplay) {
       addEvents(autoplayButton, {'click': toggleAnimation});
       if (autoplayHoverPause) {
@@ -1203,6 +1206,7 @@ function tns(options) {
         addEvents(document, {'visibilitychange': onVisibilityChange});
       }
     }
+
     if (arrowKeys) {
       addEvents(document, {'keydown': onKeydownDocument});
     }
@@ -1614,11 +1618,35 @@ function tns(options) {
       }
     }
 
+    /*
+     * Transfer prefixed properties to the same format
+     * CSS: -Webkit-Transform => webkittransform
+     * JS: WebkitTransform => webkittransform
+     * @param {string} str - property
+     *
+     */
     function strTrans(str) {
       return str.toLowerCase().replace(/-/g, '');
     }
 
-    if (!event || event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
+    /*
+     * update slides, nav, controls after checking ...
+     * 
+     * => 'gallery' mode: 
+     *   + event target is slide item
+     *
+     * => or 'carousel' mode: 
+     *   + event target is container, 
+     *   + event.property is the same with transform attribute
+     *
+     * => or legacy browsers who don't support 'event' 
+     *
+     */
+    var eventTarget = event.target;
+    if (mode === 'gallery' && eventTarget.parentNode === container || 
+        eventTarget === container && strTrans(event.propertyName) === strTrans(transformAttr) || 
+        !event) {
+
       if (!checkIndexBeforeTransform) { 
         var indexTem = index;
         checkIndex();
@@ -1627,6 +1655,7 @@ function tns(options) {
           events.emit('indexChanged', info());
         }
       } 
+      
       updateSlideStatus();
       updateNavStatus();
       updateControlsStatus();
@@ -1639,6 +1668,7 @@ function tns(options) {
       removeAttrs(container, 'aria-busy');
       updateIndexCache();
     }
+
   }
 
   function updateIndexCache() {
@@ -1657,7 +1687,6 @@ function tns(options) {
 
   function onClickPrev() {
     onClickControl(-1);
-    resetActionTimer();
   }
 
   function onClickNext() {
@@ -1666,7 +1695,6 @@ function tns(options) {
     }else{
       onClickControl(1);
     }
-    resetActionTimer();
   }
 
   // on doc click
@@ -1683,7 +1711,6 @@ function tns(options) {
       index = (options.navContainer) ? navIndex + adjust : navIndex * items + adjust;
 
       if (index !== indexCached) { render(); }
-      resetActionTimer();
     }
   }
 
@@ -1708,12 +1735,10 @@ function tns(options) {
   }
 
   function resetActionTimer() {
-    if (!animating) {
-      return;
-    }
+    if (animating) { return; }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
-      onClickControl(autoplayDirection, true);
+      onClickControl(autoplayDirection);
     }, autoplayTimeout);
   }
 
