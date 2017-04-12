@@ -1257,7 +1257,7 @@ export function tns(options) {
 
   function onMouseDown(e) {
     e.preventDefault();
-  e.stopPropagation();
+    e.stopPropagation();
     var touchObj = e.target;
     startX = parseInt(e.clientX);
     startY = parseInt(e.clientY);
@@ -1294,6 +1294,7 @@ export function tns(options) {
     var touchObj = e.target;
     disX = parseInt(e.clientX) - startX;
     disY = parseInt(e.clientY) - startY;
+    
     if (touchStarted) {
       touchStarted = false;
       e.preventDefault();
