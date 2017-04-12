@@ -18,11 +18,16 @@ img {
   height: auto;
 }
 .img {
-  padding: 22% 0;
   font-size: 100px;
   font-weight: 100;
   color: #fff;
   text-align: center;
+}
+.img a {
+  display: block;
+  padding: 22% 0;
+  color: inherit;
+  text-decoration: none;
 }
 .img-1 { background: #D6D65B; background: hsl(60, 60%, 60%); }
 .img-2 { background: #5BD6AD; background: hsl(160, 60%, 60%); }

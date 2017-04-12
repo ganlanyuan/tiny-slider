@@ -190,8 +190,8 @@ export function tns(options) {
       autoplayResetVisibilityState = false,
       // touch
       touch = options.touch,
-      startX = 0,
-      startY = 0,
+      startX = null,
+      startY = null,
       translateInit,
       disX,
       disY,
@@ -508,10 +508,10 @@ export function tns(options) {
       }
       if (mouseDrag) {
         addEvents(container, {
-          'mousedown': onMouseDown,
-          'mousemove': onMouseMove,
-          'mouseup': onMouseUp,
-          'mouseleave': onMouseUp
+          'mousedown': onTouchStart,
+          'mousemove': onTouchMove,
+          'mouseup': onTouchEnd,
+          'mouseleave': onTouchEnd
         });
       }
     }
@@ -1189,115 +1189,87 @@ export function tns(options) {
     updateIndexCache();
   }
 
+  // { Number } - use this value to indecate: "click" || "drag"
+  // 0 - init
+  // 1 - mousedown
+  // 2 - mousemove => "drag"
+  // 1 - mouseup (mouseleave) => "click"
+  var mouseValue = 0;
+
   function onTouchStart(e) {
     e.stopPropagation();
-    var touchObj = e.changedTouches[0];
-    startX = parseInt(touchObj.clientX);
-    startY = parseInt(touchObj.clientY);
+
+    // set mouseValue to 1 which indecate "mousedown"
+    if (e.type.indexOf('mouse') === 0) { mouseValue = 1; }
+
+    var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
+    startX = parseInt(evt.clientX);
+    startY = parseInt(evt.clientY);
     translateInit = Number(container.style[TRANSFORM].slice(11, -3));
-    events.emit('touchStart', info(e));
+
+    if (e.type === 'touchstart') {
+      events.emit('touchStart', info(e));
+    } else {
+      events.emit('dragStart', info(e));
+    }
   }
 
   function onTouchMove(e) {
     e.stopPropagation();
-    var touchObj = e.changedTouches[0];
-    disX = parseInt(touchObj.clientX) - startX;
-    disY = parseInt(touchObj.clientY) - startY;
+    // make sure touch started or mouse draged
+    if (startX !== null) {
 
-    if (getTouchDirection(toDegree(disY, disX), 15) === axis) { 
-      touchStarted = true;
-      e.preventDefault();
-      events.emit('touchMove', info(e));
+      // "mousemove" event indecate it's "drag", not "click"
+      // set mouseValue to 2
+      if (e.type.indexOf('mouse') === 0) { mouseValue = 2; }
 
-      var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
+      var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
+      disX = parseInt(evt.clientX) - startX;
+      disY = parseInt(evt.clientY) - startY;
 
-      setDurations(0);
-      container.style[TRANSFORM] = 'translate' + x + 'px)';
+      if (getTouchDirection(toDegree(disY, disX), 15) === axis) { 
+        touchStarted = true;
+        e.preventDefault();
+
+        if (e.type === 'touchmove') {
+          events.emit('touchMove', info(e));
+        } else {
+          events.emit('dragMove', info(e));
+        }
+
+        var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
+
+        setDurations(0);
+        container.style[TRANSFORM] = 'translate' + x + 'px)';
+      }
     }
   }
 
   function onTouchEnd(e) {
     e.stopPropagation();
-    var touchObj = e.changedTouches[0];
-    disX = parseInt(touchObj.clientX) - startX;
-    disY = parseInt(touchObj.clientY) - startY;
 
-    if (touchStarted) {
-      touchStarted = false;
-      e.preventDefault();
+    // drag vs click ?
+    if (mouseValue === 2) { 
+      // reset mouseValue
+      mouseValue = 0;
 
-      if (axis === 'horizontal') {
-        index = - (translateInit + disX) / slideWidth;
-        index = (disX > 0) ? Math.floor(index) : Math.ceil(index);
-      } else {
-        var moved = - (translateInit + disY);
-        if (moved <= 0) {
-          index = indexMin;
-        } else if (moved >= slideEdges[slideEdges.length - 1]) {
-          index = indexMax;
-        } else {
-          var i = 0;
-          do {
-            i++;
-            index = (disY < 0) ? i + 1 : i;
-          } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
-        }
-      }
-      events.emit('touchEnd', info(e));
-
-      render();
-    }
-  }
-
-  // Functions relative to mouse events
-
-  function preventEvent(e) {
-    e.preventDefault()
-  }
-
-  function onMouseDown(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    var touchObj = e.target;
-    startX = parseInt(e.clientX);
-    startY = parseInt(e.clientY);
-    translateInit = Number(container.style[TRANSFORM].slice(11, -3));
-    touchStarted = true;
-    events.emit('mousedown', info(e));
-  }
-
-
-  function onMouseMove(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    var touchObj = e.target;
-    disX = parseInt(e.clientX) - startX;
-    disY = parseInt(e.clientY) - startY;
-    touchObj.removeEventListener('click',preventEvent);
-    if (touchStarted && getTouchDirection(toDegree(disY, disX), 15) === axis) { 
-      
-      touchStarted = true;
-      touchObj.addEventListener('click',preventEvent);
-      e.preventDefault();
-      events.emit('mousemove', info(e));
-
-      var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
-
-      setDurations(0);
-      container.style[TRANSFORM] = 'translate' + x + 'px)';
-    }
-  }
-
-  function onMouseUp(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    var touchObj = e.target;
-    disX = parseInt(e.clientX) - startX;
-    disY = parseInt(e.clientY) - startY;
+      // prevent "click" on "drag"
+      var target = e.target;
+      addEvents(target, {'click': function preventClick(e) {
+        e.preventDefault();
+        removeEvents(target, {'click': preventClick});
+      }}); 
+    } 
     
     if (touchStarted) {
       touchStarted = false;
-      e.preventDefault();
+
+      var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
+      disX = parseInt(evt.clientX) - startX;
+      disY = parseInt(evt.clientY) - startY;
+
+      // reset startX, startY
+      startX = startY = null;
 
       if (axis === 'horizontal') {
         index = - (translateInit + disX) / slideWidth;
@@ -1316,7 +1288,11 @@ export function tns(options) {
           } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
         }
       }
-      events.emit('mouseup', info(e));
+      if (e.type === 'touchend') {
+        events.emit('touchEnd', info(e));
+      } else {
+        events.emit('dragEnd', info(e));
+      }
 
       render();
     }

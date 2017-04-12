@@ -51,6 +51,7 @@ var tt = (function () {
           container: '',
           speed: speed,
           items: 3,
+          mouseDrag: true,
           slideBy: 'page'
         },
         'gutter': {
