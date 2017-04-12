@@ -109,11 +109,11 @@ export function tns(options) {
     responsive: false,
     lazyload: false,
     touch: true,
+    mouseDrag: false,
     rewind: false,
     nested: false,
     onInit: false
   }, options || {});
-
   // make sure slide container exists
   if (typeof options.container !== 'object' || options.container === null) { return; }
 
@@ -196,6 +196,8 @@ export function tns(options) {
       disX,
       disY,
       touchStarted,
+      //mouse
+      mouseDrag = options.mouseDrag,
       // gallery
       animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
       animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
@@ -502,6 +504,14 @@ export function tns(options) {
           'touchmove': onTouchMove,
           'touchend': onTouchEnd,
           'touchcancel': onTouchEnd
+        });
+      }
+      if (mouseDrag) {
+        addEvents(container, {
+          'mousedown': onMouseDown,
+          'mousemove': onMouseMove,
+          'mouseup': onMouseUp,
+          'mouseleave': onMouseUp
         });
       }
     }
@@ -1234,6 +1244,79 @@ export function tns(options) {
         }
       }
       events.emit('touchEnd', info(e));
+
+      render();
+    }
+  }
+
+  // Functions relative to mouse events
+
+  function preventEvent(e) {
+    e.preventDefault()
+  }
+
+  function onMouseDown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var touchObj = e.target;
+    startX = parseInt(e.clientX);
+    startY = parseInt(e.clientY);
+    translateInit = Number(container.style[TRANSFORM].slice(11, -3));
+    touchStarted = true;
+    events.emit('mousedown', info(e));
+  }
+
+
+  function onMouseMove(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var touchObj = e.target;
+    disX = parseInt(e.clientX) - startX;
+    disY = parseInt(e.clientY) - startY;
+    touchObj.removeEventListener('click',preventEvent);
+    if (touchStarted && getTouchDirection(toDegree(disY, disX), 15) === axis) { 
+      
+      touchStarted = true;
+      touchObj.addEventListener('click',preventEvent);
+      e.preventDefault();
+      events.emit('mousemove', info(e));
+
+      var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
+
+      setDurations(0);
+      container.style[TRANSFORM] = 'translate' + x + 'px)';
+    }
+  }
+
+  function onMouseUp(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var touchObj = e.target;
+    disX = parseInt(e.clientX) - startX;
+    disY = parseInt(e.clientY) - startY;
+    
+    if (touchStarted) {
+      touchStarted = false;
+      e.preventDefault();
+
+      if (axis === 'horizontal') {
+        index = - (translateInit + disX) / slideWidth;
+        index = (disX > 0) ? Math.floor(index) : Math.ceil(index);
+      } else {
+        var moved = - (translateInit + disY);
+        if (moved <= 0) {
+          index = indexMin;
+        } else if (moved >= slideEdges[slideEdges.length - 1]) {
+          index = indexMax;
+        } else {
+          var i = 0;
+          do {
+            i++;
+            index = (disY < 0) ? i + 1 : i;
+          } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
+        }
+      }
+      events.emit('mouseup', info(e));
 
       render();
     }
