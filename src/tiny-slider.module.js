@@ -500,18 +500,18 @@ export function tns(options) {
       }
       if (touch) {
         addEvents(container, {
-          'touchstart': onTouchStart,
-          'touchmove': onTouchMove,
-          'touchend': onTouchEnd,
-          'touchcancel': onTouchEnd
+          'touchstart': onSlideStart,
+          'touchmove': onSlideMove,
+          'touchend': onSlideEnd,
+          'touchcancel': onSlideEnd
         });
       }
       if (mouseDrag) {
         addEvents(container, {
-          'mousedown': onTouchStart,
-          'mousemove': onTouchMove,
-          'mouseup': onTouchEnd,
-          'mouseleave': onTouchEnd
+          'mousedown': onSlideStart,
+          'mousemove': onSlideMove,
+          'mouseup': onSlideEnd,
+          'mouseleave': onSlideEnd
         });
       }
     }
@@ -1196,7 +1196,7 @@ export function tns(options) {
   // 1 - mouseup (mouseleave) => "click"
   var mouseValue = 0;
 
-  function onTouchStart(e) {
+  function onSlideStart(e) {
     e.stopPropagation();
 
     // set mouseValue to 1 which indecate "mousedown"
@@ -1214,7 +1214,7 @@ export function tns(options) {
     }
   }
 
-  function onTouchMove(e) {
+  function onSlideMove(e) {
     e.stopPropagation();
     // make sure touch started or mouse draged
     if (startX !== null) {
@@ -1245,7 +1245,7 @@ export function tns(options) {
     }
   }
 
-  function onTouchEnd(e) {
+  function onSlideEnd(e) {
     e.stopPropagation();
 
     // drag vs click ?
