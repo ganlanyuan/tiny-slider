@@ -1212,6 +1212,7 @@ function tns(options) {
           }
         }});
       }
+
       if (autoplayResetOnVisibility) {
         addEvents(document, {'visibilitychange': onVisibilityChange});
       }
@@ -1730,11 +1731,12 @@ function tns(options) {
   }
 
   function pauseActionTimer() {
+    animating = 'paused';
     clearInterval(autoplayTimer);
   }
 
   function resetActionTimer() {
-    if (animating) { return; }
+    if (animating === true) { return; }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
       onClickControl(autoplayDirection);
@@ -1750,7 +1752,7 @@ function tns(options) {
   }
 
   function onVisibilityChange() {
-    if (autoplayResetVisibilityState != document.hidden && animating) {
+    if (autoplayResetVisibilityState != document.hidden && animating !== false) {
       document.hidden ? pauseActionTimer() : resetActionTimer();
     }
     autoplayResetVisibilityState = document.hidden;
