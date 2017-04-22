@@ -1160,18 +1160,18 @@ function tns(options) {
       }
       if (touch) {
         addEvents(container, {
-          'touchstart': onSlideStart,
-          'touchmove': onSlideMove,
-          'touchend': onSlideEnd,
-          'touchcancel': onSlideEnd
+          'touchstart': onTouchOrMouseStart,
+          'touchmove': onTouchOrMouseMove,
+          'touchend': onTouchOrMouseEnd,
+          'touchcancel': onTouchOrMouseEnd
         });
       }
       if (mouseDrag) {
         addEvents(container, {
-          'mousedown': onSlideStart,
-          'mousemove': onSlideMove,
-          'mouseup': onSlideEnd,
-          'mouseleave': onSlideEnd
+          'mousedown': onTouchOrMouseStart,
+          'mousemove': onTouchOrMouseMove,
+          'mouseup': onTouchOrMouseEnd,
+          'mouseleave': onTouchOrMouseEnd
         });
       }
     }
@@ -1858,13 +1858,13 @@ function tns(options) {
   // 1 - mouseup (mouseleave) => "click"
   var mouseValue = 0;
 
-  function onSlideStart(e) {
+  function onTouchOrMouseStart(e) {
     e.stopPropagation();
 
     // set mouseValue to 1 which indecate "mousedown"
-    if (e.type.indexOf('mouse') === 0) { mouseValue = 1; }
+    if (e.type === 'mousedown') { mouseValue = 1; }
 
-    var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
+    var evt = (e.type === 'mousedown') ? e : e.changedTouches[0];
     startX = parseInt(evt.clientX);
     startY = parseInt(evt.clientY);
     translateInit = Number(container.style[TRANSFORM].slice(11, -3));
@@ -1876,16 +1876,16 @@ function tns(options) {
     }
   }
 
-  function onSlideMove(e) {
+  function onTouchOrMouseMove(e) {
     e.stopPropagation();
     // make sure touch started or mouse draged
     if (startX !== null) {
 
       // "mousemove" event indecate it's "drag", not "click"
       // set mouseValue to 2
-      if (e.type.indexOf('mouse') === 0) { mouseValue = 2; }
+      if (e.type === 'mousemove') { mouseValue = 2; }
 
-      var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
+      var evt = (e.type === 'mousemove') ? e : e.changedTouches[0];
       disX = parseInt(evt.clientX) - startX;
       disY = parseInt(evt.clientY) - startY;
 
@@ -1907,22 +1907,9 @@ function tns(options) {
     }
   }
 
-  function onSlideEnd(e) {
+  function onTouchOrMouseEnd(e) {
     e.stopPropagation();
 
-    // drag vs click ?
-    if (mouseValue === 2) { 
-      // reset mouseValue
-      mouseValue = 0;
-
-      // prevent "click" on "drag"
-      var target = e.target;
-      addEvents(target, {'click': function preventClick(e) {
-        e.preventDefault();
-        removeEvents(target, {'click': preventClick});
-      }}); 
-    } 
-    
     if (touchStarted) {
       touchStarted = false;
 
@@ -1958,6 +1945,19 @@ function tns(options) {
 
       render();
     }
+
+    // drag vs click?
+    if (mouseValue === 2) { 
+      // reset mouseValue
+      mouseValue = 0;
+
+      // prevent "click"
+      var target = e.target;
+      addEvents(target, {'click': function preventClick(e) {
+        e.preventDefault();
+        removeEvents(target, {'click': preventClick});
+      }}); 
+    } 
   }
 
   // === RESIZE FUNCTIONS === //
