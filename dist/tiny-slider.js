@@ -1861,10 +1861,14 @@ function tns(options) {
   function onTouchOrMouseStart(e) {
     e.stopPropagation();
 
-    // set mouseValue to 1 which indecate "mousedown"
-    if (e.type === 'mousedown') { mouseValue = 1; }
+    var evt = e;
+    if (e.type === 'mousedown') {
+      // set mouseValue to 1 on "mousedown"
+      mouseValue = 1;
+    } else {
+      evt = e.changedTouches[0];
+    }
 
-    var evt = (e.type === 'mousedown') ? e : e.changedTouches[0];
     startX = parseInt(evt.clientX);
     startY = parseInt(evt.clientY);
     translateInit = Number(container.style[TRANSFORM].slice(11, -3));
@@ -1881,11 +1885,15 @@ function tns(options) {
     // make sure touch started or mouse draged
     if (startX !== null) {
 
-      // "mousemove" event indecate it's "drag", not "click"
-      // set mouseValue to 2
-      if (e.type === 'mousemove') { mouseValue = 2; }
+      var evt = e;
+      if (e.type === 'mousemove') {
+        // "mousemove" event indecate it's "drag", not "click"
+        // set mouseValue to 2
+        mouseValue = 2;
+      } else {
+        evt = e.changedTouches[0];
+      }
 
-      var evt = (e.type === 'mousemove') ? e : e.changedTouches[0];
       disX = parseInt(evt.clientX) - startX;
       disY = parseInt(evt.clientY) - startY;
 
@@ -1937,7 +1945,8 @@ function tns(options) {
           } while (i < slideCountNew && moved >= Math.round(slideEdges[i + 1]));
         }
       }
-      if (e.type === 'touchend') {
+      
+      if (e.type.indexOf('touch') === 0) {
         events.emit('touchEnd', info(e));
       } else {
         events.emit('dragEnd', info(e));
