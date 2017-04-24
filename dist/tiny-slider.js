@@ -855,9 +855,11 @@ function tns(options) {
       translateInit,
       disX,
       disY,
-      touchStarted,
+      touchedOrDraged,
       //mouse
       mouseDrag = options.mouseDrag,
+      mousePressed = false,
+      isDragEvent = false,
       // gallery
       animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
       animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
@@ -1851,55 +1853,44 @@ function tns(options) {
     updateIndexCache();
   }
 
-  // { Number } - use this value to indecate: "click" || "drag"
-  // 0 - init
-  // 1 - mousedown
-  // 2 - mousemove => "drag"
-  // 1 - mouseup (mouseleave) => "click"
-  var mouseValue = 0;
-
   function onTouchOrMouseStart(e) {
-    e.stopPropagation();
+    e = e || window.event;
 
-    var evt = e;
-    if (e.type === 'mousedown') {
-      // set mouseValue to 1 on "mousedown"
-      mouseValue = 1;
-    } else {
-      evt = e.changedTouches[0];
-    }
-
-    startX = parseInt(evt.clientX);
-    startY = parseInt(evt.clientY);
+    var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
+    startX = parseInt(ev.clientX);
+    startY = parseInt(ev.clientY);
     translateInit = Number(container.style[TRANSFORM].slice(11, -3));
 
     if (e.type === 'touchstart') {
       events.emit('touchStart', info(e));
     } else {
       events.emit('dragStart', info(e));
+      mousePressed = true;
     }
   }
 
   function onTouchOrMouseMove(e) {
-    e.stopPropagation();
+    e = e || window.event;
+
+    // "mousemove" event after "mousedown" indecate it's "drag", not "click"
+    // set isDragEvent to true
+    if (mousePressed && e.type === 'mousemove' && !isDragEvent) {
+      isDragEvent = true;
+    }
+    
     // make sure touch started or mouse draged
     if (startX !== null) {
-
-      var evt = e;
-      if (e.type === 'mousemove') {
-        // "mousemove" event indecate it's "drag", not "click"
-        // set mouseValue to 2
-        mouseValue = 2;
-      } else {
-        evt = e.changedTouches[0];
+      var target = e.target || e.srcElement;
+      if (target.tagName.toLowerCase() === 'a') {
+        (e.preventDefault()) ? e.preventDefault() : (e.returnValue = false);
       }
 
-      disX = parseInt(evt.clientX) - startX;
-      disY = parseInt(evt.clientY) - startY;
+      var ev = (e.type === 'touchmove') ? e.changedTouches[0] : e;
+      disX = parseInt(ev.clientX) - startX;
+      disY = parseInt(ev.clientY) - startY;
 
       if (getTouchDirection(toDegree(disY, disX), 15) === axis) { 
-        touchStarted = true;
-        e.preventDefault();
+        touchedOrDraged = true;
 
         if (e.type === 'touchmove') {
           events.emit('touchMove', info(e));
@@ -1916,14 +1907,17 @@ function tns(options) {
   }
 
   function onTouchOrMouseEnd(e) {
-    e.stopPropagation();
+    e = e || window.event;
 
-    if (touchStarted) {
-      touchStarted = false;
+    // reset mousePressed
+    if (mousePressed) { mousePressed = false; }
 
-      var evt = (e.type.indexOf('mouse') === 0) ? e : e.changedTouches[0];
-      disX = parseInt(evt.clientX) - startX;
-      disY = parseInt(evt.clientY) - startY;
+    if (touchedOrDraged) {
+      touchedOrDraged = false;
+
+      var ev = (e.type.indexOf('touch') === 0) ? e.changedTouches[0] : e;
+      disX = parseInt(ev.clientX) - startX;
+      disY = parseInt(ev.clientY) - startY;
 
       // reset startX, startY
       startX = startY = null;
@@ -1956,16 +1950,18 @@ function tns(options) {
     }
 
     // drag vs click?
-    if (mouseValue === 2) { 
-      // reset mouseValue
-      mouseValue = 0;
+    if (isDragEvent) { 
+      // reset isDragEvent
+      isDragEvent = false;
 
       // prevent "click"
-      var target = e.target;
-      addEvents(target, {'click': function preventClick(e) {
-        e.preventDefault();
-        removeEvents(target, {'click': preventClick});
-      }}); 
+      var target = e.target || e.srcElement;
+      if (target.tagName.toLowerCase() === "a") {
+        addEvents(target, {'click': function preventClick(e) {
+          (e.preventDefault()) ? e.preventDefault() : (e.returnValue = false);
+          removeEvents(target, {'click': preventClick});
+        }}); 
+      }
     } 
   }
 
