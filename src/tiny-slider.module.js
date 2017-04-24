@@ -1193,9 +1193,12 @@ export function tns(options) {
     updateIndexCache();
   }
 
-  function isLinkTarget(e) {
-    var target = e.target || e.srcElement;
-    return target.tagName.toLowerCase() === 'a';
+  function getTarget(e) {
+    return e.target || e.srcElement;
+  }
+
+  function isLinkElement(el) {
+    return el.tagName.toLowerCase() === 'a';
   }
 
   function preventDefaultBehavior(e) {
@@ -1208,7 +1211,7 @@ export function tns(options) {
 
   function onTouchOrMouseStart(e) {
     e = e || window.event;
-    if (isLinkTarget(e)) { preventDefaultBehavior(e); }
+    if (isLinkElement(getTarget(e))) { preventDefaultBehavior(e); }
 
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
@@ -1235,7 +1238,7 @@ export function tns(options) {
     // console.log(e.type, mousePressed, isDragEvent, e.clientX);
     // make sure touch started or mouse draged
     if (startX !== null) {
-      if (isLinkTarget(e)) { preventDefaultBehavior(e); }
+      if (isLinkElement(getTarget(e))) { preventDefaultBehavior(e); }
 
       var ev = (e.type === 'touchmove') ? e.changedTouches[0] : e;
       disX = parseInt(ev.clientX) - startX;
@@ -1307,8 +1310,8 @@ export function tns(options) {
       isDragEvent = false;
 
       // prevent "click"
-      var target = e.target || e.srcElement;
-      if (target.tagName.toLowerCase() === "a") {
+      var target = getTarget(e);
+      if (isLinkElement(target)) {
         addEvents(target, {'click': function preventClick(e) {
           (e.preventDefault()) ? e.preventDefault() : (e.returnValue = false);
           removeEvents(target, {'click': preventClick});
