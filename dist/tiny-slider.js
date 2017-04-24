@@ -1853,8 +1853,22 @@ function tns(options) {
     updateIndexCache();
   }
 
+  function isLinkTarget(e) {
+    var target = e.target || e.srcElement;
+    return target.tagName.toLowerCase() === 'a';
+  }
+
+  function preventDefaultBehavior(e) {
+      if (e.preventDefault()) {
+        e.preventDefault();
+      } else {
+        e.returnValue = false;
+      }
+  }
+
   function onTouchOrMouseStart(e) {
     e = e || window.event;
+    if (isLinkTarget(e)) { preventDefaultBehavior(e); }
 
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
@@ -1878,12 +1892,10 @@ function tns(options) {
       isDragEvent = true;
     }
     
+    // console.log(e.type, mousePressed, isDragEvent, e.clientX);
     // make sure touch started or mouse draged
     if (startX !== null) {
-      var target = e.target || e.srcElement;
-      if (target.tagName.toLowerCase() === 'a') {
-        (e.preventDefault()) ? e.preventDefault() : (e.returnValue = false);
-      }
+      if (isLinkTarget(e)) { preventDefaultBehavior(e); }
 
       var ev = (e.type === 'touchmove') ? e.changedTouches[0] : e;
       disX = parseInt(ev.clientX) - startX;
