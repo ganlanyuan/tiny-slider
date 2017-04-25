@@ -1862,7 +1862,7 @@ function tns(options) {
   }
 
   function preventDefaultBehavior(e) {
-      if (e.preventDefault()) {
+      if (e.preventDefault) {
         e.preventDefault();
       } else {
         e.returnValue = false;
@@ -1973,7 +1973,7 @@ function tns(options) {
       var target = getTarget(e);
       if (isLinkElement(target)) {
         addEvents(target, {'click': function preventClick(e) {
-          (e.preventDefault()) ? e.preventDefault() : (e.returnValue = false);
+          preventDefaultBehavior(e);
           removeEvents(target, {'click': preventClick});
         }}); 
       }
