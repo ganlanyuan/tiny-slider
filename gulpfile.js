@@ -1,21 +1,11 @@
-const gulp = require('gulp');
-const libsass = require('gulp-sass');
-const rubysass = require('gulp-ruby-sass');
-const sourcemaps = require('gulp-sourcemaps');
-const modernizr = require('gulp-modernizr');
-const uglify = require('gulp-uglify');
-const jshint = require('gulp-jshint');
-const rename = require('gulp-rename');
-const stylish = require('jshint-stylish');
-const browserSync = require('browser-sync').create();
-const change = require('gulp-change');
-
 const rollup = require('rollup').rollup;
-const babel = require('rollup-plugin-babel');
-const buble = require('rollup-plugin-buble');
-const eslint = require('rollup-plugin-eslint');
 const resolve = require('rollup-plugin-node-resolve');
-const uglifyRollup = require('rollup-plugin-uglify');
+
+const gulp = require('gulp');
+const $ = require('gulp-load-plugins')();
+const browserSync = require('browser-sync').create();
+const nunjucks = require('nunjucks');
+const path = require('path');
 
 let sourcemapsDest = 'sourcemaps';
 let libName = 'tiny-slider',
@@ -32,7 +22,6 @@ let libName = 'tiny-slider',
     pathTest = 'tests/js/',
     scriptSources = [pathSrc + '**/*.js', '!' + pathSrc + moduleScript, '!' + pathSrc + helperIEScript];
 
-
 function errorlog (error) {  
   console.error.bind(error);  
   this.emit('end');  
@@ -41,12 +30,12 @@ function errorlog (error) {
 // SASS Task
 gulp.task('sass', function () {  
   return gulp.src(pathSrc + sassFile)  
-    .pipe(sourcemaps.init())
-    .pipe(libsass({
+    .pipe($.sourcemaps.init())
+    .pipe($.sass({
       outputStyle: 'compressed', 
       precision: 7
-    }).on('error', libsass.logError))  
-    .pipe(sourcemaps.write(sourcemapsDest))
+    }).on('error', $.sass.logError))  
+    .pipe($.sourcemaps.write(sourcemapsDest))
     .pipe(gulp.dest(pathDest))
     .pipe(browserSync.stream());
 });  
@@ -86,7 +75,7 @@ gulp.task('helper-ie8', function () {
 
 gulp.task('editPro', ['script'], function() {
   return gulp.src(pathDest + libName + '.js')
-    .pipe(change(function (content) {
+    .pipe($.change(function (content) {
       return 'var tns = (function (){\n' + content.replace('export { tns }', 'return tns') + '})();';
     }))
     .pipe(gulp.dest(pathDest))
@@ -94,20 +83,20 @@ gulp.task('editPro', ['script'], function() {
 
 gulp.task('makeDevCopy', function() {
   return gulp.src(pathSrc + script)
-    .pipe(change(function (content) {
+    .pipe($.change(function (content) {
       return content
         .replace('PRODUCTION', 'DEVELOPMENT')
         .replace(/bower_components/g, '..');
     }))
-    .pipe(rename({ basename: libName + modulePostfix }))
+    .pipe($.rename({ basename: libName + modulePostfix }))
     .pipe(gulp.dest(pathSrc))
 });
 
 gulp.task('min', ['editPro'], function () {
   return gulp.src(pathDest + '*.js')
-    .pipe(sourcemaps.init())
-    .pipe(uglify())
-    .pipe(sourcemaps.write('../' + sourcemapsDest))
+    .pipe($.sourcemaps.init())
+    .pipe($.uglify())
+    .pipe($.sourcemaps.write('../' + sourcemapsDest))
     .pipe(gulp.dest(pathDest + 'min'))
 })
 
@@ -153,6 +142,30 @@ gulp.task('server', function() {
     notify: false
   });
 
+  gulp.watch('tests/templates/**/*.njk', function (e) {
+    var dir = path.parse(e.path).dir,
+        njkSrc = (dir.indexOf('parts') === -1) ? e.path : 'tests/templates/*.njk';
+
+    if (e.type !== 'deleted') {
+      return gulp.src(njkSrc)
+        .pipe($.plumber())
+        .pipe($.nunjucks.compile({}, {
+          watch: true,
+          noCache: true
+        }))
+        .pipe($.rename(function (path) { path.extname = '.html'; }))
+        .pipe($.htmltidy({
+          doctype: 'html5',
+          wrap: 0,
+          hideComments: true,
+          indent: true,
+          'indent-attributes': false,
+          'drop-empty-elements': false,
+          'force-output': true
+        }))
+        .pipe(gulp.dest('./tests'));
+    }
+  });
   gulp.watch(pathSrc + sassFile, ['sass']);
   gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);

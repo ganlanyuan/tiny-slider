@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>
+      Tiny slider
+    </title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="../dist/tiny-slider.css">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <script src="../dist/tiny-slider.helper.ie8.js">
+    </script> 
+    <script src="../dist/tiny-slider.js">
+    </script>
+    <style>
+    .img { padding: 8% 0; }
+    </style>
+    <div class="container">
+      <button id="goto">Go to</button>
+      <div class="outer">
+        <div class="item">
+          <div class="img img-1">
+            1
+          </div>
+          <p>
+            Lorem ipsum dolor sit amet
+          </p>
+          <div class="inner">
+            <div class="item">
+              <div class="img img-1">
+                1
+              </div>
+              <p>
+                Lorem ipsum dolor sit amet
+              </p>
+            </div>
+            <div class="item">
+              <div class="img img-2">
+                2
+              </div>
+              <p>
+                Blanditiis sapiente tempora
+              </p>
+            </div>
+            <div class="item">
+              <div class="img img-3">
+                3
+              </div>
+              <p>
+                At possimus dolorum eligendi repellat
+              </p>
+            </div>
+            <div class="item">
+              <div class="img img-4">
+                4
+              </div>
+              <p>
+                Cumque facilis amet eos nulla
+              </p>
+            </div>
+            <div class="item">
+              <div class="img img-5">
+                5
+              </div>
+              <p>
+                Sint ad, praesentium est delectus
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="img img-2">
+            2
+          </div>
+          <p>
+            Blanditiis sapiente tempora
+          </p>
+        </div>
+        <div class="item">
+          <div class="img img-3">
+            3
+          </div>
+          <p>
+            At possimus dolorum eligendi repellat
+          </p>
+        </div>
+        <div class="item">
+          <div class="img img-4">
+            4
+          </div>
+          <p>
+            Cumque facilis amet eos nulla
+          </p>
+        </div>
+        <div class="item">
+          <div class="img img-5">
+            5
+          </div>
+          <p>
+            Sint ad, praesentium est delectus
+          </p>
+        </div>
+      </div>
+    </div>
+    <script>
+    var inner = tns({
+    container: document.querySelector('.inner'),
+    items: 3,
+    nested: 'inner',
+    slideBy: 'page'
+    });
+    tns({
+    container: document.querySelector('.outer'),
+    items: 1,
+    loop: false,
+    autoHeight: true,
+    nested: 'outer'
+    });
+
+    var btn = document.querySelector('#goto');
+    btn.onclick = function () {
+    inner.goTo(4);
+    }
+    </script> 
+    <script src="js/script.min.js">
+    </script>
+  </body>
+</html>
