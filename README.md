@@ -22,8 +22,10 @@ The previous version is still available in branch [v0](https://github.com/ganlan
 - autoplay
 - auto height
 - touch support
+- mouse drag ([pull 32](https://github.com/ganlanyuan/tiny-slider/pull/32))
 - arrow keys
 - accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- response to visibility changing ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
 - custom events
 - nested slider
 
@@ -119,6 +121,7 @@ Default:
   responsive: false,
   lazyload: false,
   touch: true,
+  mouseDrag: false,
   rewind: false,
   nested: false,
   onInit: false
