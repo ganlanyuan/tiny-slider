@@ -1216,7 +1216,8 @@ export function tns(options) {
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
     startY = parseInt(ev.clientY);
-    translateInit = Number(container.style[TRANSFORM].slice(11, -3));
+    var slices = (TRANSFORM)? [11, -3] : [0, -2];
+    translateInit = Number(container.style[transformAttr].slice(slices[0], slices[1]));
 
     if (e.type === 'touchstart') {
       events.emit('touchStart', info(e));
@@ -1253,10 +1254,14 @@ export function tns(options) {
           events.emit('dragMove', info(e));
         }
 
-        var x = (axis === 'horizontal')? 'X(' + (translateInit + disX) : 'Y(' + (translateInit + disY);
+        var x = (axis === 'horizontal')? (translateInit + disX) : (translateInit + disY);
+            x += 'px';
 
-        setDurations(0);
-        container.style[TRANSFORM] = 'translate' + x + 'px)';
+        if (TRANSFORM) {
+          x = 'translate' + transformDir + '(' + x + ')';
+          setDurations(0);
+        }
+        container.style[transformAttr] = x;
       }
     }
   }
