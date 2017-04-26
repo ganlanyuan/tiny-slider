@@ -1486,7 +1486,7 @@ export function tns(options) {
 
     },
 
-    destory: function () {
+    destroy: function () {
       // wrapper
       unwrap(wrapper);
       unwrap(contentWrapper);

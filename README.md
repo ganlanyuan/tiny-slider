@@ -186,10 +186,10 @@ document.querySelector('.goto-button').onclick = function () {
 };
 ```
 
-##### destory
+##### destroy
 ```javascript
 var slider = tns(...);
-slider.destory();
+slider.destroy();
 ```
 ## Custom Events
 Available events include: <del>`initialized`, </del>`indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
