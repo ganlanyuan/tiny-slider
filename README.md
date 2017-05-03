@@ -84,7 +84,7 @@ var slider = tns({
   });
 </script>
 ```
-Some [examples](examples.md) of usage.  
+Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, or check out some [examples](examples.md) of usage.
 
 ## Options
 Default:
@@ -208,7 +208,7 @@ slider.events.on('transitionEnd', customizedFunction);
 slider.events.off('transitionEnd', customizedFunction);
 ```
 **Initialized**  
-The `initialized` event doesn't work actually because the initialization has been finished when you call `var slider = tns(...);`, and it won't fire when you bind function to the event later.   
+The `initialized` event doesn't work actually because the initialization has been finished when you call `var slider = tns(...);`, and it won't fire when you bind the function to the event later.   
 You can use a fallback function `onInit` instead from [v1.2.0](https://github.com/ganlanyuan/tiny-slider/tree/v1.2.0).
 ```javascript
 var slider = tns({
@@ -232,8 +232,8 @@ Safari 4+ ✓
 Opera 11.5+ ✓  
 IE 8+ ✓  
 
-It should works on _Chrome 4-14_ as well, but I couldn't test it.  
-<del>No animation on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions).</del> Animation for legacy browsers has been added in [v1.0.2](https://github.com/ganlanyuan/tiny-slider/releases/tag/v1.0.2).
+It should work on _Chrome 4-14_ as well, but I couldn't test it.  
+<del>No animations on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions).</del> Animations for legacy browsers have been added in [v1.0.2](https://github.com/ganlanyuan/tiny-slider/releases/tag/v1.0.2).
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
