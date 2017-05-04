@@ -92,40 +92,40 @@ Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `container` | Method | `document.querySelector('.slider')` | Defines `id` or `class` of the slider container. |
-| mode | `'carousel'` | `'gallery'` | `'carousel'` | Controls animation behaviour. With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
-| `axis` | `'horizontal'` | `'vertical'` | `horizontal` | Self-explanatory, isn't it? |
+| mode | `'carousel'` \| `'gallery'` | `'carousel'` | Controls animation behaviour. With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
+| `axis` | `'horizontal'` \| `'vertical'` | `horizontal` | Self-explanatory, isn't it? |
 | `items` | Integer | `1` | Number of slides being displayed. |
 | `gutter` | Integer | `0` | Space between slides. |
 | `edgePadding` | Integer | `0` | Space on the outside. |
 | `fixedWidth` | Boolean | `false` | Controls `width` attribute of the slides. |
-| `slideBy` | Integer | `'page'` | `1` | Number of slides going, whether individually or all at once. |
+| `slideBy` | Integer \| `'page'` | `1` | Number of slides going, whether individually or all at once. |
 | `controls` | Boolean?? | `true` | ?? |
 | `controlsText` | Array | `['prev', 'next']` | Text describing the prev/next buttons. |
-| `controlsContainer` | Method | `false` | `false` | Defines `id` or `class` of the container around the prev/next buttons. |
+| `controlsContainer` | Method \| `false` | `false` | Defines `id` or `class` of the container around the prev/next buttons. |
 | `nav` | Boolean?? | `true` | ?? |
-| `navContainer` | Method | `false` | `false` | Defines `id` or `class` of the container around the autoplay start/stop button. |
+| `navContainer` | Method \| `false` | `false` | Defines `id` or `class` of the container around the autoplay start/stop button. |
 | `arrowKeys` | Boolean | `false` | Allows using arrow keys to switch slides. |
 | `speed` | Integer | `300` | Speed of the slide animation (in `ms`). |
 | `autoplay` | Boolean | `false` | Toggles the automatic change of slides. |
 | `autoplayTimeout` | Integer | `5000` | Time until `autoplay` slides change (in `ms`). |
-| `autoplayDirection` | `'forward'` | `'backward'` | `'forward'` | Direction of slide movement (ascending/descending the slide index). |
+| `autoplayDirection` | `'forward'` \| `'backward'` | `'forward'` | Direction of slide movement (ascending/descending the slide index). |
 | `autoplayText` | Array | `['start', 'stop']` | Text describing the autoplay start/stop button. |
 | `autoplayHoverPause` | Boolean | `false` | Stops sliding on mouseover. |
-| `autoplayButton` | Method | `false` | `false` | Defines `id` or `class` of the autoplay start/stop button. |
+| `autoplayButton` | Method \| `false` | `false` | Defines `id` or `class` of the autoplay start/stop button. |
 | `autoplayResetOnVisibility` | Boolean | `true` | ?? |
 | `animateIn` | String | `'tns-fadeIn'` | Name of intro animation `class`. |
 | `animateOut` | String | `'tns-fadeOut'` | Name of outro animation `class`. |
 | `animateNormal` | String | `'tns-normal'` | Name of default animation `class`. |
-| `animateDelay` | Integer | `false` | `false` | Time until `gallery` animation (in `ms`). |
+| `animateDelay` | Integer \| `false` | `false` | Time until `gallery` animation (in `ms`). |
 | `loop` | Boolean | `true` | Toggles behaviour when reaching the last slide. |
 | `autoHeight` | Boolean | `false` | Height of slider container changes according to each slide's height. |
-| `responsive` | Array | `false` | `false` | Defines number of slides for different viewport widths (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#responsive)). |
+| `responsive` | Array \| `false` | `false` | Defines number of slides for different viewport widths (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#responsive)). |
 | `lazyload` | Boolean | `false` | Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#lazyload)). |
 | `touch` | Boolean | `true` | Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | `false` | Changing slides by dragging them. |
 | `rewind` | Boolean | `false` | Controls whether slides start at the beginning after reaching the last slide. |
 | `nested` | Boolean | `false` | ?? |
-| `onInit` | Function | `false` | `false` | Callback to be run on initialization. |
+| `onInit` | Function \| `false` | `false` | Callback to be run on initialization. |
 
 ## Get slider information
 There are two ways to get slider information:   
