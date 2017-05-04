@@ -91,41 +91,41 @@ Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, 
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `container` | Method | Default: `document.querySelector('.slider')`. Defines `id` or `class` of the slider container. |
-| mode | `'carousel'` \| `'gallery'` | Default: `'carousel'`. Controls animation behaviour. With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
-| `axis` | `'horizontal'` \| `'vertical'` | Default: `horizontal`. Self-explanatory, isn't it? |
-| `items` | Integer | Default: `1`. Number of slides being displayed. |
-| `gutter` | Integer | Default: `0`. Space between slides. |
-| `edgePadding` | Integer | Default: `0`. Space on the outside. |
-| `fixedWidth` | Boolean | Default: `false`. Controls `width` attribute of the slides. |
-| `slideBy` | Integer \| `'page'` | Default: `1`. Number of slides going, whether individually or all at once. |
-| `controls` | Boolean?? | Default: `true`. ?? |
-| `controlsText` | Array | Default: `['prev', 'next']`. Text describing the prev/next buttons. |
-| `controlsContainer` | Method \| `false` | Default: `false`. Defines `id` or `class` of the container around the prev/next buttons. |
-| `nav` | Boolean?? | Default: `true`. ?? |
-| `navContainer` | Method \| `false` | Default: `false`. Defines `id` or `class` of the container around the autoplay start/stop button. |
-| `arrowKeys` | Boolean | Default: `false`. Allows using arrow keys to switch slides. |
-| `speed` | Integer | Default: `300`. Speed of the slide animation (in `ms`). |
-| `autoplay` | Boolean | Default: `false`. Toggles the automatic change of slides. |
-| `autoplayTimeout` | Integer | Default: `5000`. Time until `autoplay` slides change (in `ms`). |
-| `autoplayDirection` | `'forward'` \| `'backward'` | Default: `'forward'`. Direction of slide movement (ascending/descending the slide index). |
-| `autoplayText` | Array | Default: `['start', 'stop']`. Text describing the autoplay start/stop button. |
-| `autoplayHoverPause` | Boolean | Default: `false`. Stops sliding on mouseover. |
-| `autoplayButton` | Method \| `false` | Default: `false`. Defines `id` or `class` of the autoplay start/stop button. |
-| `autoplayResetOnVisibility` | Boolean | Default: `true`. ?? |
-| `animateIn` | String | Default: `'tns-fadeIn'`. Name of intro animation `class`. |
-| `animateOut` | String | Default: `'tns-fadeOut'`. Name of outro animation `class`. |
-| `animateNormal` | String | Default: `'tns-normal'`. Name of default animation `class`. |
-| `animateDelay` | Integer \| `false` | Default: `false`. Time until `gallery` animation (in `ms`). |
-| `loop` | Boolean | Default: `true`. Toggles behaviour when reaching the last slide. |
-| `autoHeight` | Boolean | Default: `false`. Height of slider container changes according to each slide's height. |
-| `responsive` | Array \| `false` | Default: `false`. Defines number of slides for different viewport widths (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#responsive)). |
-| `lazyload` | Boolean | Default: `false`. Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#lazyload)). |
-| `touch` | Boolean | Default: `true`. Activates input detection for touch devices. |
-| `mouseDrag` | Boolean | Default: `false`. Changing slides by dragging them. |
-| `rewind` | Boolean | Default: `false`. Controls whether slides start at the beginning after reaching the last slide. |
-| `nested` | Boolean | Default: `false`. ?? |
-| `onInit` | Function \| `false` | Default: `false`. Callback to be run on initialization. |
+| `container` | Node | Default: `document.querySelector('.slider')`. <br> The slider container element. |
+| `mode` | `'carousel'` \| `'gallery'` | Default: `'carousel'`. <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
+| `axis` | `'horizontal'` \| `'vertical'` | Default: `horizontal`. <br> The axis of the slider. |
+| `items` | Integer | Default: `1`. <br> Number of slides being displayed. |
+| `gutter` | Integer | Default: `0`. <br> Space between slides (in "px"). |
+| `edgePadding` | Integer | Default: `0`. <br> Space on the outside (in "px"). |
+| `fixedWidth` | Integer \| false | Default: `false`. <br> Controls `width` attribute of the slides. |
+| `slideBy` | Integer \| `'page'` | Default: `1`. <br> Number of slides going on one "click". |
+| `controls` | Boolean | Default: `true`. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
+| `controlsText` | (Text \| Markup) Array | Default: `['prev', 'next']`. <br> Text or markup in the prev/next buttons. |
+| `controlsContainer` | Node \| `false` | Default: `false`. <br> The container element around the prev/next buttons. |
+| `nav` | Boolean | Default: `true`. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
+| `navContainer` | Node \| `false` | Default: `false`. <br> The container around the dots and the autoplay start/stop button. |
+| `arrowKeys` | Boolean | Default: `false`. <br> Allows using arrow keys to switch slides. |
+| `speed` | Integer | Default: `300`. <br> Speed of the slide animation (in "ms"). |
+| `autoplay` | Boolean | Default: `false`. <br> Toggles the automatic change of slides. |
+| `autoplayTimeout` | Integer | Default: `5000`. <br> Time between 2 `autoplay` slides change (in "ms"). |
+| `autoplayDirection` | `'forward'` \| `'backward'` | Default: `'forward'`. <br> Direction of slide movement (ascending/descending the slide index). |
+| `autoplayText` | (Text \| Markup) Array | Default: `['start', 'stop']`. <br> Text or markup in the autoplay start/stop button. |
+| `autoplayHoverPause` | Boolean | Default: `false`. <br> Stops sliding on mouseover. |
+| `autoplayButton` | Node \| `false` | Default: `false`. <br> The autoplay start/stop button. |
+| `autoplayResetOnVisibility` | Boolean | Default: `true`. <br> Pauses the sliding when the page is invisiable and resumes it when the page become visiable again. ([Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)) |
+| `animateIn` | String | Default: `'tns-fadeIn'`. <br> Name of intro animation `class`. |
+| `animateOut` | String | Default: `'tns-fadeOut'`. <br> Name of outro animation `class`. |
+| `animateNormal` | String | Default: `'tns-normal'`. <br> Name of default animation `class`. |
+| `animateDelay` | Integer \| `false` | Default: `false`. <br> Time between each `gallery` animation (in "ms"). |
+| `loop` | Boolean | Default: `true`. <br> Moves to the first slide with the same direction when reaching the last slide. |
+| `rewind` | Boolean | Default: `false`. <br> Moves to the first slide with the opposite direction when reaching the last slide. |
+| `autoHeight` | Boolean | Default: `false`. <br> Height of slider container changes according to each slide's height. |
+| `responsive` | Map (breakpoint, items) \| `false` | Default: `false`. <br> Defines number of slides for different viewport widths (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#responsive)). |
+| `lazyload` | Boolean | Default: `false`. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#lazyload)). |
+| `touch` | Boolean | Default: `true`. <br> Activates input detection for touch devices. |
+| `mouseDrag` | Boolean | Default: `false`. <br> Changing slides by dragging them. |
+| `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/nest.html)) |
+| `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
 
 ## Get slider information
 There are two ways to get slider information:   

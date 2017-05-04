@@ -765,12 +765,12 @@ function tns(options) {
     animateNormal: 'tns-normal',
     animateDelay: false,
     loop: true,
+    rewind: false,
     autoHeight: false,
     responsive: false,
     lazyload: false,
     touch: true,
     mouseDrag: false,
-    rewind: false,
     nested: false,
     onInit: false
   }, options || {});
