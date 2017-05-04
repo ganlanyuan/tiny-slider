@@ -63,12 +63,12 @@ var slider = tns({
   <div></div>
 </div>
 
-<!-- or 
+<!-- or
 <ul class="slider">
   <li></li>
   <li></li>
   <li></li>
-</ul> 
+</ul>
 -->
 ```
 ##### 3. Call tiny-slider on DOM ready
@@ -87,46 +87,45 @@ var slider = tns({
 Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, or check out some [examples](examples.md) of usage.
 
 ## Options
-Default:
-```javascript
-{
-  container: document.querySelector('.slider'),
-  mode: 'carousel',
-  axis: 'horizontal',
-  items: 1,
-  gutter: 0,
-  edgePadding: 0,
-  fixedWidth: false,
-  slideBy: 1,
-  controls: true,
-  controlsText: ['prev', 'next'],
-  controlsContainer: false,
-  nav: true,
-  navContainer: false,
-  arrowKeys: false,
-  speed: 300,
-  autoplay: false,
-  autoplayTimeout: 5000,
-  autoplayDirection: 'forward',
-  autoplayText: ['start', 'stop'],
-  autoplayHoverPause: false,
-  autoplayButton: false,
-  autoplayResetOnVisibility: true,
-  animateIn: 'tns-fadeIn',
-  animateOut: 'tns-fadeOut',
-  animateNormal: 'tns-normal',
-  animateDelay: false,
-  loop: true,
-  autoHeight: false,
-  responsive: false,
-  lazyload: false,
-  touch: true,
-  mouseDrag: false,
-  rewind: false,
-  nested: false,
-  onInit: false
-}
-```
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `container` | Method | `document.querySelector('.slider')` |  |
+| mode | `'carousel'` | `'gallery'` | `'carousel'` |  |
+| `axis` | `'horizontal'` | `'vertical'` | `horizontal` |  |
+| `items` | Integer | `1` |  |
+| `gutter` | Integer | `0` |  |
+| `edgePadding` | Integer | `0` |  |
+| `fixedWidth` | Boolean | `false` |  |
+| `slideBy` | Integer | `'page'` | `1` |  |
+| `controls` | Boolean?? | `true` |  |
+| `controlsText` | Array | `['prev', 'next']` |  |
+| `controlsContainer` | Method | `false` | `false` |  |
+| `nav` | Boolean?? | `true` |  |
+| `navContainer` | Method | `false` | `false` |  |
+| `arrowKeys` | Boolean | `false` |  |
+| `speed` | Integer | `300` |  |
+| `autoplay` | Boolean | `false` |  |
+| `autoplayTimeout` | Integer | `5000` |  |
+| `autoplayDirection` | `'forward'` | `'backward'` | `'forward'` |  |
+| `autoplayText` | Array | `['start', 'stop']` |  |
+| `autoplayHoverPause` | Boolean | `false` |  |
+| `autoplayButton` | Method | `false` | `false` |  |
+| `autoplayResetOnVisibility` | Boolean | `true` |  |
+| `animateIn` | String | `'tns-fadeIn'` |  |
+| `animateOut` |  | String | `'tns-fadeOut'` |
+| `animateNormal` | String | `'tns-normal'` |  |
+| `animateDelay` | Integer | `false` | `false` |  |
+| `loop` | Boolean | `true` |  |
+| `autoHeight` | Boolean | `false` |  |
+| `responsive` | Array | `false` | `false` |  |
+| `lazyload` | Boolean | `false` |  |
+| `touch` | Boolean | `true` |  |
+| `mouseDrag` | Boolean | `false` |  |
+| `rewind` | Boolean | `false` |  |
+| `nested` | Boolean | `false` |  |
+| `onInit` | Function | `false` | `false` |  |
+
 ## Get slider information
 There are two ways to get slider information:   
 1. `getInfo` method.   
