@@ -128,10 +128,9 @@ Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, 
 | `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
 
 ## Get slider information
-There are two ways to get slider information:   
+There are 2 ways to get slider information, each of them returns an `info` Object:   
 1. `getInfo` method.   
 2. Subscribe to an event.   
-Both will return `info` Object:
 ```javascript
 info = {
   container: container, // slider container
