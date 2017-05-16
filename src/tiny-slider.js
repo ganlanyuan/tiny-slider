@@ -67,16 +67,8 @@ var TRANSFORM = getSupportedProp([
       RIGHT: 39,
       DOWN: 40
     };
-// console.log(
-//   TRANSITIONDURATION,
-//   TRANSITIONDELAY,
-//   TRANSITIONEND,
-//   ANIMATIONDURATION,
-//   ANIMATIONDELAY,
-//   ANIMATIONEND
-//   );
 
-export function tns(options) {
+export var tns = function(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',

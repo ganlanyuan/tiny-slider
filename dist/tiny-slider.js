@@ -727,16 +727,8 @@ var KEY = {
       RIGHT: 39,
       DOWN: 40
     };
-// console.log(
-//   TRANSITIONDURATION,
-//   TRANSITIONDELAY,
-//   TRANSITIONEND,
-//   ANIMATIONDURATION,
-//   ANIMATIONDELAY,
-//   ANIMATIONEND
-//   );
 
-function tns(options) {
+var tns = function(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',
@@ -2228,7 +2220,7 @@ function tns(options) {
     // hideElement: hideElement, 
     // showElement: showElement,
   };
-}
+};
 
 return tns;
 })();

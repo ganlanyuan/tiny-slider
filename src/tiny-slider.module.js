@@ -67,14 +67,6 @@ var TRANSFORM = getSupportedProp([
       RIGHT: 39,
       DOWN: 40
     };
-// console.log(
-//   TRANSITIONDURATION,
-//   TRANSITIONDELAY,
-//   TRANSITIONEND,
-//   ANIMATIONDURATION,
-//   ANIMATIONDELAY,
-//   ANIMATIONEND
-//   );
 
 export var tns = function(options) {
   options = extend({
