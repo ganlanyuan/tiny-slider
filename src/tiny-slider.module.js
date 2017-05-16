@@ -76,7 +76,7 @@ var TRANSFORM = getSupportedProp([
 //   ANIMATIONEND
 //   );
 
-export function tns(options) {
+export var tns = function(options) {
   options = extend({
     container: document.querySelector('.slider'),
     mode: 'carousel',
