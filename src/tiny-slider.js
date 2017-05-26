@@ -353,7 +353,10 @@ export var tns = function(options) {
       if (mode === 'gallery' && animateNormal) { item.classList.add(animateNormal); }
 
       // add aria-hidden attribute
-      setAttrs(item, {'aria-hidden': 'true'});
+      setAttrs(item, {
+        'aria-hidden': 'true',
+        'tabindex': '-1'
+      });
 
       // set slide width & gutter
       var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
@@ -472,6 +475,7 @@ export var tns = function(options) {
     for (var i = index; i < index + items; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
+      removeAttrs(item, ['tabindex']);
       if (mode === 'gallery') { 
         item.style.left = slideWidth * (i - index) + 'px'; 
         item.classList.remove(animateNormal);
@@ -737,10 +741,14 @@ export var tns = function(options) {
     }
 
     for (var i = h1; i < h2; i++) {
-      setAttrs(slideItems[i], {'aria-hidden': 'true'});
+      setAttrs(slideItems[i], {
+        'aria-hidden': 'true',
+        'tabindex': '-1'
+      });
     }
     for (var j = v1; j < v2; j++) {
       setAttrs(slideItems[j], {'aria-hidden': 'false'});
+      removeAttrs(slideItems[j], ['tabindex']);
     }
   }
 
