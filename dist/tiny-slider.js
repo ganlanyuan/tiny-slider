@@ -1055,7 +1055,10 @@ var tns = function(options) {
       if (options.controlsContainer) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
-        setAttrs(controlsContainer, {'aria-label': 'Carousel Navigation'});
+        setAttrs(controlsContainer, {
+          'aria-label': 'Carousel Navigation',
+          'tabindex': '0'
+        });
         setAttrs(prevButton, {'data-controls' : 'prev'});
         setAttrs(nextButton, {'data-controls' : 'next'});
         setAttrs(controlsContainer.children, {
@@ -1063,7 +1066,7 @@ var tns = function(options) {
           'tabindex': '-1',
         });
       } else {
-        append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="0" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+        append(wrapper, '<div data-tns-role="controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
         [].forEach.call(wrapper.children, function (el) {
           if (el.getAttribute('data-tns-role') === 'controls') { controlsContainer = el; }
@@ -1143,7 +1146,7 @@ var tns = function(options) {
       }
     }
     if (controls) {
-      setAttrs(nextButton, {'tabindex': '0'});
+      // setAttrs(nextButton, {'tabindex': '0'});
       if (index === indexMin && !loop || rewind) {
         prevButton.disabled = true;
       }
@@ -1188,14 +1191,9 @@ var tns = function(options) {
     }
 
     if (controls) {
-      addEvents(prevButton,{
-        'click': onClickPrev,
-        'keydown': onKeydownControl
-      });
-      addEvents(nextButton,{
-        'click': onClickNext,
-        'keydown': onKeydownControl
-      });
+      addEvents(controlsContainer, {'keydown': onKeydownControl});
+      addEvents(prevButton,{'click': onClickPrev});
+      addEvents(nextButton,{'click': onClickNext});
     }
 
     if (autoplay) {
@@ -1464,7 +1462,7 @@ var tns = function(options) {
         disable.forEach(function (button) {
           if (!button.disabled) {
             button.disabled = true;
-            setAttrs(button, {'tabindex': '-1'});
+            // setAttrs(button, {'tabindex': '-1'});
           }
         });
       }
@@ -1473,7 +1471,7 @@ var tns = function(options) {
         active.forEach(function (button) {
           if (button.disabled) {
             button.disabled = false;
-            setAttrs(button, {'tabindex': '0'});
+            // setAttrs(button, {'tabindex': '0'});
           }
         });
       }
@@ -1795,27 +1793,23 @@ var tns = function(options) {
     switch (code) {
       case KEY.LEFT:
       case KEY.UP:
-      case KEY.HOME:
       case KEY.PAGEUP:
-        if (curElement !== prevButton && prevButton.disabled !== true) {
-          changeFocus(curElement, prevButton);
-        }
+          if (!prevButton.disabled) {
+            onClickPrev();
+          }
+          break;
+      case KEY.HOME:
+        goTo(0);
         break;
       case KEY.RIGHT:
       case KEY.DOWN:
-      case KEY.END:
       case KEY.PAGEDOWN:
-        if (curElement !== nextButton && nextButton.disabled !== true) {
-          changeFocus(curElement, nextButton);
-        }
-        break;
-      case KEY.ENTER:
-      case KEY.SPACE:
-        if (curElement === nextButton) {
-          onClickNext();
-        } else {
-          onClickPrev();
-        }
+          if (!nextButton.disabled) {
+            onClickNext();
+          }
+          break;
+      case KEY.END:
+        goTo(slideCount - 1);
         break;
     }
   }
@@ -2051,6 +2045,43 @@ var tns = function(options) {
     };
   }
 
+  function goTo (targetIndex) {
+    // if target is prev or next, 
+    // get the index right away
+    if (targetIndex === 'next') {
+      index += 1;
+    } else if (targetIndex === 'prev' || targetIndex === 'previous' ) {
+      index -= 1;
+    } else {
+    // if target is not prev or next, 
+    // get index by comparing absolute target index and absolute index
+
+      // get: absolute index
+      var absIndex = index%slideCount, absTargetIndex;
+      if (absIndex < 0) { absIndex += slideCount; }
+
+      // get: absolute target index
+      if (targetIndex === 'first') {
+        absTargetIndex = 0;
+      } else if (targetIndex === 'last') {
+        absTargetIndex = slideCount - 1;
+      } else if (typeof targetIndex === 'number') {
+        absTargetIndex = targetIndex%slideCount;
+      }
+      if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+
+      // get index
+      index += absTargetIndex - absIndex;
+    }
+
+    // if index is changed, check it and render
+    if (index !== indexCached) {
+      checkIndex();
+      render();
+    }
+
+  }
+
   function resizeTasks() {
     var indexTem = index,
         itemsTem = items;
@@ -2107,44 +2138,7 @@ var tns = function(options) {
   return {
     getInfo: info,
     events: events,
-    goTo: function (targetIndex) {
-      // ** goal: renew index and render smoothly **
-
-      // if target is prev or next, 
-      // get the index right away
-      if (targetIndex === 'next') {
-        index += 1;
-      } else if (targetIndex === 'prev' || targetIndex === 'previous' ) {
-        index -= 1;
-      } else {
-      // if target is not prev or next, 
-      // get index by comparing absolute target index and absolute index
-
-        // get: absolute index
-        var absIndex = index%slideCount, absTargetIndex;
-        if (absIndex < 0) { absIndex += slideCount; }
-
-        // get: absolute target index
-        if (targetIndex === 'first') {
-          absTargetIndex = 0;
-        } else if (targetIndex === 'last') {
-          absTargetIndex = slideCount - 1;
-        } else if (typeof targetIndex === 'number') {
-          absTargetIndex = targetIndex%slideCount;
-        }
-        if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-
-        // get index
-        index += absTargetIndex - absIndex;
-      }
-
-      // if index is changed, check it and render
-      if (index !== indexCached) {
-        checkIndex();
-        render();
-      }
-
-    },
+    goTo: goTo,
 
     destroy: function () {
       // wrapper
@@ -2164,18 +2158,18 @@ var tns = function(options) {
       }
 
       // Slide Items
-      removeAttrs(slideItems, ['id', 'style', 'aria-hidden']);
+      removeAttrs(slideItems, ['id', 'style', 'aria-hidden', 'tabindex']);
       slideId = slideCount = null;
 
       // controls
       if (controls) {
-        if (!options.controlsContainer) {
-          controlsContainer.remove();
-          controlsContainer = prevButton = nextButton = null;
-        } else {
-          removeAttrs(controlsContainer, ['aria-label']);
+        if (options.controlsContainer) {
+          removeAttrs(controlsContainer, ['aria-label', 'tabindex']);
           removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
           removeEventsByClone(controlsContainer);
+        } else {
+          controlsContainer.remove();
+          controlsContainer = prevButton = nextButton = null;
         }
       }
 
