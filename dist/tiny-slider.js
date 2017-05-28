@@ -817,6 +817,8 @@ var tns = function(options) {
       navItems,
       navCountVisible,
       navCountVisibleCached = slideCount,
+      visibleNavIndexes = [],
+      visibleNavIndexesCached = visibleNavIndexes,
       navClicked = -1,
       navCurrent = 0,
       navCurrentCached = 0,
@@ -1104,12 +1106,16 @@ var tns = function(options) {
         navItems = navContainer.children;
 
         // hide navs
-        for (var j = navCountVisible; j < slideCount; j++) {
-          setAttrs(navItems[j], {'hidden': ''});
+        // for (var j = navCountVisible; j < slideCount; j++) {
+        //   setAttrs(navItems[j], {'hidden': ''});
+        // }
+
+        if (items > 1) {
+          updateNavDisplay();
         }
 
         // update navCountVisibleCached
-        navCountVisibleCached = navCountVisible;
+        // navCountVisibleCached = navCountVisible;
       }
 
     }
@@ -2009,21 +2015,49 @@ var tns = function(options) {
     contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
   }
 
+  function getVisibleNavIndex() {
+    var absIndexMin = index%slideCount%items;
+    while (absIndexMin < slideCount) {
+      visibleNavIndexes.push(absIndexMin);
+      absIndexMin = absIndexMin + items;
+    }
+  }
+  
   // show or hide nav
   // (navCountVisible) => nav.[hidden]
   function updateNavDisplay() {
-    if (navCountVisible !== navCountVisibleCached) {
-      if (navCountVisible > navCountVisibleCached) {
-        for (var i = navCountVisibleCached; i < navCountVisible; i++) {
-          removeAttrs(navItems[i], 'hidden');
-        }
-      } else {
-        for (var j = navCountVisible; j < navCountVisibleCached; j++) {
-          setAttrs(navItems[j], {'hidden': ''});
-        }
-      }
+    // update visible nav indexes
+    getVisibleNavIndex();
+
+    // add 'hidden' attribute to visible navs
+    if (visibleNavIndexesCached.length > 0) {
+      visibleNavIndexesCached.forEach(function (ind) {
+        setAttrs(navItems[ind], 'hidden');
+      });
     }
-    navCountVisibleCached = navCountVisible;
+
+    // remove 'hidden' attribute from visible navs
+    if (visibleNavIndexes.length > 0) {
+      visibleNavIndexes.forEach(function (ind) {
+        removeAttrs(navItems[ind], 'hidden');
+      });
+    }
+
+    // cache visible nav indexes
+    visibleNavIndexesCached = visibleNavIndexes;
+
+    // if (navCountVisible !== navCountVisibleCached) {
+    //   if (navCountVisible > navCountVisibleCached) {
+    //     for (var i = navCountVisibleCached; i < navCountVisible; i++) {
+    //       removeAttrs(navItems[i], 'hidden');
+    //     }
+    //   } else {
+    //     for (var j = navCountVisible; j < navCountVisibleCached; j++) {
+    //       setAttrs(navItems[j], {'hidden': ''});
+    //     }
+    //   }
+    // }
+    // navCountVisibleCached = navCountVisible;
   }
 
   function info(e) {
