@@ -1798,9 +1798,6 @@ var tns = function(options) {
             onClickPrev();
           }
           break;
-      case KEY.HOME:
-        goTo(0);
-        break;
       case KEY.RIGHT:
       case KEY.DOWN:
       case KEY.PAGEDOWN:
@@ -1808,6 +1805,9 @@ var tns = function(options) {
             onClickNext();
           }
           break;
+      case KEY.HOME:
+        goTo(0);
+        break;
       case KEY.END:
         goTo(slideCount - 1);
         break;
