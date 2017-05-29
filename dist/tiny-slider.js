@@ -2089,33 +2089,34 @@ var tns = function(options) {
   }
 
   function goTo (targetIndex) {
-    // if target is prev or next, 
-    // get the index right away
-    if (targetIndex === 'next') {
-      index += 1;
-    } else if (targetIndex === 'prev' || targetIndex === 'previous' ) {
-      index -= 1;
-    } else {
-    // if target is not prev or next, 
-    // get index by comparing absolute target index and absolute index
+    var absIndex = index%slideCount, 
+        indexGap;
 
-      // get: absolute index
-      var absIndex = index%slideCount, absTargetIndex;
-      if (absIndex < 0) { absIndex += slideCount; }
+    if (absIndex < 0) { absIndex += slideCount; }
 
-      // get: absolute target index
-      if (targetIndex === 'first') {
-        absTargetIndex = 0;
-      } else if (targetIndex === 'last') {
-        absTargetIndex = slideCount - 1;
-      } else if (typeof targetIndex === 'number') {
-        absTargetIndex = targetIndex%slideCount;
-      }
-      if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-
-      // get index
-      index += absTargetIndex - absIndex;
+    switch(targetIndex) {
+      case 'next':
+        indexGap = 1;
+        break;
+      case 'prev':
+      case 'previous':
+        indexGap = -1;
+        break;
+      case 'first':
+        indexGap = - absIndex;
+        break;
+      case 'last':
+        indexGap = (slideCount - 1) - absIndex;
+        break;
+      default:
+        if (typeof targetIndex === 'number') {
+          var absTargetIndex = targetIndex%slideCount;
+          if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+          indexGap = absTargetIndex - absIndex;
+        }
     }
+
+    index += indexGap;
 
     // if index is changed, check it and render
     if (index%slideCount !== indexCached%slideCount) {
