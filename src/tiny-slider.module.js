@@ -421,6 +421,8 @@ export var tns = function(options) {
 
   function navInit() {
     if (nav) {
+      // customized nav
+      // will not hide the navs in case they're thumbnails
       if (options.navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
@@ -432,10 +434,13 @@ export var tns = function(options) {
             'aria-controls': slideId + '-item' + index,
           });
         });
+
+      // generated nav 
       } else {
         var navHtml = '';
         for (var i = 0; i < slideCount; i++) {
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" type="button"></button>';
+          // hide nav items by default
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div data-tns-role="nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         append(wrapper, navHtml);
@@ -445,19 +450,14 @@ export var tns = function(options) {
         });
         navItems = navContainer.children;
 
-        // hide navs
-        // for (var j = navCountVisible; j < slideCount; j++) {
-        //   setAttrs(navItems[j], {'hidden': ''});
-        // }
-
+        // update nav visibility if items > 1
         if (items > 1) {
-          updateNavDisplay();
+          updateNavVisibility();
         }
-
-        // update navCountVisibleCached
-        // navCountVisibleCached = navCountVisible;
       }
 
+      // turn navItems to an Array
+      navItems = Array.prototype.slice.call(navItems);
     }
   }
 
@@ -583,46 +583,49 @@ export var tns = function(options) {
 
   // lazyload
   function lazyLoad() {
-    // var arr = [], 
-    var i = index, 
-        len = index + items;
-        
-    if (edgePadding) {
-      i -=1;
-      len +=1;
-    }
+    if (lazyload) {
+      var i = index, 
+          len = index + items;
+          
+      if (edgePadding) {
+        i -=1;
+        len +=1;
+      }
 
-    for(; i < len; i++) {
-      [].forEach.call(slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]'), function (img) {
-        // stop propagationl transitionend event to container
-        var eve = {};
-        eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
-        addEvents(img, eve);
+      for(; i < len; i++) {
+        [].forEach.call(slideItems[i].querySelectorAll('[data-tns-role="lazy-img"]'), function (img) {
+          // stop propagationl transitionend event to container
+          var eve = {};
+          eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
+          addEvents(img, eve);
 
-        if (!img.classList.contains('loaded')) {
-          img.src = getAttr(img, 'data-src');
-          img.classList.add('loaded');
-        }
-      });
+          if (!img.classList.contains('loaded')) {
+            img.src = getAttr(img, 'data-src');
+            img.classList.add('loaded');
+          }
+        });
+      }
     }
   }
 
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight() {
-    // get all images inside visible slide items
-    var images = [];
+    if (autoHeight) {
+      // get all images inside visible slide items
+      var images = [];
 
-    for (var i = index; i < index + items; i++) {
-      [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
-        images.push(img);
-      });
-    }
+      for (var i = index; i < index + items; i++) {
+        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+          images.push(img);
+        });
+      }
 
-    if (images.length === 0) {
-      updateContainerHeight(); 
-    } else {
-      checkImagesLoaded(images);
+      if (images.length === 0) {
+        updateContainerHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
     }
   }
 
@@ -662,8 +665,8 @@ export var tns = function(options) {
     addSliderEvents();
     checkSlideCount();
 
-    if (lazyload) { lazyLoad(); }
-    if (autoHeight) { runAutoHeight(); }
+    lazyLoad();
+    runAutoHeight();
 
     if (typeof onInit === 'function') {
       onInit(info());
@@ -760,18 +763,8 @@ export var tns = function(options) {
   function updateNavStatus() {
     // get current nav
     if (nav) {
-      if (navClicked === -1) {
-        if (options.navContainer) {
-          navCurrent = index%slideCount;
-        } else {
-          navCurrent = Math.floor(index%slideCount / items);
-          // non-loop & reach the edge
-          if (!loop && slideCount%items !== 0 && index === indexMax) { navCurrent += 1; }
-        }
-      } else {
-        navCurrent = navClicked;
-        navClicked = -1;
-      }
+      navCurrent = (navClicked !== -1) ? navClicked : index%slideCount;
+      navClicked = -1;
 
       if (navCurrent !== navCurrentCached) {
         setAttrs(navItems[navCurrentCached], {
@@ -938,7 +931,7 @@ export var tns = function(options) {
     if (checkIndexBeforeTransform) { checkIndex(); }
 
     // events
-    if (index !== indexCached) { events.emit('indexChanged', info()); }
+    if (index%slideCount !== indexCached%slideCount) { events.emit('indexChanged', info()); }
     events.emit('transitionStart', info());
 
     doTransform();
@@ -1007,10 +1000,16 @@ export var tns = function(options) {
       } 
 
       updateSlideStatus();
+
+      // update nav visibility when 
+      // visibleNavIndexes doesn't contain current index
+      if (visibleNavIndexes.indexOf(index%slideCount) === -1) { 
+        updateNavVisibility(); 
+      }
       updateNavStatus();
       updateControlsStatus();
-      if (lazyload) { lazyLoad(); }
-      if (autoHeight) { runAutoHeight(); }
+      lazyLoad();
+      runAutoHeight();
 
       if (nested === 'inner') { 
         events.emit('innerLoaded', info()); 
@@ -1050,17 +1049,21 @@ export var tns = function(options) {
   // on doc click
   function onClickNav(e) {
     if (getAttr(container, 'aria-busy') !== 'true') {
-      var clickTarget = e.target || e.srcElement, navIndex, indexGap;
+      var clickTarget = e.target || e.srcElement,
+          navIndex,
+          indexAdjust,
+          targetIndex;
 
+      // find the clicked nav item
       while (indexOf(navItems, clickTarget) === -1) {
         clickTarget = clickTarget.parentNode;
       }
 
-      navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
-      var adjust = (mode === 'gallery')? 0 : cloneCount;
-      index = (options.navContainer) ? navIndex + adjust : navIndex * items + adjust;
+      navIndex = navClicked = indexOf(navItems, clickTarget);
+      indexAdjust = (mode === 'gallery')? 0 : cloneCount;
+      targetIndex = navIndex + indexAdjust;
 
-      if (index !== indexCached) { render(); }
+      goTo(targetIndex);
     }
   }
 
@@ -1355,49 +1358,55 @@ export var tns = function(options) {
     contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
   }
 
+  /*
+   * get nav item indexes per items
+   * add 1 more if the nav items cann't cover all slides
+   * [0, 1, 2, 3, 4] / 3 => [0, 3]
+   */
   function getVisibleNavIndex() {
+    // reset visibleNavIndexes
+    visibleNavIndexes = [];
+
     var absIndexMin = index%slideCount%items;
     while (absIndexMin < slideCount) {
       visibleNavIndexes.push(absIndexMin);
       absIndexMin = absIndexMin + items;
     }
+
+    // nav count * items < slide count means
+    // some slides can not be displayed only by nav clicking
+    if (slideCount > items * visibleNavIndexes.length) {
+      visibleNavIndexes.unshift(0);
+    }
   }
   
-  // show or hide nav
-  // (navCountVisible) => nav.[hidden]
-  function updateNavDisplay() {
-    // update visible nav indexes
-    getVisibleNavIndex();
+  /*
+   * 1. update visible nav items list
+   * 2. add "hidden" attributes to previous visible nav items
+   * 3. remove "hidden" attrubutes to new visible nav items
+   */
+  function updateNavVisibility() {
+    if (nav && !options.navContainer) {
+      // update visible nav indexes
+      getVisibleNavIndex();
 
-    // add 'hidden' attribute to visible navs
-    if (visibleNavIndexesCached.length > 0) {
-      visibleNavIndexesCached.forEach(function (ind) {
-        setAttrs(navItems[ind], 'hidden');
-      });
+      // add 'hidden' attribute to visible navs
+      if (visibleNavIndexesCached.length > 0) {
+        visibleNavIndexesCached.forEach(function (ind) {
+          setAttrs(navItems[ind], {'hidden': ''});
+        });
+      }
+
+      // remove 'hidden' attribute from visible navs
+      if (visibleNavIndexes.length > 0) {
+        visibleNavIndexes.forEach(function (ind) {
+          removeAttrs(navItems[ind], 'hidden');
+        });
+      }
+
+      // cache visible nav indexes
+      visibleNavIndexesCached = visibleNavIndexes;
     }
-
-    // remove 'hidden' attribute from visible navs
-    if (visibleNavIndexes.length > 0) {
-      visibleNavIndexes.forEach(function (ind) {
-        removeAttrs(navItems[ind], 'hidden');
-      });
-    }
-
-    // cache visible nav indexes
-    visibleNavIndexesCached = visibleNavIndexes;
-
-    // if (navCountVisible !== navCountVisibleCached) {
-    //   if (navCountVisible > navCountVisibleCached) {
-    //     for (var i = navCountVisibleCached; i < navCountVisible; i++) {
-    //       removeAttrs(navItems[i], 'hidden');
-    //     }
-    //   } else {
-    //     for (var j = navCountVisible; j < navCountVisibleCached; j++) {
-    //       setAttrs(navItems[j], {'hidden': ''});
-    //     }
-    //   }
-    // }
-    // navCountVisibleCached = navCountVisible;
   }
 
   function info(e) {
@@ -1449,7 +1458,7 @@ export var tns = function(options) {
     }
 
     // if index is changed, check it and render
-    if (index !== indexCached) {
+    if (index%slideCount !== indexCached%slideCount) {
       checkIndex();
       render();
     }
@@ -1479,20 +1488,24 @@ export var tns = function(options) {
       updateContentWrapperHeight();
     }
 
+    if (index !== indexTem || mode === 'carousel' && !fixedWidth) {
+      doTransform(0); 
+    }
+    
+    if (index !== indexTem || items !== itemsTem) {
+      lazyLoad(); 
+    }
+
+    runAutoHeight(); 
+
     if (index !== indexTem) { 
       events.emit('indexChanged', info());
       updateSlideStatus();
-      if (controls && !loop) { updateControlsStatus(); }
+      updateControlsStatus();
+      updateNavVisibility();
+      updateNavStatus();
     }
 
-    if (nav && items !== itemsTem && !options.navContainer) { 
-      updateNavDisplay(); 
-      updateNavStatus();
-    } 
-
-    if (index !== indexTem || mode === 'carousel' && !fixedWidth) { doTransform(0); }
-    if (autoHeight) { runAutoHeight(); }
-    if (lazyload && index !== indexTem || items !== itemsTem) { lazyLoad(); }
 
     if (navigator.msMaxTouchPoints) { setSnapInterval(); }
   }

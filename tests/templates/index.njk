@@ -1,6 +1,6 @@
 {% extends './parts/layout.njk' %}
-{% set sliders = ['base'] %}
-{#         'mouseDrag',
+{% set sliders = ['base',
+        'mouseDrag',
         'gutter', 
         'edgePadding', 
         'edgePaddingGutter', 
@@ -21,7 +21,8 @@
         'animation', 
         'lazyload', 
         'customize', 
-        'autoHeight' #}
+        'autoHeight'
+] %}
 
 {% block main %}
   {% for slide in sliders %}
