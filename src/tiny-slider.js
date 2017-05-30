@@ -1218,7 +1218,7 @@ export var tns = function(options) {
 
   function onTouchOrMouseStart(e) {
     e = e || window.event;
-    if (isLinkElement(getTarget(e))) { preventDefaultBehavior(e); }
+    if (isLinkElement(getTarget(e)) && e.type !== 'touchstart') { preventDefaultBehavior(e); }
 
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
@@ -1246,7 +1246,7 @@ export var tns = function(options) {
     // console.log(e.type, mousePressed, isDragEvent, e.clientX);
     // make sure touch started or mouse draged
     if (startX !== null) {
-      if (isLinkElement(getTarget(e))) { preventDefaultBehavior(e); }
+      if (isLinkElement(getTarget(e)) && e.type !== 'touchmove') { preventDefaultBehavior(e); }
 
       var ev = (e.type === 'touchmove') ? e.changedTouches[0] : e;
       disX = parseInt(ev.clientX) - startX;
