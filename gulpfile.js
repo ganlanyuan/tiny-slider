@@ -27,17 +27,21 @@ function errorlog (error) {
   this.emit('end');  
 }  
 
-// SASS Task
-gulp.task('sass', function () {  
-  return gulp.src(pathSrc + sassFile)  
+function sassTask(src, dest) {
+  return gulp.src(src)
     .pipe($.sourcemaps.init())
     .pipe($.sass({
       outputStyle: 'compressed', 
       precision: 7
     }).on('error', $.sass.logError))  
     .pipe($.sourcemaps.write(sourcemapsDest))
-    .pipe(gulp.dest(pathDest))
+    .pipe(gulp.dest(dest))
     .pipe(browserSync.stream());
+}
+
+// SASS Task
+gulp.task('sass', function () {  
+  sassTask(pathSrc + sassFile, pathDest);
 });  
 
 // Script Task
@@ -166,7 +170,9 @@ gulp.task('server', function() {
         .pipe(gulp.dest('./tests'));
     }
   });
-  gulp.watch(pathSrc + sassFile, ['sass']);
+  gulp.watch(pathSrc + sassFile, function (e) {
+    sassTask(pathSrc + sassFile, pathDest);
+  });
   gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
   gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']);
