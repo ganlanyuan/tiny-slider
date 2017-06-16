@@ -1110,10 +1110,7 @@ var tns = function(options) {
         });
         navItems = navContainer.children;
 
-        // update nav visibility if items > 1
-        if (items > 1) {
-          updateNavVisibility();
-        }
+        updateNavVisibility();
       }
 
       // turn navItems to an Array
