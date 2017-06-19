@@ -452,9 +452,6 @@ export var tns = function(options) {
 
         updateNavVisibility();
       }
-
-      // turn navItems to an Array
-      navItems = Array.prototype.slice.call(navItems);
     }
   }
 
@@ -852,15 +849,10 @@ export var tns = function(options) {
       return function () {
         slideItemsOut = [];
 
-        var eve1 = {};
-        eve1[TRANSITIONEND] = onTransitionEnd;
-        eve1[ANIMATIONEND] = onTransitionEnd;
-        removeEvents(slideItems[indexCached], eve1);
-
-        var eve2 = {};
-        eve2[TRANSITIONEND] = onTransitionEnd;
-        eve2[ANIMATIONEND] = onTransitionEnd;
-        addEvents(slideItems[index], eve2);
+        var eve = {};
+        eve[TRANSITIONEND] = eve[ANIMATIONEND] = onTransitionEnd;
+        removeEvents(slideItems[indexCached], eve);
+        addEvents(slideItems[index], eve);
 
         (function () {
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
@@ -891,6 +883,10 @@ export var tns = function(options) {
             if (i > index) { item.style.left = (i - index) * slideWidth + 'px'; }
           }
         })();
+
+        if (!TRANSITIONEND) {
+          setTimeout(onTransitionEnd, speed);
+        }
       };
     }
   })();
@@ -1387,7 +1383,7 @@ export var tns = function(options) {
       // update visible nav indexes
       getVisibleNavIndex();
 
-      // add 'hidden' attribute to visible navs
+      // add 'hidden' attribute to previous visible navs
       if (visibleNavIndexesCached.length > 0) {
         visibleNavIndexesCached.forEach(function (ind) {
           setAttrs(navItems[ind], {'hidden': ''});
