@@ -861,7 +861,7 @@ var tns = function(options) {
       animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false,
       // resize and scroll
       resizeTimer,
-      ticking = false,
+      running = false,
       onInit = options.onInit,
       events = new Events();
 
@@ -1580,7 +1580,7 @@ var tns = function(options) {
   })();
 
   function render() {
-    setAttrs(container, {'aria-busy': 'true'});
+    running = true;
     if (checkIndexBeforeTransform) { checkIndex(); }
 
     // events
@@ -1667,7 +1667,7 @@ var tns = function(options) {
       if (nested === 'inner') { 
         events.emit('innerLoaded', info()); 
       } 
-      removeAttrs(container, 'aria-busy');
+      running = false;
       updateIndexCache();
     }
 
@@ -1680,7 +1680,7 @@ var tns = function(options) {
   // # ACTIONS
   // on controls click
   function onClickControl(dir) {
-    if (getAttr(container, 'aria-busy') !== 'true') {
+    if (!running) {
       index = index + dir * slideBy;
 
       render();
@@ -1701,7 +1701,7 @@ var tns = function(options) {
 
   // on doc click
   function onClickNav(e) {
-    if (getAttr(container, 'aria-busy') !== 'true') {
+    if (!running) {
       var clickTarget = e.target || e.srcElement,
           navIndex,
           indexAdjust,
