@@ -1654,9 +1654,10 @@ var tns = function(options) {
 
       updateSlideStatus();
 
-      // update nav visibility when 
-      // visibleNavIndexes doesn't contain current index
-      if (visibleNavIndexes.indexOf(index%slideCount) === -1) { 
+      // non-loop: always update nav visibility
+      // loop: update nav visibility when visibleNavIndexes doesn't contain current index
+      if (!loop || 
+          loop && visibleNavIndexes.indexOf(index%slideCount) === -1) { 
         updateNavVisibility(); 
       }
       updateNavStatus();
@@ -2022,13 +2023,15 @@ var tns = function(options) {
 
     var absIndexMin = index%slideCount%items;
     while (absIndexMin < slideCount) {
+      if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
-      absIndexMin = absIndexMin + items;
+      absIndexMin += items;
     }
 
     // nav count * items < slide count means
     // some slides can not be displayed only by nav clicking
-    if (slideCount > items * visibleNavIndexes.length) {
+    if (loop && visibleNavIndexes.length * items < slideCount ||
+        !loop && visibleNavIndexes[0] > 0) {
       visibleNavIndexes.unshift(0);
     }
   }
@@ -2043,22 +2046,24 @@ var tns = function(options) {
       // update visible nav indexes
       getVisibleNavIndex();
 
-      // add 'hidden' attribute to previous visible navs
-      if (visibleNavIndexesCached.length > 0) {
-        visibleNavIndexesCached.forEach(function (ind) {
-          setAttrs(navItems[ind], {'hidden': ''});
-        });
-      }
+      if (visibleNavIndexes !== visibleNavIndexesCached) {
+        // add 'hidden' attribute to previous visible navs
+        if (visibleNavIndexesCached.length > 0) {
+          visibleNavIndexesCached.forEach(function (ind) {
+            setAttrs(navItems[ind], {'hidden': ''});
+          });
+        }
 
-      // remove 'hidden' attribute from visible navs
-      if (visibleNavIndexes.length > 0) {
-        visibleNavIndexes.forEach(function (ind) {
-          removeAttrs(navItems[ind], 'hidden');
-        });
-      }
+        // remove 'hidden' attribute from visible navs
+        if (visibleNavIndexes.length > 0) {
+          visibleNavIndexes.forEach(function (ind) {
+            removeAttrs(navItems[ind], 'hidden');
+          });
+        }
 
-      // cache visible nav indexes
-      visibleNavIndexesCached = visibleNavIndexes;
+        // cache visible nav indexes
+        visibleNavIndexesCached = visibleNavIndexes;
+      }
     }
   }
 
@@ -2148,6 +2153,8 @@ var tns = function(options) {
     
     if (index !== indexTem || items !== itemsTem) {
       lazyLoad(); 
+      updateNavVisibility();
+      updateNavStatus();
     }
 
     runAutoHeight(); 
@@ -2156,8 +2163,6 @@ var tns = function(options) {
       events.emit('indexChanged', info());
       updateSlideStatus();
       updateControlsStatus();
-      updateNavVisibility();
-      updateNavStatus();
     }
 
 
