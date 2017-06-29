@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+    }
+    .slider-wrapper {
+      width: 90%;
+      margin-left: 5%;
+      margin-top: 5%;
+      overflow: auto;
+      /*-moz-resize: both;*/
+      /*resize: both;*/
+      outline: 1px solid #FF66FF;
+    }
+    .slider:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+    .slider {
+      width: -webkit-calc(100% * 13 / 7);
+      width: -moz-calc(100% * 13 / 7);
+      width: calc(100% * 13 / 7);
+    }
+    .slider > div {
+      width: -webkit-calc(100% / 13);
+      width: -moz-calc(100% / 13);
+      width: calc(100% / 13);
+      float: left;
+      height: 300px;
+      font-size: 30px;
+      text-align: center;
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    }
+    .slider > div:nth-child(1) { background-color: hsl(0, 100%, 90%); }
+    .slider > div:nth-child(2) { background-color: hsl(120, 100%, 90%); }
+    .slider > div:nth-child(3) { background-color: hsl(40, 100%, 90%); }
+    .slider > div:nth-child(4) { background-color: hsl(160, 100%, 90%); }
+    .slider > div:nth-child(5) { background-color: hsl(80, 100%, 90%); }
+    .slider > div:nth-child(6) { background-color: hsl(140, 100%, 90%); }
+    .slider > div:nth-child(7) { background-color: hsl(20, 100%, 90%); }
+    .slider > div:nth-child(8) { background-color: hsl(140, 100%, 90%); }
+    .slider > div:nth-child(9) { background-color: hsl(60, 100%, 90%); }
+    .slider > div:nth-child(10) { background-color: hsl(180, 100%, 90%); }
+    .slider > div:nth-child(11) { background-color: hsl(100, 100%, 90%); }
+    .slider > div:nth-child(12) { background-color: hsl(220, 100%, 90%); }
+    .slider > div:nth-child(13) { background-color: hsl(40, 100%, 90%); }
+  </style>
+</head>
+<body>
+  <div class="slider-wrapper">
+    <div class="slider">
+      <div>1</div>
+      <div>2</div>
+      <div>3</div>
+      <div>4</div>
+      <div>5</div>
+      <div>6</div>
+      <div>7</div>
+      <div>8</div>
+      <div>9</div>
+      <div>10</div>
+      <div>11</div>
+      <div>12</div>
+      <div>13</div>
+    </div>
+  </div>
+</body>
+</html>
