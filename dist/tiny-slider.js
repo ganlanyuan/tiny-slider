@@ -805,65 +805,83 @@ var tns = function(options) {
       transformType = 'translate',
       transformPrefix = '',
       transformPostfix = '',
-      // controls
-      controls = options.controls,
-      controlsText = options.controlsText,
-      controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
-      prevButton,
-      nextButton,
-      // nav
-      nav = options.nav,
-      navContainer = options.navContainer || false,
-      navItems,
-      navCountVisible,
-      navCountVisibleCached = slideCount,
-      visibleNavIndexes = [],
-      visibleNavIndexesCached = visibleNavIndexes,
-      navClicked = -1,
-      navCurrent = 0,
-      navCurrentCached = 0,
       // index
       index = (mode === 'gallery') ? 0 : cloneCount,
       indexCached = index,
       indexAdjust = (edgePadding) ? 1 : 0,
       indexMin = indexAdjust,
       indexMax,
+      // resize
       vw,
-      // autoplay
-      autoplay = options.autoplay,
-      autoplayTimeout = options.autoplayTimeout,
-      autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
-      autoplayText = options.autoplayText,
-      autoplayHoverPause = options.autoplayHoverPause,
-      autoplayTimer,
-      autoplayButton = options.autoplayButton,
-      animating = false,
-      autoplayHoverStopped = false,
-      autoplayHtmlString = '<span hidden>Stop Animation</span>',
-      autoplayResetOnVisibility = options.autoplayResetOnVisibility,
-      autoplayResetVisibilityState = false,
-      // touch
-      touch = options.touch,
-      startX = null,
-      startY = null,
-      translateInit,
-      disX,
-      disY,
-      touchedOrDraged,
-      //mouse
-      mouseDrag = options.mouseDrag,
-      mousePressed = false,
-      isDragEvent = false,
-      // gallery
-      animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
-      animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
-      animateNormal = (ANIMATIONDURATION) ? options.animateNormal : 'tns-normal',
-      animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false,
-      // resize and scroll
       resizeTimer,
+      touchedOrDraged,
       running = false,
       onInit = options.onInit,
       events = new Events();
+
+  // controls
+  if (options.controls) {
+    var controls = options.controls,
+        controlsText = options.controlsText,
+        controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
+        prevButton,
+        nextButton;
+  }
+
+  // nav
+  if (options.nav) {
+    var nav = options.nav,
+        navContainer = options.navContainer || false,
+        navItems,
+        navCountVisible,
+        navCountVisibleCached = slideCount,
+        visibleNavIndexes = [],
+        visibleNavIndexesCached = visibleNavIndexes,
+        navClicked = -1,
+        navCurrent = 0,
+        navCurrentCached = 0;
+  }
+
+  // autoplay
+  if (options.autoplay) {
+    var autoplay = options.autoplay,
+        autoplayTimeout = options.autoplayTimeout,
+        autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
+        autoplayText = options.autoplayText,
+        autoplayHoverPause = options.autoplayHoverPause,
+        autoplayTimer,
+        autoplayButton = options.autoplayButton,
+        animating = false,
+        autoplayHoverStopped = false,
+        autoplayHtmlString = '<span hidden>Stop Animation</span>',
+        autoplayResetOnVisibility = options.autoplayResetOnVisibility,
+        autoplayResetVisibilityState = false;
+  }
+
+  // touch
+  if (options.touch) {
+    var touch = options.touch,
+        startX = null,
+        startY = null,
+        translateInit,
+        disX,
+        disY;
+  }
+
+  //mouse
+  if (options.mouseDrag) {
+    var mouseDrag = options.mouseDrag,
+        mousePressed = false,
+        isDragEvent = false;
+  }
+
+  // gallery
+  if (options.mode === 'gallery') {
+    var animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
+        animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
+        animateNormal = (ANIMATIONDURATION) ? options.animateNormal : 'tns-normal',
+        animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false;
+  }
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
@@ -1656,8 +1674,8 @@ var tns = function(options) {
 
       // non-loop: always update nav visibility
       // loop: update nav visibility when visibleNavIndexes doesn't contain current index
-      if (!loop || 
-          loop && visibleNavIndexes.indexOf(index%slideCount) === -1) { 
+      if (nav && !loop || 
+          nav && loop && visibleNavIndexes.indexOf(index%slideCount) === -1) { 
         updateNavVisibility(); 
       }
       updateNavStatus();

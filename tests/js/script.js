@@ -8,12 +8,12 @@ var doc = document,
     options= {
       'base': {
         items: 3,
-        slideBy: 'page'
+        slideBy: 'page',
       },
       'mouseDrag': {
         items: 3,
         mouseDrag: true,
-        slideBy: 'page'
+        slideBy: 'page',
       },
       'gutter': {
         items: 3,
@@ -108,7 +108,7 @@ var doc = document,
         lazyload: true,
         onInit: function (info) {
           // console.log(info.items);
-        }
+        },
       },
       'customize': {
         items: 3,
