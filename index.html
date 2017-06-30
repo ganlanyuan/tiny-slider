@@ -143,6 +143,28 @@
       return result;
     }
 
+    function getSubpixelLayout() {
+      var doc = document,
+          body = doc.body,
+          parent = doc.createElement('div'),
+          child1 = doc.createElement('div'),
+          child2;
+      parent.style.cssText = 'width: 10px';
+      child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
+      child2 = child1.cloneNode(true);
+
+      parent.appendChild(child1);
+      parent.appendChild(child2);
+      body.appendChild(parent);
+
+      var supported = child1.offsetTop !== child2.offsetTop;
+      body.removeChild(parent);
+
+      return supported;
+    }
+
+    var subPixelLayout = getSubpixelLayout();
+
     var sheet = createSheet();
     var calc = GetCalc();
     var cssFontSize = window.getComputedStyle(document.querySelector('.slider > div'), null).fontSize;
@@ -171,6 +193,14 @@
 
     addCSSRule(sheet, '.slider', 'width: ' + wrapperWidth + '; ' + fontSizeWrapper, 0);
     addCSSRule(sheet, '.slider > div', 'width: ' + sliderWidth + '; ' + fontSizeSlider, 1);
+
+    if (!subPixelLayout) {
+      var sliders = document.querySelector('.slider').children,
+          len = sliders.length;
+      for (var i = 1; i < len; i++) {
+        sliders[i].style.cssText = "float: left; margin-left: " + i * 100 / full + "%; margin-right: -100%";
+      }
+    }
 
     // https://stackoverflow.com/questions/12604754/is-there-a-way-to-detect-if-the-browser-has-subpixel-precision
     // http://jsfiddle.net/KAW3d/1/
