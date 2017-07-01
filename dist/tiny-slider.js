@@ -430,18 +430,6 @@ function indexOf(array, item) {
   return -1;
 }
 
-function getSupportedProp(proparray){
-  var root = document.documentElement;
-  for (var i=0; i<proparray.length; i++){
-    if (proparray[i] in root.style){
-      return proparray[i];
-    }
-  }
-}
-
-// var getTD = gn.getSupportedProp(['transitionDuration', 'WebkitTransitionDuration', 'MozTransitionDuration', 'OTransitionDuration']),
-// getTransform = gn.getSupportedProp(['transform', 'WebkitTransform', 'MozTransform', 'OTransform']);
-
 function isNodeList(el) {
   // Only NodeList has the "item()" function
   return typeof el.item !== "undefined"; 
@@ -603,12 +591,12 @@ function imageLoaded(img) {
   }
 }
 
-function whichProperty(obj){
-  var t, el = document.createElement('fakeelement');
-  for(t in obj){
-    if( el.style[t] !== undefined ){
-      return [t, obj[t][0], obj[t][1]];
-    }
+function whichProperty(props){
+  var el = document.createElement('fakeelement'),
+      len = props.length;
+  for(var i = 0; i < props.length; i++){
+    prop = props[i];
+    if( el.style[prop] !== undefined ){ return prop; }
   }
 
   return false; // explicit for ie9-
@@ -690,31 +678,49 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 
 // from go-native
 // helper functions
-var TRANSFORM = getSupportedProp([
+var TRANSFORM = whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
-      'msTransform',
+      'msTransform', 
       'OTransform'
     ]);
-var transitions = {
-      'transitionDuration': ['transitionDelay', 'transitionend'],
-      'WebkitTransitionDuration': ['WebkitTransitionDelay', 'webkitTransitionEnd'],
-      'MozTransitionDuration': ['MozTransitionDelay', 'transitionend'],
-      'OTransitionDuration': ['OTransitionDelay', 'oTransitionEnd']
-    };
-var animations = {
-      'animationDuration': ['animationDelay', 'animationend'],
-      'WebkitAnimationDuration': ['WebkitAnimationDelay', 'webkitAnimationEnd'],
-      'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
-      'OAnimationDuration': ['OAnimationDelay', 'oAnimationEnd']
-    };
-var TRANSITIONDURATION = whichProperty(transitions)[0];
-var TRANSITIONDELAY = whichProperty(transitions)[1];
-var TRANSITIONEND = whichProperty(transitions)[2];
-var ANIMATIONDURATION = whichProperty(animations)[0];
-var ANIMATIONDELAY = whichProperty(animations)[1];
-var ANIMATIONEND = whichProperty(animations)[2];
+var TRANSITIONDURATION = whichProperty([
+      'transitionDuration', 
+      'WebkitTransitionDuration', 
+      'MozTransitionDuration', 
+      'OTransitionDuration'
+    ]);
+var TRANSITIONDELAY = whichProperty([
+      'transitionDelay', 
+      'WebkitTransitionDelay', 
+      'MozTransitionDelay', 
+      'OTransitionDelay'
+    ]);
+var TRANSITIONEND = whichProperty([
+      'transitionend', 
+      'webkitTransitionEnd', 
+      'transitionend', 
+      'oTransitionEnd'
+    ]);
+var ANIMATIONDURATION = whichProperty([
+      'animationDuration', 
+      'WebkitAnimationDuration', 
+      'MozAnimationDuration', 
+      'OAnimationDuration'
+    ]);
+var ANIMATIONDELAY = whichProperty([
+      'animationDelay', 
+      'WebkitAnimationDelay', 
+      'MozAnimationDelay', 
+      'OAnimationDelay'
+    ]);
+var ANIMATIONEND = whichProperty([
+      'animationend', 
+      'webkitAnimationEnd', 
+      'animationend', 
+      'oAnimationEnd'
+    ]);
 var KEY = {
       ENTER: 13,
       SPACE: 32,

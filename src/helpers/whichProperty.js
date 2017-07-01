@@ -1,9 +1,9 @@
-export function whichProperty(obj){
-  var t, el = document.createElement('fakeelement');
-  for(t in obj){
-    if( el.style[t] !== undefined ){
-      return [t, obj[t][0], obj[t][1]];
-    }
+export function whichProperty(props){
+  var el = document.createElement('fakeelement'),
+      len = props.length;
+  for(var i = 0; i < props.length; i++){
+    prop = props[i];
+    if( el.style[prop] !== undefined ){ return prop; }
   }
 
   return false; // explicit for ie9-

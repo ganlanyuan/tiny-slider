@@ -22,7 +22,7 @@
     display: table;
     clear: both;
   }
-  > div, > li, > span, > a {
+  > div, > li {
     float: left;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -32,7 +32,7 @@
 }
 [data-tns-mode="gallery"] {
   overflow: hidden;
-  > div, > li, > span, > a {
+  > div, > li {
     position: absolute;
     -webkit-transition: transform 0s, opacity 0s;
     -moz-transition: transform 0s, opacity 0s;

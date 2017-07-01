@@ -7,7 +7,6 @@ import "../bower_components/go-native/src/vendors/token-list";
 
 import { extend } from "../bower_components/go-native/src/gn/extend";
 import { indexOf } from "../bower_components/go-native/src/gn/indexOf";
-import { getSupportedProp } from "../bower_components/go-native/src/gn/getSupportedProp";
 import { append } from "../bower_components/go-native/src/gn/append";
 import { wrap } from "../bower_components/go-native/src/gn/wrap";
 import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
@@ -30,31 +29,49 @@ import { removeEvents } from './helpers/removeEvents';
 import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
-var TRANSFORM = getSupportedProp([
+var TRANSFORM = whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
-      'msTransform',
+      'msTransform', 
       'OTransform'
     ]),
-    transitions = {
-      'transitionDuration': ['transitionDelay', 'transitionend'],
-      'WebkitTransitionDuration': ['WebkitTransitionDelay', 'webkitTransitionEnd'],
-      'MozTransitionDuration': ['MozTransitionDelay', 'transitionend'],
-      'OTransitionDuration': ['OTransitionDelay', 'oTransitionEnd']
-    },
-    animations = {
-      'animationDuration': ['animationDelay', 'animationend'],
-      'WebkitAnimationDuration': ['WebkitAnimationDelay', 'webkitAnimationEnd'],
-      'MozAnimationDuration': ['MozAnimationDelay', 'animationend'],
-      'OAnimationDuration': ['OAnimationDelay', 'oAnimationEnd']
-    },
-    TRANSITIONDURATION = whichProperty(transitions)[0],
-    TRANSITIONDELAY = whichProperty(transitions)[1],
-    TRANSITIONEND = whichProperty(transitions)[2],
-    ANIMATIONDURATION = whichProperty(animations)[0],
-    ANIMATIONDELAY = whichProperty(animations)[1],
-    ANIMATIONEND = whichProperty(animations)[2],
+    TRANSITIONDURATION = whichProperty([
+      'transitionDuration', 
+      'WebkitTransitionDuration', 
+      'MozTransitionDuration', 
+      'OTransitionDuration'
+    ]),
+    TRANSITIONDELAY = whichProperty([
+      'transitionDelay', 
+      'WebkitTransitionDelay', 
+      'MozTransitionDelay', 
+      'OTransitionDelay'
+    ]),
+    TRANSITIONEND = whichProperty([
+      'transitionend', 
+      'webkitTransitionEnd', 
+      'transitionend', 
+      'oTransitionEnd'
+    ]),
+    ANIMATIONDURATION = whichProperty([
+      'animationDuration', 
+      'WebkitAnimationDuration', 
+      'MozAnimationDuration', 
+      'OAnimationDuration'
+    ]),
+    ANIMATIONDELAY = whichProperty([
+      'animationDelay', 
+      'WebkitAnimationDelay', 
+      'MozAnimationDelay', 
+      'OAnimationDelay'
+    ]),
+    ANIMATIONEND = whichProperty([
+      'animationend', 
+      'webkitAnimationEnd', 
+      'animationend', 
+      'oAnimationEnd'
+    ]),
     KEY = {
       ENTER: 13,
       SPACE: 32,
