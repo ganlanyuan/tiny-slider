@@ -24,12 +24,25 @@ import { hideElement } from './helpers/hideElement';
 import { showElement } from './helpers/showElement';
 import { imageLoaded } from './helpers/imageLoaded';
 import { whichProperty } from './helpers/whichProperty';
+import { getEndProperty } from './helpers/getEndProperty';
 import { addEvents } from './helpers/addEvents';
 import { removeEvents } from './helpers/removeEvents';
 import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
-var TRANSFORM = whichProperty([
+var KEYS = {
+      ENTER: 13,
+      SPACE: 32,
+      PAGEUP: 33,
+      PAGEDOWN: 34,
+      END: 35,
+      HOME: 36,
+      LEFT: 37,
+      UP: 38,
+      RIGHT: 39,
+      DOWN: 40
+    },
+    TRANSFORM = whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
@@ -48,12 +61,6 @@ var TRANSFORM = whichProperty([
       'MozTransitionDelay', 
       'OTransitionDelay'
     ]),
-    TRANSITIONEND = whichProperty([
-      'transitionend', 
-      'webkitTransitionEnd', 
-      'transitionend', 
-      'oTransitionEnd'
-    ]),
     ANIMATIONDURATION = whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
@@ -66,24 +73,8 @@ var TRANSFORM = whichProperty([
       'MozAnimationDelay', 
       'OAnimationDelay'
     ]),
-    ANIMATIONEND = whichProperty([
-      'animationend', 
-      'webkitAnimationEnd', 
-      'animationend', 
-      'oAnimationEnd'
-    ]),
-    KEY = {
-      ENTER: 13,
-      SPACE: 32,
-      PAGEUP: 33,
-      PAGEDOWN: 34,
-      END: 35,
-      HOME: 36,
-      LEFT: 37,
-      UP: 38,
-      RIGHT: 39,
-      DOWN: 40
-    };
+    TRANSITIONEND = getEndProperty(TRANSITIONDURATION, 'Transition'),
+    ANIMATIONEND = getEndProperty(ANIMATIONDURATION, 'Animation');
 
 export var tns = function(options) {
   options = extend({
@@ -127,6 +118,25 @@ export var tns = function(options) {
   if (typeof options.container !== 'object' || options.container === null) { return; }
 
   // === define and set variables ===
+  if (options.mode === 'gallery') {
+    options.edgePadding = false;
+    options.loop = true;
+    options.autoHeight = true;
+    options.slideBy === 'page';
+
+    var animateIn = 'tns-fadeIn',
+        animateOut = 'tns-fadeOut',
+        animateNormal = 'tns-normal',
+        animateDelay = false;
+
+    if (ANIMATIONDURATION) {
+      animateIn = options.animateIn;
+      animateOut = options.animateOut;
+      animateNormal = options.animateNormal;
+      animateDelay = options.animateDelay;
+    }
+  }
+
   var mode = options.mode,
       axis = options.axis,
       wrapper = document.createElement('div'),
@@ -135,16 +145,16 @@ export var tns = function(options) {
       slideItems = container.children,
       slideCount = slideItems.length,
       items = options.items,
-      slideBy = getSlideBy(),
+      slideBy = (options.slideBy === 'page') ? items : options.slideBy,
       nested = options.nested,
       gutter = options.gutter,
-      edgePadding = (mode === 'gallery') ? false : options.edgePadding,
+      edgePadding = options.edgePadding,
       fixedWidth = options.fixedWidth,
       arrowKeys = options.arrowKeys,
       speed = options.speed,
       rewind = options.rewind,
-      loop = (mode === 'gallery')? true: (options.rewind)? false : options.loop,
-      autoHeight = (mode === 'gallery') ? true : options.autoHeight,
+      loop = (options.rewind)? false : options.loop,
+      autoHeight = options.autoHeight,
       responsive = (fixedWidth) ? false : options.responsive,
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
@@ -232,14 +242,6 @@ export var tns = function(options) {
         isDragEvent = false;
   }
 
-  // gallery
-  if (options.mode === 'gallery') {
-    var animateIn = (ANIMATIONDURATION) ? options.animateIn : 'tns-fadeIn',
-        animateOut = (ANIMATIONDURATION) ? options.animateOut : 'tns-fadeOut',
-        animateNormal = (ANIMATIONDURATION) ? options.animateNormal : 'tns-normal',
-        animateDelay = (ANIMATIONDURATION) ? options.animateDelay : false;
-  }
-
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
     transformPrefix = transformType + transformDir + '(';
@@ -247,10 +249,6 @@ export var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
-  function getSlideBy () {
-    return (mode === 'gallery' || options.slideBy === 'page') ? items : options.slideBy;
-  }
-
   var getItems = (function () {
     if (!fixedWidth) {
       return function () {
@@ -342,10 +340,10 @@ export var tns = function(options) {
     vw = getViewWidth();
     items = getItems();
     indexMax = slideCountNew - items - indexAdjust;
+    if (options.slideBy === 'page') { slideBy = items; }
 
     if (axis === 'horizontal' && !fixedWidth) { slideWidth = getSlideWidth(); }
     navCountVisible = getVisibleNavCount();
-    slideBy = getSlideBy();
   }
 
   function containerInit() {
@@ -1144,10 +1142,10 @@ export var tns = function(options) {
   function onKeydownDocument(e) {
     e = e || window.event;
     switch(e.keyCode) {
-      case KEY.LEFT:
+      case KEYS.LEFT:
         onClickPrev();
         break;
-      case KEY.RIGHT:
+      case KEYS.RIGHT:
         onClickNext();
     }
   }
@@ -1169,24 +1167,24 @@ export var tns = function(options) {
         curElement = document.activeElement;
 
     switch (code) {
-      case KEY.LEFT:
-      case KEY.UP:
-      case KEY.PAGEUP:
+      case KEYS.LEFT:
+      case KEYS.UP:
+      case KEYS.PAGEUP:
           if (!prevButton.disabled) {
             onClickPrev();
           }
           break;
-      case KEY.RIGHT:
-      case KEY.DOWN:
-      case KEY.PAGEDOWN:
+      case KEYS.RIGHT:
+      case KEYS.DOWN:
+      case KEYS.PAGEDOWN:
           if (!nextButton.disabled) {
             onClickNext();
           }
           break;
-      case KEY.HOME:
+      case KEYS.HOME:
         goTo(0);
         break;
-      case KEY.END:
+      case KEYS.END:
         goTo(slideCount - 1);
         break;
     }
@@ -1200,24 +1198,24 @@ export var tns = function(options) {
         dataSlide = getAttr(curElement, 'data-nav');
 
     switch(code) {
-      case KEY.LEFT:
-      case KEY.PAGEUP:
+      case KEYS.LEFT:
+      case KEYS.PAGEUP:
         if (dataSlide > 0) { changeFocus(curElement, curElement.previousElementSibling); }
         break;
-      case KEY.UP:
-      case KEY.HOME:
+      case KEYS.UP:
+      case KEYS.HOME:
         if (dataSlide !== 0) { changeFocus(curElement, navItems[0]); }
         break;
-      case KEY.RIGHT:
-      case KEY.PAGEDOWN:
+      case KEYS.RIGHT:
+      case KEYS.PAGEDOWN:
         if (dataSlide < navCountVisible - 1) { changeFocus(curElement, curElement.nextElementSibling); }
         break;
-      case KEY.DOWN:
-      case KEY.END:
+      case KEYS.DOWN:
+      case KEYS.END:
         if (dataSlide < navCountVisible - 1) { changeFocus(curElement, navItems[navCountVisible - 1]); }
         break;
-      case KEY.ENTER:
-      case KEY.SPACE:
+      case KEYS.ENTER:
+      case KEYS.SPACE:
         onClickNav(e);
         break;
     }
