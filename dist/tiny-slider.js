@@ -983,34 +983,16 @@ var tns = function(options) {
     }
   }
 
-  // === INITIALIZATION FUNCTIONS === //
-  function wrapperInit() {
-    setAttrs(wrapper, {'data-tns-role': 'wrapper'});
-    setAttrs(contentWrapper, {'data-tns-role': 'content-wrapper'});
-    if (axis === 'vertical') { 
-      setAttrs(contentWrapper, {'data-tns-hidden': 'y'}); 
-    } else {
-      setAttrs(wrapper, {'data-tns-hidden': 'x'}); 
-    }
+  (function sliderInit() {
+    // First thing first, wrap container with "wrapper > contentWrapper",
+    // to get the correct view width
+    wrap(container, contentWrapper);
+    wrap(contentWrapper, wrapper);
 
-    if (mode === 'carousel') {
-      var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
-      contentWrapper.style.cssText = (axis === 'horizontal') ? 'margin: 0 ' + gap + 'px;' : 'padding: ' + gap + 'px 0 ' + edgePadding + 'px; height: ' + getVerticalWrapperHeight() + 'px;'; 
-    }
-  }
+    getVariables();
 
-  // vw => items => indexMax, slideWidth, navCountVisible, slideBy
-  function getVariables() {
-    vw = getViewWidth();
-    items = getItems();
-    indexMax = slideCountNew - items - indexAdjust;
-    if (options.slideBy === 'page') { slideBy = items; }
 
-    if (axis === 'horizontal' && !fixedWidth) { slideWidth = getSlideWidth(); }
-    navCountVisible = getVisibleNavCount();
-  }
-
-  function containerInit() {
+    // == containerInit ==
     // add id
     if (container.id === '') { container.id = slideId; }
     // add attributes
@@ -1023,25 +1005,9 @@ var tns = function(options) {
     if (axis === 'horizontal') {
       container.style.width = (slideWidth + 1) * slideCountNew + 'px';
     }
-  }
 
-  function containerInitStyle() {
-    // init width & transform
-    if (mode === 'carousel') {
-      if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
-      container.style[transformAttr] = transformPrefix + Math.round(-slideEdges[index]) + 'px' + transformPostfix;
-    }
-  }
 
-  // for IE10
-  function msInit() {
-    if (navigator.msMaxTouchPoints) {
-      wrapper.classList.add('ms-touch');
-      addEvents(wrapper, {'scroll': ie10Scroll});
-    }
-  }
-
-  function slideItemsInit() {
+    // == slideItemsInit ==
     for (var x = 0; x < slideCount; x++) {
       var item = slideItems[x];
 
@@ -1087,9 +1053,43 @@ var tns = function(options) {
       container.appendChild(fragmentAfter);
       slideItems = container.children;
     }
-  }
 
-  function controlsInit() {
+
+    getSlideEdges();
+
+
+    // == wrapperInit ==
+    setAttrs(wrapper, {'data-tns-role': 'wrapper'});
+    setAttrs(contentWrapper, {'data-tns-role': 'content-wrapper'});
+    if (axis === 'vertical') { 
+      setAttrs(contentWrapper, {'data-tns-hidden': 'y'}); 
+    } else {
+      setAttrs(wrapper, {'data-tns-hidden': 'x'}); 
+    }
+
+    if (mode === 'carousel') {
+      var gap = (fixedWidth && edgePadding) ? getFixedWidthEdgePadding() : (edgePadding) ? edgePadding + gutter : 0;
+      contentWrapper.style.cssText = (axis === 'horizontal') ? 'margin: 0 ' + gap + 'px;' : 'padding: ' + gap + 'px 0 ' + edgePadding + 'px; height: ' + getVerticalWrapperHeight() + 'px;'; 
+    }
+
+
+    // == containerInitStyle ==
+    // init width & transform
+    if (mode === 'carousel') {
+      if (autoHeight) { setAttrs(container, {'data-tns-hidden': 'y'}); }
+      container.style[transformAttr] = transformPrefix + Math.round(-slideEdges[index]) + 'px' + transformPostfix;
+    }
+
+
+    // == msInit ==
+    // for IE10
+    if (navigator.msMaxTouchPoints) {
+      wrapper.classList.add('ms-touch');
+      addEvents(wrapper, {'scroll': ie10Scroll});
+    }
+
+
+    // == controlsInit ==
     if (controls) {
       if (options.controlsContainer) {
         prevButton = controlsContainer.children[0];
@@ -1114,9 +1114,9 @@ var tns = function(options) {
         nextButton = controlsContainer.children[1];
       }
     }
-  }
 
-  function navInit() {
+
+    // == navInit ==
     if (nav) {
       // customized nav
       // will not hide the navs in case they're thumbnails
@@ -1150,9 +1150,9 @@ var tns = function(options) {
         updateNavVisibility();
       }
     }
-  }
 
-  function autoplayInit() {
+
+    // == autoplayInit ==
     if (autoplay) {
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
@@ -1169,9 +1169,9 @@ var tns = function(options) {
       // start autoplay
       startAction();
     }
-  }
 
-  function activateSlider() {
+
+    // == activateSlider ==
     for (var i = index; i < index + items; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
@@ -1191,9 +1191,9 @@ var tns = function(options) {
     if (nav) {
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
     }
-  }
 
-  function addSliderEvents() {
+
+    // == addSliderEvents ==
     if (mode === 'carousel') {
       if (TRANSITIONEND) {
         var eve = {};
@@ -1270,6 +1270,36 @@ var tns = function(options) {
         events.on('innerLoaded', runAutoHeight);
       }
     }
+
+
+    checkSlideCount();
+
+    lazyLoad();
+    runAutoHeight();
+
+    if (typeof onInit === 'function') {
+      onInit(info());
+    }
+
+    if (nested === 'inner') { 
+      events.emit('innerLoaded', info()); 
+    }
+  })();
+
+
+
+
+
+  // === INITIALIZATION FUNCTIONS === //
+  // vw => items => indexMax, slideWidth, navCountVisible, slideBy
+  function getVariables() {
+    vw = getViewWidth();
+    items = getItems();
+    indexMax = slideCountNew - items - indexAdjust;
+    if (options.slideBy === 'page') { slideBy = items; }
+
+    if (axis === 'horizontal' && !fixedWidth) { slideWidth = getSlideWidth(); }
+    navCountVisible = getVisibleNavCount();
   }
 
   // lazyload
@@ -1334,40 +1364,6 @@ var tns = function(options) {
     }
   } 
 
-  function sliderInit() {
-    // First thing first, wrap container with "wrapper > contentWrapper",
-    // to get the correct view width
-    wrap(container, contentWrapper);
-    wrap(contentWrapper, wrapper);
-
-    getVariables();
-    containerInit();
-    slideItemsInit();
-    getSlideEdges();
-
-    wrapperInit();
-    containerInitStyle();
-    msInit();
-    controlsInit();
-    navInit();
-    autoplayInit();
-
-    activateSlider();
-    addSliderEvents();
-    checkSlideCount();
-
-    lazyLoad();
-    runAutoHeight();
-
-    if (typeof onInit === 'function') {
-      onInit(info());
-    }
-
-    if (nested === 'inner') { 
-      events.emit('innerLoaded', info()); 
-    }
-  }
-  sliderInit();
 
   // (vw) => edgePadding
   function getFixedWidthEdgePadding() {
