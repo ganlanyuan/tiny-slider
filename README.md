@@ -175,7 +175,6 @@ document.querySelector('.next-button').onclick = function () {
 var slider = tns(...);
 slider.goTo(3);
 slider.goTo('prev');
-slider.goTo('previous');
 slider.goTo('next');
 slider.goTo('first');
 slider.goTo('last');

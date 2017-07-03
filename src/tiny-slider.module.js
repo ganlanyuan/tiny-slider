@@ -200,7 +200,7 @@ export var tns = function(options) {
     var nav = options.nav,
         navContainer = options.navContainer || false,
         navItems,
-        navCountVisible,
+        navCountVisible = (options.navContainer) ? slideCount : Math.ceil(slideCount / items),
         navCountVisibleCached = slideCount,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
@@ -266,18 +266,6 @@ export var tns = function(options) {
 
     } else {
       return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
-    }
-  })();
-
-  function getSlideWidth() {
-    return (vw + gutter) / items;
-  }
-
-  var getVisibleNavCount = (function () {
-    if (options.navContainer) {
-      return function () { return slideCount; };
-    } else {
-      return function () { return Math.ceil(slideCount / items); };
     }
   })();
 
@@ -626,6 +614,67 @@ export var tns = function(options) {
 
 
 
+// === ON RESIZE ===
+  function onResize(e) {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (vw !== getViewWidth()) {
+        resizeTasks();
+        if (nested === 'outer') { 
+          events.emit('outerResized', info(e)); 
+        }
+      }
+    }, 100); // update after stop resizing for 100 ms
+  }
+
+  function resizeTasks() {
+    var indexTem = index,
+        itemsTem = items;
+    getVariables();
+    checkSlideCount();
+    checkIndex();
+
+    if (axis === 'horizontal') {
+      if (fixedWidth && edgePadding) {
+        updateFixedWidthEdgePadding();
+      } else {
+        updateSlideWidth();
+
+        if (mode === 'gallery') {
+          updateSlidePosition(); 
+        }
+      }
+      getSlideEdges();
+    } else {
+      getSlideEdges();
+      updateContentWrapperHeight();
+    }
+
+    if (index !== indexTem || mode === 'carousel' && !fixedWidth) {
+      doTransform(0); 
+    }
+    
+    if (index !== indexTem || items !== itemsTem) {
+      lazyLoad(); 
+      updateNavVisibility();
+      updateNavStatus();
+    }
+
+    runAutoHeight(); 
+
+    if (index !== indexTem) { 
+      events.emit('indexChanged', info());
+      updateSlideStatus();
+      updateControlsStatus();
+    }
+
+    if (navigator.msMaxTouchPoints) { setSnapInterval(); }
+  }
+
+
+
+
+
   // === INITIALIZATION FUNCTIONS === //
   // vw => items => indexMax, slideWidth, navCountVisible, slideBy
   function getVariables() {
@@ -633,9 +682,8 @@ export var tns = function(options) {
     items = getItems();
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
-
-    if (axis === 'horizontal' && !fixedWidth) { slideWidth = getSlideWidth(); }
-    navCountVisible = getVisibleNavCount();
+    if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
+    if (axis === 'horizontal' && !fixedWidth) { slideWidth = (vw + gutter) / items; }
   }
 
   // lazyload
@@ -786,7 +834,7 @@ export var tns = function(options) {
   function updateNavStatus() {
     // get current nav
     if (nav) {
-      navCurrent = (navClicked !== -1) ? navClicked : index%slideCount;
+      navCurrent = (navClicked !== -1) ? navClicked : (!loop && edgePadding) ? (index - 1)%slideCount : index%slideCount;
       navClicked = -1;
 
       if (navCurrent !== navCurrentCached) {
@@ -1038,16 +1086,53 @@ export var tns = function(options) {
         events.emit('innerLoaded', info()); 
       } 
       running = false;
-      updateIndexCache();
+      indexCached = index;
     }
 
   }
 
-  function updateIndexCache() {
-    indexCached = index;
+  // # ACTIONS
+  function goTo (targetIndex) {
+    if (!running) {
+
+      var absIndex = index%slideCount, indexGap;
+      if (absIndex < 0) { absIndex += slideCount; }
+
+      switch(targetIndex) {
+        case 'next':
+          indexGap = 1;
+          break;
+        case 'prev':
+          indexGap = -1;
+          break;
+        case 'first':
+          indexGap = - absIndex;
+          break;
+        case 'last':
+          indexGap = (slideCount - 1) - absIndex;
+          break;
+        default:
+          if (typeof targetIndex === 'number') {
+            var absTargetIndex = targetIndex%slideCount;
+            if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+            // get clicked nav index
+            navClicked = absTargetIndex;
+            if (!loop && edgePadding) { absTargetIndex += 1; }
+            indexGap = absTargetIndex - absIndex;
+          }
+      }
+
+      index += indexGap;
+
+      // if index is changed, check it and render
+      if (index%slideCount !== indexCached%slideCount) {
+        checkIndex();
+        render();
+      }
+
+    }
   }
 
-  // # ACTIONS
   // on controls click
   function onClickControl(dir) {
     if (!running) {
@@ -1073,20 +1158,15 @@ export var tns = function(options) {
   function onClickNav(e) {
     if (!running) {
       var clickTarget = e.target || e.srcElement,
-          navIndex,
-          indexAdjust,
-          targetIndex;
+          navIndex;
 
       // find the clicked nav item
       while (indexOf(navItems, clickTarget) === -1) {
         clickTarget = clickTarget.parentNode;
       }
+      navIndex = indexOf(navItems, clickTarget);
 
-      navIndex = navClicked = indexOf(navItems, clickTarget);
-      indexAdjust = (mode === 'gallery')? 0 : cloneCount;
-      targetIndex = navIndex + indexAdjust;
-
-      goTo(targetIndex);
+      goTo(navIndex);
     }
   }
 
@@ -1220,7 +1300,7 @@ export var tns = function(options) {
   // IE10 scroll function
   function ie10Scroll() {
     doTransform(0, container.scrollLeft());
-    updateIndexCache();
+    indexCached = index;
   }
 
   function getTarget(e) {
@@ -1390,7 +1470,8 @@ export var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var absIndexMin = index%slideCount%items;
+    var temIndex = (!loop && edgePadding) ? (index - 1) : index;
+    var absIndexMin = temIndex%slideCount%items;
     while (absIndexMin < slideCount) {
       if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
@@ -1453,101 +1534,6 @@ export var tns = function(options) {
       slideCountNew: slideCountNew,
       event: e || {},
     };
-  }
-
-  function goTo (targetIndex) {
-    var absIndex = index%slideCount, 
-        indexGap;
-
-    if (absIndex < 0) { absIndex += slideCount; }
-
-    switch(targetIndex) {
-      case 'next':
-        indexGap = 1;
-        break;
-      case 'prev':
-      case 'previous':
-        indexGap = -1;
-        break;
-      case 'first':
-        indexGap = - absIndex;
-        break;
-      case 'last':
-        indexGap = (slideCount - 1) - absIndex;
-        break;
-      default:
-        if (typeof targetIndex === 'number') {
-          var absTargetIndex = targetIndex%slideCount;
-          if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-          indexGap = absTargetIndex - absIndex;
-        }
-    }
-
-    index += indexGap;
-
-    // if index is changed, check it and render
-    if (index%slideCount !== indexCached%slideCount) {
-      checkIndex();
-      render();
-    }
-
-  }
-
-  function resizeTasks() {
-    var indexTem = index,
-        itemsTem = items;
-    getVariables();
-    checkSlideCount();
-    checkIndex();
-
-    if (axis === 'horizontal') {
-      if (fixedWidth && edgePadding) {
-        updateFixedWidthEdgePadding();
-      } else {
-        updateSlideWidth();
-
-        if (mode === 'gallery') {
-          updateSlidePosition(); 
-        }
-      }
-      getSlideEdges();
-    } else {
-      getSlideEdges();
-      updateContentWrapperHeight();
-    }
-
-    if (index !== indexTem || mode === 'carousel' && !fixedWidth) {
-      doTransform(0); 
-    }
-    
-    if (index !== indexTem || items !== itemsTem) {
-      lazyLoad(); 
-      updateNavVisibility();
-      updateNavStatus();
-    }
-
-    runAutoHeight(); 
-
-    if (index !== indexTem) { 
-      events.emit('indexChanged', info());
-      updateSlideStatus();
-      updateControlsStatus();
-    }
-
-
-    if (navigator.msMaxTouchPoints) { setSnapInterval(); }
-  }
-
-  function onResize(e) {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      if (vw !== getViewWidth()) {
-        resizeTasks();
-        if (nested === 'outer') { 
-          events.emit('outerResized', info(e)); 
-        }
-      }
-    }, 100); // update after stop resizing for 100 ms
   }
 
   return {

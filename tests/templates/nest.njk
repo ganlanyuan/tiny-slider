@@ -57,6 +57,8 @@
     container: document.querySelector('.inner'),
     items: 3,
     nested: 'inner',
+    edgePadding: 20,
+    loop: false,
     slideBy: 'page'
   });
   tns({
@@ -69,7 +71,7 @@
 
   var btn = document.querySelector('#goto');
   btn.onclick = function () {
-    inner.goTo(4);
+    inner.goTo(9);
   }
 </script>
 
