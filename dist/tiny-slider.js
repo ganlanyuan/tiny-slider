@@ -1350,6 +1350,28 @@ var tns = function(options) {
     if (axis === 'horizontal' && !fixedWidth) { slideWidth = (vw + gutter) / items; }
   }
 
+  // (slideBy, indexMin, indexMax) => index
+  var checkIndex = (function () {
+    if (loop) {
+      return function () {
+        var leftEdge = (mode === 'carousel')? slideBy + indexMin : indexMin, 
+            rightEdge = (mode === 'carousel')? indexMax - slideBy : indexMax;
+
+        if (fixedWidth && vw%slideWidth !== 0) { rightEdge -= 1; }
+
+        if (index > rightEdge) {
+          while(index >= leftEdge + slideCount) { index -= slideCount; }
+        } else if(index < leftEdge) {
+          while(index <= rightEdge - slideCount) { index += slideCount; }
+        }
+      };
+    } else {
+      return function () {
+        index = Math.max(indexMin, Math.min(indexMax, index));
+      };
+    }
+  })();
+
   // lazyload
   function lazyLoad() {
     if (lazyload) {
@@ -1638,28 +1660,6 @@ var tns = function(options) {
     transformCore(duration, distance);
   }
 
-  // (slideBy, indexMin, indexMax) => index
-  var checkIndex = (function () {
-    if (loop) {
-      return function () {
-        var leftEdge = (mode === 'carousel')? slideBy + indexMin : indexMin, 
-            rightEdge = (mode === 'carousel')? indexMax - slideBy : indexMax;
-
-        if (fixedWidth && vw%slideWidth !== 0) { rightEdge -= 1; }
-
-        if (index > rightEdge) {
-          while(index >= leftEdge + slideCount) { index -= slideCount; }
-        } else if(index < leftEdge) {
-          while(index <= rightEdge - slideCount) { index += slideCount; }
-        }
-      };
-    } else {
-      return function () {
-        index = Math.max(indexMin, Math.min(indexMax, index));
-      };
-    }
-  })();
-
   function render() {
     running = true;
     if (checkIndexBeforeTransform) { checkIndex(); }
@@ -1816,7 +1816,7 @@ var tns = function(options) {
     }
   }
 
-  // on doc click
+  // on nav click
   function onNavClick(e) {
     if (!running) {
       var clickTarget = e.target || e.srcElement,
@@ -1828,7 +1828,9 @@ var tns = function(options) {
       }
       navIndex = navClicked = indexOf(navItems, clickTarget);
 
-      goTo(navIndex);
+      // +1 because in goTo function 
+      // it will be -1
+      goTo(navIndex + 1);
     }
   }
 
