@@ -4,6 +4,28 @@
   <meta charset="UTF-8">
   <title>Document</title>
   <style>
+    .subpixel {
+      white-space: nowrap;
+    }
+    .subpixel > div,
+    .subpixel > li {
+      display: inline-block;
+      vertical-align: top;
+      white-space: normal;
+    }
+
+    .no-subpixel:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+    .no-subpixel > div,
+    .no-subpixel > li {
+      float: left;
+      margin-right: -100%;
+    }
+
+
     body { margin: 0; }
     .slider-wrapper {
       width: 90%;
@@ -11,27 +33,7 @@
       overflow: auto;
       outline: 1px solid #FF66FF;
     }
-    .slider:after {
-      content: '';
-      display: table;
-      clear: both;
-    }
-    .slider {
-      /*width: -webkit-calc(100% * 13 / 7);*/
-      /*width: -moz-calc(100% * 13 / 7);*/
-      /*width: calc(100% * 13 / 7);*/
-      /*width: 185.7142857143%;*/
-      white-space: nowrap;
-    }
     .slider > div {
-      /*width: -webkit-calc(100% / 13);*/
-      /*width: -moz-calc(100% / 13);*/
-      /*width: calc(100% / 13);*/
-      /*width: 7.6923076923%;*/
-      /*margin-right: -100%;*/
-      display: inline-block;
-      vertical-align: top;
-      white-space: normal;
       height: 300px;
       font-size: 2em;
       text-align: center;
@@ -163,14 +165,7 @@
       return supported;
     }
 
-    var subPixelLayout = getSubpixelLayout();
 
-    var sheet = createSheet();
-    var calc = GetCalc();
-    var cssFontSize = window.getComputedStyle(document.querySelector('.slider > div'), null).fontSize;
-    if (cssFontSize.indexOf('em') !== -1) {
-      cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
-    }
     var wrapperWidth, 
         sliderWidth, 
         fontSizeWrapper = '', 
@@ -178,6 +173,7 @@
         full = 13, 
         page = 7;
 
+    var calc = GetCalc();
     if (calc == null) {
       wrapperWidth = 100 * full / page + '%';
       sliderWidth = 100 / full + '%';
@@ -186,21 +182,32 @@
       sliderWidth = calc + '(100% / ' + full + ')';
     }
 
-    if (cssFontSize) { 
-      fontSizeWrapper = ' font-size: 0;';
-      fontSizeSlider = ' font-size: ' + cssFontSize + ';';
-    }
-
-    addCSSRule(sheet, '.slider', 'width: ' + wrapperWidth + '; ' + fontSizeWrapper, 0);
-    addCSSRule(sheet, '.slider > div', 'width: ' + sliderWidth + '; ' + fontSizeSlider, 1);
-
+    var subPixelLayout = getSubpixelLayout();
     if (!subPixelLayout) {
+      document.querySelector('.slider').className += ' no-subpixel';
       var sliders = document.querySelector('.slider').children,
           len = sliders.length;
       for (var i = 1; i < len; i++) {
-        sliders[i].style.cssText = "float: left; margin-left: " + i * 100 / full + "%; margin-right: -100%";
+        var marginLeft = (calc) ? calc + '(' + i * 100 + '% / ' + full + ')' : i * 100 / full + "%";
+        console.log(marginLeft);
+        sliders[i].style.marginLeft = marginLeft;
       }
+    } else {
+      var cssFontSize = window.getComputedStyle(document.querySelector('.slider > div'), null).fontSize;
+      if (cssFontSize.indexOf('em') !== -1) {
+        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+      }
+      if (cssFontSize) { 
+        fontSizeWrapper = ' font-size: 0;';
+        fontSizeSlider = ' font-size: ' + cssFontSize + ';';
+      }
+
+      document.querySelector('.slider').className += ' subpixel';
     }
+
+    var sheet = createSheet();
+    addCSSRule(sheet, '.slider', 'width: ' + wrapperWidth + '; ' + fontSizeWrapper, 0);
+    addCSSRule(sheet, '.slider > div', 'width: ' + sliderWidth + '; ' + fontSizeSlider, 1);
 
     // https://stackoverflow.com/questions/12604754/is-there-a-way-to-detect-if-the-browser-has-subpixel-precision
     // http://jsfiddle.net/KAW3d/1/
