@@ -545,16 +545,16 @@ export var tns = function(options) {
     if (nav) {
       for (var y = 0; y < slideCount; y++) {
         addEvents(navItems[y],{
-          'click': onClickNav,
-          'keydown': onKeydownNav
+          'click': onNavClick,
+          'keydown': onNavKeydown
         });
       }
     }
 
     if (controls) {
-      addEvents(controlsContainer, {'keydown': onKeydownControl});
-      addEvents(prevButton,{'click': onClickPrev});
-      addEvents(nextButton,{'click': onClickNext});
+      addEvents(controlsContainer, {'keydown': onControlKeydown});
+      addEvents(prevButton,{'click': onPrevClick});
+      addEvents(nextButton,{'click': onNextClick});
     }
 
     if (autoplay) {
@@ -580,7 +580,7 @@ export var tns = function(options) {
     }
 
     if (arrowKeys) {
-      addEvents(document, {'keydown': onKeydownDocument});
+      addEvents(document, {'keydown': onDocumentKeydown});
     }
 
     if (nested === 'inner') {
@@ -1042,19 +1042,14 @@ export var tns = function(options) {
       return str.toLowerCase().replace(/-/g, '');
     }
 
-    /*
-     * update slides, nav, controls after checking ...
-     *
+    /* update slides, nav, controls after checking ...
      * => legacy browsers who don't support 'event' 
      *    have to check event first, otherwise event.target will cause an error 
-     * 
      * => or 'gallery' mode: 
      *   + event target is slide item
-     *
      * => or 'carousel' mode: 
      *   + event target is container, 
      *   + event.property is the same with transform attribute
-     *
      */
     if (!event || 
         mode === 'gallery' && event.target.parentNode === container || 
@@ -1113,20 +1108,21 @@ export var tns = function(options) {
           break;
         default:
           if (typeof targetIndex === 'number') {
-            var absTargetIndex = targetIndex%slideCount;
+            // go to the 3rd item => item which index is 2
+            // targetIndex -1 to correct the index
+            var absTargetIndex = (targetIndex - 1)%slideCount;
             if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-            // get clicked nav index
-            navClicked = absTargetIndex;
             if (!loop && edgePadding) { absTargetIndex += 1; }
             indexGap = absTargetIndex - absIndex;
           }
       }
 
       index += indexGap;
+      // check index before compare with indexCached
+      if (checkIndexBeforeTransform) { checkIndex(); }
 
-      // if index is changed, check it and render
+      // if index is changed, start rendering
       if (index%slideCount !== indexCached%slideCount) {
-        checkIndex();
         render();
       }
 
@@ -1134,7 +1130,7 @@ export var tns = function(options) {
   }
 
   // on controls click
-  function onClickControl(dir) {
+  function onControlClick(dir) {
     if (!running) {
       index = index + dir * slideBy;
 
@@ -1142,20 +1138,22 @@ export var tns = function(options) {
     }
   }
 
-  function onClickPrev() {
-    onClickControl(-1);
+  function onPrevClick() {
+    onControlClick(-1);
   }
 
-  function onClickNext() {
+  function onNextClick() {
+    // goes to the first if reach the end in rewind mode
+    // other wise go to the next
     if(rewind && index === indexMax){
-      onClickControl(-(indexMax - indexMin) / slideBy);
+      goTo(0);
     }else{
-      onClickControl(1);
+      onControlClick(1);
     }
   }
 
   // on doc click
-  function onClickNav(e) {
+  function onNavClick(e) {
     if (!running) {
       var clickTarget = e.target || e.srcElement,
           navIndex;
@@ -1164,7 +1162,7 @@ export var tns = function(options) {
       while (indexOf(navItems, clickTarget) === -1) {
         clickTarget = clickTarget.parentNode;
       }
-      navIndex = indexOf(navItems, clickTarget);
+      navIndex = navClicked = indexOf(navItems, clickTarget);
 
       goTo(navIndex);
     }
@@ -1195,7 +1193,7 @@ export var tns = function(options) {
     if (animating === true) { return; }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
-      onClickControl(autoplayDirection);
+      onControlClick(autoplayDirection);
     }, autoplayTimeout);
   }
 
@@ -1215,14 +1213,14 @@ export var tns = function(options) {
   }
 
   // 
-  function onKeydownDocument(e) {
+  function onDocumentKeydown(e) {
     e = e || window.event;
     switch(e.keyCode) {
       case KEYS.LEFT:
-        onClickPrev();
+        onPrevClick();
         break;
       case KEYS.RIGHT:
-        onClickNext();
+        onNextClick();
     }
   }
 
@@ -1237,7 +1235,7 @@ export var tns = function(options) {
   }
 
   // on key control
-  function onKeydownControl(e) {
+  function onControlKeydown(e) {
     e = e || window.event;
     var code = e.keyCode,
         curElement = document.activeElement;
@@ -1247,14 +1245,14 @@ export var tns = function(options) {
       case KEYS.UP:
       case KEYS.PAGEUP:
           if (!prevButton.disabled) {
-            onClickPrev();
+            onPrevClick();
           }
           break;
       case KEYS.RIGHT:
       case KEYS.DOWN:
       case KEYS.PAGEDOWN:
           if (!nextButton.disabled) {
-            onClickNext();
+            onNextClick();
           }
           break;
       case KEYS.HOME:
@@ -1267,7 +1265,7 @@ export var tns = function(options) {
   }
 
   // on key nav
-  function onKeydownNav(e) {
+  function onNavKeydown(e) {
     e = e || window.event;
     var code = e.keyCode,
         curElement = document.activeElement,
@@ -1292,7 +1290,7 @@ export var tns = function(options) {
         break;
       case KEYS.ENTER:
       case KEYS.SPACE:
-        onClickNav(e);
+        onNavClick(e);
         break;
     }
   }
@@ -1604,7 +1602,7 @@ export var tns = function(options) {
 
       // remove arrowKeys eventlistener
       if (arrowKeys) {
-        removeEvents(document, {'keydown': onKeydownDocument});
+        removeEvents(document, {'keydown': onDocumentKeydown});
       }
 
       // remove window event listeners
