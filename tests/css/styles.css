@@ -115,6 +115,8 @@ button[aria-selected="true"] { background: #999; }
 .suite-container .fail { background: #FFADE2; }
 
 [class*="vertical"] .img { padding: 30px 0; }
+[class*="vertical"] .img:before { content: ''; display: inline-block; width: 1px; margin-right: -1px; height: 100%; vertical-align: middle; }
+[class*="vertical"] .img a { display: inline-block; padding: 0; }
 [class*="vertical"] .img-1 { height: 137px; }
 [class*="vertical"] .img-2 { height: 122px; }
 [class*="vertical"] .img-3 { height: 143px; }

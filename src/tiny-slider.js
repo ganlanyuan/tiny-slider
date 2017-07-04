@@ -13,6 +13,11 @@ import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
 
 // helper functions
 import { getSlideId } from './helpers/getSlideId';
+import { calc } from './helpers/calc';
+import { subpixelLayout } from './helpers/subpixelLayout';
+import { mediaquerySupport } from './helpers/mediaquerySupport';
+import { createStyleSheet } from './helpers/createStyleSheet';
+import { addCSSRule } from './helpers/addCSSRule';
 import { toDegree } from './helpers/toDegree';
 import { getTouchDirection } from './helpers/getTouchDirection';
 import { hasAttr } from './helpers/hasAttr';
@@ -30,7 +35,8 @@ import { removeEvents } from './helpers/removeEvents';
 import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
-var KEYS = {
+var doc = document,
+    KEYS = {
       ENTER: 13,
       SPACE: 32,
       PAGEUP: 33,
@@ -42,6 +48,9 @@ var KEYS = {
       RIGHT: 39,
       DOWN: 40
     },
+    CALC = calc(),
+    SUBPIXEL = subpixelLayout(),
+    CSSMQ = mediaquerySupport(),
     TRANSFORM = whichProperty([
       'transform', 
       'WebkitTransform', 
@@ -78,7 +87,7 @@ var KEYS = {
 
 export var tns = function(options) {
   options = extend({
-    container: document.querySelector('.slider'),
+    container: doc.querySelector('.slider'),
     mode: 'carousel',
     axis: 'horizontal',
     items: 1,
@@ -139,8 +148,8 @@ export var tns = function(options) {
 
   var mode = options.mode,
       axis = options.axis,
-      wrapper = document.createElement('div'),
-      contentWrapper = document.createElement('div'),
+      wrapper = doc.createElement('div'),
+      contentWrapper = doc.createElement('div'),
       container = options.container,
       slideItems = container.children,
       slideCount = slideItems.length,
@@ -156,6 +165,8 @@ export var tns = function(options) {
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
       responsive = (fixedWidth) ? false : options.responsive,
+      breakpoints = (responsive) ? Object.keys(responsive).sort(function (a, b) { return a - b; }) : false,
+      sheet,
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
       slideWidth = (fixedWidth)? fixedWidth + gutter : 0,
@@ -250,22 +261,16 @@ export var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   var getItems = (function () {
-    if (!fixedWidth) {
+    if (fixedWidth) {
+      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
+    } else {
       return function () {
-        var itemsTem = options.items,
-            // ww = document.documentElement.clientWidth,
-            bpKeys = (typeof responsive === 'object') ? Object.keys(responsive) : false;
-
-        if (bpKeys) {
-          bpKeys.forEach(function (key) {
-            if (vw >= key) { itemsTem = responsive[key]; }
-          });
-        }
+        var itemsTem;
+        breakpoints.forEach(function (key) {
+          if (vw >= key) { itemsTem = responsive[key]; }
+        });
         return Math.max(1, Math.min(slideCount, itemsTem));
       };
-
-    } else {
-      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
     }
   })();
 
@@ -313,9 +318,6 @@ export var tns = function(options) {
     wrap(container, contentWrapper);
     wrap(contentWrapper, wrapper);
 
-    getVariables();
-
-
     // == containerInit ==
     // add id
     if (container.id === '') { container.id = slideId; }
@@ -329,6 +331,52 @@ export var tns = function(options) {
     if (axis === 'horizontal') {
       container.style.width = (slideWidth + 1) * slideCountNew + 'px';
     }
+
+
+    // update the items if browser don't support mediaquery
+    if (responsive && !CSSMQ) { items = getItems(); }
+
+    var stringContainerWidth, 
+        stringSlideWidth,
+        stringContainerFontSize = '',
+        stringSlideFontSize = '';
+
+    // get width string
+    if (CALC) {
+      stringContainerWidth = CALC + '(100% * ' + slideCountNew + ' / ' + items + ')';
+      stringSlideWidth = CALC + '(100% / ' + slideCountNew + ')';
+    } else {
+      stringContainerWidth = 100 * slideCountNew / items + '%';
+      stringSlideWidth = 100 / slideCountNew + '%';
+    }
+
+    // get font-size string, add class, add margin-left
+    if (SUBPIXEL) {
+      container.classList.add('tns-subpixel');
+
+      var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
+
+      stringContainerFontSize = ' font-size: 0;';
+      stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
+    } else {
+      container.classList.add('tns-no-subpixel');
+
+      var len = slideItems.length;
+      for (var i = 1; i < len; i++) {
+        var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
+        slideItems[i].style.marginLeft = marginLeft;
+      }
+    }
+
+    sheet = createStyleSheet();
+    addCSSRule(sheet, '#' + container.id, 'width: ' + stringContainerWidth + '; ' + stringContainerFontSize, 0);
+    addCSSRule(sheet, '#' + container.id + ' > div', 'width: ' + stringSlideWidth + '; ' + stringSlideFontSize, 1);
+
+    if (responsive && CSSMQ) {
+    }
+    getVariables();
 
 
     // == slideItemsInit ==
@@ -679,7 +727,7 @@ export var tns = function(options) {
   // vw => items => indexMax, slideWidth, navCountVisible, slideBy
   function getVariables() {
     vw = getViewWidth();
-    items = getItems();
+    if (responsive) { items = getItems(); }
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
     if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }

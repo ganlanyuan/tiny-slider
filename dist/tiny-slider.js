@@ -510,6 +510,96 @@ function getSlideId() {
   return 'tns' + window.tnsId;
 }
 
+// get css-calc 
+// @return - null | calc | -webkit-calc | -moz-calc
+// @usage - var calc = getCalc(); 
+function calc() {
+  var doc = document, 
+      body = doc.body,
+      el = doc.createElement('div'), 
+      result = null;
+  body.appendChild(el);
+  try {
+    var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
+    for (var i = 0; i < 3; i++) {
+      val = vals[i];
+      el.style.width = val;
+      if (el.offsetWidth === 10) { 
+        result = val.replace('(10px)', ''); 
+        break;
+      }
+    }
+  } catch (e) {}
+  body.removeChild(el);
+
+  return result;
+}
+
+// get subpixel support value
+// @return - boolean
+function subpixelLayout() {
+  var doc = document,
+      body = doc.body,
+      parent = doc.createElement('div'),
+      child1 = doc.createElement('div'),
+      child2;
+  parent.style.cssText = 'width: 10px';
+  child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
+  child2 = child1.cloneNode(true);
+
+  parent.appendChild(child1);
+  parent.appendChild(child2);
+  body.appendChild(parent);
+
+  var supported = child1.offsetTop !== child2.offsetTop;
+  body.removeChild(parent);
+
+  return supported;
+}
+
+function mediaquerySupport () {
+  var doc = document,
+      body = doc.body,
+      div = doc.createElement('div');
+
+  div.className = 'tns-mq-test';
+  body.appendChild(div);
+
+  var position = (window.getComputedStyle) ? window.getComputedStyle(div).position : div.currentStyle['position'];
+  body.removeChild(div);
+
+  return position === "absolute";
+}
+
+// create and append style sheet
+function createStyleSheet (media) {
+  // Create the <style> tag
+  var style = document.createElement("style");
+  // style.setAttribute("type", "text/css");
+
+  // Add a media (and/or media query) here if you'd like!
+  // style.setAttribute("media", "screen")
+  // style.setAttribute("media", "only screen and (max-width : 1024px)")
+  if (media) { style.setAttribute("media", media); }
+
+  // WebKit hack :(
+  // style.appendChild(document.createTextNode(""));
+
+  // Add the <style> element to the page
+  document.querySelector('head').appendChild(style);
+
+  return (style.sheet) ? style.sheet : style.styleSheet;
+}
+
+// cross browsers addRule method
+function addCSSRule(sheet, selector, rules, index) {
+  if("insertRule" in sheet) {
+    sheet.insertRule(selector + "{" + rules + "}", index);
+  } else if("addRule" in sheet) {
+    sheet.addRule(selector, rules, index);
+  }
+}
+
 function toDegree (y, x) {
   return Math.atan2(y, x) * (180 / Math.PI);
 }
@@ -694,6 +784,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 
 // from go-native
 // helper functions
+var doc = document;
 var KEYS = {
       ENTER: 13,
       SPACE: 32,
@@ -706,6 +797,9 @@ var KEYS = {
       RIGHT: 39,
       DOWN: 40
     };
+var CALC = calc();
+var SUBPIXEL = subpixelLayout();
+var CSSMQ = mediaquerySupport();
 var TRANSFORM = whichProperty([
       'transform', 
       'WebkitTransform', 
@@ -742,7 +836,7 @@ var ANIMATIONEND = getEndProperty(ANIMATIONDURATION, 'Animation');
 
 var tns = function(options) {
   options = extend({
-    container: document.querySelector('.slider'),
+    container: doc.querySelector('.slider'),
     mode: 'carousel',
     axis: 'horizontal',
     items: 1,
@@ -803,8 +897,8 @@ var tns = function(options) {
 
   var mode = options.mode,
       axis = options.axis,
-      wrapper = document.createElement('div'),
-      contentWrapper = document.createElement('div'),
+      wrapper = doc.createElement('div'),
+      contentWrapper = doc.createElement('div'),
       container = options.container,
       slideItems = container.children,
       slideCount = slideItems.length,
@@ -820,6 +914,8 @@ var tns = function(options) {
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
       responsive = (fixedWidth) ? false : options.responsive,
+      breakpoints = (responsive) ? Object.keys(responsive).sort(function (a, b) { return a - b; }) : false,
+      sheet,
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
       slideWidth = (fixedWidth)? fixedWidth + gutter : 0,
@@ -914,22 +1010,16 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   var getItems = (function () {
-    if (!fixedWidth) {
+    if (fixedWidth) {
+      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
+    } else {
       return function () {
-        var itemsTem = options.items,
-            // ww = document.documentElement.clientWidth,
-            bpKeys = (typeof responsive === 'object') ? Object.keys(responsive) : false;
-
-        if (bpKeys) {
-          bpKeys.forEach(function (key) {
-            if (vw >= key) { itemsTem = responsive[key]; }
-          });
-        }
+        var itemsTem;
+        breakpoints.forEach(function (key) {
+          if (vw >= key) { itemsTem = responsive[key]; }
+        });
         return Math.max(1, Math.min(slideCount, itemsTem));
       };
-
-    } else {
-      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
     }
   })();
 
@@ -977,9 +1067,6 @@ var tns = function(options) {
     wrap(container, contentWrapper);
     wrap(contentWrapper, wrapper);
 
-    getVariables();
-
-
     // == containerInit ==
     // add id
     if (container.id === '') { container.id = slideId; }
@@ -993,6 +1080,52 @@ var tns = function(options) {
     if (axis === 'horizontal') {
       container.style.width = (slideWidth + 1) * slideCountNew + 'px';
     }
+
+
+    // update the items if browser don't support mediaquery
+    if (responsive && !CSSMQ) { items = getItems(); }
+
+    var stringContainerWidth, 
+        stringSlideWidth,
+        stringContainerFontSize = '',
+        stringSlideFontSize = '';
+
+    // get width string
+    if (CALC) {
+      stringContainerWidth = CALC + '(100% * ' + slideCountNew + ' / ' + items + ')';
+      stringSlideWidth = CALC + '(100% / ' + slideCountNew + ')';
+    } else {
+      stringContainerWidth = 100 * slideCountNew / items + '%';
+      stringSlideWidth = 100 / slideCountNew + '%';
+    }
+
+    // get font-size string, add class, add margin-left
+    if (SUBPIXEL) {
+      container.classList.add('tns-subpixel');
+
+      var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
+
+      stringContainerFontSize = ' font-size: 0;';
+      stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
+    } else {
+      container.classList.add('tns-no-subpixel');
+
+      var len = slideItems.length;
+      for (var i = 1; i < len; i++) {
+        var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
+        slideItems[i].style.marginLeft = marginLeft;
+      }
+    }
+
+    sheet = createStyleSheet();
+    addCSSRule(sheet, '#' + container.id, 'width: ' + stringContainerWidth + '; ' + stringContainerFontSize, 0);
+    addCSSRule(sheet, '#' + container.id + ' > div', 'width: ' + stringSlideWidth + '; ' + stringSlideFontSize, 1);
+
+    if (responsive && CSSMQ) {
+    }
+    getVariables();
 
 
     // == slideItemsInit ==
@@ -1343,7 +1476,7 @@ var tns = function(options) {
   // vw => items => indexMax, slideWidth, navCountVisible, slideBy
   function getVariables() {
     vw = getViewWidth();
-    items = getItems();
+    if (responsive) { items = getItems(); }
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
     if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
