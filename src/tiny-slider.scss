@@ -1,4 +1,4 @@
-[data-tns-role="wrapper"] {
+.tns-wp {
   padding: 0 !important; // remove padding: clientWidth = width + padding (0) = width
   &.ms-touch {
     overflow-x: scroll;
@@ -9,14 +9,19 @@
     -ms-scroll-snap-points-x: snapInterval(0%, 100%); // Defines the y and x intervals to snap to when scrolling.
   }
 }
-[data-tns-role="content"] {
+.tns-ct {
   position: relative;
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
+  > div, > li {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
 }
 
-.tns-subpixel {
+.tns-horizontal.tns-subpixel {
   white-space: nowrap;
   > div, > li {
     display: inline-block;
@@ -24,7 +29,7 @@
     white-space: normal;
   }
 }
-.tns-no-subpixel {
+.tns-horizontal.tns-no-subpixe {
   &:after {
     content: '';
     display: table;
@@ -36,7 +41,7 @@
   }
 }
 
-[data-tns-mode="carousel"][data-tns-axis="horizontal"] {
+.tns-carousel.tns-horizontal {
   left: 0;
   // &:after {
   //   content: '';
@@ -51,7 +56,7 @@
   //   overflow: hidden;
   // }
 }
-[data-tns-mode="gallery"] {
+.tns-gallery {
   overflow: hidden;
   > div, > li {
     position: absolute;
@@ -60,10 +65,10 @@
     transition: transform 0s, opacity 0s;
   }
 }
-[data-tns-role="nav"] {
+.tns-nav {
   button { vertical-align: middle; }
 }
-[data-tns-role="lazy-img"] {
+.tns-lazy-img {
   -webkit-transition: opacity 0.6s;
   -moz-transition: opacity 0.6s;
   transition: opacity 0.6s;
@@ -76,8 +81,8 @@
   border-width: 0;
   padding: 0;
 }
-[data-tns-hidden="x"] { overflow-x: hidden; }
-[data-tns-hidden="y"] { overflow-y: hidden; }
+.tns-hd-x { overflow-x: hidden; }
+.tns-hd-y { overflow-y: hidden; }
 
 .tns-fadeIn {
   opacity: 1;
