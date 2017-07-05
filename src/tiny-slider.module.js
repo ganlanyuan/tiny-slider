@@ -328,27 +328,32 @@ export var tns = function(options) {
       'data-tns-axis': axis
     });
 
-    if (axis === 'horizontal') {
-      container.style.width = (slideWidth + 1) * slideCountNew + 'px';
-    }
-
 
     // update the items if browser don't support mediaquery
     if (responsive && !CSSMQ) { items = getItems(); }
 
-    var stringContainerWidth, 
-        stringSlideWidth,
+    // default styles
+    var stringContainerWidth = 'width: ', 
+        stringSlideWidth = 'width: ',
         stringContainerFontSize = '',
-        stringSlideFontSize = '';
+        stringSlideFontSize = '',
+        stringSlideGutter = '';
 
     // get width string
-    if (CALC) {
-      stringContainerWidth = CALC + '(100% * ' + slideCountNew + ' / ' + items + ')';
-      stringSlideWidth = CALC + '(100% / ' + slideCountNew + ')';
+    if (fixedWidth) {
+        stringContainerWidth += (fixedWidth + gutter) * slideCountNew + 'px';
+        stringSlideWidth += fixedWidth + 'px';
     } else {
-      stringContainerWidth = 100 * slideCountNew / items + '%';
-      stringSlideWidth = 100 / slideCountNew + '%';
+      if (CALC) {
+        stringContainerWidth += CALC + '(100% * ' + slideCountNew + ' / ' + items + ')';
+        stringSlideWidth += CALC + '(100% / ' + slideCountNew + ')';
+      } else {
+        stringContainerWidth += 100 * slideCountNew / items + '%';
+        stringSlideWidth += 100 / slideCountNew + '%';
+      }
     }
+    stringContainerWidth += ';';
+    stringSlideWidth += ';';
 
     // get font-size string, add class, add margin-left
     if (SUBPIXEL) {
@@ -362,19 +367,30 @@ export var tns = function(options) {
       stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
     } else {
       container.classList.add('tns-no-subpixel');
+    }
 
-      var len = slideItems.length;
-      for (var i = 1; i < len; i++) {
-        var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
-        slideItems[i].style.marginLeft = marginLeft;
-      }
+    // set gutter
+    if (gutter) {
+      var gutterProperty = (fixedWidth) ? 'margin' : 'padding',
+          gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom',
+          gutterValue = (typeof gutter === 'number') ? gutter + 'px' : gutter;
+      stringSlideGutter = gutterProperty + '-' + gutterPosition + ': ' + gutterValue + ';';
     }
 
     sheet = createStyleSheet();
-    addCSSRule(sheet, '#' + container.id, 'width: ' + stringContainerWidth + '; ' + stringContainerFontSize, 0);
-    addCSSRule(sheet, '#' + container.id + ' > div', 'width: ' + stringSlideWidth + '; ' + stringSlideFontSize, 1);
+    addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, 0);
+    addCSSRule(sheet, '#' + slideId + ' > div', stringSlideWidth + stringSlideGutter + stringSlideFontSize, 1);
 
+    // media queries
     if (responsive && CSSMQ) {
+      var bpLen = breakpoints.length;
+      for (var i = 0; i < bpLen; i++) {
+        var bp = breakpoints[i],
+            itemsTem = responsive[bp],
+            str = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%';
+
+        sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) { #' + slideId + '{ width: ' + str + ' }}', sheet.cssRules.length);
+      }
     }
     getVariables();
 
@@ -395,12 +411,12 @@ export var tns = function(options) {
         'tabindex': '-1'
       });
 
-      // set slide width & gutter
-      var gutterPosition = (axis === 'horizontal') ? 'right' : 'bottom', 
-          styles = '';
-      if (mode === 'carousel') { styles = 'margin-' + gutterPosition + ': ' + gutter + 'px;'; }
-      if (axis === 'horizontal') { styles = 'width: ' + (slideWidth - gutter) + 'px; ' + styles; }
-      item.style.cssText += styles;
+      // set margin-left
+      if (!SUBPIXEL) {
+        var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
+        slideItems[i].style.marginLeft = marginLeft;
+      }
+
     }
 
     // clone slides
