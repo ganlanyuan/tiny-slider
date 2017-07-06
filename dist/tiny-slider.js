@@ -883,7 +883,7 @@ var tns = function(options) {
     options.edgePadding = false;
     options.loop = true;
     options.autoHeight = true;
-    options.slideBy === 'page';
+    options.slideBy = 'page';
 
     var animateIn = 'tns-fadeIn',
         animateOut = 'tns-fadeOut',
@@ -1171,7 +1171,7 @@ var tns = function(options) {
     }
 
     // update the items
-    if (responsive) { 
+    if (responsive || fixedWidth) { 
       items = getItems();
       events.emit('itemsChanged');
     }
@@ -1467,7 +1467,7 @@ var tns = function(options) {
 
   function resizeTasks() {
     var indexTem = index, itemsTem = items;
-    if (responsive) { items = getItems(); }
+    if (responsive || fixedWidth) { items = getItems(); }
 
     // things always do 
     // regardless of items changing
@@ -1772,6 +1772,7 @@ var tns = function(options) {
   // 1. change 'transform' property for mordern browsers
   // 2. change 'left' property for legacy browsers
   var transformCore = (function () {
+    // carousel
     if (mode === 'carousel') {
       return function (duration, distance) {
         if (!distance) { distance = getContainerTransformValue(); }
@@ -1791,6 +1792,8 @@ var tns = function(options) {
 
         if (axis === 'vertical') { updateContentWrapperHeight(); }
       };
+
+    // gallery
     } else {
       return function () {
         slideItemsOut = [];
@@ -1826,7 +1829,11 @@ var tns = function(options) {
             }
             item.classList.remove(animateNormal);
             item.classList.add(animateIn);
-            if (i > index) { item.style.left = (i - index) * slideWidth + 'px'; }
+
+            var leftVal = (CALC)? 
+                CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
+                (i - index) * 100 / items + '%';
+            if (i > index) { item.style.left = leftVal; }
           }
         })();
 

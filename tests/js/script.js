@@ -2,7 +2,7 @@
 
 var doc = document,
     sliders = {},
-    speed = 600,
+    speed = 100,
     edgepadding = 50,
     gutter = 10,
     options= {
