@@ -125,7 +125,7 @@ button[aria-selected="true"] { background: #999; }
 [class*="vertical"] .img-6 { height: 119px; }
 [class*="vertical"] .img-7 { height: 223px; }
 [class*="vertical"] .img-8 { height: 164px; }
-[class*="vertical"] p { display: none; }
+/*[class*="vertical"] p { display: none; }*/
 
 /*.animation .img-1 { height: 137px; }
 .animation .img-2 { height: 122px; }

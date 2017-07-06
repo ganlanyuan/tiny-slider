@@ -61,6 +61,7 @@ var doc = document,
           600: 2,
           900: 3,
         },
+        slideBy: 'page',
       }, 
       'arrowKeys': {
         items: 3,
