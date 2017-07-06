@@ -763,7 +763,9 @@ function Events() {
 
 function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   var tick = Math.min(duration, 10),
-      from = Number(element.style[attr].slice(prefix.length, - (postfix.length + 2))),
+      unit = (to.indexOf('%') >= 0) ? '%' : 'px',
+      to = to.replace(unit, ''),
+      from = Number(element.style[attr].replace(prefix, '').replace(postfix, '').replace(unit, '')),
       positionTick = (to - from) / duration * tick,
       running;
 
@@ -771,7 +773,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   function moveElement() {
     duration -= tick;
     from += positionTick;
-    element.style[attr] = prefix + from + 'px' + postfix;
+    element.style[attr] = prefix + from + unit + postfix;
     if (duration > 0) { 
       setTimeout(moveElement, tick); 
     } else {
@@ -937,7 +939,7 @@ var tns = function(options) {
       indexCached = index,
       indexAdjust = (edgePadding) ? 1 : 0,
       indexMin = indexAdjust,
-      indexMax,
+      indexMax = slideCountNew - items - indexAdjust,
       // resize
       vw,
       resizeTimer,
@@ -1066,7 +1068,6 @@ var tns = function(options) {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
     if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
-    if (axis === 'horizontal' && !fixedWidth) { slideWidth = (vw + gutter) / items; }
   });
 
   (function sliderInit() {
@@ -1087,6 +1088,7 @@ var tns = function(options) {
     dataTns = ' tns-ct tns-' + mode + ' tns-' + axis;
     if (mode === 'carousel' && autoHeight) { dataTns += ' tns-hd-y'; }
     dataTns += (SUBPIXEL) ? ' tns-subpixel' : ' tns-no-subpixel';
+    if (!CALC) { dataTns += ' tns-no-calc'; }
     container.className += dataTns;
 
     // set edge padding on content wrapper
@@ -1163,19 +1165,16 @@ var tns = function(options) {
             CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
             (i - index) * 100 / items + '%';
         item.style.left = leftVal; 
-        console.log(leftVal);
         item.classList.remove(animateNormal);
         item.classList.add(animateIn);
       }
     }
 
-    // update the items if browser don't support mediaquery
-    if (responsive && !CSSMQ) { 
+    // update the items
+    if (responsive) { 
       items = getItems();
       events.emit('itemsChanged');
     }
-
-    var containerTransformValue;
 
     // default styles
     // == horizontal slider ==
@@ -1183,27 +1182,37 @@ var tns = function(options) {
       var stringContainerWidth = stringSlideWidth = 'width: ',
           stringContainerFontSize = stringSlideFontSize = stringSlideGutter = '';
 
-      // get width string
-      if (fixedWidth) {
-          stringContainerWidth += (fixedWidth + gutter) * slideCountNew + 'px';
-          stringSlideWidth += fixedWidth + 'px';
-          containerTransformValue = - (fixedWidth + gutter) * index + 'px';
-      } else {
+      // get container-width, container-translate and slide-width
+      if (mode === 'gallery') {
+        stringContainerWidth += 'auto';
         if (CALC) {
-          stringContainerWidth += CALC + '(100% * ' + slideCountNew + ' / ' + items + ')';
-          stringSlideWidth += CALC + '(100% / ' + slideCountNew + ')';
-          containerTransformValue = CALC + '(-' + index * 100 + '% / ' + slideCountNew + ')';
+          stringSlideWidth += CALC + '(100% / ' + options.items + ')';
         } else {
-          stringContainerWidth += 100 * slideCountNew / items + '%';
-          stringSlideWidth += 100 / slideCountNew + '%';
-          containerTransformValue = - index * 100 / items + '%';
+          stringSlideWidth += 100 / options.items + '%';
+        }
+      } else {
+        if (fixedWidth) {
+            stringContainerWidth += (fixedWidth + gutter) * slideCountNew + 'px';
+            stringSlideWidth += fixedWidth + 'px';
+        } else {
+          if (CSSMQ) {
+            stringContainerWidth += (CALC) ? 
+                CALC + '(' + slideCountNew * 100 + '% / ' + options.items + ')' : 
+                slideCountNew * 100 / options.items + '%';
+          } else {
+            updateContainerWidthNonMediaquery();
+          }
+
+          stringSlideWidth += (CALC) ? 
+              CALC + '(100% / ' + slideCountNew + ')' : 
+              100 / slideCountNew + '%';
         }
       }
       stringContainerWidth += ';';
       stringSlideWidth += ';';
 
       // get font-size string, add class, add margin-left
-      if (SUBPIXEL) {
+      if (mode === 'carousel' && SUBPIXEL) {
         var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
         // em, rem to px (for IE8-)
         if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
@@ -1244,13 +1253,11 @@ var tns = function(options) {
 
       getSlideOffsetTops();
       updateContentWrapperHeight();
-      containerTransformValue = - slideOffsetTops[index] + 'px';
     }
-
 
     // set container transform property
     if (mode === 'carousel') {
-      container.style[transformAttr] = transformPrefix + containerTransformValue + transformPostfix;
+      doContainerTransform();
     }
 
 
@@ -1259,6 +1266,7 @@ var tns = function(options) {
     if (navigator.msMaxTouchPoints) {
       wrapper.classList.add('ms-touch');
       addEvents(wrapper, {'scroll': ie10Scroll});
+      setSnapInterval();
     }
 
 
@@ -1460,41 +1468,40 @@ var tns = function(options) {
   function resizeTasks() {
     var indexTem = index, itemsTem = items;
     if (responsive) { items = getItems(); }
-    if (items !== itemsTem) {
-      events.emit('itemsChanged');
-    }
-    checkSlideCount();
-    checkIndex();
 
+    // things always do 
+    // regardless of items changing
     if (axis === 'vertical') {
       getSlideOffsetTops();
       updateContentWrapperHeight();
-      container.style[transformAttr] = transformPrefix + -slideOffsetTops[index] + 'px' + transformPostfix;
-    } else {
-      if (fixedWidth && edgePadding) {
-        updateFixedWidthEdgePadding();
-      }
+      doContainerTransform();
     }
-
-    if (index !== indexTem || mode === 'carousel' && !fixedWidth) {
-      doTransform(0); 
-    }
+    if (fixedWidth && edgePadding) { updateFixedWidthEdgePadding(); }
+    runAutoHeight(); 
     
-    if (index !== indexTem || items !== itemsTem) {
+    // things do only when items changed
+    if (responsive && items !== itemsTem) {
+      events.emit('itemsChanged');
+      checkSlideCount();
+      checkIndex();
+
+      // update container width on non-mediaquery browser
+      if (!fixedWidth && !CSSMQ) {
+        updateContainerWidthNonMediaquery();
+      }
+
+      doTransform(0); 
       lazyLoad(); 
       updateNavVisibility();
       updateNavStatus();
+
+      if (index !== indexTem) { 
+        events.emit('indexChanged', info());
+        updateSlideStatus();
+        updateControlsStatus();
+      }
+      if (navigator.msMaxTouchPoints) { setSnapInterval(); }
     }
-
-    runAutoHeight(); 
-
-    if (index !== indexTem) { 
-      events.emit('indexChanged', info());
-      updateSlideStatus();
-      updateControlsStatus();
-    }
-
-    if (navigator.msMaxTouchPoints) { setSnapInterval(); }
   }
 
 
@@ -1502,25 +1509,21 @@ var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
-  // vw => items => indexMax, slideWidth, navCountVisible, slideBy
-
-  function getVariables() {
-    vw = getViewWidth();
-    if (responsive) { items = getItems(); }
-    indexMax = slideCountNew - items - indexAdjust;
-    if (options.slideBy === 'page') { slideBy = items; }
-    if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
-    if (axis === 'horizontal' && !fixedWidth) { slideWidth = (vw + gutter) / items; }
+  function updateContainerWidthNonMediaquery () {
+    container.style.width = slideCountNew * 100 / items + '%';
   }
 
   // (slideBy, indexMin, indexMax) => index
   var checkIndex = (function () {
     if (loop) {
       return function () {
-        var leftEdge = (mode === 'carousel')? slideBy + indexMin : indexMin, 
-            rightEdge = (mode === 'carousel')? indexMax - slideBy : indexMax;
+        var leftEdge = indexMin, rightEdge = indexMax;
+        if (mode === 'carousel') {
+          leftEdge += slideBy;
+          rightEdge -= slideBy;
+        }
 
-        if (fixedWidth && vw%slideWidth !== 0) { rightEdge -= 1; }
+        if (fixedWidth && vw%(fixedWidth + gutter) !== 0) { rightEdge -= 1; }
 
         if (index > rightEdge) {
           while(index >= leftEdge + slideCount) { index -= slideCount; }
@@ -1633,15 +1636,9 @@ var tns = function(options) {
     }
   }
 
-  // get wrapper height
-  // (slideOffsetTops, index, items) => vertical_conentWrapper.height
-  function getVerticalWrapperHeight() {
-    return slideOffsetTops[index + items] - slideOffsetTops[index];
-  }
-
   // set snapInterval (for IE10)
   function setSnapInterval() {
-    wrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + slideWidth + ')';
+    wrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + (100 / items) + '%)';
   }
 
   // update slide
@@ -1722,7 +1719,6 @@ var tns = function(options) {
         disable.forEach(function (button) {
           if (!button.disabled) {
             button.disabled = true;
-            // setAttrs(button, {'tabindex': '-1'});
           }
         });
       }
@@ -1731,7 +1727,6 @@ var tns = function(options) {
         active.forEach(function (button) {
           if (button.disabled) {
             button.disabled = false;
-            // setAttrs(button, {'tabindex': '0'});
           }
         });
       }
@@ -1752,20 +1747,44 @@ var tns = function(options) {
     }
   }
 
+  function getContainerTransformValue() {
+    var containerTransformValue;
+    if (axis === 'vertical') {
+      containerTransformValue = - slideOffsetTops[index] + 'px';
+    } else {
+      if (fixedWidth) {
+        containerTransformValue = - (fixedWidth + gutter) * index + 'px';
+      } else {
+        var denominator = (TRANSFORM) ? slideCountNew : items;
+        containerTransformValue = - index * 100 / denominator + '%';
+      }
+    }
+
+    return containerTransformValue;
+  }
+
+  function doContainerTransform(val) {
+    if (!val) { val = getContainerTransformValue(); }
+    container.style[transformAttr] = transformPrefix + val + transformPostfix;
+  }
+
   // make transfer after click/drag:
   // 1. change 'transform' property for mordern browsers
   // 2. change 'left' property for legacy browsers
   var transformCore = (function () {
     if (mode === 'carousel') {
       return function (duration, distance) {
-        if (!distance) { distance = -slideOffsetTops[index]; }
+        if (!distance) { distance = getContainerTransformValue(); }
         // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
         if (hasRightDeadZone && index === indexMax) {
-          distance = Math.max(distance, -slideCountNew * slideWidth + vw + gutter);
+          var containerRightEdge = (TRANSFORM) ? 
+              - ((slideCountNew - items) / slideCountNew) * 100 : 
+              - (slideCountNew / items - 1) * 100; 
+          distance = Math.max(Number(distance.replace('%', '')), containerRightEdge) + '%';
         }
 
         if (TRANSITIONDURATION || !duration) {
-          container.style[transformAttr] = transformPrefix + Math.round(distance) + 'px' + transformPostfix;
+          doContainerTransform(distance);
         } else {
           jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
         }
@@ -2042,7 +2061,7 @@ var tns = function(options) {
     autoplayResetVisibilityState = document.hidden;
   }
 
-  // 
+  // keydown events on document 
   function onDocumentKeydown(e) {
     e = e || window.event;
     switch(e.keyCode) {
@@ -2154,8 +2173,7 @@ var tns = function(options) {
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
     startY = parseInt(ev.clientY);
-    var slices = (TRANSFORM)? [11, -3] : [0, -2];
-    translateInit = Number(container.style[transformAttr].slice(slices[0], slices[1]));
+    translateInit = Number(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, '').replace(/(px|%)/g, ''));
 
     if (e.type === 'touchstart') {
       events.emit('touchStart', info(e));
@@ -2174,7 +2192,6 @@ var tns = function(options) {
       isDragEvent = true;
     }
     
-    // console.log(e.type, mousePressed, isDragEvent, e.clientX);
     // make sure touch started or mouse draged
     if (startX !== null) {
       if (isLinkElement(getTarget(e)) && e.type !== 'touchmove') { preventDefaultBehavior(e); }
@@ -2192,14 +2209,18 @@ var tns = function(options) {
           events.emit('dragMove', info(e));
         }
 
-        var x = (axis === 'horizontal')? (translateInit + disX) : (translateInit + disY);
-            x += 'px';
-
-        if (TRANSFORM) {
-          x = 'translate' + transformDir + '(' + x + ')';
-          setDurations(0);
+        var x = translateInit;
+        if (axis === 'horizontal') {
+          var percentageX = (TRANSFORM) ? disX * items * 100 / (vw * slideCountNew): disX * 100 / vw;
+          x += percentageX;
+          x += '%';
+        } else {
+          x += disY;
+          x += 'px';
         }
-        container.style[transformAttr] = x;
+
+        if (TRANSFORM) { setDurations(0); }
+        container.style[transformAttr] = transformPrefix + x + transformPostfix;
       }
     }
   }
@@ -2221,8 +2242,9 @@ var tns = function(options) {
       startX = startY = null;
 
       if (axis === 'horizontal') {
-        index = - (translateInit + disX) / slideWidth;
-        index = (disX > 0) ? Math.floor(index) : Math.ceil(index);
+        var indexMoved = - disX * items / vw;
+        indexMoved = (disX > 0) ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+        index += indexMoved;
       } else {
         var moved = - (translateInit + disY);
         if (moved <= 0) {
@@ -2234,7 +2256,7 @@ var tns = function(options) {
           do {
             i++;
             index = (disY < 0) ? i + 1 : i;
-          } while (i < slideCountNew && moved >= Math.round(slideOffsetTops[i + 1]));
+          } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
         }
       }
       
@@ -2264,13 +2286,6 @@ var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
-  // (slideWidth, index, items) => gallery_visible_slide.left
-  function updateSlidePosition() {
-    for (var i = index + 1, len = index + items; i < len; i++) {
-      slideItems[i].style.left = slideWidth * (i - index) + 'px';
-    }
-  }
-
   // (vw) => fixedWidth_contentWrapper.edgePadding
   function updateFixedWidthEdgePadding() {
     contentWrapper.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
@@ -2278,7 +2293,7 @@ var tns = function(options) {
 
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight() {
-    contentWrapper.style.height = getVerticalWrapperHeight() + 'px';
+    contentWrapper.style.height = slideOffsetTops[index + items] - slideOffsetTops[index] + 'px';
   }
 
   /*

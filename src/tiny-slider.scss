@@ -10,7 +10,6 @@
   }
 }
 .tns-ct {
-  position: relative;
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
@@ -40,23 +39,16 @@
     margin-right: -100%;
   }
 }
+.tns-no-calc {
+  position: relative;
+  left: 0;
+}
 
 .tns-carousel.tns-horizontal {
-  left: 0;
-  // &:after {
-  //   content: '';
-  //   display: table;
-  //   clear: both;
-  // }
-  // > div, > li {
-  //   float: left;
-  //   -webkit-box-sizing: border-box;
-  //   -moz-box-sizing: border-box;
-  //   box-sizing: border-box;
-  //   overflow: hidden;
-  // }
 }
 .tns-gallery {
+  position: relative;
+  left: 0;
   overflow: hidden;
   > div, > li {
     position: absolute;
