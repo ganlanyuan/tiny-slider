@@ -165,7 +165,7 @@ export var tns = function(options) {
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
       responsive = (fixedWidth) ? false : options.responsive,
-      breakpoints = (responsive) ? Object.keys(responsive).sort(function (a, b) { return a - b; }) : false,
+      breakpoints = false,
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
@@ -192,6 +192,11 @@ export var tns = function(options) {
       running = false,
       onInit = options.onInit,
       events = new Events();
+
+  if (responsive) {
+    if (!responsive[0]) { responsive[0] = options.items; }
+    breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
+  } 
 
   // controls
   if (options.controls) {
@@ -701,6 +706,7 @@ export var tns = function(options) {
   }
 
   function resizeTasks() {
+    vw = getViewWidth();
     var indexTem = index, itemsTem = items;
     if (responsive || fixedWidth) { items = getItems(); }
 
