@@ -1,4 +1,4 @@
-.tns-wp {
+.tns-outer {
   padding: 0 !important; // remove padding: clientWidth = width + padding (0) = width
   &.ms-touch {
     overflow-x: scroll;
@@ -9,7 +9,7 @@
     -ms-scroll-snap-points-x: snapInterval(0%, 100%); // Defines the y and x intervals to snap to when scrolling.
   }
 }
-.tns-ct {
+.tns-slider {
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
@@ -44,8 +44,6 @@
   left: 0;
 }
 
-.tns-carousel.tns-horizontal {
-}
 .tns-gallery {
   position: relative;
   left: 0;
@@ -73,8 +71,8 @@
   border-width: 0;
   padding: 0;
 }
-.tns-hd-x { overflow-x: hidden; }
-.tns-hd-y { overflow-y: hidden; }
+.tns-hdx { overflow-x: hidden; }
+.tns-hdy { overflow-y: hidden; }
 
 .tns-fadeIn {
   opacity: 1;

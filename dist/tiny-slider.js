@@ -501,6 +501,13 @@ function unwrap(els) {
   }
 }
 
+function getSessionStorage(key, value) {
+  if (!sessionStorage.getItem(key)) {
+    sessionStorage.setItem(key, value);
+  }
+  return sessionStorage.getItem(key);
+}
+
 function getSlideId() {
   if (window.tnsId === undefined) {
     window.tnsId = 1;
@@ -799,42 +806,42 @@ var KEYS = {
       RIGHT: 39,
       DOWN: 40
     };
-var CALC = calc();
-var SUBPIXEL = subpixelLayout();
-var CSSMQ = mediaquerySupport();
-var TRANSFORM = whichProperty([
+var CALC = getSessionStorage('tnsCalc', calc());
+var SUBPIXEL = JSON.parse(getSessionStorage('tnsSubpixel', subpixelLayout()));
+var CSSMQ = JSON.parse(getSessionStorage('tnsCSSMQ', mediaquerySupport()));
+var TRANSFORM = getSessionStorage('tnsTransform', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
-    ]);
-var TRANSITIONDURATION = whichProperty([
+    ]));
+var TRANSITIONDURATION = getSessionStorage('tnsTransitionDuration', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
-    ]);
-var TRANSITIONDELAY = whichProperty([
+    ]));
+var TRANSITIONDELAY = getSessionStorage('tnsTransitionDelay', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
-    ]);
-var ANIMATIONDURATION = whichProperty([
+    ]));
+var ANIMATIONDURATION = getSessionStorage('tnsAnimationDuration', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
-    ]);
-var ANIMATIONDELAY = whichProperty([
+    ]));
+var ANIMATIONDELAY = getSessionStorage('tnsAnimationDelay', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
-    ]);
-var TRANSITIONEND = getEndProperty(TRANSITIONDURATION, 'Transition');
-var ANIMATIONEND = getEndProperty(ANIMATIONDURATION, 'Animation');
+    ]));
+var TRANSITIONEND = getSessionStorage('tnsTransitionEnd', getEndProperty(TRANSITIONDURATION, 'Transition'));
+var ANIMATIONEND = getSessionStorage('tnsAnimationEnd', getEndProperty(ANIMATIONDURATION, 'Animation'));
 
 var tns = function(options) {
   options = extend({
@@ -898,8 +905,8 @@ var tns = function(options) {
     }
   }
 
-  var mode = options.mode,
-      axis = options.axis,
+  var carousel = (options.mode === 'carousel') ? true : false,
+      horizontal = (options.axis === 'horizontal') ? true : false,
       wrapper = doc.createElement('div'),
       contentWrapper = doc.createElement('div'),
       container = options.container,
@@ -921,21 +928,18 @@ var tns = function(options) {
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
-      slideWidth = (fixedWidth)? fixedWidth + gutter : 0,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
       cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
-      slideCountNew = (mode === 'gallery') ? slideCount + cloneCount : slideCount + cloneCount * 2,
+      slideCountNew = (!carousel) ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = (fixedWidth && !loop && !edgePadding)? true : false,
-      checkIndexBeforeTransform = (mode === 'gallery' || !loop)? true : false,
+      checkIndexBeforeTransform = (!carousel || !loop)? true : false,
       // transform
-      transformDir = (axis === 'horizontal')? 'X' : 'Y',
-      transformAttr = (axis === 'horizontal')? 'left' : 'top',
-      transformType = 'translate',
+      transformAttr = (horizontal)? 'left' : 'top',
       transformPrefix = '',
       transformPostfix = '',
       // index
-      index = (mode === 'gallery') ? 0 : cloneCount,
+      index = (!carousel) ? 0 : cloneCount,
       indexCached = index,
       indexAdjust = (edgePadding) ? 1 : 0,
       indexMin = indexAdjust,
@@ -1006,7 +1010,8 @@ var tns = function(options) {
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
-    transformPrefix = transformType + transformDir + '(';
+    transformPrefix = 'translate';
+    transformPrefix += (horizontal)? 'X(' : 'Y(';
     transformPostfix = ')';
   }
 
@@ -1029,7 +1034,7 @@ var tns = function(options) {
   var getViewWidth = (function () {
     // horizontal carousel: fluid width && edge padding
     //  => inner wrapper view width
-    if (axis === 'horizontal' && !fixedWidth && edgePadding) { 
+    if (horizontal && !fixedWidth && edgePadding) { 
       return function () { return wrapper.clientWidth - (edgePadding + gutter) * 2; };
     // horizontal carousel: fixed width || fluid width but no edge padding
     // vertical carousel
@@ -1048,7 +1053,7 @@ var tns = function(options) {
       arrowKeys = false;
 
       var indexTem;
-      index = (mode === 'gallery') ? 0 : cloneCount;
+      index = (!carousel) ? 0 : cloneCount;
       if (index !== indexTem) { events.emit('indexChanged', info()); }
 
       if (navContainer) { hideElement(navContainer); }
@@ -1077,55 +1082,44 @@ var tns = function(options) {
     wrap(contentWrapper, wrapper);
     vw = getViewWidth();
 
-    var dataTns = (axis === 'horizontal')? 'tns-wp tns-hd-x' : 'tns-wp';
+    var dataTns = (horizontal)? 'tns-outer tns-hdx' : 'tns-outer';
     wrapper.className = dataTns;
 
-    dataTns = (axis === 'vertical') ? 'tns-ct-wp tns-hd-y' : 'tns-ct-wp';
+    dataTns = (!horizontal) ? 'tns-inner tns-hdy' : 'tns-inner';
     contentWrapper.className = dataTns;
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    dataTns = ' tns-ct tns-' + mode + ' tns-' + axis;
-    if (mode === 'carousel' && autoHeight) { dataTns += ' tns-hd-y'; }
+    dataTns = ' tns-slider tns-' + options.mode + ' tns-' + options.axis;
     dataTns += (SUBPIXEL) ? ' tns-subpixel' : ' tns-no-subpixel';
-    if (!CALC) { dataTns += ' tns-no-calc'; }
+    dataTns += (CALC) ? ' tns-calc' : ' tns-no-calc';
+    if (carousel && autoHeight) { dataTns += ' tns-hdy'; }
     container.className += dataTns;
 
     // set edge padding on content wrapper
     if (edgePadding) {
-      var gap1 = gap2 = 0;
-
       if (fixedWidth) {
-        gap1 = gap2 = getFixedWidthEdgePadding();
+        updateFixedWidthEdgePadding();
       } else {
-        if (edgePadding) {
-          gap1 = edgePadding + gutter;
-          gap2 = edgePadding;
-        } else {
-          gap2 = -gutter;
-        }
-      }
+        var gap1 = edgePadding + gutter,
+            gap2 = edgePadding;
 
-      var gapString;
-      if (axis === 'horizontal') {
-        gapString = 'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px';
-      } else {
-        gapString = 'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
+        contentWrapper.style.cssText += (horizontal) ?
+            'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
+            'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
       }
-
-      contentWrapper.style.cssText += gapString;
     }
 
     // slideItems: add id, class, properties
     for (var x = 0; x < slideCount; x++) {
       var item = slideItems[x];
       item.id = slideId + '-item' + x;
-      if (mode === 'gallery' && animateNormal) { item.classList.add(animateNormal); }
+      if (!carousel && animateNormal) { item.classList.add(animateNormal); }
       setAttrs(item, {
         'aria-hidden': 'true',
         'tabindex': '-1'
       });
-      if (!SUBPIXEL && axis === 'horizontal') {
+      if (!SUBPIXEL && horizontal) {
         var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
         slideItems[i].style.marginLeft = marginLeft;
       }
@@ -1134,8 +1128,8 @@ var tns = function(options) {
 
     // clone slides
     if (loop || edgePadding) {
-      var fragmentBefore = document.createDocumentFragment(), 
-          fragmentAfter = document.createDocumentFragment();
+      var fragmentBefore = doc.createDocumentFragment(), 
+          fragmentAfter = doc.createDocumentFragment();
 
       for (var j = cloneCount; j--;) {
         var num = j%slideCount,
@@ -1143,7 +1137,7 @@ var tns = function(options) {
         removeAttrs(cloneFirst, 'id');
         fragmentAfter.insertBefore(cloneFirst, fragmentAfter.firstChild);
 
-        if (mode === 'carousel') {
+        if (carousel) {
           var cloneLast = slideItems[slideCount - 1 - num].cloneNode(true);
           removeAttrs(cloneLast, 'id');
           fragmentBefore.appendChild(cloneLast);
@@ -1160,7 +1154,7 @@ var tns = function(options) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
-      if (mode === 'gallery') { 
+      if (!carousel) { 
         var leftVal = (CALC)? 
             CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
             (i - index) * 100 / items + '%';
@@ -1178,12 +1172,12 @@ var tns = function(options) {
 
     // default styles
     // == horizontal slider ==
-    if (axis === 'horizontal') {
+    if (horizontal) {
       var stringContainerWidth = stringSlideWidth = 'width: ',
           stringContainerFontSize = stringSlideFontSize = stringSlideGutter = '';
 
       // get container-width, container-translate and slide-width
-      if (mode === 'gallery') {
+      if (!carousel) {
         stringContainerWidth += 'auto';
         if (CALC) {
           stringSlideWidth += CALC + '(100% / ' + options.items + ')';
@@ -1212,7 +1206,7 @@ var tns = function(options) {
       stringSlideWidth += ';';
 
       // get font-size string, add class, add margin-left
-      if (mode === 'carousel' && SUBPIXEL) {
+      if (carousel && SUBPIXEL) {
         var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
         // em, rem to px (for IE8-)
         if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
@@ -1256,7 +1250,7 @@ var tns = function(options) {
     }
 
     // set container transform property
-    if (mode === 'carousel') {
+    if (carousel) {
       doContainerTransform();
     }
 
@@ -1357,7 +1351,7 @@ var tns = function(options) {
 
 
     // == addSliderEvents ==
-    if (mode === 'carousel') {
+    if (carousel) {
       if (TRANSITIONEND) {
         var eve = {};
         eve[TRANSITIONEND] = onTransitionEnd;
@@ -1471,7 +1465,7 @@ var tns = function(options) {
 
     // things always do 
     // regardless of items changing
-    if (axis === 'vertical') {
+    if (!horizontal) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
       doContainerTransform();
@@ -1518,7 +1512,7 @@ var tns = function(options) {
     if (loop) {
       return function () {
         var leftEdge = indexMin, rightEdge = indexMax;
-        if (mode === 'carousel') {
+        if (carousel) {
           leftEdge += slideBy;
           rightEdge -= slideBy;
         }
@@ -1739,17 +1733,17 @@ var tns = function(options) {
     target = target || container;
     target.style[TRANSITIONDURATION] = duration;
 
-    if (mode === 'gallery') {
+    if (!carousel) {
       target.style[ANIMATIONDURATION] = duration;
     }
-    if (axis === 'vertical') {
+    if (!horizontal) {
       contentWrapper.style[TRANSITIONDURATION] = duration;
     }
   }
 
   function getContainerTransformValue() {
     var containerTransformValue;
-    if (axis === 'vertical') {
+    if (!horizontal) {
       containerTransformValue = - slideOffsetTops[index] + 'px';
     } else {
       if (fixedWidth) {
@@ -1773,7 +1767,7 @@ var tns = function(options) {
   // 2. change 'left' property for legacy browsers
   var transformCore = (function () {
     // carousel
-    if (mode === 'carousel') {
+    if (carousel) {
       return function (duration, distance) {
         if (!distance) { distance = getContainerTransformValue(); }
         // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
@@ -1790,7 +1784,7 @@ var tns = function(options) {
           jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
         }
 
-        if (axis === 'vertical') { updateContentWrapperHeight(); }
+        if (!horizontal) { updateContentWrapperHeight(); }
       };
 
     // gallery
@@ -1872,7 +1866,7 @@ var tns = function(options) {
   function onTransitionEnd(event) {
     events.emit('transitionEnd', info(event));
 
-    if (mode === 'gallery' && slideItemsOut.length > 0) {
+    if (!carousel && slideItemsOut.length > 0) {
       for (var i = 0; i < items; i++) {
         var item = slideItemsOut[i];
         if (TRANSITIONDURATION) { setDurations(0, item); }
@@ -1906,7 +1900,7 @@ var tns = function(options) {
      *   + event.property is the same with transform attribute
      */
     if (!event || 
-        mode === 'gallery' && event.target.parentNode === container || 
+        !carousel && event.target.parentNode === container || 
         event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
 
       if (!checkIndexBeforeTransform) { 
@@ -2062,10 +2056,10 @@ var tns = function(options) {
   }
 
   function onVisibilityChange() {
-    if (autoplayResetVisibilityState != document.hidden && animating !== false) {
-      document.hidden ? pauseActionTimer() : resetActionTimer();
+    if (autoplayResetVisibilityState != doc.hidden && animating !== false) {
+      doc.hidden ? pauseActionTimer() : resetActionTimer();
     }
-    autoplayResetVisibilityState = document.hidden;
+    autoplayResetVisibilityState = doc.hidden;
   }
 
   // keydown events on document 
@@ -2084,7 +2078,7 @@ var tns = function(options) {
   function changeFocus(blur, focus) {
     if (typeof blur === 'object' && 
         typeof focus === 'object' && 
-        blur === document.activeElement) {
+        blur === doc.activeElement) {
       blur.blur();
       focus.focus();
     }
@@ -2094,7 +2088,7 @@ var tns = function(options) {
   function onControlKeydown(e) {
     e = e || window.event;
     var code = e.keyCode,
-        curElement = document.activeElement;
+        curElement = doc.activeElement;
 
     switch (code) {
       case KEYS.LEFT:
@@ -2124,7 +2118,7 @@ var tns = function(options) {
   function onNavKeydown(e) {
     e = e || window.event;
     var code = e.keyCode,
-        curElement = document.activeElement,
+        curElement = doc.activeElement,
         dataSlide = getAttr(curElement, 'data-nav');
 
     switch(code) {
@@ -2217,7 +2211,7 @@ var tns = function(options) {
         }
 
         var x = translateInit;
-        if (axis === 'horizontal') {
+        if (horizontal) {
           var percentageX = (TRANSFORM) ? disX * items * 100 / (vw * slideCountNew): disX * 100 / vw;
           x += percentageX;
           x += '%';
@@ -2248,7 +2242,7 @@ var tns = function(options) {
       // reset startX, startY
       startX = startY = null;
 
-      if (axis === 'horizontal') {
+      if (horizontal) {
         var indexMoved = - disX * items / vw;
         indexMoved = (disX > 0) ? Math.floor(indexMoved) : Math.ceil(indexMoved);
         index += indexMoved;
@@ -2295,7 +2289,7 @@ var tns = function(options) {
   // === RESIZE FUNCTIONS === //
   // (vw) => fixedWidth_contentWrapper.edgePadding
   function updateFixedWidthEdgePadding() {
-    contentWrapper.style.cssText = 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
+    contentWrapper.style.cssText += 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
   }
 
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height
