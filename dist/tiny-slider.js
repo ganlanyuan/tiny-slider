@@ -1067,7 +1067,7 @@ var tns = function(options) {
   events.on('itemsChanged', function () {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
-    if (!options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
+    if (nav && !options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
   });
 
   (function sliderInit() {
@@ -1491,13 +1491,13 @@ var tns = function(options) {
       }
 
       doTransform(0); 
+      updateSlideStatus();
       lazyLoad(); 
       updateNavVisibility();
       updateNavStatus();
 
       if (index !== indexTem) { 
         events.emit('indexChanged', info());
-        updateSlideStatus();
         updateControlsStatus();
       }
       if (navigator.msMaxTouchPoints) { setSnapInterval(); }
