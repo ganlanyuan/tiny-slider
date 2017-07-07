@@ -388,82 +388,34 @@ function extend() {
   return target;
 }
 
-function indexOf(array, item) {
-  for (var i = 0; i < array.length; i++) {
-    if (array[i] === item) { return i; }
-  }
-  return -1;
-}
+function wrap(el, wrapper) {
+  // Cache the current parent and sibling.
+  var parent = el.parentNode, sibling = el.nextSibling;
 
-function isNodeList(el) {
-  // Only NodeList has the "item()" function
-  return typeof el.item !== "undefined"; 
-}
+  // Wrap the element (is automatically removed from its current parent).
+  wrapper.appendChild(el);
 
-function append(els, data) {
-  var els_new = (isNodeList(els)) ? els : [els], i;
-
-  if (typeof data.nodeType !== "undefined" && data.nodeType === 1) {
-    for (i = els_new.length; i--;) {
-      els_new[i].appendChild(data);
-    }
-  } else if (typeof data === "string") {
-    for (i = els_new.length; i--;) {
-      els_new[i].insertAdjacentHTML("beforeend", data);
-    }
-  } else if (isNodeList(data)) {
-    var fragment = document.createDocumentFragment();
-    for (i = data.length; i--;) {
-      fragment.insertBefore(data[i], fragment.firstChild);
-    }
-    for (var j = els_new.length; j--;) {
-      els_new[j].appendChild(fragment);
-    }
+  // If the element had a sibling, insert the wrapper before
+  // the sibling to maintain the HTML structure; otherwise, just
+  // append it to the parent.
+  if (sibling) {
+    parent.insertBefore(wrapper, sibling);
+  } else {
+    parent.appendChild(wrapper);
   }
 }
 
-function wrap(els, obj) {
-  var elsNew = (isNodeList(els)) ? els : [els];
-  // Loops backwards to prevent having to clone the wrapper on the
-  // first element (see `wrapper` below).
-  for (var i = elsNew.length; i--;) {
-    var wrapper = (i > 0) ? obj.cloneNode(true) : obj,
-      el = elsNew[i];
-
-    // Cache the current parent and sibling.
-    var parent = el.parentNode,
-      sibling = el.nextSibling;
-
-    // Wrap the element (is automatically removed from its current parent).
-    wrapper.appendChild(el);
-
-    // If the element had a sibling, insert the wrapper before
-    // the sibling to maintain the HTML structure; otherwise, just
-    // append it to the parent.
-    if (sibling) {
-      parent.insertBefore(wrapper, sibling);
-    } else {
-      parent.appendChild(wrapper);
-    }
+function unwrap(el) {
+  // get the element's parent node
+  var parent = el.parentNode;
+  
+  // move all children out of the element
+  while (el.firstChild) { 
+    parent.insertBefore(el.firstChild, el); 
   }
-}
-
-function unwrap(els) {
-  var elsNew = (isNodeList(els)) ? els : [els];
-  for (var i = elsNew.length; i--;) {
-    var el = elsNew[i];
-
-    // get the element's parent node
-    var parent = el.parentNode;
-    
-    // move all children out of the element
-    while (el.firstChild) { 
-      parent.insertBefore(el.firstChild, el); 
-    }
-    
-    // remove the empty element
-    parent.removeChild(el);
-  }
+  
+  // remove the empty element
+  parent.removeChild(el);
 }
 
 function getSessionStorage(key, value) {
@@ -595,13 +547,13 @@ function getAttr(el, attr) {
   return el.getAttribute(attr);
 }
 
-function isNodeList$1(el) {
+function isNodeList(el) {
   // Only NodeList has the "item()" function
   return typeof el.item !== "undefined"; 
 }
 
 function setAttrs(els, attrs) {
-  els = (isNodeList$1(els) || els instanceof Array) ? els : [els];
+  els = (isNodeList(els) || els instanceof Array) ? els : [els];
   if (Object.prototype.toString.call(attrs) !== '[object Object]') { return; }
 
   for (var i = els.length; i--;) {
@@ -612,7 +564,7 @@ function setAttrs(els, attrs) {
 }
 
 function removeAttrs(els, attrs) {
-  els = (isNodeList$1(els) || els instanceof Array) ? els : [els];
+  els = (isNodeList(els) || els instanceof Array) ? els : [els];
   attrs = (attrs instanceof Array) ? attrs : [attrs];
 
   var attrLength = attrs.length;
@@ -1239,35 +1191,6 @@ var tns = function(options) {
     }
 
 
-    // == controlsInit ==
-    if (controls) {
-      if (options.controlsContainer) {
-        prevButton = controlsContainer.children[0];
-        nextButton = controlsContainer.children[1];
-        setAttrs(controlsContainer, {
-          'aria-label': 'Carousel Navigation',
-          'tabindex': '0'
-        });
-        setAttrs(prevButton, {'data-controls' : 'prev'});
-        setAttrs(nextButton, {'data-controls' : 'next'});
-        setAttrs(controlsContainer.children, {
-          'aria-controls': slideId,
-          'tabindex': '-1',
-        });
-      } else {
-        append(wrapper, '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
-
-        [].forEach.call(wrapper.children, function (el) {
-          if (el.classList.contains('tns-controls')) { controlsContainer = el; }
-        });
-        prevButton = controlsContainer.children[0];
-        nextButton = controlsContainer.children[1];
-      }
-
-      if (!loop) { prevButton.disabled = true; }
-    }
-
-
     // == navInit ==
     if (nav) {
       // customized nav
@@ -1292,7 +1215,7 @@ var tns = function(options) {
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-        append(wrapper, navHtml);
+        wrapper.insertAdjacentHTML('afterbegin', navHtml);
 
         [].forEach.call(wrapper.children, function (el) {
           if (el.classList.contains('tns-nav')) { navContainer = el; }
@@ -1312,16 +1235,45 @@ var tns = function(options) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
       } else {
         if (!navContainer) {
-          append(wrapper, '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
+          wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
           navContainer = wrapper.querySelector('.tns-nav');
         }
 
-        append(navContainer, '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
+        navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
         autoplayButton = navContainer.querySelector('[data-action]');
       }
 
       // start autoplay
       startAction();
+    }
+
+
+    // == controlsInit ==
+    if (controls) {
+      if (options.controlsContainer) {
+        prevButton = controlsContainer.children[0];
+        nextButton = controlsContainer.children[1];
+        setAttrs(controlsContainer, {
+          'aria-label': 'Carousel Navigation',
+          'tabindex': '0'
+        });
+        setAttrs(prevButton, {'data-controls' : 'prev'});
+        setAttrs(nextButton, {'data-controls' : 'next'});
+        setAttrs(controlsContainer.children, {
+          'aria-controls': slideId,
+          'tabindex': '-1',
+        });
+      } else {
+        wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+
+        [].forEach.call(wrapper.children, function (el) {
+          if (el.classList.contains('tns-controls')) { controlsContainer = el; }
+        });
+        prevButton = controlsContainer.children[0];
+        nextButton = controlsContainer.children[1];
+      }
+
+      if (!loop) { prevButton.disabled = true; }
     }
 
 
@@ -1973,10 +1925,10 @@ var tns = function(options) {
           navIndex;
 
       // find the clicked nav item
-      while (indexOf(navItems, clickTarget) === -1) {
+      while (getAttr(clickTarget, 'data-nav') === null) {
         clickTarget = clickTarget.parentNode;
       }
-      navIndex = navClicked = indexOf(navItems, clickTarget);
+      navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
 
       goTo(navIndex);
     }

@@ -4,12 +4,10 @@
 import "../bower_components/go-native/src/utilities/childNode.remove";
 import "../bower_components/go-native/src/vendors/token-list";
 import { extend } from "../bower_components/go-native/src/gn/extend";
-import { indexOf } from "../bower_components/go-native/src/gn/indexOf";
-import { append } from "../bower_components/go-native/src/gn/append";
-import { wrap } from "../bower_components/go-native/src/gn/wrap";
-import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
 
 // helper functions
+import { wrap } from "./helpers/wrap";
+import { unwrap } from "./helpers/unwrap";
 import { getSessionStorage } from './helpers/getSessionStorage';
 import { getSlideId } from './helpers/getSlideId';
 import { calc } from './helpers/calc';
@@ -514,35 +512,6 @@ export var tns = function(options) {
     }
 
 
-    // == controlsInit ==
-    if (controls) {
-      if (options.controlsContainer) {
-        prevButton = controlsContainer.children[0];
-        nextButton = controlsContainer.children[1];
-        setAttrs(controlsContainer, {
-          'aria-label': 'Carousel Navigation',
-          'tabindex': '0'
-        });
-        setAttrs(prevButton, {'data-controls' : 'prev'});
-        setAttrs(nextButton, {'data-controls' : 'next'});
-        setAttrs(controlsContainer.children, {
-          'aria-controls': slideId,
-          'tabindex': '-1',
-        });
-      } else {
-        append(wrapper, '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
-
-        [].forEach.call(wrapper.children, function (el) {
-          if (el.classList.contains('tns-controls')) { controlsContainer = el; }
-        });
-        prevButton = controlsContainer.children[0];
-        nextButton = controlsContainer.children[1];
-      }
-
-      if (!loop) { prevButton.disabled = true; }
-    }
-
-
     // == navInit ==
     if (nav) {
       // customized nav
@@ -567,7 +536,7 @@ export var tns = function(options) {
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-        append(wrapper, navHtml);
+        wrapper.insertAdjacentHTML('afterbegin', navHtml);
 
         [].forEach.call(wrapper.children, function (el) {
           if (el.classList.contains('tns-nav')) { navContainer = el; }
@@ -587,16 +556,45 @@ export var tns = function(options) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
       } else {
         if (!navContainer) {
-          append(wrapper, '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
+          wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
           navContainer = wrapper.querySelector('.tns-nav');
         }
 
-        append(navContainer, '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
+        navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
         autoplayButton = navContainer.querySelector('[data-action]');
       }
 
       // start autoplay
       startAction();
+    }
+
+
+    // == controlsInit ==
+    if (controls) {
+      if (options.controlsContainer) {
+        prevButton = controlsContainer.children[0];
+        nextButton = controlsContainer.children[1];
+        setAttrs(controlsContainer, {
+          'aria-label': 'Carousel Navigation',
+          'tabindex': '0'
+        });
+        setAttrs(prevButton, {'data-controls' : 'prev'});
+        setAttrs(nextButton, {'data-controls' : 'next'});
+        setAttrs(controlsContainer.children, {
+          'aria-controls': slideId,
+          'tabindex': '-1',
+        });
+      } else {
+        wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+
+        [].forEach.call(wrapper.children, function (el) {
+          if (el.classList.contains('tns-controls')) { controlsContainer = el; }
+        });
+        prevButton = controlsContainer.children[0];
+        nextButton = controlsContainer.children[1];
+      }
+
+      if (!loop) { prevButton.disabled = true; }
     }
 
 
@@ -1248,10 +1246,10 @@ export var tns = function(options) {
           navIndex;
 
       // find the clicked nav item
-      while (indexOf(navItems, clickTarget) === -1) {
+      while (getAttr(clickTarget, 'data-nav') === null) {
         clickTarget = clickTarget.parentNode;
       }
-      navIndex = navClicked = indexOf(navItems, clickTarget);
+      navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
 
       goTo(navIndex);
     }
