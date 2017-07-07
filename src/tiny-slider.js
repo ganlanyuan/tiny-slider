@@ -158,7 +158,7 @@ export var tns = function(options) {
       nested = options.nested,
       gutter = options.gutter,
       edgePadding = options.edgePadding,
-      fixedWidth = options.fixedWidth,
+      fixedWidth = (options.fixedWidth) ? options.fixedWidth + Number(options.gutter) : false,
       arrowKeys = options.arrowKeys,
       speed = options.speed,
       rewind = options.rewind,
@@ -391,14 +391,15 @@ export var tns = function(options) {
     }
 
     // add margin-left to slides in non-subpixel browsers
-    if (!SUBPIXEL && horizontal) {
+    if (!SUBPIXEL && carousel && horizontal) {
       for (var q = 0; q < slideItems.length; q++) {
         var marginLeft = (CALC) ? CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : q * 100 / slideCountNew + "%";
         slideItems[q].style.marginLeft = marginLeft;
       }
     }
 
-    // add aria attrs, set animation classes and left value for gallery slider
+    // add aria attrs
+    // set animation classes and left value for gallery slider
     for (var i = index; i < index + items; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
@@ -436,7 +437,7 @@ export var tns = function(options) {
         }
       } else {
         if (fixedWidth) {
-            stringContainerWidth += (fixedWidth + gutter) * slideCountNew + 'px';
+            stringContainerWidth += fixedWidth * slideCountNew + 'px';
             stringSlideWidth += fixedWidth + 'px';
         } else {
           if (CSSMQ) {
@@ -467,9 +468,8 @@ export var tns = function(options) {
 
       // set gutter
       if (gutter) {
-        if (!edgePadding) { contentWrapper.style.marginRight = - gutter + 'px';}
-        var gutterProperty = (fixedWidth) ? 'margin' : 'padding';
-        stringSlideGutter = gutterProperty + '-right: ' + gutter + 'px;';
+        if (!edgePadding && !fixedWidth) { contentWrapper.style.marginRight = - gutter + 'px';}
+        stringSlideGutter = 'padding-right: ' + gutter + 'px;';
       }
 
       addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, 0);
@@ -846,12 +846,6 @@ export var tns = function(options) {
   } 
 
 
-  // (vw) => edgePadding
-  function getFixedWidthEdgePadding() {
-    if (!vw) { vw = getViewWidth(); }
-    return (vw%(fixedWidth + gutter) + gutter) / 2;
-  }
-
   // update container height
   // 1. get the max-height of the visible slides
   // 2. set transitionDuration to speed
@@ -998,13 +992,12 @@ export var tns = function(options) {
       containerTransformValue = - slideOffsetTops[index] + 'px';
     } else {
       if (fixedWidth) {
-        containerTransformValue = - (fixedWidth + gutter) * index + 'px';
+        containerTransformValue = - fixedWidth * index + 'px';
       } else {
         var denominator = (TRANSFORM) ? slideCountNew : items;
         containerTransformValue = - index * 100 / denominator + '%';
       }
     }
-
     return containerTransformValue;
   }
 
@@ -1535,7 +1528,8 @@ export var tns = function(options) {
   // === RESIZE FUNCTIONS === //
   // (vw) => fixedWidth_contentWrapper.edgePadding
   function updateFixedWidthEdgePadding() {
-    contentWrapper.style.cssText += 'margin: 0px ' + getFixedWidthEdgePadding() + 'px';
+    if (!vw) { vw = getViewWidth(); }
+    contentWrapper.style.cssText += 'margin: 0px ' + (vw%fixedWidth + gutter) / 2 + 'px';
   }
 
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height
