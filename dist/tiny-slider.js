@@ -12,41 +12,6 @@ var tns = (function (){
   }
 })();
 
-// Adapted from https://gist.github.com/paulirish/1579671 which derived from 
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-// requestAnimationFrame polyfill by Erik Möller.
-// Fixes from Paul Irish, Tino Zijdel, Andrew Mao, Klemen Slavič, Darius Bacon
-
-// MIT license
-
-if (!Date.now)
-    Date.now = function() { return new Date().getTime(); };
-
-(function() {
-    'use strict';
-    
-    var vendors = ['webkit', 'moz'];
-    for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
-        var vp = vendors[i];
-        window.requestAnimationFrame = window[vp+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = (window[vp+'CancelAnimationFrame']
-                                   || window[vp+'CancelRequestAnimationFrame']);
-    }
-    if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
-        || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
-        var lastTime = 0;
-        window.requestAnimationFrame = function(callback) {
-            var now = Date.now();
-            var nextTime = Math.max(lastTime + 16, now);
-            return setTimeout(function() { callback(lastTime = nextTime); },
-                              nextTime - now);
-        };
-        window.cancelAnimationFrame = clearTimeout;
-    }
-}());
-
 /** DOMTokenList polyfill */
 (function(){
 	"use strict";
@@ -505,7 +470,8 @@ function getSessionStorage(key, value) {
   if (!sessionStorage.getItem(key)) {
     sessionStorage.setItem(key, value);
   }
-  return sessionStorage.getItem(key);
+  var result = sessionStorage.getItem(key);
+  return (['true', 'false', 'null'].indexOf(result) >= 0) ? JSON.parse(result) : result;
 }
 
 function getSlideId() {
@@ -518,13 +484,13 @@ function getSlideId() {
 }
 
 // get css-calc 
-// @return - null | calc | -webkit-calc | -moz-calc
+// @return - false | calc | -webkit-calc | -moz-calc
 // @usage - var calc = getCalc(); 
 function calc() {
   var doc = document, 
       body = doc.body,
       el = doc.createElement('div'), 
-      result = null;
+      result = false;
   body.appendChild(el);
   try {
     var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
@@ -807,8 +773,8 @@ var KEYS = {
       DOWN: 40
     };
 var CALC = getSessionStorage('tnsCalc', calc());
-var SUBPIXEL = JSON.parse(getSessionStorage('tnsSubpixel', subpixelLayout()));
-var CSSMQ = JSON.parse(getSessionStorage('tnsCSSMQ', mediaquerySupport()));
+var SUBPIXEL = getSessionStorage('tnsSubpixel', subpixelLayout());
+var CSSMQ = getSessionStorage('tnsCSSMQ', mediaquerySupport());
 var TRANSFORM = getSessionStorage('tnsTransform', whichProperty([
       'transform', 
       'WebkitTransform', 

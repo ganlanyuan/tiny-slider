@@ -2,9 +2,7 @@
 
 // from go-native
 import "../../go-native/src/utilities/childNode.remove";
-import "../../go-native/src/vendors/requestAnimationFrame";
 import "../../go-native/src/vendors/token-list";
-
 import { extend } from "../../go-native/src/gn/extend";
 import { indexOf } from "../../go-native/src/gn/indexOf";
 import { append } from "../../go-native/src/gn/append";
@@ -50,8 +48,8 @@ var doc = document,
       DOWN: 40
     },
     CALC = getSessionStorage('tnsCalc', calc()),
-    SUBPIXEL = JSON.parse(getSessionStorage('tnsSubpixel', subpixelLayout())),
-    CSSMQ = JSON.parse(getSessionStorage('tnsCSSMQ', mediaquerySupport())),
+    SUBPIXEL = getSessionStorage('tnsSubpixel', subpixelLayout()),
+    CSSMQ = getSessionStorage('tnsCSSMQ', mediaquerySupport()),
     TRANSFORM = getSessionStorage('tnsTransform', whichProperty([
       'transform', 
       'WebkitTransform', 

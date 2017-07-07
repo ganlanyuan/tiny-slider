@@ -1,11 +1,11 @@
 // get css-calc 
-// @return - null | calc | -webkit-calc | -moz-calc
+// @return - false | calc | -webkit-calc | -moz-calc
 // @usage - var calc = getCalc(); 
 export function calc() {
   var doc = document, 
       body = doc.body,
       el = doc.createElement('div'), 
-      result = null;
+      result = false;
   body.appendChild(el);
   try {
     var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
