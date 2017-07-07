@@ -845,7 +845,6 @@ var tns = function(options) {
       breakpoints = false,
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
-      slideId = container.id || getSlideId(),
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
       cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
@@ -868,7 +867,11 @@ var tns = function(options) {
       touchedOrDraged,
       running = false,
       onInit = options.onInit,
-      events = new Events();
+      events = new Events(),
+      // id, class
+      containerIdCached = container.id,
+      containerClassCached = container.className,
+      slideId = container.id || getSlideId();
 
   if (responsive) {
     if (!responsive[0]) { responsive[0] = options.items; }
@@ -2295,13 +2298,18 @@ var tns = function(options) {
     goTo: goTo,
 
     destroy: function () {
+      // sheet
+      sheet.disabled = true;
+
       // wrapper
       unwrap(wrapper);
       unwrap(contentWrapper);
       wrapper = contentWrapper = null;
 
       // container
-      removeAttrs(container, ['id', 'style']);
+      container.id = containerIdCached || '';
+      container.className = containerClassCached || '';
+      removeAttrs(container, ['style']);
 
       // cloned items
       if (loop) {

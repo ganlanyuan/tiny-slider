@@ -129,6 +129,7 @@ for (var i in options) {
   item.container = doc.querySelector('#' + i);
   if (!item.speed) { item.speed = speed; }
   sliders[i] = tns(options[i]);
+  // sliders[i].destroy();
 }
 
 // tns().events.on('initilized', function(info) {
