@@ -1913,7 +1913,6 @@ var tns = function(options) {
   // # ACTIONS
   function goTo (targetIndex) {
     if (!running) {
-
       var absIndex = index%slideCount, indexGap;
       if (absIndex < 0) { absIndex += slideCount; }
 
@@ -1932,9 +1931,7 @@ var tns = function(options) {
           break;
         default:
           if (typeof targetIndex === 'number') {
-            // go to the 3rd item => item which index is 2
-            // targetIndex -1 to correct the index
-            var absTargetIndex = (targetIndex - 1)%slideCount;
+            var absTargetIndex = targetIndex%slideCount;
             if (absTargetIndex < 0) { absTargetIndex += slideCount; }
             if (!loop && edgePadding) { absTargetIndex += 1; }
             indexGap = absTargetIndex - absIndex;
@@ -1988,9 +1985,7 @@ var tns = function(options) {
       }
       navIndex = navClicked = indexOf(navItems, clickTarget);
 
-      // +1 because in goTo function 
-      // it will be -1
-      goTo(navIndex + 1);
+      goTo(navIndex);
     }
   }
 
