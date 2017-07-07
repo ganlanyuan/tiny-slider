@@ -365,11 +365,6 @@ export var tns = function(options) {
         'aria-hidden': 'true',
         'tabindex': '-1'
       });
-      if (!SUBPIXEL && horizontal) {
-        var marginLeft = (CALC) ? CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : i * 100 / slideCountNew + "%";
-        slideItems[i].style.marginLeft = marginLeft;
-      }
-
     }
 
     // clone slides
@@ -395,11 +390,20 @@ export var tns = function(options) {
       slideItems = container.children;
     }
 
-    // activate slides
+    // add margin-left to slides in non-subpixel browsers
+    if (!SUBPIXEL && horizontal) {
+      for (var q = 0; q < slideItems.length; q++) {
+        var marginLeft = (CALC) ? CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : q * 100 / slideCountNew + "%";
+        slideItems[q].style.marginLeft = marginLeft;
+      }
+    }
+
+    // add aria attrs, set animation classes and left value for gallery slider
     for (var i = index; i < index + items; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
+
       if (!carousel) { 
         var leftVal = (CALC)? 
             CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
@@ -1448,7 +1452,7 @@ export var tns = function(options) {
       disX = parseInt(ev.clientX) - startX;
       disY = parseInt(ev.clientY) - startY;
 
-      if (getTouchDirection(toDegree(disY, disX), 15) === axis) { 
+      if (getTouchDirection(toDegree(disY, disX), 15) === options.axis) { 
         touchedOrDraged = true;
 
         if (e.type === 'touchmove') {

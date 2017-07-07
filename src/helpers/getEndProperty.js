@@ -4,9 +4,9 @@
 // Usage: getEndProperty('webkitTransitionDuration', 'Transition') => webkitTransitionEnd
 export function getEndProperty(propIn, propOut) {
   var endProp = false;
-  if (/^webkit/.test(propIn)) {
+  if (/^Webkit/.test(propIn)) {
     endProp = 'webkit' + propOut + 'End';
-  } else if (/^o/.test(propIn)) {
+  } else if (/^O/.test(propIn)) {
     endProp = 'o' + propOut + 'End';
   } else if (propIn) {
     endProp = propOut.toLowerCase() + 'end';
