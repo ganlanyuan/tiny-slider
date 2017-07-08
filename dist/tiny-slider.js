@@ -388,41 +388,11 @@ function extend() {
   return target;
 }
 
-function wrap(el, wrapper) {
-  // Cache the current parent and sibling.
-  var parent = el.parentNode, sibling = el.nextSibling;
-
-  // Wrap the element (is automatically removed from its current parent).
-  wrapper.appendChild(el);
-
-  // If the element had a sibling, insert the wrapper before
-  // the sibling to maintain the HTML structure; otherwise, just
-  // append it to the parent.
-  if (sibling) {
-    parent.insertBefore(wrapper, sibling);
-  } else {
-    parent.appendChild(wrapper);
+function getLocalStorage(key, value) {
+  if (!localStorage.getItem(key)) {
+    localStorage.setItem(key, value);
   }
-}
-
-function unwrap(el) {
-  // get the element's parent node
-  var parent = el.parentNode;
-  
-  // move all children out of the element
-  while (el.firstChild) { 
-    parent.insertBefore(el.firstChild, el); 
-  }
-  
-  // remove the empty element
-  parent.removeChild(el);
-}
-
-function getSessionStorage(key, value) {
-  if (!sessionStorage.getItem(key)) {
-    sessionStorage.setItem(key, value);
-  }
-  var result = sessionStorage.getItem(key);
+  var result = localStorage.getItem(key);
   return (['true', 'false', 'null'].indexOf(result) >= 0) ? JSON.parse(result) : result;
 }
 
@@ -494,6 +464,36 @@ function mediaquerySupport () {
   body.removeChild(div);
 
   return position === "absolute";
+}
+
+function wrap(el, wrapper) {
+  // Cache the current parent and sibling.
+  var parent = el.parentNode, sibling = el.nextSibling;
+
+  // Wrap the element (is automatically removed from its current parent).
+  wrapper.appendChild(el);
+
+  // If the element had a sibling, insert the wrapper before
+  // the sibling to maintain the HTML structure; otherwise, just
+  // append it to the parent.
+  if (sibling) {
+    parent.insertBefore(wrapper, sibling);
+  } else {
+    parent.appendChild(wrapper);
+  }
+}
+
+function unwrap(el) {
+  // get the element's parent node
+  var parent = el.parentNode;
+  
+  // move all children out of the element
+  while (el.firstChild) { 
+    parent.insertBefore(el.firstChild, el); 
+  }
+  
+  // remove the empty element
+  parent.removeChild(el);
 }
 
 // create and append style sheet
@@ -711,6 +711,19 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 
 // from go-native
 // helper functions
+// check browser version and local storage
+var browserInfo = navigator.userAgent;
+if (!localStorage['tnsApp']) {
+  localStorage['tnsApp'] = browserInfo;
+} else if (localStorage['tnsApp'] !== browserInfo) {
+  localStorage['tnsApp'] = browserInfo;
+
+  ['tnsCalc', 'tnsSubpixel', 'tnsCSSMQ', 'tnsTf', 'tnsTsDu', 'tnsTsDe', 'tnsAnDu', 'tnsAnDe', 'tnsTsEn', 'tnsAnEn'].forEach(function (item) {
+    localStorage.removeItem(item);
+  })
+}
+
+// get | set browser info
 var doc = document;
 var KEYS = {
       ENTER: 13,
@@ -724,42 +737,42 @@ var KEYS = {
       RIGHT: 39,
       DOWN: 40
     };
-var CALC = getSessionStorage('tnsCalc', calc());
-var SUBPIXEL = getSessionStorage('tnsSubpixel', subpixelLayout());
-var CSSMQ = getSessionStorage('tnsCSSMQ', mediaquerySupport());
-var TRANSFORM = getSessionStorage('tnsTransform', whichProperty([
+var CALC = getLocalStorage('tnsCalc', calc());
+var SUBPIXEL = getLocalStorage('tnsSubpixel', subpixelLayout());
+var CSSMQ = getLocalStorage('tnsCSSMQ', mediaquerySupport());
+var TRANSFORM = getLocalStorage('tnsTf', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
     ]));
-var TRANSITIONDURATION = getSessionStorage('tnsTransitionDuration', whichProperty([
+var TRANSITIONDURATION = getLocalStorage('tnsTsDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
     ]));
-var TRANSITIONDELAY = getSessionStorage('tnsTransitionDelay', whichProperty([
+var TRANSITIONDELAY = getLocalStorage('tnsTsDe', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
     ]));
-var ANIMATIONDURATION = getSessionStorage('tnsAnimationDuration', whichProperty([
+var ANIMATIONDURATION = getLocalStorage('tnsAnDu', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
     ]));
-var ANIMATIONDELAY = getSessionStorage('tnsAnimationDelay', whichProperty([
+var ANIMATIONDELAY = getLocalStorage('tnsAnDe', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
     ]));
-var TRANSITIONEND = getSessionStorage('tnsTransitionEnd', getEndProperty(TRANSITIONDURATION, 'Transition'));
-var ANIMATIONEND = getSessionStorage('tnsAnimationEnd', getEndProperty(ANIMATIONDURATION, 'Animation'));
+var TRANSITIONEND = getLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition'));
+var ANIMATIONEND = getLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation'));
 
 var tns = function(options) {
   options = extend({
@@ -799,6 +812,7 @@ var tns = function(options) {
     nested: false,
     onInit: false
   }, options || {});
+  
   // make sure slide container exists
   if (typeof options.container !== 'object' || options.container === null) { return; }
 
