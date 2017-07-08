@@ -1038,9 +1038,10 @@ var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    dataTns = ' tns-slider tns-' + options.mode + ' tns-' + options.axis;
+    dataTns = ' tns-slider tns-' + options.mode;
     dataTns += (SUBPIXEL) ? ' tns-subpixel' : ' tns-no-subpixel';
     dataTns += (CALC) ? ' tns-calc' : ' tns-no-calc';
+    if (carousel) { dataTns += ' tns-' + options.axis; }
     if (carousel && autoHeight) { dataTns += ' tns-hdy'; }
     container.className += dataTns;
 
@@ -1094,14 +1095,6 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
-    // add class .tns-item(n) to gallery items
-    // for IE8
-    if (!carousel) {
-      for (var y = 0; y < slideCountNew; y++) {
-        slideItems[y].classList.add('tns-item' + y);
-      }
-    }
-
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
@@ -1111,10 +1104,6 @@ var tns = function(options) {
       removeAttrs(item, ['tabindex']);
 
       if (!carousel) { 
-        var leftVal = (CALC)? 
-            CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
-            (i - index) * 100 / items + '%';
-        item.style.left = leftVal; 
         item.classList.remove(animateNormal);
         item.classList.add(animateIn);
       }
@@ -1123,14 +1112,15 @@ var tns = function(options) {
     // append stylesheet
     // == horizontal slider ==
     if (horizontal) {
-      var stringContainerWidth = 
-          stringContainerFontSize = 
+      var stringSlideLeft =
           stringSlideFontSize = 
           stringSlideGutter = '',
           stringSlideWidth = 'width:';
 
       // * carousel *
       if (carousel) {
+        var stringContainerWidth = 
+            stringContainerFontSize = ''; 
 
         // get container width, slide width
         stringContainerWidth += 'width:';
@@ -1162,6 +1152,7 @@ var tns = function(options) {
           stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
         }
 
+        addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, getCssRulesLength(sheet));
 
       // * gallery *
       } else {
@@ -1169,6 +1160,9 @@ var tns = function(options) {
         stringSlideWidth += (CALC) ? 
             CALC + '(100% / ' + options.items + ')' :
             100 / options.items + '%';
+
+        // get slide left
+        stringSlideLeft = getGalleryLeftString(items);
       }
       stringSlideWidth += ';';
 
@@ -1178,8 +1172,17 @@ var tns = function(options) {
         stringSlideGutter = 'padding-right: ' + gutter + 'px;';
       }
 
-      addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, 0);
-      addCSSRule(sheet, '#' + slideId + ' .tns-item',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, 1);
+      addCSSRule(sheet, '#' + slideId + ' .tns-item',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, getCssRulesLength(sheet));
+
+      // insert gallery slider left style
+      // for browsers which support mediaquery
+      if (!carousel && CSSMQ) {
+        stringSlideLeft.split('#').forEach(function (str) {
+          if (str.length > 0) {
+            sheet.insertRule('#' + str, sheet.cssRules.length);
+          }
+        });
+      }
 
       // insert margin-left styles
       // for non-subpixel browsers (webkit)
@@ -1199,12 +1202,16 @@ var tns = function(options) {
         for (var i = 0; i < bpLen; i++) {
           var bp = breakpoints[i],
               itemsTem = responsive[bp],
-              str = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%';
+              strContainer,
+              strSlideLeft;
 
-          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) { #' + slideId + '{ width: ' + str + ' }}', sheet.cssRules.length);
+          strContainer = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
+          strContainer = '#' + slideId + '{width: ' + strContainer + '}';
+          strSlideLeft = (!carousel) ? getGalleryLeftString(itemsTem) : '';
+
+          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + strContainer + strSlideLeft + '}', sheet.cssRules.length);
         }
       }
-
     // vertical slider
     } else {
       // set slide gutter
@@ -1220,6 +1227,14 @@ var tns = function(options) {
     // set container transform property
     if (carousel) {
       doContainerTransform();
+    } else if (!CSSMQ) {
+      setGallerySlideLeftNonMediaquery();
+
+      events.on('indexChanged', function () {
+        if (index%items !== indexCached%items) {
+          setGallerySlideLeftNonMediaquery();
+        }
+      });
     }
 
 
@@ -1453,6 +1468,10 @@ var tns = function(options) {
         updateContainerWidthNonMediaquery();
       }
 
+      if (!carousel && !CSSMQ) {
+        setGallerySlideLeftNonMediaquery();
+      }
+
       doTransform(0); 
       updateSlideStatus();
       lazyLoad(); 
@@ -1472,8 +1491,35 @@ var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
+  function getCssRulesLength (sheet) {
+    var rules = (sheet.cssRules) ? sheet.cssRules : sheet.rules;
+    return rules.length;
+  }
+
   function updateContainerWidthNonMediaquery () {
     container.style.width = slideCountNew * 100 / items + '%';
+  }
+
+  function getGalleryLeftString (len) {
+    var strSlideLeft = '',
+        leftVal = '0';
+    for (var i = 0; i < len; i++) {
+      var num = (i < len - 1) ? '+' + (i + 1) : '';
+      if (i > 0) {
+        leftVal = (CALC)? CALC + '(' + i * 100 + '% / ' + len + ')' : i * 100 / len + '%';
+      }
+      strSlideLeft += '#' + slideId + ' .tns-item:nth-child(' + len + 'n' + num + '){left:' + leftVal + '}';
+    }
+    return strSlideLeft;
+  }
+
+  function setGallerySlideLeftNonMediaquery () {
+    for (var i = 0; i < slideCountNew; i++) {
+      var indexZero = index%items,
+          indexItem = i%items;
+      while (indexItem < indexZero) { indexItem += items; }
+      slideItems[i].style.left = (indexItem - indexZero) * 100 / items + '%';
+    }
   }
 
   // (slideBy, indexMin, indexMax) => index
@@ -1785,11 +1831,6 @@ var tns = function(options) {
             }
             item.classList.remove(animateNormal);
             item.classList.add(animateIn);
-
-            var leftVal = (CALC)? 
-                CALC + '(' + (i - index) * 100 + '% / ' + items + ')' : 
-                (i - index) * 100 / items + '%';
-            if (i > index) { item.style.left = leftVal; }
           }
         })();
 
@@ -1811,7 +1852,7 @@ var tns = function(options) {
     if (checkIndexBeforeTransform) { checkIndex(); }
 
     // events
-    if (index%slideCount !== indexCached%slideCount) { events.emit('indexChanged', info()); }
+    if (index !== indexCached) { events.emit('indexChanged', info()); }
     events.emit('transitionStart', info());
 
     doTransform();
@@ -1837,7 +1878,6 @@ var tns = function(options) {
         }
         item.classList.remove(animateOut);
         item.classList.add(animateNormal);
-        item.style.left = '';
       }
     }
 
