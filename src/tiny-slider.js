@@ -206,6 +206,8 @@ export var tns = function(options) {
       // id, class
       containerIdCached = container.id,
       containerClassCached = container.className,
+      slideItemIdCached = slideItems[0].id,
+      slideItemClassCached = slideItems[0].className,
       slideId = container.id || getSlideId();
 
   if (responsive) {
@@ -1677,7 +1679,11 @@ export var tns = function(options) {
       }
 
       // Slide Items
-      removeAttrs(slideItems, ['id', 'style', 'aria-hidden', 'tabindex']);
+      for (var i = slideCount; i--;) {
+        slideItems[i].id = slideItemIdCached || '';
+        slideItems[i].className = slideItemClassCached || '';
+      }
+      removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
       slideId = slideCount = null;
 
       // controls
