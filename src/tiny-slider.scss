@@ -13,7 +13,7 @@
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
-  > div, > li {
+  .tns-item {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -22,7 +22,7 @@
 
 .tns-horizontal.tns-subpixel {
   white-space: nowrap;
-  > div, > li {
+  .tns-item {
     display: inline-block;
     vertical-align: top;
     white-space: normal;
@@ -34,7 +34,7 @@
     display: table;
     clear: both;
   }
-  > div, > li {
+  .tns-item {
     float: left;
     margin-right: -100%;
   }
@@ -48,7 +48,7 @@
   position: relative;
   left: 0;
   overflow: hidden;
-  > div, > li {
+  .tns-item {
     position: absolute;
     -webkit-transition: transform 0s, opacity 0s;
     -moz-transition: transform 0s, opacity 0s;

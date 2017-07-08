@@ -343,6 +343,12 @@ export var tns = function(options) {
     wrap(contentWrapper, wrapper);
     vw = getViewWidth();
 
+    // update the items
+    if (responsive || fixedWidth) { 
+      items = getItems();
+      events.emit('itemsChanged');
+    }
+
     var dataTns = (horizontal)? 'tns-outer tns-hdx' : 'tns-outer';
     wrapper.className = dataTns;
 
@@ -371,10 +377,12 @@ export var tns = function(options) {
       }
     }
 
-    // slideItems: add id, class, properties
+    // add id, class, aria attributes 
+    // before clone slides
     for (var x = 0; x < slideCount; x++) {
       var item = slideItems[x];
       item.id = slideId + '-item' + x;
+      item.classList.add('tns-item');
       if (!carousel && animateNormal) { item.classList.add(animateNormal); }
       setAttrs(item, {
         'aria-hidden': 'true',
@@ -405,14 +413,15 @@ export var tns = function(options) {
       slideItems = container.children;
     }
 
-    // add margin-left to slides in non-subpixel browsers
-    if (!SUBPIXEL && carousel && horizontal) {
-      for (var q = 0; q < slideItems.length; q++) {
-        var marginLeft = (CALC) ? CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : q * 100 / slideCountNew + "%";
-        slideItems[q].style.marginLeft = marginLeft;
+    // add class .tns-item(n) to gallery items
+    // for IE8
+    if (!carousel) {
+      for (var y = 0; y < slideCountNew; y++) {
+        slideItems[y].classList.add('tns-item' + y);
       }
     }
 
+    // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
     for (var i = index; i < index + items; i++) {
@@ -430,27 +439,20 @@ export var tns = function(options) {
       }
     }
 
-    // update the items
-    if (responsive || fixedWidth) { 
-      items = getItems();
-      events.emit('itemsChanged');
-    }
-
-    // default styles
+    // append stylesheet
     // == horizontal slider ==
     if (horizontal) {
-      var stringContainerWidth = stringSlideWidth = 'width: ',
-          stringContainerFontSize = stringSlideFontSize = stringSlideGutter = '';
+      var stringContainerWidth = 
+          stringContainerFontSize = 
+          stringSlideFontSize = 
+          stringSlideGutter = '',
+          stringSlideWidth = 'width:';
 
-      // get container-width, container-translate and slide-width
-      if (!carousel) {
-        stringContainerWidth += 'auto';
-        if (CALC) {
-          stringSlideWidth += CALC + '(100% / ' + options.items + ')';
-        } else {
-          stringSlideWidth += 100 / options.items + '%';
-        }
-      } else {
+      // * carousel *
+      if (carousel) {
+
+        // get container width, slide width
+        stringContainerWidth += 'width:';
         if (fixedWidth) {
             stringContainerWidth += fixedWidth * slideCountNew + 'px';
             stringSlideWidth += fixedWidth + 'px';
@@ -467,19 +469,27 @@ export var tns = function(options) {
               CALC + '(100% / ' + slideCountNew + ')' : 
               100 / slideCountNew + '%';
         }
+        stringContainerWidth += ';';
+
+        // get font-size string
+        if (SUBPIXEL) {
+          var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+          // em, rem to px (for IE8-)
+          if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
+
+          stringContainerFontSize = ' font-size: 0;';
+          stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
+        }
+
+
+      // * gallery *
+      } else {
+        // get slide width
+        stringSlideWidth += (CALC) ? 
+            CALC + '(100% / ' + options.items + ')' :
+            100 / options.items + '%';
       }
-      stringContainerWidth += ';';
       stringSlideWidth += ';';
-
-      // get font-size string, add class, add margin-left
-      if (carousel && SUBPIXEL) {
-        var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
-        // em, rem to px (for IE8-)
-        if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
-
-        stringContainerFontSize = ' font-size: 0;';
-        stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
-      }
 
       // set gutter
       if (gutter) {
@@ -488,7 +498,19 @@ export var tns = function(options) {
       }
 
       addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, 0);
-      addCSSRule(sheet, '#' + slideId + '> div, #' + slideId + '> li',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, 1);
+      addCSSRule(sheet, '#' + slideId + ' .tns-item',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, 1);
+
+      // insert margin-left styles
+      // for non-subpixel browsers (webkit)
+      // after insert container and slide styles
+      if (carousel && !SUBPIXEL) {
+        for (var q = 0; q < slideItems.length; q++) {
+          var marginLeft = (CALC) ? 
+              CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : 
+              q * 100 / slideCountNew + "%";
+          sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + '; }', sheet.cssRules.length);
+        }
+      }
 
       // media queries
       if (responsive && CSSMQ) {
@@ -507,7 +529,7 @@ export var tns = function(options) {
       // set slide gutter
       if (gutter) {
         if (!edgePadding) { contentWrapper.style.marginBottom = - gutter + 'px';}
-        addCSSRule(sheet, '#' + slideId + '> div, #' + slideId + '> li', 'margin-bottom: ' + gutter + 'px;', 0);
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', 'margin-bottom: ' + gutter + 'px;', 0);
       }
 
       getSlideOffsetTops();
