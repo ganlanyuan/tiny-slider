@@ -467,36 +467,6 @@ function mediaquerySupport () {
   return position === "absolute";
 }
 
-function wrap(el, wrapper) {
-  // Cache the current parent and sibling.
-  var parent = el.parentNode, sibling = el.nextSibling;
-
-  // Wrap the element (is automatically removed from its current parent).
-  wrapper.appendChild(el);
-
-  // If the element had a sibling, insert the wrapper before
-  // the sibling to maintain the HTML structure; otherwise, just
-  // append it to the parent.
-  if (sibling) {
-    parent.insertBefore(wrapper, sibling);
-  } else {
-    parent.appendChild(wrapper);
-  }
-}
-
-function unwrap(el) {
-  // get the element's parent node
-  var parent = el.parentNode;
-  
-  // move all children out of the element
-  while (el.firstChild) { 
-    parent.insertBefore(el.firstChild, el); 
-  }
-  
-  // remove the empty element
-  parent.removeChild(el);
-}
-
 // create and append style sheet
 function createStyleSheet (media) {
   // Create the <style> tag
@@ -841,9 +811,10 @@ var tns = function(options) {
 
   var carousel = (options.mode === 'carousel') ? true : false,
       horizontal = (options.axis === 'horizontal') ? true : false,
-      wrapper = doc.createElement('div'),
-      contentWrapper = doc.createElement('div'),
+      outerWrapper = doc.createElement('div'),
+      innerWrapper = doc.createElement('div'),
       container = options.container,
+      containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
       items = options.items,
@@ -977,14 +948,14 @@ var tns = function(options) {
 
   var getViewWidth = (function () {
     // horizontal carousel: fluid width && edge padding
-    //  => inner wrapper view width
+    //  => inner outerWrapper view width
     if (horizontal && !fixedWidth && edgePadding) { 
-      return function () { return wrapper.clientWidth - (edgePadding + gutter) * 2; };
+      return function () { return outerWrapper.clientWidth - (edgePadding + gutter) * 2; };
     // horizontal carousel: fixed width || fluid width but no edge padding
     // vertical carousel
-    //  => wrapper view width
+    //  => outerWrapper view width
     } else {
-      return function () { return wrapper.clientWidth; };
+      return function () { return outerWrapper.clientWidth; };
     }
   })();
 
@@ -1020,10 +991,11 @@ var tns = function(options) {
   });
 
   (function sliderInit() {
-    // First thing first, wrap container with "wrapper > contentWrapper",
+    // First thing first, wrap container with "outerWrapper > innerWrapper",
     // to get the correct view width
-    wrap(container, contentWrapper);
-    wrap(contentWrapper, wrapper);
+    outerWrapper.appendChild(innerWrapper);
+    containerParent.insertBefore(outerWrapper, container);
+    innerWrapper.appendChild(container);
     vw = getViewWidth();
 
     // update the items
@@ -1033,10 +1005,10 @@ var tns = function(options) {
     }
 
     var dataTns = (horizontal)? 'tns-outer tns-hdx' : 'tns-outer';
-    wrapper.className = dataTns;
+    outerWrapper.className = dataTns;
 
     dataTns = (!horizontal) ? 'tns-inner tns-hdy' : 'tns-inner';
-    contentWrapper.className = dataTns;
+    innerWrapper.className = dataTns;
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
@@ -1047,7 +1019,7 @@ var tns = function(options) {
     if (carousel && autoHeight) { dataTns += ' tns-hdy'; }
     container.className += dataTns;
 
-    // set edge padding on content wrapper
+    // set edge padding on content outerWrapper
     if (edgePadding) {
       if (fixedWidth) {
         updateFixedWidthEdgePadding();
@@ -1055,7 +1027,7 @@ var tns = function(options) {
         var gap1 = edgePadding + gutter,
             gap2 = edgePadding;
 
-        contentWrapper.style.cssText += (horizontal) ?
+        innerWrapper.style.cssText += (horizontal) ?
             'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
             'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
       }
@@ -1170,7 +1142,7 @@ var tns = function(options) {
 
       // set gutter
       if (gutter) {
-        if (!edgePadding && !fixedWidth) { contentWrapper.style.marginRight = - gutter + 'px';}
+        if (!edgePadding && !fixedWidth) { innerWrapper.style.marginRight = - gutter + 'px';}
         stringSlideGutter = 'padding-right: ' + gutter + 'px;';
       }
 
@@ -1218,7 +1190,7 @@ var tns = function(options) {
     } else {
       // set slide gutter
       if (gutter) {
-        if (!edgePadding) { contentWrapper.style.marginBottom = - gutter + 'px';}
+        if (!edgePadding) { innerWrapper.style.marginBottom = - gutter + 'px';}
         addCSSRule(sheet, '#' + slideId + ' .tns-item', 'margin-bottom: ' + gutter + 'px;', 0);
       }
 
@@ -1243,8 +1215,8 @@ var tns = function(options) {
     // == msInit ==
     // for IE10
     if (navigator.msMaxTouchPoints) {
-      wrapper.classList.add('ms-touch');
-      addEvents(wrapper, {'scroll': ie10Scroll});
+      outerWrapper.classList.add('ms-touch');
+      addEvents(outerWrapper, {'scroll': ie10Scroll});
       setSnapInterval();
     }
 
@@ -1273,9 +1245,9 @@ var tns = function(options) {
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-        wrapper.insertAdjacentHTML('afterbegin', navHtml);
+        outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
 
-        [].forEach.call(wrapper.children, function (el) {
+        [].forEach.call(outerWrapper.children, function (el) {
           if (el.classList.contains('tns-nav')) { navContainer = el; }
         });
         navItems = navContainer.children;
@@ -1293,8 +1265,8 @@ var tns = function(options) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
       } else {
         if (!navContainer) {
-          wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
-          navContainer = wrapper.querySelector('.tns-nav');
+          outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
+          navContainer = outerWrapper.querySelector('.tns-nav');
         }
 
         navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
@@ -1322,9 +1294,9 @@ var tns = function(options) {
           'tabindex': '-1',
         });
       } else {
-        wrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
-        [].forEach.call(wrapper.children, function (el) {
+        [].forEach.call(outerWrapper.children, function (el) {
           if (el.classList.contains('tns-controls')) { controlsContainer = el; }
         });
         prevButton = controlsContainer.children[0];
@@ -1643,7 +1615,7 @@ var tns = function(options) {
 
   // set snapInterval (for IE10)
   function setSnapInterval() {
-    wrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + (100 / items) + '%)';
+    outerWrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + (100 / items) + '%)';
   }
 
   // update slide
@@ -1748,7 +1720,7 @@ var tns = function(options) {
       target.style[ANIMATIONDURATION] = duration;
     }
     if (!horizontal) {
-      contentWrapper.style[TRANSITIONDURATION] = duration;
+      innerWrapper.style[TRANSITIONDURATION] = duration;
     }
   }
 
@@ -2286,15 +2258,15 @@ var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
-  // (vw) => fixedWidth_contentWrapper.edgePadding
+  // (vw) => fixedWidth_innerWrapper.edgePadding
   function updateFixedWidthEdgePadding() {
     if (!vw) { vw = getViewWidth(); }
-    contentWrapper.style.cssText += 'margin: 0px ' + (vw%fixedWidth + gutter) / 2 + 'px';
+    innerWrapper.style.cssText += 'margin: 0px ' + (vw%fixedWidth + gutter) / 2 + 'px';
   }
 
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight() {
-    contentWrapper.style.height = slideOffsetTops[index + items] - slideOffsetTops[index] + 'px';
+    innerWrapper.style.height = slideOffsetTops[index + items] - slideOffsetTops[index] + 'px';
   }
 
   /*
@@ -2381,10 +2353,10 @@ var tns = function(options) {
       // sheet
       sheet.disabled = true;
 
-      // wrapper
-      unwrap(wrapper);
-      unwrap(contentWrapper);
-      wrapper = contentWrapper = null;
+      // outerWrapper
+      containerParent.insertBefore(container, outerWrapper);
+      outerWrapper.remove();
+      outerWrapper = innerWrapper = null;
 
       // container
       container.id = containerIdCached || '';
@@ -2414,31 +2386,28 @@ var tns = function(options) {
           removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
           removeEventsByClone(controlsContainer);
         } else {
-          controlsContainer.remove();
           controlsContainer = prevButton = nextButton = null;
         }
       }
 
       // nav
       if (nav) {
-        if (!options.navContainer) {
-          navContainer.remove();
-          navContainer = null;
-        } else {
+        if (options.navContainer) {
           removeAttrs(navContainer, ['aria-label']);
           removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
           removeEventsByClone(navContainer);
+        } else {
+          navContainer = null;
         }
         navItems = null;
       }
 
       // auto
       if (autoplay) {
-        if (!options.navContainer && navContainer !== null) {
-          navContainer.remove();
-          navContainer = null;
-        } else {
+        if (options.navContainer) {
           removeEventsByClone(autoplayButton);
+        } else {
+          navContainer = null;
         }
         removeEvents(document, {'visibilitychange': onVisibilityChange});
       }
