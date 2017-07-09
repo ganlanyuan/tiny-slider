@@ -6,7 +6,8 @@ import "../bower_components/go-native/src/vendors/token-list";
 import { extend } from "../bower_components/go-native/src/gn/extend";
 
 // helper functions
-import { getLocalStorage } from './helpers/getLocalStorage';
+import { checkStorageValue } from './helpers/checkStorageValue';
+import { setLocalStorage } from './helpers/setLocalStorage';
 import { getSlideId } from './helpers/getSlideId';
 import { calc } from './helpers/calc';
 import { subpixelLayout } from './helpers/subpixelLayout';
@@ -33,14 +34,15 @@ import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
 // check browser version and local storage
-var browserInfo = navigator.userAgent;
-if (!localStorage['tnsApp']) {
-  localStorage['tnsApp'] = browserInfo;
-} else if (localStorage['tnsApp'] !== browserInfo) {
-  localStorage['tnsApp'] = browserInfo;
+var browserInfo = navigator.userAgent,
+    tnsStorage = localStorage;
+if (!tnsStorage['tnsApp']) {
+  tnsStorage['tnsApp'] = browserInfo;
+} else if (tnsStorage['tnsApp'] !== browserInfo) {
+  tnsStorage['tnsApp'] = browserInfo;
 
   ['tnsCalc', 'tnsSubpixel', 'tnsCSSMQ', 'tnsTf', 'tnsTsDu', 'tnsTsDe', 'tnsAnDu', 'tnsAnDe', 'tnsTsEn', 'tnsAnEn'].forEach(function (item) {
-    localStorage.removeItem(item);
+    tnsStorage.removeItem(item);
   })
 }
 
@@ -58,42 +60,42 @@ var doc = document,
       RIGHT: 39,
       DOWN: 40
     },
-    CALC = getLocalStorage('tnsCalc', calc()),
-    SUBPIXEL = getLocalStorage('tnsSubpixel', subpixelLayout()),
-    CSSMQ = getLocalStorage('tnsCSSMQ', mediaquerySupport()),
-    TRANSFORM = getLocalStorage('tnsTf', whichProperty([
+    CALC = checkStorageValue(tnsStorage['tnsCalc'] || setLocalStorage('tnsCalc', calc())),
+    SUBPIXEL = checkStorageValue(tnsStorage['tnsSubpixel'] || setLocalStorage('tnsSubpixel', subpixelLayout())),
+    CSSMQ = checkStorageValue(tnsStorage['tnsCSSMQ'] || setLocalStorage('tnsCSSMQ', mediaquerySupport())),
+    TRANSFORM = checkStorageValue(tnsStorage['tnsTf'] || setLocalStorage('tnsTf', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
-    ])),
-    TRANSITIONDURATION = getLocalStorage('tnsTsDu', whichProperty([
+    ]))),
+    TRANSITIONDURATION = checkStorageValue(tnsStorage['tnsTsDu'] || setLocalStorage('tnsTsDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
-    ])),
-    TRANSITIONDELAY = getLocalStorage('tnsTsDe', whichProperty([
+    ]))),
+    TRANSITIONDELAY = checkStorageValue(tnsStorage['tnsTsDe'] || setLocalStorage('tnsTsDe', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
-    ])),
-    ANIMATIONDURATION = getLocalStorage('tnsAnDu', whichProperty([
+    ]))),
+    ANIMATIONDURATION = checkStorageValue(tnsStorage['tnsAnDu'] || setLocalStorage('tnsAnDu', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
-    ])),
-    ANIMATIONDELAY = getLocalStorage('tnsAnDe', whichProperty([
+    ]))),
+    ANIMATIONDELAY = checkStorageValue(tnsStorage['tnsAnDe'] || setLocalStorage('tnsAnDe', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
-    ])),
-    TRANSITIONEND = getLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition')),
-    ANIMATIONEND = getLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation'));
+    ]))),
+    TRANSITIONEND = checkStorageValue(tnsStorage['tnsTsEn'] || setLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition'))),
+    ANIMATIONEND = checkStorageValue(tnsStorage['tnsAnEn'] || setLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation')));
 
 export var tns = function(options) {
   options = extend({
