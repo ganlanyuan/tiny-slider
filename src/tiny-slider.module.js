@@ -32,6 +32,9 @@ import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
 // check browser version and local storage
+// if browser upgraded, 
+// 1. delete browser ralated data from local storage and 
+// 2. recheck these options and save them to local storage
 var browserInfo = navigator.userAgent,
     tnsStorage = localStorage;
 if (!tnsStorage['tnsApp']) {
@@ -44,7 +47,9 @@ if (!tnsStorage['tnsApp']) {
   })
 }
 
-// get | set browser info
+// get browser related data from local storage if they exist
+// otherwise, run the functions again and save these data to local storage
+// checkStorageValue() convert non-string value to its original value: "true" > true
 var doc = document,
     KEYS = {
       ENTER: 13,
@@ -286,7 +291,6 @@ export var tns = function(options) {
     } else {
       return function () {
         var itemsTem;
-        if (!vw) { vw = getViewWidth(); }
         breakpoints.forEach(function (key) {
           if (vw >= key) { itemsTem = responsive[key]; }
         });
@@ -294,44 +298,6 @@ export var tns = function(options) {
       };
     }
   })();
-
-  var getViewWidth = (function () {
-    // horizontal carousel: fluid width && edge padding
-    //  => inner outerWrapper view width
-    if (horizontal && !fixedWidth && edgePadding) { 
-      return function () { return outerWrapper.clientWidth - (edgePadding + gutter) * 2; };
-    // horizontal carousel: fixed width || fluid width but no edge padding
-    // vertical carousel
-    //  => outerWrapper view width
-    } else {
-      return function () { return outerWrapper.clientWidth; };
-    }
-  })();
-
-  // compare slide count & items
-  // (items) => nav, controls, autoplay
-  function checkSlideCount() {
-    // a. slide count < items
-    //  => disable nav, controls, autoplay
-    if (slideCount <= items) { 
-      arrowKeys = false;
-
-      var indexTem;
-      index = (!carousel) ? 0 : cloneCount;
-      if (index !== indexTem) { events.emit('indexChanged', info()); }
-
-      if (navContainer) { hideElement(navContainer); }
-      if (controlsContainer) { hideElement(controlsContainer); }
-      if (autoplayButton) { hideElement(autoplayButton); }
-    // b. slide count > items
-    //  => enable nav, controls, autoplay
-    } else {
-      arrowKeys = options.arrowKeys;
-      if (nav) { showElement(navContainer); }
-      if (controls) { showElement(controlsContainer); }
-      if (autoplay) { showElement(autoplayButton); }
-    }
-  }
 
   events.on('itemsChanged', function () {
     indexMax = slideCountNew - items - indexAdjust;
@@ -345,13 +311,6 @@ export var tns = function(options) {
     outerWrapper.appendChild(innerWrapper);
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
-    vw = getViewWidth();
-
-    // update the items
-    if (responsive || fixedWidth) { 
-      items = getItems();
-      events.emit('itemsChanged');
-    }
 
     var dataTns = (horizontal)? 'tns-outer tns-hdx' : 'tns-outer';
     outerWrapper.className = dataTns;
@@ -368,7 +327,7 @@ export var tns = function(options) {
     if (carousel && autoHeight) { dataTns += ' tns-hdy'; }
     container.className += dataTns;
 
-    // set edge padding on content outerWrapper
+    // set edge padding on innerWrapper
     if (edgePadding) {
       if (fixedWidth) {
         updateFixedWidthEdgePadding();
@@ -381,6 +340,9 @@ export var tns = function(options) {
             'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
       }
     }
+
+    // get vw after setting edge padding
+    vw = getViewWidth();
 
     // add id, class, aria attributes 
     // before clone slides
@@ -418,6 +380,12 @@ export var tns = function(options) {
       slideItems = container.children;
     }
 
+    // update the items before activate visible slides
+    if (responsive || fixedWidth) { 
+      items = getItems();
+      events.emit('itemsChanged');
+    }
+
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
@@ -427,6 +395,7 @@ export var tns = function(options) {
       removeAttrs(item, ['tabindex']);
 
       if (!carousel) { 
+        item.style.left = (i - index) * 100 / items + '%';
         item.classList.remove(animateNormal);
         item.classList.add(animateIn);
       }
@@ -483,9 +452,6 @@ export var tns = function(options) {
         stringSlideWidth += (CALC) ? 
             CALC + '(100% / ' + options.items + ')' :
             100 / options.items + '%';
-
-        // get slide left
-        stringSlideLeft = getGalleryLeftString(items);
       }
       stringSlideWidth += ';';
 
@@ -496,16 +462,6 @@ export var tns = function(options) {
       }
 
       addCSSRule(sheet, '#' + slideId + ' .tns-item',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, getCssRulesLength(sheet));
-
-      // insert gallery slider left style
-      // for browsers which support mediaquery
-      if (!carousel && CSSMQ) {
-        stringSlideLeft.split('#').forEach(function (str) {
-          if (str.length > 0) {
-            sheet.insertRule('#' + str, sheet.cssRules.length);
-          }
-        });
-      }
 
       // insert margin-left styles
       // for non-subpixel browsers (webkit)
@@ -525,16 +481,15 @@ export var tns = function(options) {
         for (var i = 0; i < bpLen; i++) {
           var bp = breakpoints[i],
               itemsTem = responsive[bp],
-              strContainer,
-              strSlideLeft;
+              strContainer;
 
           strContainer = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
           strContainer = '#' + slideId + '{width: ' + strContainer + '}';
-          strSlideLeft = (!carousel) ? getGalleryLeftString(itemsTem) : '';
 
-          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + strContainer + strSlideLeft + '}', sheet.cssRules.length);
+          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + strContainer + '}', sheet.cssRules.length);
         }
       }
+
     // vertical slider
     } else {
       // set slide gutter
@@ -550,14 +505,6 @@ export var tns = function(options) {
     // set container transform property
     if (carousel) {
       doContainerTransform();
-    } else if (!CSSMQ) {
-      setGallerySlideLeftNonMediaquery();
-
-      events.on('indexChanged', function () {
-        if (index%items !== indexCached%items) {
-          setGallerySlideLeftNonMediaquery();
-        }
-      });
     }
 
 
@@ -791,10 +738,6 @@ export var tns = function(options) {
         updateContainerWidthNonMediaquery();
       }
 
-      if (!carousel && !CSSMQ) {
-        setGallerySlideLeftNonMediaquery();
-      }
-
       doTransform(0); 
       updateSlideStatus();
       lazyLoad(); 
@@ -814,6 +757,35 @@ export var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
+  function getViewWidth () {
+    return innerWrapper.clientWidth;
+  }
+
+  // compare slide count & items
+  // (items) => nav, controls, autoplay
+  function checkSlideCount() {
+    // a. slide count < items
+    //  => disable nav, controls, autoplay
+    if (slideCount <= items) { 
+      arrowKeys = false;
+
+      var indexTem;
+      index = (!carousel) ? 0 : cloneCount;
+      if (index !== indexTem) { events.emit('indexChanged', info()); }
+
+      if (navContainer) { hideElement(navContainer); }
+      if (controlsContainer) { hideElement(controlsContainer); }
+      if (autoplayButton) { hideElement(autoplayButton); }
+    // b. slide count > items
+    //  => enable nav, controls, autoplay
+    } else {
+      arrowKeys = options.arrowKeys;
+      if (nav) { showElement(navContainer); }
+      if (controls) { showElement(controlsContainer); }
+      if (autoplay) { showElement(autoplayButton); }
+    }
+  }
+
   function getCssRulesLength (sheet) {
     var rules = (sheet.cssRules) ? sheet.cssRules : sheet.rules;
     return rules.length;
@@ -821,28 +793,6 @@ export var tns = function(options) {
 
   function updateContainerWidthNonMediaquery () {
     container.style.width = slideCountNew * 100 / items + '%';
-  }
-
-  function getGalleryLeftString (len) {
-    var strSlideLeft = '',
-        leftVal = '0';
-    for (var i = 0; i < len; i++) {
-      var num = (i < len - 1) ? '+' + (i + 1) : '';
-      if (i > 0) {
-        leftVal = (CALC)? CALC + '(' + i * 100 + '% / ' + len + ')' : i * 100 / len + '%';
-      }
-      strSlideLeft += '#' + slideId + ' .tns-item:nth-child(' + len + 'n' + num + '){left:' + leftVal + '}'
-    }
-    return strSlideLeft;
-  }
-
-  function setGallerySlideLeftNonMediaquery () {
-    for (var i = 0; i < slideCountNew; i++) {
-      var indexZero = index%items,
-          indexItem = i%items;
-      while (indexItem < indexZero) { indexItem += items; }
-      slideItems[i].style.left = (indexItem - indexZero) * 100 / items + '%';
-    }
   }
 
   // (slideBy, indexMin, indexMax) => index
@@ -1146,6 +1096,9 @@ export var tns = function(options) {
         (function () {
           for (var i = index, l = index + items; i < l; i++) {
             var item = slideItems[i];
+            // set item positions
+            item.style.left = (i - index) * 100 / items + '%';
+
             if (TRANSITIONDURATION) { setDurations(speed, item); }
             if (animateDelay && TRANSITIONDELAY) {
               var d = animateDelay * (i - index) / 1000; 
@@ -1195,6 +1148,9 @@ export var tns = function(options) {
     if (!carousel && slideItemsOut.length > 0) {
       for (var i = 0; i < items; i++) {
         var item = slideItemsOut[i];
+        // set item positions
+        item.style.left = '';
+
         if (TRANSITIONDURATION) { setDurations(0, item); }
         if (animateDelay && TRANSITIONDELAY) { 
           item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = '';
@@ -1607,10 +1563,8 @@ export var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
-  // (vw) => fixedWidth_innerWrapper.edgePadding
   function updateFixedWidthEdgePadding() {
-    if (!vw) { vw = getViewWidth(); }
-    innerWrapper.style.cssText += 'margin: 0px ' + (vw%fixedWidth + gutter) / 2 + 'px';
+    innerWrapper.style.cssText += 'margin: 0px ' + (outerWrapper.clientWidth%fixedWidth + gutter) / 2 + 'px';
   }
 
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height

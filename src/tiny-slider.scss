@@ -50,6 +50,9 @@
   overflow: hidden;
   .tns-item {
     position: absolute;
+    left: -100%;
+    -webkit-transition: opacity 0s;
+    -moz-transition: opacity 0s;
     -webkit-transition: transform 0s, opacity 0s;
     -moz-transition: transform 0s, opacity 0s;
     transition: transform 0s, opacity 0s;
