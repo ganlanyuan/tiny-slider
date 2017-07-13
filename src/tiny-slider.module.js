@@ -1488,9 +1488,14 @@ export var tns = function(options) {
 
         var x = translateInit;
         if (horizontal) {
-          var percentageX = (TRANSFORM) ? disX * items * 100 / (vw * slideCountNew): disX * 100 / vw;
-          x += percentageX;
-          x += '%';
+          if (fixedWidth) {
+            x += disX;
+            x += 'px';
+          } else {
+            var percentageX = (TRANSFORM) ? disX * items * 100 / (vw * slideCountNew): disX * 100 / vw;
+            x += percentageX;
+            x += '%';
+          }
         } else {
           x += disY;
           x += 'px';
