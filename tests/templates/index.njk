@@ -1,24 +1,24 @@
 {% extends './parts/layout.njk' %}
 {% set sliders = [
   'base',
-  'mouseDrag',
+  'mouse-drag',
   'gutter', 
   'edgePadding', 
-  'edgePaddingGutter', 
-  'nonLoop', 
+  'edgePadding-gutter', 
+  'non-loop', 
   'rewind', 
-  'slideByPage', 
+  'slide-by-page', 
   'fixedWidth', 
-  'fixedWidthGutter', 
-  'fixedWidthEdgePadding', 
-  'fixedWidthEdgePaddingGutter', 
+  'fixedWidth-gutter', 
+  'fixedWidth-edgePadding', 
+  'fixedWidth-edgePadding-gutter', 
   'responsive', 
   'arrowKeys', 
   'autoplay',
   'vertical', 
-  'verticalGutter', 
-  'verticalEdgepadding', 
-  'verticalEdgepaddingGutter', 
+  'vertical-gutter', 
+  'vertical-edgePadding', 
+  'vertical-edgePadding-gutter', 
   'animation', 
   'lazyload', 
   'customize', 
@@ -26,120 +26,172 @@
 ] %}
 
 {% block main %}
-  {% for slide in sliders %}
-  <div class="{{ slide }}_wrapper">
-    <h2>{{ slide | title }}</h2>
+  {# navigation #}
+  <nav class="nav">
+    <input class="visually-hidden" type="checkbox" name="nav-toggle" id="nav-toggle">
+    <label class="nav-toggle-handle" for="nav-toggle">menu</label>
+    <ul>
+      {% for slide in sliders %}
+        <li><a href="#{{ slide }}_wrapper">{{ slide }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
 
-    {# slider body #}
-    <div class="{{ slide }}" id="{{ slide }}">
-      {% if slide === 'lazyload' %}
-        <div>
-          <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/1.jpg" alt="" width="300" height="300"></div>
-          <p>Lorem ipsum dolor sit amet,</p>
-        </div>
-        <div>
-          <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/3.jpg" alt="" width="300" height="300"></div>
-          <p>At possimus dolorum eligendi repellat</p>
-        </div>
-        <div>
-          <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/4.jpg" alt="" width="300" height="300"></div>
-          <p>Cumque facilis amet eos nulla</p>
-        </div>
-        <div>
-          <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/5.jpg" alt="" width="300" height="300"></div>
-          <p>Sint ad, praesentium est delectus</p>
-        </div>
-        <div>
-          <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/8.jpg" alt="" width="300" height="300"></div>
-          <p>Laborum officiis, magnam, eos possimus</p>
-        </div>
+  {# sliders #}
+  <div class="slider-container">
+    {% for slide in sliders %}
+    <div class="{{ slide }}_wrapper" id="{{ slide }}_wrapper">
+      <h2>{{ slide | title }}</h2>
 
-      {% elif slide === 'customize' %}
-        <div>
-          <div><img src="images/4.jpg" alt="" width="300" height="300"></div>
-          <p>Lorem ipsum dolor sit amet,</p>
-        </div>
-        <div>
-          <div><img src="images/5.jpg" alt="" width="300" height="300"></div>
-          <p>At possimus dolorum eligendi repellat</p>
-        </div>
-        <div>
-          <div><img src="images/6.jpg" alt="" width="300" height="300"></div>
-          <p>Cumque facilis amet eos nulla</p>
-        </div>
-        <div>
-          <div><img src="images/7.jpg" alt="" width="300" height="300"></div>
-          <p>Sint ad, praesentium est delectus</p>
-        </div>
-        <div>
-          <div><img src="images/8.jpg" alt="" width="300" height="300"></div>
-          <p>Laborum officiis, magnam, eos possimus</p>
-        </div>
+      {# slider body #}
+      <div class="{{ slide }}" id="{{ slide }}">
+        {% if slide === 'lazyload' %}
+          <div>
+            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/1.jpg" alt="" width="300" height="300"></div>
+            <p>Lorem ipsum dolor sit amet,</p>
+          </div>
+          <div>
+            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/3.jpg" alt="" width="300" height="300"></div>
+            <p>At possimus dolorum eligendi repellat</p>
+          </div>
+          <div>
+            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/4.jpg" alt="" width="300" height="300"></div>
+            <p>Cumque facilis amet eos nulla</p>
+          </div>
+          <div>
+            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/5.jpg" alt="" width="300" height="300"></div>
+            <p>Sint ad, praesentium est delectus</p>
+          </div>
+          <div>
+            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/8.jpg" alt="" width="300" height="300"></div>
+            <p>Laborum officiis, magnam, eos possimus</p>
+          </div>
 
-      {% elif slide === 'autoHeight' %}
-        <div>
-          <img src="http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400" alt="">
-          <p>Lorem ipsum dolor sit amet</p>
-        </div>
-        <div>
-          <img src="http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500" alt="">
-          <p>Blanditiis sapiente tempora </p>
-        </div>
-        <div>
-          <img src="http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450" alt="">
-          <p>At possimus dolorum eligendi repellat</p>
-        </div>
-        <div>
-          <img src="http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540" alt="">
-          <p>Neque accusamus inventore rerum</p>
-        </div>
-        <div>
-          <img src="http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500" alt="">
-          <p>Quis deserunt quo sequi qui fugiat nobis </p>
-        </div>
-        
-      {% else %}
-        <div class="item">
-          <div class="img img-1"><a href="">1</a></div>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Porro ex recusandae, eaque nulla! Provident consequatur nesciunt nisi libero, tempore illo quidem, unde ex accusantium, optio voluptatem ab, similique repudiandae saepe aut. Optio voluptates fugiat inventore soluta amet minus iusto incidunt, veritatis, quo, nam doloribus quidem et maiores exercitationem illum alias.</p>
-        </div>
-        <div class="item">
-          <div class="img img-2"><a href="">2</a></div>
-          <p>Impedit error aspernatur delectus autem repellendus cum quia nisi magnam aut expedita, animi reiciendis totam voluptate laudantium, velit tempore cumque repellat doloremque dolore natus similique, numquam quo nemo. Sapiente nobis quidem laudantium, repudiandae tempora quae a, facilis, esse, sit quos ullam? Sed aperiam aut nihil dolores alias, facere, error placeat.</p>
-        </div>
-        <div class="item">
-          <div class="img img-3"><a href="">3</a></div>
-          <p>Dolores, illum et. Tempore, explicabo maiores. Ad nesciunt, autem, alias eos amet veritatis eveniet. Dignissimos iure nostrum, incidunt architecto odit sint dolore. Porro illum aliquam necessitatibus dignissimos mollitia beatae natus tempore repellat neque delectus ab magnam id consequuntur quis, laudantium architecto nihil, voluptate, nobis similique eaque itaque labore eum non.</p>
-        </div>
-        <div class="item">
-          <div class="img img-4"><a href="">4</a></div>
-          <p>In itaque, reiciendis a cum velit ipsa quod voluptas aut assumenda illum voluptatem nemo asperiores, dicta magnam nisi iure deleniti! Sint, ipsam consequatur soluta dolorum excepturi optio quibusdam illo numquam at provident, ducimus earum sit hic id ratione a, animi temporibus! Amet at earum harum distinctio quibusdam aliquam. Atque, illum.</p>
-        </div>
-        <div class="item">
-          <div class="img img-5"><a href="">5</a></div>
-          <p>Officia, recusandae, dolore. Excepturi perferendis quae quo amet enim, laboriosam sequi repellat! Unde at iusto consequuntur magnam, natus numquam repudiandae vero qui voluptate rerum labore tenetur facere totam porro itaque asperiores voluptatibus pariatur, ipsa molestiae. Consequuntur, accusamus aliquid placeat culpa ullam nostrum architecto veniam sint obcaecati laudantium necessitatibus numquam fugit?</p>
+        {% elif slide === 'customize' %}
+          <div>
+            <div><img src="images/4.jpg" alt="" width="300" height="300"></div>
+            <p>Lorem ipsum dolor sit amet,</p>
+          </div>
+          <div>
+            <div><img src="images/5.jpg" alt="" width="300" height="300"></div>
+            <p>At possimus dolorum eligendi repellat</p>
+          </div>
+          <div>
+            <div><img src="images/6.jpg" alt="" width="300" height="300"></div>
+            <p>Cumque facilis amet eos nulla</p>
+          </div>
+          <div>
+            <div><img src="images/7.jpg" alt="" width="300" height="300"></div>
+            <p>Sint ad, praesentium est delectus</p>
+          </div>
+          <div>
+            <div><img src="images/8.jpg" alt="" width="300" height="300"></div>
+            <p>Laborum officiis, magnam, eos possimus</p>
+          </div>
+
+        {% elif slide === 'autoHeight' %}
+          <div>
+            <img src="http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400" alt="">
+            <p>Lorem ipsum dolor sit amet</p>
+          </div>
+          <div>
+            <img src="http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500" alt="">
+            <p>Blanditiis sapiente tempora </p>
+          </div>
+          <div>
+            <img src="http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450" alt="">
+            <p>At possimus dolorum eligendi repellat</p>
+          </div>
+          <div>
+            <img src="http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540" alt="">
+            <p>Neque accusamus inventore rerum</p>
+          </div>
+          <div>
+            <img src="http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500" alt="">
+            <p>Quis deserunt quo sequi qui fugiat nobis </p>
+          </div>
+          
+        {% else %}
+          <div class="item">
+            <div class="img img-1"><a href="">1</a></div>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+          </div>
+          <div class="item">
+            <div class="img img-2"><a href="">2</a></div>
+            <p>Impedit cum, temporibus iure at! Asperiores, necessitatibus.</p>
+          </div>
+          <div class="item">
+            <div class="img img-3"><a href="">3</a></div>
+            <p>Praesentium voluptates ipsum, at ad sit quisquam.</p>
+          </div>
+          <div class="item">
+            <div class="img img-4"><a href="">4</a></div>
+            <p>Vero, corrupti, architecto assumenda ullam delectus accusamus!</p>
+          </div>
+          <div class="item">
+            <div class="img img-5"><a href="">5</a></div>
+            <p>Esse perferendis, sit veniam sunt vero maxime.</p>
+          </div>
+        {% endif %}
+      </div>
+      
+      {# customize tools #}
+      {% if slide === 'customize' %}
+        <div class="customize-tools">
+          <ul class="thumbnails" id="customize-thumbnails">
+            <li><img src="images/sm/4.jpg" alt=""></li>
+            <li><img src="images/sm/5.jpg" alt=""></li>
+            <li><img src="images/sm/6.jpg" alt=""></li>
+            <li><img src="images/sm/7.jpg" alt=""></li>
+            <li><img src="images/sm/8.jpg" alt=""></li>
+          </ul>
+          <ul class="controls" id="customize-controls">
+            <li class="prev"><img src="images/angle-left.png" alt=""></li>
+            <li class="next"><img src="images/angle-right.png" alt=""></li>
+          </ul>
+          <div class="playbutton-wrapper"><button id="customize-toggle">Pause</button></div>
         </div>
       {% endif %}
     </div>
-    
-    {# customize tools #}
-    {% if slide === 'customize' %}
-      <div class="customize-tools">
-        <ul class="thumbnails">
-          <li><img src="images/sm/4.jpg" alt=""></li>
-          <li><img src="images/sm/5.jpg" alt=""></li>
-          <li><img src="images/sm/6.jpg" alt=""></li>
-          <li><img src="images/sm/7.jpg" alt=""></li>
-          <li><img src="images/sm/8.jpg" alt=""></li>
-        </ul>
-        <ul class="controls">
-          <li class="prev"><img src="images/angle-left.png" alt=""></li>
-          <li class="next"><img src="images/angle-right.png" alt=""></li>
-        </ul>
-        <div class="playbutton-wrapper"><button>Pause</button></div>
-      </div>
-    {% endif %}
+    {% endfor %}
   </div>
-  {% endfor %}
 
+  <script>
+    var doc = document,
+        slideList = doc.querySelectorAll('.slider-container > div'),
+        nav = doc.querySelector('.nav ul'),
+        toggleInput = doc.querySelector('#nav-toggle'),
+        divider = window.innerHeight / 2,
+        scrollTimer,
+        resizeTimer;
+
+    window.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+
+      scrollTimer = setTimeout(function () {
+        [].forEach.call(slideList, function (el) {
+          var rect = el.getBoundingClientRect(),
+              navLink = nav.querySelector('[href="#' + el.id + '"]');
+          if (rect.top <= divider && rect.bottom > divider) {
+            if (navLink.className !== 'active') { navLink.className = 'active'; }
+          } else {
+            if (navLink.className !== '') { navLink.className = ''; }
+          }
+        });
+      }, 100);
+    });
+
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(function () {
+        divider = window.innerHeight / 2;
+      }, 100);
+    });
+
+    nav.addEventListener('click', function () {
+      if (toggleInput.checked) { toggleInput.checked = false; }
+    });
+
+  </script>
 {% endblock %}
