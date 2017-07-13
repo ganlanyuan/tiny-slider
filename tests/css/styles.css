@@ -79,6 +79,7 @@ img {
   position: fixed;
   transition: left 0.25s;
   left: 0;
+  top: 0;
   z-index: 100;
   padding: 10px;
   color: #fff;
