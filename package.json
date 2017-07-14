@@ -13,7 +13,8 @@
     "testcafe-browser-provider-saucelabs": "^1.3.0"
   },
   "scripts": {
-    "start": "testcafe \"browserstack:Chrome@53.0:Windows 10\" tests/features/base.js"
+    "start": "testcafe \"chrome:headless\" tests/features/base.js",
+    "test": "testcafe \"saucelabs:Chrome@35.0:OS X 10.8\" tests/features/base.js"
   },
   "repository": {
     "type": "git",

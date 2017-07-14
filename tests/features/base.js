@@ -10,26 +10,46 @@ test('base: init', async t => {
   // await t
   //   .resizeWindow(windowWidthes[1], windowHeight);
 
-  var container = await Selector('#base');
-  const innerWrapper = await container.parent();
-  const outerWrapper = await innerWrapper.parent();
-  expect(outerWrapper.hasClass(['tns-outer', 'tns-hdx']));
-  expect(innerWrapper.hasClass('tns-inner'));
-  expect(container.hasClass(['base', 'tns-slider', 'tns-carousel', 'tns-subpixel', 'tns-calc tns-horizontal']));
-  // console.log(container.childElementCount);
-  // expect(container.childNodeCount).to.equal(slideCount * 5);
+  const container = Selector('#base');
+  const innerWrapper = container.parent();
+  const outerWrapper = innerWrapper.parent();
+  const firstVisibleSlide = container.child(slideCount * 2 - 1);
+  const lastVisibleSlide = container.child(slideCount * 2 + items - 1);
+  const firstVisibleSlidePrev = firstVisibleSlide.prevSibling(1);
+  const lastVisibleSlideNext = lastVisibleSlide.nextSibling(1);
+  const innerWidth = getWindowInnerWidth();
 
-  container = await Selector('#base');
-  const innerWidth = await getWindowInnerWidth();
-  const slide0 = await container.child(0);
-  const slide10 = await container.child(10);
-  const slide12 = await container.child(12);
-  // console.log(slide0.getAttribute('aria-hidden'));
-  expect(slide0.getAttribute('aria-hidden')).to.equal('true');
-  expect(slide10.getAttribute('aria-hidden')).to.equal('false');
-  expect(slide12.getAttribute('aria-hidden')).to.equal('false');
-  expect(Math.round(slide10.boundingClientRect.left)).to.equal(0);
-  expect(Math.round(slide12.boundingClientRect.right)).to.equal(innerWidth);
+  // console.log(await firstVisibleSlide.boundingClientRect.left);
+  // console.log(await container.boundingClientRect);
+  await t
+      // check outerWrapper classes
+      .expect(outerWrapper.hasClass('tns-hdx')).ok()
+      .expect(outerWrapper.hasClass('tns-outer')).ok()
+      // check innerWrapper classes
+      .expect(innerWrapper.hasClass('tns-inner')).ok()
+      // check container classes
+      .expect(container.hasClass('base')).ok()
+      .expect(container.hasClass('tns-slider')).ok()
+      .expect(container.hasClass('tns-carousel')).ok()
+      .expect(container.hasClass('tns-horizontal')).ok()
+      // check slide count
+      .expect(container.childElementCount).eql(slideCount * 5)
+      // check slide position
+      // .expect(container.boundingClientRect.left).eql(0)
+      // .expect(container.boundingClientRect.right).eql(innerWidth)
+      ;
+
+  // var container = Selector('#base');
+  // const innerWidth = getWindowInnerWidth();
+  // const slide0 = container.child(0);
+  // const slide10 = container.child(10);
+  // const slide12 = container.child(12);
+  // // console.log(slide0.getAttribute('aria-hidden'));
+  // expect(await slide0.getAttribute('aria-hidden')).to.equal('true');
+  // expect(await slide10.getAttribute('aria-hidden')).to.equal('false');
+  // expect(await slide12.getAttribute('aria-hidden')).to.equal('false');
+  // expect(Math.round(await slide10.boundingClientRect.left)).to.equal(0);
+  // expect(Math.round(await slide12.boundingClientRect.right)).to.equal(innerWidth);
 
   // const prevBtn = await select('.base_wrapper [data-controls="prev"]');
   // const nextBtn = await select('.base_wrapper [data-controls="next"]');
