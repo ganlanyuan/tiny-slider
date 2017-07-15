@@ -1,26 +1,29 @@
 import { expect } from 'chai';
 import { Selector } from 'testcafe';
 import { ClientFunction } from 'testcafe';
-import { address, speed1, gutter, items, slideCount, edgePadding, windowWidthes, windowHeight, tabindex, select, getWindowInnerWidth } from './setting.js';
+import { address, speed1, gutter, items, slideCount, edgePadding, windowWidthes, windowHeight, tabindex, select, getWindowInnerWidth, absRound } from './setting.js';
 
 fixture `base`
   .page(address);
 
 test('base: init', async t => {
-  // await t
-  //   .resizeWindow(windowWidthes[1], windowHeight);
-
   const container = Selector('#base');
   const innerWrapper = container.parent();
   const outerWrapper = innerWrapper.parent();
-  const firstVisibleSlide = container.child(slideCount * 2 - 1);
+
+  const controlsContainer = Selector('#base_wrapper .tns-controls');
+  const prevBtn = controlsContainer.child(0);
+  const nextBtn = controlsContainer.child(1);
+
+  const navContainer = Selector('#base_wrapper .tns-nav');
+
+  const firstVisibleSlide = container.child(slideCount * 2);
   const lastVisibleSlide = container.child(slideCount * 2 + items - 1);
   const firstVisibleSlidePrev = firstVisibleSlide.prevSibling(1);
   const lastVisibleSlideNext = lastVisibleSlide.nextSibling(1);
-  const innerWidth = getWindowInnerWidth();
+  const innerWidth = await getWindowInnerWidth();
+  const itemWidth = await innerWidth / 3;
 
-  // console.log(await firstVisibleSlide.boundingClientRect.left);
-  // console.log(await container.boundingClientRect);
   await t
       // check outerWrapper classes
       .expect(outerWrapper.hasClass('tns-hdx')).ok()
@@ -32,46 +35,42 @@ test('base: init', async t => {
       .expect(container.hasClass('tns-slider')).ok()
       .expect(container.hasClass('tns-carousel')).ok()
       .expect(container.hasClass('tns-horizontal')).ok()
-      // check slide count
+      // check controls properties
+      .expect(controlsContainer.getAttribute('aria-label')).eql('Carousel Navigation')
+      .expect(prevBtn.getAttribute('aria-controls')).eql('base')
+      .expect(nextBtn.getAttribute('aria-controls')).eql('base')
+      .expect(controlsContainer.getAttribute('tabindex')).eql('0')
+      .expect(prevBtn.getAttribute('tabindex')).eql('-1')
+      .expect(nextBtn.getAttribute('tabindex')).eql('-1')
+      // check nav properties
+      .expect(navContainer.getAttribute('aria-label')).eql('Carousel Pagination')
+      .expect(navContainer.child(0).getAttribute('aria-selected')).eql('true')
+      .expect(navContainer.child(0).getAttribute('aria-controls')).eql('base-item0')
+      .expect(navContainer.child(0).getAttribute('tabindex')).eql('0')
+      .expect(navContainer.child(0).getAttribute('data-nav')).eql('0')
+      .expect(navContainer.child(0).visible).ok()
+      .expect(navContainer.child(1).getAttribute('aria-selected')).eql('false')
+      .expect(navContainer.child(1).getAttribute('aria-controls')).eql('base-item1')
+      .expect(navContainer.child(1).getAttribute('tabindex')).eql('-1')
+      .expect(navContainer.child(1).getAttribute('data-nav')).eql('1')
+      .expect(navContainer.child(1).visible).notOk()
+      // check slides
       .expect(container.childElementCount).eql(slideCount * 5)
-      // check slide position
-      // .expect(container.boundingClientRect.left).eql(0)
-      // .expect(container.boundingClientRect.right).eql(innerWidth)
+      .expect(firstVisibleSlide.getAttribute('aria-hidden')).eql('false')
+      .expect(firstVisibleSlide.id).eql('base-item0')
+      .expect(firstVisibleSlide.hasClass('tns-item')).ok()
+      .expect(absRound(await firstVisibleSlide.getBoundingClientRectProperty('width'))).eql(await absRound(itemWidth))
+      .expect(absRound(await firstVisibleSlide.getBoundingClientRectProperty('left'))).eql(0)
+      .expect(lastVisibleSlide.getAttribute('aria-hidden')).eql('false')
+      .expect(lastVisibleSlide.id).eql('base-item' + (items - 1).toString())
+      .expect(lastVisibleSlide.hasClass('tns-item')).ok()
+      .expect(absRound(await lastVisibleSlide.getBoundingClientRectProperty('right'))).eql(innerWidth)
+      .expect(firstVisibleSlidePrev.getAttribute('aria-hidden')).eql('true')
+      .expect(firstVisibleSlidePrev.id).eql('')
+      .expect(firstVisibleSlidePrev.hasClass('tns-item')).ok()
+      .expect(lastVisibleSlideNext.getAttribute('aria-hidden')).eql('true')
+      .expect(lastVisibleSlideNext.hasClass('tns-item')).ok()
       ;
-
-  // var container = Selector('#base');
-  // const innerWidth = getWindowInnerWidth();
-  // const slide0 = container.child(0);
-  // const slide10 = container.child(10);
-  // const slide12 = container.child(12);
-  // // console.log(slide0.getAttribute('aria-hidden'));
-  // expect(await slide0.getAttribute('aria-hidden')).to.equal('true');
-  // expect(await slide10.getAttribute('aria-hidden')).to.equal('false');
-  // expect(await slide12.getAttribute('aria-hidden')).to.equal('false');
-  // expect(Math.round(await slide10.boundingClientRect.left)).to.equal(0);
-  // expect(Math.round(await slide12.boundingClientRect.right)).to.equal(innerWidth);
-
-  // const prevBtn = await select('.base_wrapper [data-controls="prev"]');
-  // const nextBtn = await select('.base_wrapper [data-controls="next"]');
-  // const controlsContainer = await prevBtn.getParentNode();
-  // expect(controlsContainer.hasClass('tns-controls'));
-  // expect(controlsContainer.attributes['aria-label']).to.equal('Carousel Navigation');
-  // expect(prevBtn.attributes['aria-controls']).to.equal('base');
-  // expect(prevBtn.attributes[tabindex]).to.equal('-1');
-  // expect(nextBtn.attributes['aria-controls']).to.equal('base');
-  // expect(nextBtn.attributes[tabindex]).to.equal('-1');
-
-  // const nav0 = await select('.base_wrapper [data-nav="0"]');
-  // const nav1 = await select('.base_wrapper [data-nav="1"]');
-  // const nav2 = await select('.base_wrapper [data-nav="2"]');
-  // const navContainer = await nav0.getParentNode();
-  // expect(navContainer.hasClass('tns-nav'));
-  // expect(navContainer.attributes['aria-label']).to.equal('Carousel Pagination');
-  // expect(nav0.attributes['aria-selected']).to.equal('true');
-  // expect(nav0.attributes[tabindex]).to.equal('0');
-  // expect(nav1.attributes['aria-selected']).to.equal('false');
-  // expect(nav1.attributes[tabindex]).to.equal('-1');
-  // expect(nav2.visible).to.be.false;
 });
 
 // test('base: resize', async t => {
