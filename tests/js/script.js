@@ -11,6 +11,11 @@ var doc = document,
         items: 3,
         slideBy: 'page',
       },
+      'few-items': {
+        container: '',
+        items: 9,
+        slideBy: 'page',
+      },
       'mouse-drag': {
         container: '',
         items: 3,

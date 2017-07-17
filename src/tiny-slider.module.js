@@ -217,7 +217,7 @@ export var tns = function(options) {
       slideId = container.id || getSlideId();
 
   if (responsive) {
-    if (!responsive[0]) { responsive[0] = options.items; }
+    if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
     breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
   } 
 
@@ -407,7 +407,8 @@ export var tns = function(options) {
       var stringSlideLeft =
           stringSlideFontSize = 
           stringSlideGutter = '',
-          stringSlideWidth = 'width:';
+          stringSlideWidth = 'width:',
+          itemTem = Math.min(options.items, slideCount);
 
       // * carousel *
       if (carousel) {
@@ -422,8 +423,8 @@ export var tns = function(options) {
         } else {
           if (CSSMQ) {
             stringContainerWidth += (CALC) ? 
-                CALC + '(' + slideCountNew * 100 + '% / ' + options.items + ')' : 
-                slideCountNew * 100 / options.items + '%';
+                CALC + '(' + slideCountNew * 100 + '% / ' + itemTem + ')' : 
+                slideCountNew * 100 / itemTem + '%';
           } else {
             updateContainerWidthNonMediaquery();
           }
@@ -450,8 +451,8 @@ export var tns = function(options) {
       } else {
         // get slide width
         stringSlideWidth += (CALC) ? 
-            CALC + '(100% / ' + options.items + ')' :
-            100 / options.items + '%';
+            CALC + '(100% / ' + itemTem + ')' :
+            100 / itemTem + '%';
       }
       stringSlideWidth += ';';
 

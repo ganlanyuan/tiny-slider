@@ -1,21 +1,22 @@
 {% extends './parts/layout.njk' %}
 {% set sliders = [
   'base',
+  'few-items',
+  'non-loop', 
+  'rewind', 
+  'fixedWidth', 
+  'vertical', 
+  'responsive', 
   'mouse-drag',
   'gutter', 
   'edgePadding', 
   'edgePadding-gutter', 
-  'non-loop', 
-  'rewind', 
   'slide-by-page', 
-  'fixedWidth', 
   'fixedWidth-gutter', 
   'fixedWidth-edgePadding', 
   'fixedWidth-edgePadding-gutter', 
-  'responsive', 
   'arrowKeys', 
   'autoplay',
-  'vertical', 
   'vertical-gutter', 
   'vertical-edgePadding', 
   'vertical-edgePadding-gutter', 
@@ -25,6 +26,8 @@
   'autoHeight'
 ] %}
 
+{% set titles = ["Lorem ipsum dolor sit amet, consectetur adipisicing.", "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", "Corrupti, libero minima nihil expedita officiis? Quo.", "Alias rem, ab impedit recusandae repellat tempore.", "Nisi inventore quo delectus perspiciatis voluptatibus, quae.", "Nisi harum earum consectetur laudantium iusto, laboriosam.", "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.", "Omnis dolorum eum blanditiis, ratione voluptates quod.", "Animi quis iste ex ullam, similique laboriosam.", "Deserunt, ipsam! Placeat ullam, nam incidunt odit!"] %}
+{% set imgs = ["http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", "http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", "http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540", "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"] %}
 {% block main %}
   {# navigation #}
   <nav class="nav">
@@ -45,101 +48,41 @@
 
       {# slider body #}
       <div class="{{ slide }}" id="{{ slide }}">
+        {# lazy load #}
         {% if slide === 'lazyload' %}
-          <div>
-            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/1.jpg" alt="" width="300" height="300"></div>
-            <p>Lorem ipsum dolor sit amet,</p>
-          </div>
-          <div>
-            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/3.jpg" alt="" width="300" height="300"></div>
-            <p>At possimus dolorum eligendi repellat</p>
-          </div>
-          <div>
-            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/4.jpg" alt="" width="300" height="300"></div>
-            <p>Cumque facilis amet eos nulla</p>
-          </div>
-          <div>
-            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/5.jpg" alt="" width="300" height="300"></div>
-            <p>Sint ad, praesentium est delectus</p>
-          </div>
-          <div>
-            <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/8.jpg" alt="" width="300" height="300"></div>
-            <p>Laborum officiis, magnam, eos possimus</p>
-          </div>
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
 
+        {# customize #}
         {% elif slide === 'customize' %}
-          <div>
-            <div><img src="images/4.jpg" alt="" width="300" height="300"></div>
-            <p>Lorem ipsum dolor sit amet,</p>
-          </div>
-          <div>
-            <div><img src="images/5.jpg" alt="" width="300" height="300"></div>
-            <p>At possimus dolorum eligendi repellat</p>
-          </div>
-          <div>
-            <div><img src="images/6.jpg" alt="" width="300" height="300"></div>
-            <p>Cumque facilis amet eos nulla</p>
-          </div>
-          <div>
-            <div><img src="images/7.jpg" alt="" width="300" height="300"></div>
-            <p>Sint ad, praesentium est delectus</p>
-          </div>
-          <div>
-            <div><img src="images/8.jpg" alt="" width="300" height="300"></div>
-            <p>Laborum officiis, magnam, eos possimus</p>
-          </div>
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
 
+        {# auto height #}
         {% elif slide === 'autoHeight' %}
-          <div>
-            <img src="http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400" alt="">
-            <p>Lorem ipsum dolor sit amet</p>
-          </div>
-          <div>
-            <img src="http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500" alt="">
-            <p>Blanditiis sapiente tempora </p>
-          </div>
-          <div>
-            <img src="http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450" alt="">
-            <p>At possimus dolorum eligendi repellat</p>
-          </div>
-          <div>
-            <img src="http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540" alt="">
-            <p>Neque accusamus inventore rerum</p>
-          </div>
-          <div>
-            <img src="http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500" alt="">
-            <p>Quis deserunt quo sequi qui fugiat nobis </p>
-          </div>
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="{{ imgs[i - 1] }}" alt=""></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
           
+        {# default #}
         {% else %}
+          {% for i in range(1, 8) %}
           <div class="item">
-            <div class="img img-1"><a href="">1</a></div>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+            <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+            <p>{{ title[i] }}</p>
           </div>
-          <div class="item">
-            <div class="img img-2"><a href="">2</a></div>
-            <p>Consectetur odio consequuntur eaque, aliquid quidem. Aliquid.</p>
-          </div>
-          <div class="item">
-            <div class="img img-3"><a href="">3</a></div>
-            <p>Unde nostrum doloremque, fugiat, nisi blanditiis beatae.</p>
-          </div>
-          <div class="item">
-            <div class="img img-4"><a href="">4</a></div>
-            <p>Odit velit reprehenderit cum illum eaque? Sint!</p>
-          </div>
-          <div class="item">
-            <div class="img img-5"><a href="">5</a></div>
-            <p>Beatae reprehenderit omnis totam culpa, ea error.</p>
-          </div>
-          <div class="item">
-            <div class="img img-6"><a href="">6</a></div>
-            <p>Libero quidem voluptas esse vitae ipsum, pariatur.</p>
-          </div>
-          <div class="item">
-            <div class="img img-7"><a href="">7</a></div>
-            <p>Rerum id omnis accusantium voluptas architecto autem.</p>
-          </div>
+          {% endfor %}
         {% endif %}
       </div>
       
@@ -147,11 +90,9 @@
       {% if slide === 'customize' %}
         <div class="customize-tools">
           <ul class="thumbnails" id="customize-thumbnails">
-            <li><img src="images/sm/4.jpg" alt=""></li>
-            <li><img src="images/sm/5.jpg" alt=""></li>
-            <li><img src="images/sm/6.jpg" alt=""></li>
-            <li><img src="images/sm/7.jpg" alt=""></li>
-            <li><img src="images/sm/8.jpg" alt=""></li>
+            {% for i in range(1, 6) %}
+              <li><img src="images/sm/{{ i }}.jpg" alt=""></li>
+            {% endfor %}
           </ul>
           <ul class="controls" id="customize-controls">
             <li class="prev"><img src="images/angle-left.png" alt=""></li>
