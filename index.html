@@ -67,10 +67,13 @@
       // IE 8
       var e = document.createEventObject();
       e.eventType = type;
-      el.fireEvent('on'+e.eventType, e);
+      el.fireEvent('on'+ e.eventType, e);
     }
   }
   triggerEvent(doc.body, 'keydown');
+
+  // https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
+  // https://plainjs.com/javascript/events/trigger-an-event-11/
 
   // https://github.com/calvinmetcalf/lie ==> promise polyfill
 </script>
