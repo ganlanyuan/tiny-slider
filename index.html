@@ -4,229 +4,75 @@
   <meta charset="UTF-8">
   <title>Document</title>
   <style>
-    .subpixel {
-      white-space: nowrap;
-    }
-    .subpixel > div,
-    .subpixel > li {
-      display: inline-block;
-      vertical-align: top;
-      white-space: normal;
-    }
-
-    .no-subpixel:after {
-      content: '';
-      display: table;
-      clear: both;
-    }
-    .no-subpixel > div,
-    .no-subpixel > li {
-      float: left;
-      margin-right: -100%;
-    }
-
-
-    body { margin: 0; }
-    .slider-wrapper {
-      width: 90%;
-      margin: 5% 0 0 5%;
-      overflow: auto;
-      outline: 1px solid #FF66FF;
-    }
-    .slider > div {
-      /*padding-right: 20px;
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      box-sizing: border-box;*/
-      /*font-size: 2em;*/
-      text-align: center;
-      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-    }
-    [class^="sl-"] > div { height: 300px; }
-    .sl-1 > div { background-color: #FEBFC0; }
-    .sl-2 > div { background-color: #C1FFBF; }
-    .sl-3 > div { background-color: #FFECBF; }
-    .sl-4 > div { background-color: #C1FFEA; }
-    .sl-5 > div { background-color: #EAFFBE; }
-    .sl-6 > div { background-color: #C1FFD4; }
-    .sl-7 > div { background-color: #FFD5C0; }
-    .sl-8 > div { background-color: #C1FFD4; }
-    .sl-9 > div { background-color: #FFFFBE; }
-    .sl-10 > div { background-color: #C1FFFF; }
-    .sl-11 > div { background-color: #D6FFBF; }
-    .sl-12 > div { background-color: #C1D3FF; }
-    .sl-13 > div { background-color: #FFECBF; }
+    .red { color: red; }
   </style>
 </head>
-<body class="body">
-  <div class="slider-wrapper">
-    <div class="slider">
-      <div class="sl-1"><div>1</div></div>
-      <div class="sl-2"><div>2</div></div>
-      <div class="sl-3"><div>3</div></div>
-      <div class="sl-4"><div>4</div></div>
-      <div class="sl-5"><div>5</div></div>
-      <div class="sl-6"><div>6</div></div>
-      <div class="sl-7"><div>7</div></div>
-      <div class="sl-8"><div>8</div></div>
-      <div class="sl-9"><div>9</div></div>
-      <div class="sl-10"><div>10</div></div>
-      <div class="sl-11"><div>11</div></div>
-      <div class="sl-12"><div>12</div></div>
-      <div class="sl-13"><div>13</div></div>
-    </div>
-  </div>
-  <script>
-    // getComputedStyle
+<body>
+<p id="click-handler">click event</p>
+<p id="keyboard-handler">keyboard event</p>
+<p id="-handler"></p>
 
-    (function(){
-      "use strict";
-      
-      if(!window.getComputedStyle){
-        window.getComputedStyle = function(el){
-          if(!el) { return null; }
-          var style   = el.currentStyle;
-          var box     = el.getBoundingClientRect();
-          var shadow  = document.createElement("div");
-          var output  = shadow.style;
-          for(var i in style) {
-            output[i] = style[i];
-          }
-          
-          /** Fix some glitches */
-          output.cssFloat = output.styleFloat;
-          if("auto" === output.width) { output.width  = (box.right - box.left) + "px"; }
-          if("auto" === output.height) { output.height = (box.bottom - box.top) + "px"; }
-          return output;
-        };
-      } 
-    })();
+<script>
+  var doc = document,
+      clickHandler = doc.querySelector('#click-handler'),
+      keyboardHandler = doc.querySelector('#keyboard-handler');
 
-    function createSheet (media) {
-      // Create the <style> tag
-      var style = document.createElement("style");
-      // style.setAttribute("type", "text/css");
+  clickHandler.onclick = function () {
+    clickHandler.className = 'red';
+  }
+  keyboardHandler.onkeydown = function () {
+    keyboardHandler.className = 'red';
+  }
 
-      // Add a media (and/or media query) here if you'd like!
-      // style.setAttribute("media", "screen")
-      // style.setAttribute("media", "only screen and (max-width : 1024px)")
-      if (media) { style.setAttribute("media", media); }
-
-      // WebKit hack :(
-      // style.appendChild(document.createTextNode(""));
-
-      // Add the <style> element to the page
-      document.querySelector('head').appendChild(style);
-
-      return (style.sheet) ? style.sheet : style.styleSheet;
-    };
-
-    function addCSSRule(sheet, selector, rules, index) {
-      if("insertRule" in sheet) {
-        sheet.insertRule(selector + "{" + rules + "}", index);
-      }
-      else if("addRule" in sheet) {
-        sheet.addRule(selector, rules, index);
+  function simulateClick(el) {
+    try {
+      // modern browsers, IE11+
+      var event = new MouseEvent('click', {
+        'view': window,
+        'bubbles': true,
+        'cancelable': true
+      });
+      el.dispatchEvent(event);
+      alert('MouseEvent');
+    } catch (e) {
+      if ('createEvent' in document) {
+        // modern browsers, IE9+
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('click', false, true);
+        el.dispatchEvent(event);
+        alert('createEvent');
+      } else {
+        // IE8
+        var event = document.createEventObject();
+        el.fireEvent('onclick', event);
+        alert('None');
       }
     }
+  }
 
-    function getCalc() {
-      var doc = document, 
-          body = doc.body,
-          el = doc.createElement('div'), 
-          result = null;
-      body.appendChild(el);
-      try {
-        var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
-        for (var i = 0; i < 3; i++) {
-          val = vals[i];
-          el.style.width = val;
-          if (el.offsetWidth === 10) { 
-            result = val.replace('(10px)', ''); 
-            break;
-          }
-        }
-      } catch (e) {}
-      body.removeChild(el);
+  // simulateClick(clickHandler);
+  // clickHandler.click(); // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click
 
-      return result;
-    }
+  doc.body.onkeydown = function () {
+    doc.body.style.background = "lightblue";
+  };
 
-    function getSubpixelLayout() {
-      var doc = document,
-          body = doc.body,
-          parent = doc.createElement('div'),
-          child1 = doc.createElement('div'),
-          child2;
-      parent.style.cssText = 'width: 10px';
-      child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
-      child2 = child1.cloneNode(true);
-
-      parent.appendChild(child1);
-      parent.appendChild(child2);
-      body.appendChild(parent);
-
-      var supported = child1.offsetTop !== child2.offsetTop;
-      body.removeChild(parent);
-
-      return supported;
-    }
-
-
-    var wrapperWidth, 
-        sliderWidth, 
-        fontSizeWrapper = '', 
-        fontSizeSlider = '', 
-        full = 13, 
-        page = 7;
-
-    var calc = getCalc();
-    if (calc == null) {
-      wrapperWidth = 100 * full / page + '%';
-      sliderWidth = 100 / full + '%';
+  function triggerEvent(el, type){
+   if ('createEvent' in document) {
+      // modern browsers, IE9+
+      var e = document.createEvent('HTMLEvents');
+      e.initEvent(type, false, true);
+      el.dispatchEvent(e);
     } else {
-      wrapperWidth = calc + '(100% * ' + full + ' / ' + page + ')';
-      sliderWidth = calc + '(100% / ' + full + ')';
+      // IE 8
+      var e = document.createEventObject();
+      e.eventType = type;
+      el.fireEvent('on'+e.eventType, e);
     }
+  }
+  triggerEvent(doc.body, 'keydown');
 
-    var subPixelLayout = getSubpixelLayout();
-    if (!subPixelLayout) {
-      document.querySelector('.slider').className += ' no-subpixel';
-      var sliders = document.querySelector('.slider').children,
-          len = sliders.length;
-      for (var i = 1; i < len; i++) {
-        var marginLeft = (calc) ? calc + '(' + i * 100 + '% / ' + full + ')' : i * 100 / full + "%";
-        console.log(marginLeft);
-        sliders[i].style.marginLeft = marginLeft;
-      }
-    } else {
-      var cssFontSize = window.getComputedStyle(document.querySelector('.slider > div'), null).fontSize;
-      if (cssFontSize.indexOf('em') !== -1) {
-        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
-      }
-      if (cssFontSize) { 
-        fontSizeWrapper = ' font-size: 0;';
-        fontSizeSlider = ' font-size: ' + cssFontSize + ';';
-      }
-
-      document.querySelector('.slider').className += ' subpixel';
-    }
-
-    var sheet = createSheet();
-    addCSSRule(sheet, '.slider', 'width: ' + wrapperWidth + '; ' + fontSizeWrapper, 0);
-    addCSSRule(sheet, '.slider > div', 'width: ' + sliderWidth + '; ' + fontSizeSlider, 1);
-
-    // https://stackoverflow.com/questions/12604754/is-there-a-way-to-detect-if-the-browser-has-subpixel-precision
-    // http://jsfiddle.net/KAW3d/1/
-    // http://cruft.io/posts/percentage-calculations-in-ie/
-    
-    // addCSSRule(sheet, "body", "background-color: #fce", sheet.cssRules.length);
-    // https://davidwalsh.name/add-rules-stylesheets
-    // http://www.rainbodesign.com/pub/css/css-javascript.html
-
-    // IE: the last column down
-    // chrome, Opera: subpixel issue
-
-  </script>
+  // https://github.com/calvinmetcalf/lie ==> promise polyfill
+</script>
 </body>
 </html>
