@@ -5,24 +5,31 @@
   <title>Document</title>
   <style>
     .red { color: red; }
+    #focus-handler:focus { border: 1px solid red; }
   </style>
 </head>
 <body>
 <p id="click-handler">click event</p>
 <p id="keyboard-handler">keyboard event</p>
-<p id="-handler"></p>
+<p id="focus-handler" tabindex="0">focus event</p>
 
+<!-- <script src="tests/js/crossBrowser_initKeyboardEvent.js"></script> -->
 <script>
   var doc = document,
       clickHandler = doc.querySelector('#click-handler'),
-      keyboardHandler = doc.querySelector('#keyboard-handler');
+      keyboardHandler = doc.querySelector('#keyboard-handler'),
+      focusHandler = doc.querySelector('#focus-handler');
 
+  // focus event
+  // el.focus() works the element is focusable
+  focusHandler.focus();
+
+  // click event
+  // el.click() works on input, button ...
   clickHandler.onclick = function () {
     clickHandler.className = 'red';
   }
-  keyboardHandler.onkeydown = function () {
-    keyboardHandler.className = 'red';
-  }
+  clickHandler.click(); // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click
 
   function simulateClick(el) {
     try {
@@ -49,23 +56,108 @@
       }
     }
   }
-
   // simulateClick(clickHandler);
-  // clickHandler.click(); // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click
 
-  doc.body.onkeypress = function (e) {
+
+  // keydown
+  keyboardHandler.onkeydown = function (e) {
     e = e || window.event;
+    // alert(e.keyCode);
     if (e.which === 37 || e.keyCode === 37) {
-      doc.body.style.background = "lightblue";
+      keyboardHandler.className = 'red';
     }
-    // alert(e.which || e.keyCode);
-  };
+  }
+
+  // var event = document.createEvent('KeyboardEvent');
+  // event.initKeyboardEvent("keydown", true, true, document.defaultView, String.fromCharCode(37), 0, "", false, "");
+  // keyboardHandler.dispatchEvent(event);
+
+
+  // IE9+, firefox8+, chrome19+, opera12.1+, safari6+
+  // Polyfill for creating CustomEvents on IE9/10/11
+  // code pulled from:
+  // https://github.com/d4tocchini/customevent-polyfill
+  // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent#Polyfill
+  // try {
+  //     var ce = new window.CustomEvent('test');
+  //     ce.preventDefault();
+  //     if (ce.defaultPrevented !== true) {
+  //         // IE has problems with .preventDefault() on custom events
+  //         // http://stackoverflow.com/questions/23349191
+  //         throw new Error('Could not prevent default');
+  //     }
+  // } catch(e) {
+  //   var CustomEvent = function(event, params) {
+  //     var evt, origPrevent;
+  //     params = params || {
+  //       bubbles: false,
+  //       cancelable: false,
+  //       detail: undefined
+  //     };
+
+  //     evt = document.createEvent("CustomEvent");
+  //     evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+  //     origPrevent = evt.preventDefault;
+  //     evt.preventDefault = function () {
+  //       origPrevent.call(this);
+  //       try {
+  //         Object.defineProperty(this, 'defaultPrevented', {
+  //           get: function () {
+  //             return true;
+  //           }
+  //         });
+  //       } catch(e) {
+  //         this.defaultPrevented = true;
+  //       }
+  //     };
+  //     return evt;
+  //   };
+
+  //   CustomEvent.prototype = window.Event.prototype;
+  //   window.CustomEvent = CustomEvent; // expose definition to window
+  // }
+
+  // (function () {
+      // 'use strict';
+      function CustomEvent (event, params) {
+          params = params || { bubbles: false, cancelable: false, detail: undefined };
+          var evt;
+          try {
+            evt = document.createEvent('CustomEvent');
+            evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+          } catch (error) {
+            // fallback for browsers that don't support createEvent('CustomEvent')
+            evt = document.createEvent('Event');
+            for (var param in params) {
+              evt[param] = params[param];
+            }
+            evt.initEvent(event, params.bubbles, params.cancelable);
+          }
+          return evt;
+      }
+
+      if(typeof window.CustomEvent !== 'undefined') {
+          CustomEvent.prototype = window.CustomEvent.prototype;
+      }
+
+      window.CustomEvent = CustomEvent;
+  // })();
+
+  function fire (el, type,options){
+    var event=new CustomEvent(type);
+    for(var p in options){
+       event[p] = options[p];
+    }
+    el.dispatchEvent(event);
+  }
+
+  fire(keyboardHandler, "keydown",{"ctrlKey":false,"keyCode":37,"bubbles":true});
 
   function simulateKeypress(el, code) {
     // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent
     // try {
     //   // modern browsers, IE11+
-    //   var event = new KeyboardEvent('keypress', {
+    //   var event = new KeyboardEvent('keydown', {
     //     'which': code
     //   });
     //   el.dispatchEvent(event);
@@ -75,15 +167,18 @@
         // modern browsers, IE9+
         var event = document.createEvent('KeyboardEvent');
         // if (event.initKeyEvent) {
-        //   event.initKeyEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        //   event.initKeyEvent("keydown", true, true, window, 0, 0, 0, 0, 0, code);
         // } else {
-        //   event.initKeyboardEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        //   event.initKeyboardEvent("keydown", true, true, window, 0, 0, 0, 0, 0, code);
         // }
 
+        // alert(String.fromCharCode(code));
         if (event.initKeyboardEvent) {  // Chrome, IE
-            event.initKeyboardEvent("keypress", true, true, document.defaultView, "ArrowLeft", 0, "", false, "");
+            event.initKeyboardEvent("keydown", true, true, 
+                                    document.defaultView, 0, String.fromCharCode(code), 
+                                    "", false, "");
         } else { // FireFox
-            event.initKeyEvent("keypress", true, true, document.defaultView, false, false, false, false, code, 0);
+            event.initKeyEvent("keydown", true, true, document.defaultView, false, false, false, false, code, 0);
         }
 
         el.dispatchEvent(event);
@@ -92,15 +187,16 @@
         // IE8
         var event = document.createEventObject();
         if (event.initKeyEvent) {
-          event.initKeyEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+          event.initKeyEvent("keydown", true, true, window, 0, 0, 0, 0, 0, code);
         } else {
-          event.initKeyboardEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+          event.initKeyboardEvent("keydown", true, true, window, 0, 0, 0, 0, 0, code);
         }
-        el.fireEvent('onkeypress', event);
+        el.fireEvent('onkeydown', event);
         alert('None');
       }
     // }
   }
+  // simulateKeypress(keyboardHandler, 37);
 
   // function simulateKeypress(el, type){
   //  if ('createEvent' in document) {
@@ -115,7 +211,6 @@
   //     el.fireEvent('on'+ e.eventType, e);
   //   }
   // }
-  simulateKeypress(doc.body, 37);
 
   // https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
   // https://plainjs.com/javascript/events/trigger-an-event-11/

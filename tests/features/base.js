@@ -1,4 +1,5 @@
 import { Selector } from 'testcafe';
+import { ClientFunction } from 'testcafe';
 import { address, speed1, gutter, items, slideCount, edgePadding, windowWidthes, windowHeight, multiplyer, tabindex, select, getWindowInnerWidth, absRound } from './setting.js';
 
 fixture `base`
@@ -150,7 +151,7 @@ test('base: accessibility_init', async t => {
 });
 
 // controls keydown
-test.skip('base: accessibility_keydown_controls', async t => {
+test('base: accessibility_keydown_controls', async t => {
   const controlsContainer = Selector('#base_wrapper .tns-controls');
   const navContainer = Selector('#base_wrapper .tns-nav');
   const container = Selector('#base');
@@ -183,11 +184,13 @@ test.skip('base: accessibility_keydown_controls', async t => {
 });
 
 // nav keydown
-test.skip('base: accessibility_keydown_nav', async t => {
+test('base: accessibility_keydown_nav', async t => {
+  const controlsContainer = Selector('#base_wrapper .tns-controls');
   const navContainer = Selector('#base_wrapper .tns-nav');
   const container = Selector('#base');
 
   await t
+    .click(controlsContainer)
     .pressKey('tab')
     .pressKey('right')
     .pressKey('enter')

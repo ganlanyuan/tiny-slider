@@ -1,8 +1,8 @@
 import { Selector } from 'testcafe';
 import { ClientFunction } from 'testcafe';
 
-// export const address = 'http://10.0.0.59:3000/tests/index.html';
-export const address = 'http://192.168.0.71:3000/tests/index.html';
+export const address = 'http://10.0.0.59:3000/tests/index.html';
+// export const address = 'http://192.168.0.71:3000/tests/index.html';
 export const speed1 = 100;
 export const gutter = 10;
 export const items = 3;

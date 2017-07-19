@@ -30,7 +30,7 @@
 {% set imgs = ["http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", "http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", "http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540", "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"] %}
 {% block main %}
   {# navigation #}
-  <nav class="nav">
+  <div class="nav">
     <input class="visually-hidden" type="checkbox" name="nav-toggle" id="nav-toggle">
     <label class="nav-toggle-handle" for="nav-toggle">menu</label>
     <ul>
@@ -38,7 +38,7 @@
         <li><a href="#{{ slide }}_wrapper">{{ slide }}</a></li>
       {% endfor %}
     </ul>
-  </nav>
+  </div>
 
   {# sliders #}
   <div class="slider-container">

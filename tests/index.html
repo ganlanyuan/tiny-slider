@@ -1,5 +1,9 @@
 <!DOCTYPE html>
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie10 lt-ie9" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js lt-ie10" lang="en"><![endif]-->
+<!--[if gt IE 9]><!-->
 <html class="no-js" lang="en">
+  <!--<![endif]-->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
@@ -23,7 +27,7 @@
     </script> 
     <script src="../dist/tiny-slider.js">
     </script>
-    <nav class="nav">
+    <div class="nav">
       <input class="visually-hidden" type="checkbox" name="nav-toggle" id="nav-toggle"> <label class="nav-toggle-handle" for="nav-toggle">menu</label>
       <ul>
         <li>
@@ -99,7 +103,7 @@
           <a href="#autoHeight_wrapper">autoHeight</a>
         </li>
       </ul>
-    </nav>
+    </div>
     <div class="slider-container">
       <div class="base_wrapper" id="base_wrapper">
         <h2>
@@ -1343,6 +1347,7 @@
     <script src="js/script.min.js">
     </script> 
     <script src="js/prism.js">
-    </script>
+    </script> <!--[if (gt IE 8)|(!IE)]><!-->
+     <!--<![endif]-->
   </body>
 </html>

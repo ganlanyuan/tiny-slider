@@ -164,7 +164,7 @@ gulp.task('server', function() {
         .pipe($.htmltidy({
           doctype: 'html5',
           wrap: 0,
-          hideComments: true,
+          hideComments: false,
           indent: true,
           'indent-attributes': false,
           'drop-empty-elements': false,
