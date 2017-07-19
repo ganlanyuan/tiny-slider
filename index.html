@@ -53,24 +53,69 @@
   // simulateClick(clickHandler);
   // clickHandler.click(); // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click
 
-  doc.body.onkeydown = function () {
-    doc.body.style.background = "lightblue";
+  doc.body.onkeypress = function (e) {
+    e = e || window.event;
+    if (e.which === 37 || e.keyCode === 37) {
+      doc.body.style.background = "lightblue";
+    }
+    // alert(e.which || e.keyCode);
   };
 
-  function triggerEvent(el, type){
-   if ('createEvent' in document) {
-      // modern browsers, IE9+
-      var e = document.createEvent('HTMLEvents');
-      e.initEvent(type, false, true);
-      el.dispatchEvent(e);
-    } else {
-      // IE 8
-      var e = document.createEventObject();
-      e.eventType = type;
-      el.fireEvent('on'+ e.eventType, e);
-    }
+  function simulateKeypress(el, code) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent
+    // try {
+    //   // modern browsers, IE11+
+    //   var event = new KeyboardEvent('keypress', {
+    //     'which': code
+    //   });
+    //   el.dispatchEvent(event);
+    //   // alert('KeyboardEvent');
+    // } catch (e) {
+      if ('createEvent' in document) {
+        // modern browsers, IE9+
+        var event = document.createEvent('KeyboardEvent');
+        // if (event.initKeyEvent) {
+        //   event.initKeyEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        // } else {
+        //   event.initKeyboardEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        // }
+
+        if (event.initKeyboardEvent) {  // Chrome, IE
+            event.initKeyboardEvent("keypress", true, true, document.defaultView, "ArrowLeft", 0, "", false, "");
+        } else { // FireFox
+            event.initKeyEvent("keypress", true, true, document.defaultView, false, false, false, false, code, 0);
+        }
+
+        el.dispatchEvent(event);
+        // alert('createEvent');
+      } else {
+        // IE8
+        var event = document.createEventObject();
+        if (event.initKeyEvent) {
+          event.initKeyEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        } else {
+          event.initKeyboardEvent("keypress", true, true, window, 0, 0, 0, 0, 0, code);
+        }
+        el.fireEvent('onkeypress', event);
+        alert('None');
+      }
+    // }
   }
-  triggerEvent(doc.body, 'keydown');
+
+  // function simulateKeypress(el, type){
+  //  if ('createEvent' in document) {
+  //     // modern browsers, IE9+
+  //     var e = document.createEvent('HTMLEvents');
+  //     e.initEvent(type, false, true);
+  //     el.dispatchEvent(e);
+  //   } else {
+  //     // IE 8
+  //     var e = document.createEventObject();
+  //     e.eventType = type;
+  //     el.fireEvent('on'+ e.eventType, e);
+  //   }
+  // }
+  simulateKeypress(doc.body, 37);
 
   // https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
   // https://plainjs.com/javascript/events/trigger-an-event-11/

@@ -235,8 +235,7 @@ export var tns = function(options) {
     var nav = options.nav,
         navContainer = options.navContainer || false,
         navItems,
-        navCountVisible = (options.navContainer) ? slideCount : Math.ceil(slideCount / items),
-        navCountVisibleCached = slideCount,
+        // navCountVisible = (options.navContainer) ? slideCount : Math.ceil(slideCount / items),
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
@@ -302,7 +301,7 @@ export var tns = function(options) {
   events.on('itemsChanged', function () {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
-    if (nav && !options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
+    // if (nav && !options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
   });
 
   (function sliderInit() {
@@ -1396,24 +1395,26 @@ export var tns = function(options) {
     e = e || window.event;
     var code = e.keyCode,
         curElement = doc.activeElement,
-        dataSlide = getAttr(curElement, 'data-nav');
+        dataSlide = Number(getAttr(curElement, 'data-nav')),
+        len = visibleNavIndexes.length,
+        current = visibleNavIndexes.indexOf(dataSlide);
 
     switch(code) {
       case KEYS.LEFT:
       case KEYS.PAGEUP:
-        if (dataSlide > 0) { changeFocus(curElement, curElement.previousElementSibling); }
+        if (current > 0) { changeFocus(curElement, navItems[visibleNavIndexes[current - 1]]); }
         break;
       case KEYS.UP:
       case KEYS.HOME:
-        if (dataSlide !== 0) { changeFocus(curElement, navItems[0]); }
+        if (current > 0) { changeFocus(curElement, navItems[visibleNavIndexes[0]]); }
         break;
       case KEYS.RIGHT:
       case KEYS.PAGEDOWN:
-        if (dataSlide < navCountVisible - 1) { changeFocus(curElement, curElement.nextElementSibling); }
+        if (current < len - 1) { changeFocus(curElement, navItems[visibleNavIndexes[current + 1]]); }
         break;
       case KEYS.DOWN:
       case KEYS.END:
-        if (dataSlide < navCountVisible - 1) { changeFocus(curElement, navItems[navCountVisible - 1]); }
+        if (current < len - 1) { changeFocus(curElement, navItems[visibleNavIndexes[len - 1]]); }
         break;
       case KEYS.ENTER:
       case KEYS.SPACE:
