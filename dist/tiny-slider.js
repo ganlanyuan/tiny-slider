@@ -751,6 +751,9 @@ var ANIMATIONDELAY = checkStorageValue(tnsStorage['tnsAnDe'] || setLocalStorage(
 var TRANSITIONEND = checkStorageValue(tnsStorage['tnsTsEn'] || setLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition')));
 var ANIMATIONEND = checkStorageValue(tnsStorage['tnsAnEn'] || setLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation')));
 
+// reset SUBPIXEL for IE8
+if (!CSSMQ) { SUBPIXEL = false; }
+
 var tns = function(options) {
   options = extend({
     container: doc.querySelector('.slider'),
@@ -1122,7 +1125,14 @@ var tns = function(options) {
           var marginLeft = (CALC) ? 
               CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : 
               q * 100 / slideCountNew + "%";
-          sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + '; }', sheet.cssRules.length);
+          // webkit
+          if (CSSMQ) {
+            sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + '; }', sheet.cssRules.length);
+            
+          // IE8
+          } else {
+            slideItems[q].style.marginLeft = marginLeft;
+          }
         }
       }
 
