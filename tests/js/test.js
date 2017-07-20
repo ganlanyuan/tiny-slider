@@ -1,4 +1,6 @@
-var resultsDiv = doc.querySelector('.test-results');
+var resultsDiv = doc.querySelector('.test-results'),
+    windowWidth = getWindowWidth(),
+    multiplyer = 100;
 
 function addTitle(str) {
   var title = doc.createElement('div');
@@ -40,6 +42,16 @@ function compare2Nums(a, b) {
   return Math.abs(a - b) < 1;
 }
 
+function repeat(fn, times) {
+  for (var i = times; i--;) {
+    fn();
+  }
+}
+
+function getAbsIndexAfterControlsClick(count, by, clicks) {
+  return (count * multiplyer - by * clicks)%count - 1;
+}
+
 // ### base
 function testBase () {
   var id = 'base',
@@ -78,7 +90,6 @@ function testBase () {
   // slide items
   runTest('Check slides width, position, count, aria attrs', function () {
     var slideItems = info.slideItems,
-        windowWidth = getWindowWidth(),
         firstVisible = slideItems[info.slideCount * 2],
         lastVisible = slideItems[info.slideCount * 2 + info.items - 1],
         firstVisiblePrev = slideItems[info.slideCount * 2 - 1],
@@ -105,7 +116,19 @@ function testBase () {
   // base: controls click
   addTitle('base: controls click');
   runTest('Check controls click functions', function () {
-    
+    var assertion = true;
+
+    repeat(function () { info.prevButton.click(); }, 6);
+    if (assertion) {
+      var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -6),
+          current = info.container.querySelector("[aria-hidden='false']");
+      assertion = (sliders[id].getInfo().index)%info.slideCount === absIndex &&
+                  info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+                  compare2Nums(current.getBoundingClientRect().left, 0) &&
+                  current.querySelector('a').textContent === absIndex.toString();
+    }
+
+    return assertion;
   });
 }
 

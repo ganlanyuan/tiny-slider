@@ -1654,6 +1654,7 @@ export var tns = function(options) {
       prevButton: prevButton,
       nextButton: nextButton,
       items: items,
+      slideBy: slideBy,
       index: index,
       indexCached: indexCached,
       navCurrent: navCurrent,
