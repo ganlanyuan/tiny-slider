@@ -27,8 +27,13 @@
     </script> 
     <script src="../dist/tiny-slider.js">
     </script>
+    <div class="test-results">
+      test
+    </div>
     <div class="nav">
-      <input class="visually-hidden" type="checkbox" name="nav-toggle" id="nav-toggle"> <label class="nav-toggle-handle" for="nav-toggle">menu</label>
+      <div class="nav-toggle-handle">
+        menu
+      </div>
       <ul>
         <li>
           <a href="#base_wrapper">base</a>
@@ -1309,11 +1314,17 @@
     <script>
     var doc = document,
         slideList = doc.querySelectorAll('.slider-container > div'),
+        navContainer = doc.querySelector('.nav'),
         nav = doc.querySelector('.nav ul'),
-        toggleInput = doc.querySelector('#nav-toggle'),
+        toggleHandle = doc.querySelector('.nav-toggle-handle'),
         divider = window.innerHeight / 2,
         scrollTimer,
         resizeTimer;
+
+    toggleHandle.onclick = function () {
+      var classN = navContainer.className;
+      navContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
+    };
 
     window.addEventListener('scroll', function () {
       clearTimeout(scrollTimer);
@@ -1340,7 +1351,8 @@
     });
 
     nav.addEventListener('click', function () {
-      if (toggleInput.checked) { toggleInput.checked = false; }
+      var classN = navContainer.className;
+      if (classN.indexOf(' active') > 0) { navContainer.className = classN.replace(' active', ''); }
     });
 
     </script> 
@@ -1348,10 +1360,7 @@
     </script> 
     <script src="js/prism.js">
     </script> <!--[if (gt IE 8)|(!IE)]><!-->
-    <script src="js/lie.polyfill.min.js">
-    </script> 
-    <script src="js/test-helpers.js">
-    </script> 
+     
     <script src="js/test.js">
     </script> <!--<![endif]-->
   </body>

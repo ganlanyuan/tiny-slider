@@ -29,10 +29,12 @@
 {% set titles = ["Lorem ipsum dolor sit amet, consectetur adipisicing.", "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", "Corrupti, libero minima nihil expedita officiis? Quo.", "Alias rem, ab impedit recusandae repellat tempore.", "Nisi inventore quo delectus perspiciatis voluptatibus, quae.", "Nisi harum earum consectetur laudantium iusto, laboriosam.", "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.", "Omnis dolorum eum blanditiis, ratione voluptates quod.", "Animi quis iste ex ullam, similique laboriosam.", "Deserunt, ipsam! Placeat ullam, nam incidunt odit!"] %}
 {% set imgs = ["http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", "http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", "http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540", "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"] %}
 {% block main %}
+  {# test results #}
+  <div class="test-results">test  </div>
+
   {# navigation #}
   <div class="nav">
-    <input class="visually-hidden" type="checkbox" name="nav-toggle" id="nav-toggle">
-    <label class="nav-toggle-handle" for="nav-toggle">menu</label>
+    <div class="nav-toggle-handle">menu</div>
     <ul>
       {% for slide in sliders %}
         <li><a href="#{{ slide }}_wrapper">{{ slide }}</a></li>
@@ -108,11 +110,17 @@
   <script>
     var doc = document,
         slideList = doc.querySelectorAll('.slider-container > div'),
+        navContainer = doc.querySelector('.nav'),
         nav = doc.querySelector('.nav ul'),
-        toggleInput = doc.querySelector('#nav-toggle'),
+        toggleHandle = doc.querySelector('.nav-toggle-handle'),
         divider = window.innerHeight / 2,
         scrollTimer,
         resizeTimer;
+
+    toggleHandle.onclick = function () {
+      var classN = navContainer.className;
+      navContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
+    };
 
     window.addEventListener('scroll', function () {
       clearTimeout(scrollTimer);
@@ -139,7 +147,8 @@
     });
 
     nav.addEventListener('click', function () {
-      if (toggleInput.checked) { toggleInput.checked = false; }
+      var classN = navContainer.className;
+      if (classN.indexOf(' active') > 0) { navContainer.className = classN.replace(' active', ''); }
     });
 
   </script>

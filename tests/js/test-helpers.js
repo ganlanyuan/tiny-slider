@@ -62,3 +62,11 @@ function timeout(delay) {
     });
   };
 }
+
+// Promise.resolve().then(timeout(3000)).then(function () {
+//   nextBtn.click();
+// }).then(timeout(3000)).then(function () {
+//   nextBtn.click();
+// }).then(timeout(3000)).then(function () {
+//   nextBtn.click();
+// });
