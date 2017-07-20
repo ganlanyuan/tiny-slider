@@ -214,3 +214,47 @@ pre[class*="language-"] { margin: 0; }
   padding: 20px 10%;
   background-color: #f2f2f2;
 }
+
+/* go to */
+.goto {
+  margin-bottom: 10px;
+  text-align: center;
+}
+.goto input,
+.goto button {
+  font-size: 14px;
+  height: 2.6em;
+  padding: 0 1em;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+.goto input {
+  border: 1px solid  #ccc;
+}
+.goto button {
+  min-width: 4em;
+  border: none;
+  color: #fff;
+  background-color: #333;
+  cursor: pointer;
+}
+
+/* test results */
+.test-results { font-size: 14px; line-height: 1.6; }
+.test-results .title { font-weight: bold; text-transform: capitalize; }
+.test-results .title:nth-child(n+2) { margin-top: 1em; }
+.test-results [class*="item"] { margin-left: 1em; color: #666; font-size: 0.9em; }
+.test-results [class*="item"]:before { content: '- '; }
+.test-results [class*="item"]:after { margin-left: 0.5em; }
+.test-results .item-success:after { color: #0EB80E; }
+.test-results .item-success:after { content: '✓'; }
+.test-results .item-fail:after { color: #ED1E1E; }
+.test-results .item-fail:after { content: '✗'; }
+.test-results .item-running:after { 
+  display: inline-block;
+  height: 16px;
+  content: url('../images/pinwheel.svg'); 
+  vertical-align: middle; 
+}

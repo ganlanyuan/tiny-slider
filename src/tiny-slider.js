@@ -1071,6 +1071,7 @@ export var tns = function(options) {
 
         if (TRANSITIONDURATION || !duration) {
           doContainerTransform(distance);
+          if (speed === 0) { onTransitionEnd(); }
         } else {
           jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
         }
@@ -1120,7 +1121,7 @@ export var tns = function(options) {
           }
         })();
 
-        if (!TRANSITIONEND) {
+        if (!TRANSITIONEND || speed === 0) {
           setTimeout(onTransitionEnd, speed);
         }
       };

@@ -22,7 +22,8 @@
     <link rel="stylesheet" href="../dist/tiny-slider.css">
     <link rel="stylesheet" href="css/styles.css">
   </head>
-  <body data-speed="100">
+  <body data-speed="0">
+    <div class="test-results"></div>
     <div class="nav">
       <div class="nav-toggle-handle">
         menu
@@ -1839,6 +1840,31 @@
     <script src="js/script.js">
     </script> 
     <script src="js/prism.js">
-    </script>
+    </script> <!--[if (IE 8)&!(IEMobile)]>
+<script>
+  if (Object.defineProperty 
+    && Object.getOwnPropertyDescriptor 
+    && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") 
+    && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function() {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+      Object.defineProperty(Element.prototype, "textContent",
+       {
+         get: function() {
+           return innerText.get.call(this);
+         },
+         set: function(s) {
+           return innerText.set.call(this, s);
+         }
+       }
+     );
+    })();
+  }
+</script>
+<![endif]-->
+     
+    <script src="js/test.js">
+    </script> <!--[if (gt IE 8)|(!IE)]><!-->
+    <!--<![endif]-->
   </body>
 </html>

@@ -19,21 +19,231 @@
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-speed="{{ 100 if page === 'demos' else 0 }}">
+
+{% set sliders = [
+  'base',
+  'goto',
+  'few-items',
+  'non-loop', 
+  'rewind', 
+  'fixedWidth', 
+  'vertical', 
+  'responsive', 
+  'mouse-drag',
+  'gutter', 
+  'edgePadding', 
+  'edgePadding-gutter', 
+  'slide-by-page', 
+  'fixedWidth-gutter', 
+  'fixedWidth-edgePadding', 
+  'fixedWidth-edgePadding-gutter', 
+  'arrowKeys', 
+  'autoplay',
+  'vertical-gutter', 
+  'vertical-edgePadding', 
+  'vertical-edgePadding-gutter', 
+  'animation', 
+  'lazyload', 
+  'customize', 
+  'autoHeight',
+  'nested'
+] %}
+
+{% set titles = [
+  "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
+  "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", 
+  "Corrupti, libero minima nihil expedita officiis? Quo.", 
+  "Alias rem, ab impedit recusandae repellat tempore.", "
+  Nisi inventore quo delectus perspiciatis voluptatibus, quae.", 
+  "Nisi harum earum consectetur laudantium iusto, laboriosam.", 
+  "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.", 
+  "Omnis dolorum eum blanditiis, ratione voluptates quod.", 
+  "Animi quis iste ex ullam, similique laboriosam.", "D
+  eserunt, ipsam! Placeat ullam, nam incidunt odit!"
+] %}
+
+{% set imgs = [
+  "http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", 
+  "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", "http://www.trbimg.com/im
+  g-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", "http://ww
+  w.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540", 
+  "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"
+] %}
+
+{% block main %}
+  {# test results #}
+  {% if page === 'tests' %}
+  <div class="test-results">
+    {# <div class="title">Test 1</div>
+    <div class="item">Test 1</div>
+    <div class="item-success">Test 1</div>
+    <div class="item-fail">Test 1</div>
+    <div class="item">Test 1</div>
+    <div class="title">Test 1</div>
+    <div class="item">Test 1</div> #}
+  </div>
+  {% endif %}
+
+  {# navigation #}
+  <div class="nav">
+    <div class="nav-toggle-handle">menu</div>
+    <ul>
+      {% for slide in sliders %}
+        <li><a href="#{{ slide }}_wrapper">{{ slide }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {# sliders #}
+  <div class="slider-container">
+    {% for slide in sliders %}
+    <div class="{{ slide }}_wrapper" id="{{ slide }}_wrapper">
+      <h2>{{ slide | title }}</h2>
+
+      {# go to #}
+      {% if slide === 'goto' %}
+        <form class="goto" action="" style="margin-bottom: 10px; text-align: center">
+          <label for="">Go to slide: <input type="number" value="-100"></label>
+          <button>Go</button>
+        </form>
+      {% endif %}
+
+      {# slider body #}
+      <div class="{{ slide }}" id="{{ slide }}">
+        {# lazy load #}
+        {% if slide === 'lazyload' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+
+        {# customize #}
+        {% elif slide === 'customize' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+
+        {# auto height #}
+        {% elif slide === 'autoHeight' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="{{ imgs[i - 1] }}" alt=""></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+          
+        {# nested #}
+        {% elif slide === 'nested' %}
+          {% for i in range(1, 8) %}
+          <div class="item">
+            {% if i === 1 %}
+              <div class="{{ slide }}_inner_wrapper" id="{{ slide }}_inner_wrapper">
+                <div class="{{ slide }}_inner" id="{{ slide }}_inner">
+                  {% for i in range(1, 8) %}
+                  <div class="item">
+                    <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+                    <p>{{ titles[i] }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+              <p>{{ titles[i] }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+          
+        {# default #}
+        {% else %}
+          {% for i in range(1, 8) %}
+          <div class="item">
+            <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+            <p>{{ titles[i] }}</p>
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      {# customize tools #}
+      {% if slide === 'customize' %}
+        <div class="customize-tools">
+          <ul class="thumbnails" id="customize-thumbnails">
+            {% for i in range(1, 6) %}
+              <li><img src="images/sm/{{ i }}.jpg" alt=""></li>
+            {% endfor %}
+          </ul>
+          <ul class="controls" id="customize-controls">
+            <li class="prev"><img src="images/angle-left.png" alt=""></li>
+            <li class="next"><img src="images/angle-right.png" alt=""></li>
+          </ul>
+          <div class="playbutton-wrapper"><button id="customize-toggle">Pause</button></div>
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    var doc = document,
+        slideList = doc.querySelectorAll('.slider-container > div'),
+        navContainer = doc.querySelector('.nav'),
+        nav = doc.querySelector('.nav ul'),
+        toggleHandle = doc.querySelector('.nav-toggle-handle'),
+        divider = window.innerHeight / 2,
+        scrollTimer,
+        resizeTimer;
+
+    toggleHandle.onclick = function () {
+      var classN = navContainer.className;
+      navContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
+    };
+
+    window.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+
+      scrollTimer = setTimeout(function () {
+        [].forEach.call(slideList, function (el) {
+          var rect = el.getBoundingClientRect(),
+              navLink = nav.querySelector('[href="#' + el.id + '"]');
+          if (rect.top <= divider && rect.bottom > divider) {
+            if (navLink.className !== 'active') { navLink.className = 'active'; }
+          } else {
+            if (navLink.className !== '') { navLink.className = ''; }
+          }
+        });
+      }, 100);
+    });
+
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(function () {
+        divider = window.innerHeight / 2;
+      }, 100);
+    });
+
+    nav.addEventListener('click', function () {
+      var classN = navContainer.className;
+      if (classN.indexOf(' active') > 0) { navContainer.className = classN.replace(' active', ''); }
+    });
+
+  </script>
+{% endblock %}
 
 <script src="../dist/tiny-slider.helper.ie8.js"></script>
 <script src="../dist/tiny-slider.js"></script>
-{% block main %}
-{% endblock %}
-
-<script src="js/script.min.js"></script>
+<script src="js/script.js"></script>
 <script src="js/prism.js"></script>
 
-<!--[if (gt IE 8)|(!IE)]><!-->
-{# <script src="js/lie.polyfill.min.js"></script>
-<script src="js/test-helpers.js"></script> #}
-<script src="js/test.js"></script>
-<!--<![endif]-->
+{% block footerScripts %}
+{% endblock %}
 
 </body>
 </html>

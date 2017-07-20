@@ -1,8 +1,8 @@
 // import { tns } from '../../src/tiny-slider';
 
 var doc = document,
-    sliders = {},
-    speed = 100,
+    sliders = new Object(),
+    speed = Number(document.body.getAttribute('data-speed')),
     edgepadding = 50,
     gutter = 10,
     options= {
@@ -10,6 +10,13 @@ var doc = document,
         container: '',
         items: 3,
         slideBy: 'page',
+      },
+      'goto': {
+        container: '',
+        items: 3,
+        slideBy: 'page',
+        nav: false,
+        controls: false,
       },
       'few-items': {
         container: '',
@@ -150,6 +157,21 @@ var doc = document,
         container: '',
         autoHeight: true,
         items: 1,
+      },
+      'nested': {
+        container: '',
+        items: 1,
+        loop: false,
+        autoHeight: true,
+        nested: 'outer'
+      },
+      'nested_inner': {
+        container: '',
+        items: 3,
+        nested: 'inner',
+        edgePadding: 20,
+        loop: false,
+        slideBy: 'page'
       }
     };
 
@@ -171,22 +193,16 @@ for (var i in options) {
   }, '  ') + '</code></pre>');
 }
 
-// tns().events.on('initilized', function(info) {
-//   console.log(info.container.id);
-// });
-// console.log(lazyloadS.events === customizeS.events);
-// lazyloadS.events.on('transitionEnd', function(info) {
-//   console.log(info.container.id);
-// });
+// goto
+var goto = doc.querySelector('#goto_wrapper .goto'),
+    gotoBtn = goto.querySelector('button'),
+    gotoInput = goto.querySelector('input');
+gotoBtn.onclick = function (e) {
+  e = e || window.event;
+  e.preventDefault ? e.preventDefault() : (e.returnValue = false);
 
-// tns().events.on('transitionEnd', function(info) {
-//   if (info.container.id === 'base') {
-//     console.log(e.type, info.container.id);
-//   }
-// });
-
-// document.querySelector('.responsive_wrapper [data-controls="next"]').addEventListener('click', function () {
-//   var info = responsiveSD.getInfo();
-//   alert(info.indexCached + ' : ' + info.index);
-// }, false);
-
+  var index = Number(gotoInput.value);
+  if (typeof index === 'number') {
+    sliders['goto'].goTo(index);
+  }
+}

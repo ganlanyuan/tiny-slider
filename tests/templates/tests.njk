@@ -1,0 +1,35 @@
+{% set page = 'tests' %}
+{% extends './parts/layout.njk' %}
+
+{% block footerScripts %}
+{# Node.textContent polyfill for IE8 #}
+<!--[if (IE 8)&!(IEMobile)]>
+<script>
+  if (Object.defineProperty 
+    && Object.getOwnPropertyDescriptor 
+    && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") 
+    && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function() {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+      Object.defineProperty(Element.prototype, "textContent",
+       {
+         get: function() {
+           return innerText.get.call(this);
+         },
+         set: function(s) {
+           return innerText.set.call(this, s);
+         }
+       }
+     );
+    })();
+  }
+</script>
+<![endif]-->
+
+{# <script src="js/lie.polyfill.min.js"></script>
+<script src="js/test-helpers.js"></script> #}
+<script src="js/test.js"></script>
+
+<!--[if (gt IE 8)|(!IE)]><!-->
+<!--<![endif]-->
+{% endblock %}
