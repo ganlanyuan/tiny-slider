@@ -768,7 +768,7 @@ export var tns = function(options) {
 
   // === INITIALIZATION FUNCTIONS === //
   function getViewWidth () {
-    return innerWrapper.clientWidth;
+    return outerWrapper.clientWidth;
   }
 
   // compare slide count & items

@@ -496,6 +496,11 @@ function testFixedWidthGutter () {
       info = slider.getInfo();
 
   addTitle(id);
+
+  runTest('Slides: gutter', function () {
+    var slideItems = info.slideItems;
+    return compare2Nums(slideItems[0].clientWidth, 310);
+  });
 }
 
 function testFixedWidthEdgePadding () {
@@ -504,6 +509,13 @@ function testFixedWidthEdgePadding () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slides: edge padding', function () {
+    var slideItems = info.slideItems,
+        slideCount = info.slideCount,
+        items = info.items;
+
+    return compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth - slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right);
+  });
 }
 
 function testFixedWidthEdgePaddingGutter () {
@@ -512,6 +524,13 @@ function testFixedWidthEdgePaddingGutter () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slides: edge padding', function () {
+    var slideItems = info.slideItems,
+        slideCount = info.slideCount,
+        items = info.items;
+    console.log(items, slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth + 10 , slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right);
+    return compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth - slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right + 10);
+  });
 }
 
 function testVertical () {
