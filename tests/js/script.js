@@ -179,30 +179,34 @@ for (var i in options) {
   var item = options[i];
   item.container = doc.querySelector('#' + i);
   if (!item.speed) { item.speed = speed; }
-  sliders[i] = tns(options[i]);
-  // sliders[i].destroy();
+  if (item.container) {
+    sliders[i] = tns(options[i]);
+    // sliders[i].destroy();
 
-  // insert code
-  doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
-    if (typeof value === 'object') {
-      if (value.id) {
-        return "document.querySelector('#" + value.id + "')";
+    // insert code
+    doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
+      if (typeof value === 'object') {
+        if (value.id) {
+          return "document.querySelector('#" + value.id + "')";
+        }
       }
-    }
-    return value;
-  }, '  ') + '</code></pre>');
+      return value;
+    }, '  ') + '</code></pre>');
+  }
 }
 
 // goto
-var goto = doc.querySelector('#goto_wrapper .goto'),
-    gotoBtn = goto.querySelector('button'),
-    gotoInput = goto.querySelector('input');
-gotoBtn.onclick = function (e) {
-  e = e || window.event;
-  e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+if (doc.querySelector('#goto_wrapper')) {
+  var goto = doc.querySelector('#goto_wrapper .goto-controls'),
+      gotoBtn = goto.querySelector('button'),
+      gotoInput = goto.querySelector('input');
+  gotoBtn.onclick = function (e) {
+    e = e || window.event;
+    e.preventDefault ? e.preventDefault() : (e.returnValue = false);
 
-  var index = Number(gotoInput.value);
-  if (typeof index === 'number') {
-    sliders['goto'].goTo(index);
+    var index = Number(gotoInput.value);
+    if (typeof index === 'number') {
+      sliders['goto'].goTo(index);
+    }
   }
 }

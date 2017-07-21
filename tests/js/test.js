@@ -66,13 +66,68 @@ function getAbsIndexAfterControlsClick(count, by, clicks) {
   return (count * multiplyer + by * clicks)%count;
 }
 
+function checkControlsClick (slider, info, number, edge) {
+  var assertion = true;
+  if (edge === undefined) { edge = 'left'; }
+  var innerWrapperEdge = info.container.parentNode.getBoundingClientRect()[edge];
+
+  // click prev button n times
+  repeat(function () { info.prevButton.click(); }, number);
+  if (assertion) {
+    var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -number),
+        current = info.container.querySelector("[aria-hidden='false']");
+    assertion = 
+      (slider.getInfo().index)%info.slideCount === absIndex &&
+      info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      compare2Nums(current.getBoundingClientRect()[edge], innerWrapperEdge) &&
+      current.querySelector('a').textContent === absIndex.toString();
+  }
+
+  // click next button n times
+  repeat(function () { info.nextButton.click(); }, number);
+  if (assertion) {
+    var absIndex = 0,
+        current = info.container.querySelector("[aria-hidden='false']");
+    assertion = 
+      (slider.getInfo().index)%info.slideCount === absIndex &&
+      info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      compare2Nums(current.getBoundingClientRect()[edge], innerWrapperEdge) &&
+      current.querySelector('a').textContent === absIndex.toString();
+  }
+
+  return assertion;
+}
+
 // [[[[[[[[]]]]]]]]
 window.onload = function () {
   testBase();
+  testGoto();
   testNonLoop();
   testRewind();
-  testGoto();
+  testFixedWidth();
+  testFixedWidthGutter();
+  testFixedWidthEdgePadding();
+  testFixedWidthEdgePaddingGutter();
+  testVertical();
+  testVerticalGutter();
+  testVerticalEdgePadding();
+  testVerticalEdgePaddingGutter();
+  testResponsive();
+  testMouseDrag();
+  testGutter();
+  testEdgePadding();
+  testEdgePaddingGutter();
+  testFewitems();
+  testSlideByPage();
+  testArrowKeys();
+  testAutoplay();
+  testAnimation();
+  testLazyload();
+  testCustomize();
+  testAutoHeight();
+  testNested();
 };
+
 
 // window.onresize = function () {
 //   resultsDiv.innerHTML = '';
@@ -151,33 +206,7 @@ function testBase () {
   });
 
   runTest('Controls: click functions', function () {
-    var assertion = true;
-
-    // click prev button
-    repeat(function () { info.prevButton.click(); }, 11);
-    if (assertion) {
-      var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -11),
-          current = info.container.querySelector("[aria-hidden='false']");
-      assertion = 
-        (slider.getInfo().index)%info.slideCount === absIndex &&
-        info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(current.getBoundingClientRect().left, 0) &&
-        current.querySelector('a').textContent === absIndex.toString();
-    }
-
-    // click next button
-    repeat(function () { info.nextButton.click(); }, 11);
-    if (assertion) {
-      var absIndex = 0,
-          current = info.container.querySelector("[aria-hidden='false']");
-      assertion = 
-        (slider.getInfo().index)%info.slideCount === absIndex &&
-        info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(current.getBoundingClientRect().left, 0) &&
-        current.querySelector('a').textContent === absIndex.toString();
-    }
-
-    return assertion;
+    return checkControlsClick (slider, info, 11);
   });
 
   runTest('Nav: click functions', function () {
@@ -409,7 +438,251 @@ function testRewind() {
 function testGoto () {
   var id = 'goto',
       slider = sliders[id],
+      info = slider.getInfo(),
+      controls = document.querySelector('#goto_wrapper .goto-controls'),
+      input = controls.querySelector('input'),
+      button = controls.querySelector('button');
+
+  addTitle(id);
+  runTest('Random positive numbers', function () {
+    var assertion = true,
+        mul = 100;
+
+    function checkGoto() {
+      var number = Math.round(Math.random() * mul);
+      input.value = number;
+      button.click();
+      while (number < 0) { number += info.slideCount; }
+      if (assertion) {
+        assertion = slider.getInfo().index%info.slideCount === number%info.slideCount;
+      }
+    }
+
+    repeat(checkGoto, 3);
+
+    mul = -100;
+    repeat(checkGoto, 3);
+
+    return assertion;
+  });
+}
+
+function testFixedWidth() {
+  var id = 'fixedWidth',
+      fixedWidth = 300,
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Slides: position', function () {
+    var assertion = true,
+        slideItems = info.slideItems,
+        slideCount = info.slideCount,
+        items = info.items;
+    assertion = items === Math.floor(windowWidth / fixedWidth) &&
+      compare2Nums(slideItems[slideCount*2].getBoundingClientRect().left, 0);
+    return assertion;
+  });
+
+  runTest('Controls: click functions', function () {
+    return checkControlsClick (slider, info, (info.slideCount * 3 + 2));
+  });
+}
+
+function testFixedWidthGutter () {
+  var id = 'fixedWidth-gutter',
+      slider = sliders[id],
       info = slider.getInfo();
 
   addTitle(id);
 }
+
+function testFixedWidthEdgePadding () {
+  var id = 'fixedWidth-edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testFixedWidthEdgePaddingGutter () {
+  var id = 'fixedWidth-edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testVertical () {
+  var id = 'vertical',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Inner wrapper: classes', function () {
+    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-hdy']);
+  });
+
+  runTest('Container: classes', function () {
+    return containsClasses(info.container, ['tns-slider', 'tns-carousel', 'tns-vertical']);
+  });
+
+  runTest('Slides: width, position', function () {
+    var slideItems = info.slideItems,
+        slideCount = info.slideCount,
+        innerWrapper = info.container.parentNode;
+
+    return compare2Nums(slideItems[0].getBoundingClientRect().left, 0) &&
+      compare2Nums(slideItems[0].getBoundingClientRect().right, windowWidth) &&
+      compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().top, innerWrapper.getBoundingClientRect().top) &&
+      compare2Nums(slideItems[slideCount * 2 + info.items - 1].getBoundingClientRect().bottom, innerWrapper.getBoundingClientRect().bottom);
+  });
+
+  runTest('slides: click functions', function () {
+    return checkControlsClick (slider, info, 11, 'top');
+  });
+}
+
+function testVerticalGutter() {
+  var id = 'vertical-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testVerticalEdgePadding () {
+  var id = 'vertical-edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testVerticalEdgePaddingGutter () {
+  var id = 'vertical-edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testResponsive() {
+  var id = 'responsive',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testMouseDrag() {
+  var id = 'mouse-drag',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testGutter() {
+  var id = 'gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testEdgePadding() {
+  var id = 'edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testEdgePaddingGutter() {
+  var id = 'edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testFewitems() {
+  var id = 'few-items',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slide: count && controls: hidden && nav: hidden', function () {
+    return compare2Nums(info.slideItems[info.slideCount * 3 - 1].getBoundingClientRect().right, windowWidth) &&
+      info.controlsContainer.hasAttribute('hidden') &&
+      info.navContainer.hasAttribute('hidden');
+  });
+}
+
+function testSlideByPage () {
+  var id = 'slide-by-page',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testArrowKeys () {
+  var id = 'arrowKeys',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testAutoplay () {
+  var id = 'autoplay',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testAnimation () {
+  var id = 'animation',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testLazyload () {
+  var id = 'lazyload',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testCustomize () {
+  var id = 'customize',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testAutoHeight () {
+  var id = 'autoHeight',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+
+function testNested () {
+  var id = 'nested',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+}
+

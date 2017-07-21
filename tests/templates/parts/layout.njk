@@ -24,25 +24,25 @@
 {% set sliders = [
   'base',
   'goto',
-  'few-items',
   'non-loop', 
   'rewind', 
   'fixedWidth', 
+  'fixedWidth-gutter', 
+  'fixedWidth-edgePadding', 
+  'fixedWidth-edgePadding-gutter', 
   'vertical', 
+  'vertical-gutter', 
+  'vertical-edgePadding', 
+  'vertical-edgePadding-gutter', 
   'responsive', 
   'mouse-drag',
   'gutter', 
   'edgePadding', 
   'edgePadding-gutter', 
+  'few-items',
   'slide-by-page', 
-  'fixedWidth-gutter', 
-  'fixedWidth-edgePadding', 
-  'fixedWidth-edgePadding-gutter', 
   'arrowKeys', 
   'autoplay',
-  'vertical-gutter', 
-  'vertical-edgePadding', 
-  'vertical-edgePadding-gutter', 
   'animation', 
   'lazyload', 
   'customize', 
@@ -103,7 +103,7 @@
 
       {# go to #}
       {% if slide === 'goto' %}
-        <form class="goto" action="" style="margin-bottom: 10px; text-align: center">
+        <form class="goto-controls" action="">
           <label for="">Go to slide: <input type="number" value="-100"></label>
           <button>Go</button>
         </form>

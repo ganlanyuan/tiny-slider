@@ -19,6 +19,8 @@ h2 {
   h2 { padding-top: 160px; }
 }
 p { 
+  margin: 0;
+  padding: 0.8em 0;
   line-height: 1.4;
   font-weight: 300;
   text-align: center;
@@ -216,12 +218,12 @@ pre[class*="language-"] { margin: 0; }
 }
 
 /* go to */
-.goto {
+.goto-controls {
   margin-bottom: 10px;
   text-align: center;
 }
-.goto input,
-.goto button {
+.goto-controls input,
+.goto-controls button {
   font-size: 14px;
   height: 2.6em;
   padding: 0 1em;
@@ -230,10 +232,10 @@ pre[class*="language-"] { margin: 0; }
   box-sizing: border-box;
   vertical-align: middle;
 }
-.goto input {
+.goto-controls input {
   border: 1px solid  #ccc;
 }
-.goto button {
+.goto-controls button {
   min-width: 4em;
   border: none;
   color: #fff;
