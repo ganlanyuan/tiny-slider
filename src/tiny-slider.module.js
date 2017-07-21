@@ -1408,28 +1408,52 @@ export var tns = function(options) {
         curElement = doc.activeElement,
         dataSlide = Number(getAttr(curElement, 'data-nav')),
         len = visibleNavIndexes.length,
-        current = visibleNavIndexes.indexOf(dataSlide);
+        current = visibleNavIndexes.indexOf(dataSlide),
+        navIndex;
+
+    if (options.navContainer) {
+      len = slideCount;
+      current = dataSlide;
+    }
+
+    function getNavIndex(num) {
+      return (options.navContainer) ? num : visibleNavIndexes[num];
+    }
 
     switch(code) {
       case KEYS.LEFT:
       case KEYS.PAGEUP:
-        if (current > 0) { changeFocus(curElement, navItems[visibleNavIndexes[current - 1]]); }
+        if (current > 0) { 
+          changeFocus(curElement, navItems[getNavIndex(current - 1)]); 
+        }
         break;
+
       case KEYS.UP:
       case KEYS.HOME:
-        if (current > 0) { changeFocus(curElement, navItems[visibleNavIndexes[0]]); }
+        if (current > 0) { 
+          changeFocus(curElement, navItems[getNavIndex(0)]); 
+        }
         break;
+
       case KEYS.RIGHT:
       case KEYS.PAGEDOWN:
-        if (current < len - 1) { changeFocus(curElement, navItems[visibleNavIndexes[current + 1]]); }
+        if (current < len - 1) { 
+          changeFocus(curElement, navItems[getNavIndex(current + 1)]); 
+        }
         break;
+
       case KEYS.DOWN:
       case KEYS.END:
-        if (current < len - 1) { changeFocus(curElement, navItems[visibleNavIndexes[len - 1]]); }
+        if (current < len - 1) { 
+          changeFocus(curElement, navItems[getNavIndex(len - 1)]); 
+        }
         break;
+
       case KEYS.ENTER:
       case KEYS.SPACE:
-        onNavClick(e);
+        if (options.navContainer) {
+          onNavClick(e);
+        }
         break;
     }
   }

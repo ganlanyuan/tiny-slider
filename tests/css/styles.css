@@ -249,10 +249,11 @@ pre[class*="language-"] { margin: 0; }
 .test-results [class*="item"] { font-weight: 300; }
 .test-results [class*="item"]:before { content: '- '; }
 .test-results [class*="item"]:after { margin-left: 0.5em; }
-.test-results .item-success:after { color: #0EB80E; }
+.test-results .item-success { color: #0EB80E; }
 .test-results .item-success:after { content: '✓'; }
-.test-results .item-fail:after { color: #ED1E1E; }
+.test-results .item-fail { color: #ED1E1E; }
 .test-results .item-fail:after { content: '✗'; }
+.test-results .item-notsure:after { content: '？'; }
 .test-results .item-running:after { 
   display: inline-block;
   height: 16px;
