@@ -1,6 +1,8 @@
 var resultsDiv = doc.querySelector('.test-results'),
     windowWidth = getWindowWidth(),
-    multiplyer = 100;
+    multiplyer = 100,
+    ua = navigator.userAgent,
+    tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex';
 
 function addTitle(str) {
   var title = doc.createElement('div');
@@ -101,7 +103,18 @@ function testBase () {
   });
 
   runTest('Controls: attrs', function () {
-    
+    var controlsContainer = info.controlsContainer,
+        prevButton = info.prevButton,
+        nextButton = info.nextButton;
+    return containsClasses(controlsContainer, 'tns-controls') &&
+      controlsContainer.getAttribute('aria-label') === 'Carousel Navigation' &&
+      controlsContainer.getAttribute(tabindex) === '0' &&
+      prevButton.getAttribute(tabindex) === '-1' &&
+      prevButton.getAttribute('data-controls') === 'prev' &&
+      prevButton.getAttribute('aria-controls') === id &&
+      nextButton.getAttribute(tabindex) === '-1' &&
+      nextButton.getAttribute('data-controls') === 'next' &&
+      nextButton.getAttribute('aria-controls') === id;
   });
 
   runTest('Nav items: data-nav & hidden attrs', function () {
@@ -109,9 +122,9 @@ function testBase () {
         nav0 = navItems[0],
         nav1 = navItems[1];
     return nav0.getAttribute('data-nav') === '0' &&
-            !nav0.hasAttribute('hidden') &&
-            nav1.getAttribute('data-nav') === '1' &&
-            nav1.hasAttribute('hidden');
+      !nav0.hasAttribute('hidden') &&
+      nav1.getAttribute('data-nav') === '1' &&
+      nav1.hasAttribute('hidden');
   });
 
   runTest('Controls: click functions', function () {

@@ -25,6 +25,7 @@ function simulateClick(el) {
 }
 // simulateClick(clickHandler)
 
+// IE9+, firefox8+, chrome19+, opera12.1+, safari6+
 function CustomEvent (event, params) {
   params = params || { bubbles: false, cancelable: false, detail: undefined };
   var evt;

@@ -2301,7 +2301,9 @@ var tns = function(options) {
     return {
       container: container,
       slideItems: slideItems,
+      navContainer: navContainer,
       navItems: navItems,
+      controlsContainer: controlsContainer,
       prevButton: prevButton,
       nextButton: nextButton,
       items: items,
