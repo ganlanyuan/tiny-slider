@@ -2306,13 +2306,15 @@ var tns = function(options) {
       nextButton: nextButton,
       items: items,
       slideBy: slideBy,
+      cloneCount: cloneCount,
+      slideCount: slideCount,
+      slideCountNew: slideCountNew,
       index: index,
       indexCached: indexCached,
       navCurrent: navCurrent,
       navCurrentCached: navCurrentCached,
-      slideCount: slideCount,
-      cloneCount: cloneCount,
-      slideCountNew: slideCountNew,
+      visibleNavIndexes: visibleNavIndexes,
+      visibleNavIndexesCached: visibleNavIndexesCached,
       event: e || {},
     };
   }

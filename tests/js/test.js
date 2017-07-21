@@ -49,7 +49,7 @@ function repeat(fn, times) {
 }
 
 function getAbsIndexAfterControlsClick(count, by, clicks) {
-  return (count * multiplyer - by * clicks)%count - 1;
+  return (count * multiplyer + by * clicks)%count;
 }
 
 // ### base
@@ -58,37 +58,24 @@ function testBase () {
       slider = sliders[id],
       info = slider.getInfo();
 
+
+
   // base init <===
   addTitle('base: init');
 
-  // outer wrapper classes
-  runTest('Outer wrapper should contains correct classes', function () {
+  runTest('Outer wrapper: classes', function () {
     return containsClasses(info.container.parentNode.parentNode, ['tns-hdx', 'tns-outer']);
   });
 
-  // inner wrapper classes
-  runTest('Inner wrapper should contains correct classes', function () {
+  runTest('Inner wrapper: classes', function () {
     return containsClasses(info.container.parentNode, ['tns-inner']);
   });
 
-  // container classes
-  runTest('Container should contains correct classes', function () {
+  runTest('Container: classes', function () {
     return containsClasses(info.container, ['base','tns-slider','tns-carousel','tns-horizontal']);
   });
 
-  // nav items
-  runTest('Data-nav & hidden attrs should be set up on nav items', function () {
-    var navItems = info.navItems,
-        nav0 = navItems[0],
-        nav1 = navItems[1];
-    return nav0.getAttribute('data-nav') === '0' &&
-            !nav0.hasAttribute('hidden') &&
-            nav1.getAttribute('data-nav') === '1' &&
-            nav1.hasAttribute('hidden');
-  });
-
-  // slide items
-  runTest('Check slides width, position, count, aria attrs', function () {
+  runTest('Slides: width, position, count, aria attrs', function () {
     var slideItems = info.slideItems,
         firstVisible = slideItems[info.slideCount * 2],
         lastVisible = slideItems[info.slideCount * 2 + info.items - 1],
@@ -113,20 +100,83 @@ function testBase () {
             compare2Nums(lastVisible.getBoundingClientRect().right, windowWidth) ;
   });
 
-  // base: controls click
-  addTitle('base: controls click');
-  runTest('Check controls click functions', function () {
+  runTest('Controls: attrs', function () {
+    
+  });
+
+  runTest('Nav items: data-nav & hidden attrs', function () {
+    var navItems = info.navItems,
+        nav0 = navItems[0],
+        nav1 = navItems[1];
+    return nav0.getAttribute('data-nav') === '0' &&
+            !nav0.hasAttribute('hidden') &&
+            nav1.getAttribute('data-nav') === '1' &&
+            nav1.hasAttribute('hidden');
+  });
+
+  runTest('Controls: click functions', function () {
     var assertion = true;
 
+    // click prev button
     repeat(function () { info.prevButton.click(); }, 6);
     if (assertion) {
       var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -6),
           current = info.container.querySelector("[aria-hidden='false']");
-      assertion = (sliders[id].getInfo().index)%info.slideCount === absIndex &&
-                  info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-                  compare2Nums(current.getBoundingClientRect().left, 0) &&
-                  current.querySelector('a').textContent === absIndex.toString();
+      assertion = 
+        (sliders[id].getInfo().index)%info.slideCount === absIndex &&
+        info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+        compare2Nums(current.getBoundingClientRect().left, 0) &&
+        current.querySelector('a').textContent === absIndex.toString();
     }
+
+    // click next button
+    repeat(function () { info.nextButton.click(); }, 11);
+    if (assertion) {
+      var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, (11 - 6)),
+          current = info.container.querySelector("[aria-hidden='false']");
+      assertion = 
+        (sliders[id].getInfo().index)%info.slideCount === absIndex &&
+        info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+        compare2Nums(current.getBoundingClientRect().left, 0) &&
+        current.querySelector('a').textContent === absIndex.toString();
+    }
+
+    return assertion;
+  });
+
+  runTest('Nav: click functions', function () {
+    var assertion = true;
+    var visibleNavIndexes = info.visibleNavIndexes;
+
+    // click 2nd visible nav
+    info.navItems[visibleNavIndexes[1]].click();
+    var current = info.container.querySelector("[aria-hidden='false']");
+    assertion = 
+      info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
+      (sliders[id].getInfo().index)%info.slideCount === visibleNavIndexes[1] &&
+      compare2Nums(current.getBoundingClientRect().left, 0) &&
+      current.querySelector('a').textContent === visibleNavIndexes[1].toString()
+      ;
+
+    // click 3rd visible nav
+    info.navItems[visibleNavIndexes[2]].click();
+    var current = info.container.querySelector("[aria-hidden='false']");
+    assertion = 
+      info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
+      (sliders[id].getInfo().index)%info.slideCount === visibleNavIndexes[2] &&
+      compare2Nums(current.getBoundingClientRect().left, 0) &&
+      current.querySelector('a').textContent === visibleNavIndexes[2].toString()
+      ;
+
+    // click 1st visible nav
+    info.navItems[visibleNavIndexes[0]].click();
+    var current = info.container.querySelector("[aria-hidden='false']");
+    assertion = 
+      info.navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
+      (sliders[id].getInfo().index)%info.slideCount === visibleNavIndexes[0] &&
+      compare2Nums(current.getBoundingClientRect().left, 0) &&
+      current.querySelector('a').textContent === visibleNavIndexes[0].toString()
+      ;
 
     return assertion;
   });
