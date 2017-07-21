@@ -135,17 +135,22 @@ There are 2 ways to get slider information, each of them returns an `info` Objec
 info = {
   container: container, // slider container
   slideItems: slideItems, // slides list
+  navContainer: navContainer, // nav container
   navItems: navItems, // dots list
+  controlsContainer: controlsContainer, // controls container
   prevButton: prevButton, // previous button
   nextButton: nextButton, // next button
   items: items, // items on a page
+  slideBy: slideBy // items slide by
+  cloneCount: cloneCount, // cloned slide count
+  slideCount: slideCount, // original slide count
+  slideCountNew: slideCountNew, // total slide count after initialization
   index: index, // current index
   indexCached: indexCached, // previous index
   navCurrent: navCurrent, // current dot index
   navCurrentCached: navCurrentCached, // previous dot index
-  slideCount: slideCount, // original slide count
-  cloneCount: cloneCount, // cloned slide count
-  slideCountNew: slideCountNew, // total slide count after initialization
+  visibleNavIndexes: visibleNavIndexes, // visible nav indexes
+  visibleNavIndexesCached: visibleNavIndexesCached,
   event: e || {}, // event object if available
 };
 ```
