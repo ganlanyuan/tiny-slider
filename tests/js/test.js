@@ -711,6 +711,55 @@ function testAutoplay () {
       info = slider.getInfo();
 
   addTitle(id);
+
+  runTest('autoplayButton: attrs, click', function () {
+    var assertion = true,
+        buttons = info.navContainer.children,
+        autoplayButton = buttons[buttons.length - 1];
+
+    assertion = autoplayButton.getAttribute('data-action') === 'stop' && 
+      autoplayButton.textContent.indexOf('Stop Animation') > -1;
+
+    autoplayButton.click();
+    if (assertion) {
+      assertion = autoplayButton.getAttribute('data-action') === 'start' &&
+      autoplayButton.textContent.indexOf('Start Animation') > -1;
+    }
+
+    autoplayButton.click();
+    if (assertion) {
+      assertion = autoplayButton.getAttribute('data-action') === 'stop' &&
+      autoplayButton.textContent.indexOf('Stop Animation') > -1;
+    }
+
+    return assertion;
+  });
+
+  function testAutoplayFn (el, condition) {
+    var assertion = true,
+        container = info.container,
+        activeSlideIndex = container.querySelector('[aria-hidden="false"] a').textContent;
+
+    setTimeout(function () {
+      assertion = activeSlideIndex === container.querySelector('[aria-hidden="false"] a').textContent;
+      if (condition) {
+        el.className = (assertion) ? 'item-success' : 'item-fail';
+      } else {
+        el.className = (!assertion) ? 'item-success' : 'item-fail';
+      }
+    }, options[id]['autoplayTimeout'] + options[id]['speed'] + 100);
+  };
+
+  var test1 = addTest('Slide: autoplay');
+  testAutoplayFn(test1, false);
+
+  var test2 = addTest('Slide: autoplay pasue');
+  setTimeout(function () {
+    var buttons = info.navContainer.children,
+        autoplayButton = buttons[buttons.length - 1];
+    autoplayButton.click();
+    testAutoplayFn(test2, true);
+  }, options[id]['autoplayTimeout'] + options[id]['speed'] + 100);
 }
 
 function testAnimation () {

@@ -97,9 +97,10 @@ var doc = document,
       'autoplay': {
         container: '',
         items: 3,
+        speed: 300,
         autoplay: true,
         autoplayHoverPause: true,
-        autoplayTimeout: speed * 9,
+        autoplayTimeout: 2000,
         autoplayText: ['▶', '❚❚'],
       }, 
       'vertical': {
