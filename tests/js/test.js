@@ -1,6 +1,8 @@
 var resultsDiv = doc.querySelector('.test-results'),
     windowWidth = getWindowWidth(),
     multiplyer = 100,
+    edgePadding = 50,
+    gutter = 10,
     ua = navigator.userAgent,
     tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex';
 
@@ -68,7 +70,7 @@ function getAbsIndexAfterControlsClick(count, by, clicks) {
 
 function checkControlsClick (slider, info, number, edge) {
   var assertion = true;
-  if (edge === undefined) { edge = 'left'; }
+  edge = edge || 'left';
   var innerWrapperEdge = info.container.parentNode.getBoundingClientRect()[edge];
 
   // click prev button n times
@@ -96,6 +98,21 @@ function checkControlsClick (slider, info, number, edge) {
   }
 
   return assertion;
+}
+
+function checkPositionEdgePadding (info, padding, gap, vertical) {
+  padding = padding || 0;
+  vertical = vertical || false;
+  var slideItems = info.slideItems,
+      cloneCount = info.cloneCount,
+      wrapper = info.container.parentNode,
+      edge1 = (vertical) ? 'top' : 'left',
+      edge2 = (vertical) ? 'bottom' : 'right',
+      gutterAdjust = (vertical) ? 0 : (padding) ? gap : 0;
+
+  if (!vertical) { wrapper = wrapper.parentNode; }
+  return compare2Nums(slideItems[cloneCount].getBoundingClientRect()[edge1] - (padding + gap), wrapper.getBoundingClientRect()[edge1]) &&
+    compare2Nums(slideItems[cloneCount + info.items - 1].getBoundingClientRect()[edge2] - gutterAdjust, wrapper.getBoundingClientRect()[edge2] - (padding + gap));
 }
 
 // [[[[[[[[]]]]]]]]
@@ -154,12 +171,12 @@ function testBase () {
     return containsClasses(info.container, ['base','tns-slider','tns-carousel','tns-horizontal']);
   });
 
-  runTest('Slides: width, position, count, id, class, aria-hidden, tabindex', function () {
+  runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
     var slideItems = info.slideItems,
-        firstVisible = slideItems[info.slideCount * 2],
-        lastVisible = slideItems[info.slideCount * 2 + info.items - 1],
-        firstVisiblePrev = slideItems[info.slideCount * 2 - 1],
-        lastVisibleNext = slideItems[info.slideCount * 2 + info.items];
+        firstVisible = slideItems[info.cloneCount],
+        lastVisible = slideItems[info.cloneCount + info.items - 1],
+        firstVisiblePrev = slideItems[info.cloneCount - 1],
+        lastVisibleNext = slideItems[info.cloneCount + info.items];
 
     return slideItems.length === info.slideCount * 5 &&
             containsClasses(firstVisible, ['tns-item']) &&
@@ -175,9 +192,11 @@ function testBase () {
             lastVisibleNext.getAttribute('aria-hidden') === 'true' &&
             lastVisibleNext.getAttribute('tabindex') === '-1' &&
             compare2Nums(firstVisible.clientWidth, windowWidth / info.items) &&
-            compare2Nums(firstVisible.getBoundingClientRect().left, 0) &&
-            compare2Nums(lastVisible.getBoundingClientRect().right, windowWidth) &&
             compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.getBoundingClientRect().top);
+  });
+
+  runTest('Slides: position', function () {
+    return checkPositionEdgePadding(info, 0, 0);
   });
 
   runTest('Controls: class, aria-label, aria-controls, data-controls, tabindex', function () {
@@ -511,10 +530,10 @@ function testFixedWidthEdgePadding () {
   addTitle(id);
   runTest('Slides: edge padding', function () {
     var slideItems = info.slideItems,
-        slideCount = info.slideCount,
+        cloneCount = info.cloneCount,
         items = info.items;
 
-    return compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth - slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right);
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right);
   });
 }
 
@@ -526,10 +545,10 @@ function testFixedWidthEdgePaddingGutter () {
   addTitle(id);
   runTest('Slides: edge padding', function () {
     var slideItems = info.slideItems,
-        slideCount = info.slideCount,
+        cloneCount = info.cloneCount,
         items = info.items;
-    console.log(items, slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth + 10 , slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right);
-    return compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().left, windowWidth - slideItems[slideCount * 2 + items - 1].getBoundingClientRect().right + 10);
+
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + 10);
   });
 }
 
@@ -548,15 +567,15 @@ function testVertical () {
     return containsClasses(info.container, ['tns-slider', 'tns-carousel', 'tns-vertical']);
   });
 
-  runTest('Slides: width, position', function () {
-    var slideItems = info.slideItems,
-        slideCount = info.slideCount,
-        innerWrapper = info.container.parentNode;
+  runTest('Slides: width', function () {
+    var slideItems = info.slideItems;
 
     return compare2Nums(slideItems[0].getBoundingClientRect().left, 0) &&
-      compare2Nums(slideItems[0].getBoundingClientRect().right, windowWidth) &&
-      compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().top, innerWrapper.getBoundingClientRect().top) &&
-      compare2Nums(slideItems[slideCount * 2 + info.items - 1].getBoundingClientRect().bottom, innerWrapper.getBoundingClientRect().bottom);
+      compare2Nums(slideItems[0].getBoundingClientRect().right, windowWidth);
+  });
+
+  runTest('Slides: position', function () {
+    return checkPositionEdgePadding(info, 0, 0, true);
   });
 
   runTest('slides: click functions', function () {
@@ -570,6 +589,15 @@ function testVerticalGutter() {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slides: position, gutter', function () {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount,
+        innerWrapper = info.container.parentNode;
+
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().top, innerWrapper.getBoundingClientRect().top) &&
+      compare2Nums(slideItems[cloneCount].getBoundingClientRect().bottom, slideItems[cloneCount + 1].getBoundingClientRect().top - 10) &&
+      compare2Nums(slideItems[cloneCount + info.items - 1].getBoundingClientRect().bottom, innerWrapper.getBoundingClientRect().bottom - 10);
+  });
 }
 
 function testVerticalEdgePadding () {
@@ -578,6 +606,9 @@ function testVerticalEdgePadding () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slides: position, edge padding', function () {
+    return checkPositionEdgePadding(info, edgePadding, 0, true);
+  });
 }
 
 function testVerticalEdgePaddingGutter () {
@@ -586,7 +617,9 @@ function testVerticalEdgePaddingGutter () {
       info = slider.getInfo();
 
   addTitle(id);
-}
+  runTest('Slides: position, edge padding', function () {
+    return checkPositionEdgePadding(info, edgePadding, gutter, true);
+  });}
 
 function testResponsive() {
   var id = 'responsive',
@@ -610,6 +643,12 @@ function testGutter() {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slide: gutter', function () {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount;
+
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().right, slideItems[cloneCount + 1].getBoundingClientRect().left);
+  });
 }
 
 function testEdgePadding() {
@@ -618,6 +657,9 @@ function testEdgePadding() {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slide: position', function () {
+    return checkPositionEdgePadding(info, edgePadding, 0);
+  });
 }
 
 function testEdgePaddingGutter() {
@@ -626,6 +668,9 @@ function testEdgePaddingGutter() {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slide: position', function () {
+    return checkPositionEdgePadding(info, edgePadding, gutter);
+  });
 }
 
 function testFewitems() {
@@ -647,6 +692,9 @@ function testSlideByPage () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Controls: click', function () {
+    return checkControlsClick(slider, info, 11);
+  });
 }
 
 function testArrowKeys () {
