@@ -117,30 +117,30 @@ function checkPositionEdgePadding (info, padding, gap, vertical) {
 
 // [[[[[[[[]]]]]]]]
 window.onload = function () {
-  testBase();
-  testGoto();
-  testNonLoop();
-  testRewind();
-  testFixedWidth();
-  testFixedWidthGutter();
-  testFixedWidthEdgePadding();
-  testFixedWidthEdgePaddingGutter();
-  testVertical();
-  testVerticalGutter();
-  testVerticalEdgePadding();
-  testVerticalEdgePaddingGutter();
-  testResponsive();
-  testMouseDrag();
-  testGutter();
-  testEdgePadding();
-  testEdgePaddingGutter();
-  testFewitems();
-  testSlideByPage();
-  testArrowKeys();
-  testAutoplay();
-  testAnimation();
-  testLazyload();
-  testCustomize();
+  // testBase();
+  // testGoto();
+  // testNonLoop();
+  // testRewind();
+  // testFixedWidth();
+  // testFixedWidthGutter();
+  // testFixedWidthEdgePadding();
+  // testFixedWidthEdgePaddingGutter();
+  // testVertical();
+  // testVerticalGutter();
+  // testVerticalEdgePadding();
+  // testVerticalEdgePaddingGutter();
+  // testResponsive();
+  // testMouseDrag();
+  // testGutter();
+  // testEdgePadding();
+  // testEdgePaddingGutter();
+  // testFewitems();
+  // testSlideByPage();
+  // testArrowKeys();
+  // testAutoplay();
+  // testAnimation();
+  // testLazyload();
+  // testCustomize();
   testAutoHeight();
   testNested();
 };
@@ -703,6 +703,26 @@ function testArrowKeys () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slides: keydown', function () {
+    var assertion = true,
+        container = info.container,
+        slideBy = info.slideBy,
+        index = slider.getInfo().index;
+
+    fire(document, 'keydown', { 'keyCode': 39 });
+    assertion = slider.getInfo().index === index + slideBy;
+    
+    fire(document, 'keydown', { 'keyCode': 39 });
+    assertion = slider.getInfo().index === index + slideBy * 2;
+    
+    fire(document, 'keydown', { 'keyCode': 37 });
+    assertion = slider.getInfo().index === index + slideBy;
+
+    fire(document, 'keydown', { 'keyCode': 37 });
+    assertion = slider.getInfo().index === index;
+
+    return assertion;
+  });
 }
 
 function testAutoplay () {
@@ -775,7 +795,51 @@ function testLazyload () {
       slider = sliders[id],
       info = slider.getInfo();
 
+  var edgePadding = options[id]['edgePadding'],
+      slideBy = options[id]['slideBy'],
+      slideItems = info.slideItems,
+      items = info.items,
+      index = info.index,
+      first = index,
+      last = index + items - 1;
+
+  if (edgePadding) {
+    first -= 1;
+    last += 1;  
+  }
+
   addTitle(id);
+
+  runTest('Slide: init', function () {
+    var imgFirst = slideItems[first].querySelector('img'),
+        imgLast = slideItems[last].querySelector('img'),
+        imgPrev = slideItems[first - 1].querySelector('img'),
+        imgNext = slideItems[last + 1].querySelector('img');
+
+    return imgFirst.getAttribute('src') === imgFirst.getAttribute('data-src') &&
+      imgLast.getAttribute('src') === imgLast.getAttribute('data-src') &&
+      imgPrev.getAttribute('src') !== imgPrev.getAttribute('data-src') && 
+      imgNext.getAttribute('src') !== imgNext.getAttribute('data-src') &&
+      containsClasses(imgFirst, 'loaded') &&
+      containsClasses(imgLast, 'loaded') &&
+      !containsClasses(imgPrev, 'loaded') &&
+      !containsClasses(imgNext, 'loaded'); 
+  });
+
+  runTest('Controls: click', function () {
+    var assertion = true;
+
+    info.nextButton.click();
+    for (var i = last + 1; i < last + 1 + slideBy; i++) {
+      if (assertion) {
+        var img = slideItems[i].querySelector('img');
+        assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
+          containsClasses(img, 'loaded');
+      }
+    }
+
+    return assertion;
+  });
 }
 
 function testCustomize () {
