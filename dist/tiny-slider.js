@@ -968,7 +968,7 @@ var tns = function(options) {
     var dataTns = (horizontal)? 'tns-outer tns-hdx' : 'tns-outer';
     outerWrapper.className = dataTns;
 
-    dataTns = (!horizontal || carousel && autoHeight) ? 'tns-inner tns-hdy' : 'tns-inner';
+    dataTns = (!horizontal) ? 'tns-inner tns-hdy' : 'tns-inner';
     innerWrapper.className = dataTns;
 
     // set container properties
@@ -977,6 +977,7 @@ var tns = function(options) {
     dataTns += (SUBPIXEL) ? ' tns-subpixel' : ' tns-no-subpixel';
     dataTns += (CALC) ? ' tns-calc' : ' tns-no-calc';
     if (carousel) { dataTns += ' tns-' + options.axis; }
+    if (carousel && autoHeight) { dataTns += ' tns-hdy'; }
     container.className += dataTns;
 
     // set edge padding on innerWrapper
@@ -1521,7 +1522,7 @@ var tns = function(options) {
       }
 
       if (images.length === 0) {
-        updateInnerWrapperHeight(); 
+        updateContainerHeight(); 
       } else {
         checkImagesLoaded(images);
       }
@@ -1534,7 +1535,7 @@ var tns = function(options) {
     });
 
     if (images.length === 0) {
-      updateInnerWrapperHeight();
+      updateContainerHeight();
     } else {
       setTimeout(function () { 
         checkImagesLoaded(images); 
@@ -1543,21 +1544,21 @@ var tns = function(options) {
   } 
 
 
-  // update inner wrapper height
+  // update container height
   // 1. get the max-height of the visible slides
   // 2. set transitionDuration to speed
-  // 3. update inner wrapper height to max-height
+  // 3. update container height to max-height
   // 4. set transitionDuration to 0s after transition done
-  function updateInnerWrapperHeight() {
+  function updateContainerHeight() {
     var heights = [], maxHeight;
     for (var i = index; i < index + items; i++) {
       heights.push(slideItems[i].offsetHeight);
     }
     maxHeight = Math.max.apply(null, heights);
 
-    if (innerWrapper.style.height !== maxHeight) {
+    if (container.style.height !== maxHeight) {
       if (TRANSITIONDURATION) { setDurations(speed); }
-      innerWrapper.style.height = maxHeight + 'px';
+      container.style.height = maxHeight + 'px';
     }
   }
 

@@ -117,30 +117,30 @@ function checkPositionEdgePadding (info, padding, gap, vertical) {
 
 // [[[[[[[[]]]]]]]]
 window.onload = function () {
-  // testBase();
-  // testGoto();
-  // testNonLoop();
-  // testRewind();
-  // testFixedWidth();
-  // testFixedWidthGutter();
-  // testFixedWidthEdgePadding();
-  // testFixedWidthEdgePaddingGutter();
-  // testVertical();
-  // testVerticalGutter();
-  // testVerticalEdgePadding();
-  // testVerticalEdgePaddingGutter();
-  // testResponsive();
-  // testMouseDrag();
-  // testGutter();
-  // testEdgePadding();
-  // testEdgePaddingGutter();
-  // testFewitems();
-  // testSlideByPage();
-  // testArrowKeys();
-  // testAutoplay();
-  // testAnimation();
-  // testLazyload();
-  // testCustomize();
+  testBase();
+  testGoto();
+  testNonLoop();
+  testRewind();
+  testFixedWidth();
+  testFixedWidthGutter();
+  testFixedWidthEdgePadding();
+  testFixedWidthEdgePaddingGutter();
+  testVertical();
+  testVerticalGutter();
+  testVerticalEdgePadding();
+  testVerticalEdgePaddingGutter();
+  testResponsive();
+  testMouseDrag();
+  testGutter();
+  testEdgePadding();
+  testEdgePaddingGutter();
+  testFewitems();
+  testSlideByPage();
+  testArrowKeys();
+  testAutoplay();
+  testAnimation();
+  testLazyload();
+  testCustomize();
   testAutoHeight();
   testNested();
 };
@@ -856,6 +856,23 @@ function testAutoHeight () {
       info = slider.getInfo();
 
   addTitle(id);
+  runTest('Slide: init, click', function () {
+    var assertion = true,
+        container = info.container,
+        slideItems = info.slideItems,
+        nextButton = info.nextButton;
+
+    assertion = compare2Nums(container.clientHeight, slideItems[info.index].clientHeight);
+
+    repeat(function () {
+      nextButton.click();
+      if (assertion) {
+        assertion = compare2Nums(container.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+      }
+    }, 2);
+
+    return assertion;
+  });
 }
 
 function testNested () {
