@@ -1,3 +1,11 @@
+if (!Object.keys) Object.keys = function(o) {
+  if (o !== Object(o))
+    throw new TypeError('Object.keys called on a non-object');
+  var k=[],p;
+  for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
+  return k;
+}
+
 var resultsDiv = doc.querySelector('.test-results'),
     windowWidth = getWindowWidth(),
     multiplyer = 100,
@@ -627,6 +635,20 @@ function testResponsive() {
       info = slider.getInfo();
 
   addTitle(id);
+
+  runTest('Slides: resize', function () {
+    var responsive = options[id]['responsive'],
+        bps = Object.keys(responsive);
+
+    var iframe = document.querySelector('#iframe');
+    iframe.style.cssText = 'height: 500px; border-width: 0; width: ' + (Number(bps[1]) + 10) + 'px';
+
+    var assertion = true;
+    var doc = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+    var container = doc.querySelector('#' + id),
+        slideItems = container.children;
+    // assertion = 
+  });
 }
 
 function testMouseDrag() {

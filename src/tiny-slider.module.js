@@ -305,6 +305,7 @@ export var tns = function(options) {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
     // if (nav && !options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
+    updateSlideStatus();
   });
 
   (function sliderInit() {
@@ -749,7 +750,6 @@ export var tns = function(options) {
       }
 
       doTransform(0); 
-      updateSlideStatus();
       lazyLoad(); 
       updateNavVisibility();
       updateNavStatus();
@@ -929,37 +929,23 @@ export var tns = function(options) {
 
   // update slide
   function updateSlideStatus() {
-    var h1, h2, v1, v2;
-    if (index !== indexCached) {
-      if (index > indexCached) {
-        h1 = indexCached;
-        h2 = Math.min(indexCached + items, index);
-        v1 = Math.max(indexCached + items, index);
-        v2 = index + items;
+    for (var i = slideCountNew; i--;) {
+      var item = slideItems[i];
+      // visible slides
+      if (i >= index && i < index + items) {
+        if (hasAttr(item, 'tabindex')) {
+          setAttrs(item, {'aria-hidden': 'false'});
+          removeAttrs(item, ['tabindex']);
+        }
+      // hidden slides
       } else {
-        h1 = Math.max(index + items, indexCached);
-        h2 = indexCached + items;
-        v1 = index;
-        v2 = Math.min(index + items, indexCached);
+        if (!hasAttr(item, 'tabindex')) {
+          setAttrs(item, {
+            'aria-hidden': 'true',
+            'tabindex': '-1'
+          });
+        }
       }
-    }
-
-    if (slideBy%1 !== 0) {
-      h1 = Math.round(h1);
-      h2 = Math.round(h2);
-      v1 = Math.round(v1);
-      v2 = Math.round(v2);
-    }
-
-    for (var i = h1; i < h2; i++) {
-      setAttrs(slideItems[i], {
-        'aria-hidden': 'true',
-        'tabindex': '-1'
-      });
-    }
-    for (var j = v1; j < v2; j++) {
-      setAttrs(slideItems[j], {'aria-hidden': 'false'});
-      removeAttrs(slideItems[j], ['tabindex']);
     }
   }
 

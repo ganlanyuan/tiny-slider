@@ -21,34 +21,40 @@
 </head>
 <body data-speed="{{ 100 if page === 'demos' else 0 }}">
 
-{% set sliders = [
-  'base',
-  'goto',
-  'non-loop', 
-  'rewind', 
-  'fixedWidth', 
-  'fixedWidth-gutter', 
-  'fixedWidth-edgePadding', 
-  'fixedWidth-edgePadding-gutter', 
-  'vertical', 
-  'vertical-gutter', 
-  'vertical-edgePadding', 
-  'vertical-edgePadding-gutter', 
-  'responsive', 
-  'mouse-drag',
-  'gutter', 
-  'edgePadding', 
-  'edgePadding-gutter', 
-  'few-items',
-  'slide-by-page', 
-  'arrowKeys', 
-  'autoplay',
-  'animation', 
-  'lazyload', 
-  'customize', 
-  'autoHeight',
-  'nested'
-] %}
+{% if page === 'iframe' %}
+  {% set sliders = [
+    'responsive'
+  ] %}
+{% else %}
+  {% set sliders = [
+    'base',
+    'goto',
+    'non-loop', 
+    'rewind', 
+    'fixedWidth', 
+    'fixedWidth-gutter', 
+    'fixedWidth-edgePadding', 
+    'fixedWidth-edgePadding-gutter', 
+    'vertical', 
+    'vertical-gutter', 
+    'vertical-edgePadding', 
+    'vertical-edgePadding-gutter', 
+    'responsive', 
+    'mouse-drag',
+    'gutter', 
+    'edgePadding', 
+    'edgePadding-gutter', 
+    'few-items',
+    'slide-by-page', 
+    'arrowKeys', 
+    'autoplay',
+    'animation', 
+    'lazyload', 
+    'customize', 
+    'autoHeight',
+    'nested'
+  ] %}
+{% endif %}
 
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
@@ -86,6 +92,7 @@
   {% endif %}
 
   {# navigation #}
+  {% if page !== 'iframe' %}
   <div class="nav">
     <div class="nav-toggle-handle">menu</div>
     <ul>
@@ -94,6 +101,7 @@
       {% endfor %}
     </ul>
   </div>
+  {% endif %}
 
   {# sliders #}
   <div class="slider-container">
@@ -190,6 +198,10 @@
     {% endfor %}
   </div>
 
+  {% if page === 'tests' %}
+    <iframe id="iframe" src="iframe.html" frameborder="0"></iframe>
+  {% endif %}
+  {% if page !== 'iframe' %}
   <script>
     var doc = document,
         slideList = doc.querySelectorAll('.slider-container > div'),
@@ -235,6 +247,7 @@
     });
 
   </script>
+  {% endif %}
 {% endblock %}
 
 <script src="../dist/tiny-slider.helper.ie8.js"></script>
