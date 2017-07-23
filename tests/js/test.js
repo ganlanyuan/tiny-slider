@@ -636,7 +636,7 @@ function testResponsive() {
 
   addTitle(id);
 
-  runTest('Slides: resize', function () {
+  runTest('Slides: init', function () {
     var responsive = options[id]['responsive'],
         bps = Object.keys(responsive);
 
@@ -644,10 +644,15 @@ function testResponsive() {
     iframe.style.cssText = 'height: 500px; border-width: 0; width: ' + (Number(bps[1]) + 10) + 'px';
 
     var assertion = true;
+    var iframe = document.querySelector('#iframe');
     var doc = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
     var container = doc.querySelector('#' + id),
-        slideItems = container.children;
-    // assertion = 
+        wrapper = container.parentNode,
+        visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
+        len = visibleSlides.length;
+        // console.log(len, visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
+    assertion = compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
+      compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
   });
 }
 
