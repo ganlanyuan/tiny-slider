@@ -77,7 +77,11 @@ function getAbsIndexAfterControlsClick(count, by, clicks) {
 }
 
 function checkControlsClick (slider, info, number, edge) {
-  var assertion = true;
+  var assertion = true,
+      container = info.container,
+      slideCount = info.slideCount,
+      navItems = info.navItems;
+      
   edge = edge || 'left';
   var innerWrapperEdge = info.container.parentNode.getBoundingClientRect()[edge];
 
@@ -85,10 +89,10 @@ function checkControlsClick (slider, info, number, edge) {
   repeat(function () { info.prevButton.click(); }, number);
   if (assertion) {
     var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -number),
-        current = info.container.querySelector("[aria-hidden='false']");
+        current = container.querySelector("[aria-hidden='false']");
     assertion = 
-      (slider.getInfo().index)%info.slideCount === absIndex &&
-      info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      (slider.getInfo().index)%slideCount === absIndex &&
+      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       compare2Nums(current.getBoundingClientRect()[edge], innerWrapperEdge) &&
       current.querySelector('a').textContent === absIndex.toString();
   }
@@ -97,10 +101,10 @@ function checkControlsClick (slider, info, number, edge) {
   repeat(function () { info.nextButton.click(); }, number);
   if (assertion) {
     var absIndex = 0,
-        current = info.container.querySelector("[aria-hidden='false']");
+        current = container.querySelector("[aria-hidden='false']");
     assertion = 
-      (slider.getInfo().index)%info.slideCount === absIndex &&
-      info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      (slider.getInfo().index)%slideCount === absIndex &&
+      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       compare2Nums(current.getBoundingClientRect()[edge], innerWrapperEdge) &&
       current.querySelector('a').textContent === absIndex.toString();
   }
@@ -632,28 +636,54 @@ function testVerticalEdgePaddingGutter () {
 function testResponsive() {
   var id = 'responsive',
       slider = sliders[id],
-      info = slider.getInfo();
+      info = slider.getInfo(),
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive);
 
   addTitle(id);
 
-  runTest('Slides: init', function () {
-    var responsive = options[id]['responsive'],
-        bps = Object.keys(responsive);
+  var windowFeatures = 'menubar=yes, location=yes, resizable=yes, scrollbars=yes, status=yes, left=500, top=500 height=700, width=' + Number(bps[1]),
+      newWindow = window.open(location.origin + '/tests/iframe.html', 'new window', windowFeatures);
 
-    var iframe = document.querySelector('#iframe');
-    iframe.style.cssText = 'height: 500px; border-width: 0; width: ' + (Number(bps[1]) + 10) + 'px';
+  var init = addTest('Slides: init');
+  var resize = addTest('Slides: resize');
 
-    var assertion = true;
-    var iframe = document.querySelector('#iframe');
-    var doc = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+  newWindow.onload = function () {
+    var doc = newWindow.document,
+        nextButton = doc.querySelector('[data-controls="next"]');
+    nextButton.click();
+
     var container = doc.querySelector('#' + id),
         wrapper = container.parentNode,
         visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
         len = visibleSlides.length;
-        // console.log(len, visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
-    assertion = compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
+
+    var assertion = len === responsive[bps[1]] &&
+      compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
       compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
-  });
+
+    if (assertion) {
+      init.className = 'item-success';
+
+      newWindow.resizeTo(Number(bps[2]), 700);
+
+      setTimeout(function () {
+        visibleSlides = container.querySelectorAll('[aria-hidden="false"]');
+        var len2 = visibleSlides.length;
+
+        assertion = len2 === responsive[bps[2]] && 
+          compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
+          compare2Nums(visibleSlides[len2 - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
+        resize.className = assertion ? 'item-success' : 'item-fail';
+
+        newWindow.close();
+      }, 500);
+    } else {
+      init.className = resize.className = 'item-fail';
+      newWindow.close();
+    }
+
+  }
 }
 
 function testMouseDrag() {
