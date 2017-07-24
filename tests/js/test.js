@@ -210,33 +210,33 @@ function testAutoplayFn (info, testEl, timeout, equal) {
 
 // [[[[[[[[]]]]]]]]
 window.onload = function () {
-  testBase();
-  testGoto();
-  testNonLoop();
-  testRewind();
-  testFixedWidth();
-  testFixedWidthGutter();
-  testFixedWidthEdgePadding();
-  testFixedWidthEdgePaddingGutter();
-  testVertical();
-  testVerticalGutter();
-  testVerticalEdgePadding();
-  testVerticalEdgePaddingGutter();
-  testResponsive();
-  testMouseDrag();
-  testGutter();
-  testEdgePadding();
-  testEdgePaddingGutter();
-  testFewitems();
-  testSlideByPage();
-  testArrowKeys();
-  testAutoplay();
-  testAnimation1();
-  testAnimation2();
-  testLazyload();
-  testCustomize();
-  testAutoHeight();
-  testNested();
+  // testBase();
+  // testGoto();
+  // testNonLoop();
+  // testRewind();
+  // testFixedWidth();
+  // testFixedWidthGutter();
+  // testFixedWidthEdgePadding();
+  // testFixedWidthEdgePaddingGutter();
+  // testVertical();
+  // testVerticalGutter();
+  // testVerticalEdgePadding();
+  // testVerticalEdgePaddingGutter();
+  // testResponsive();
+  // testMouseDrag();
+  // testGutter();
+  // testEdgePadding();
+  // testEdgePaddingGutter();
+  // testFewitems();
+  // testSlideByPage();
+  // testArrowKeys();
+  // testAutoplay();
+  // testAnimation1();
+  // testAnimation2();
+  // testLazyload();
+  // testCustomize();
+  // testAutoHeight();
+  // testNested();
 };
 
 
