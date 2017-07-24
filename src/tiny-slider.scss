@@ -77,6 +77,7 @@
 .tns-ovh { overflow: hidden; }
 .tns-hdx { overflow-x: hidden; }
 .tns-hdy { overflow-y: hidden; }
+.tns-visually-hidden { position: absolute; left: -10000em; }
 
 .tns-fadeIn {
   opacity: 1;

@@ -25,6 +25,27 @@
   {% set sliders = [
     'responsive'
   ] %}
+{% elif page === 'demos' %}
+  {% set sliders = [
+    'base',
+    'goto',
+    'non-loop', 
+    'rewind', 
+    'fixedWidth', 
+    'fixedWidth-edgePadding', 
+    'vertical', 
+    'responsive', 
+    'mouse-drag',
+    'gutter', 
+    'edgePadding', 
+    'arrowKeys', 
+    'autoplay',
+    'animation1', 
+    'lazyload', 
+    'customize', 
+    'autoHeight',
+    'nested'
+  ] %}
 {% else %}
   {% set sliders = [
     'base',
@@ -48,7 +69,8 @@
     'slide-by-page', 
     'arrowKeys', 
     'autoplay',
-    'animation', 
+    'animation1', 
+    'animation2', 
     'lazyload', 
     'customize', 
     'autoHeight',
@@ -106,7 +128,7 @@
   {# sliders #}
   <div class="slider-container">
     {% for slide in sliders %}
-    <div class="{{ slide }}_wrapper" id="{{ slide }}_wrapper">
+    <div id="{{ slide }}_wrapper">
       <h2>{{ slide | title }}</h2>
 
       {# go to #}
@@ -202,16 +224,16 @@
   <script>
     var doc = document,
         slideList = doc.querySelectorAll('.slider-container > div'),
-        navContainer = doc.querySelector('.nav'),
-        nav = doc.querySelector('.nav ul'),
+        pageNavContainer = doc.querySelector('.nav'),
+        pageNav = doc.querySelector('.nav ul'),
         toggleHandle = doc.querySelector('.nav-toggle-handle'),
         divider = window.innerHeight / 2,
         scrollTimer,
         resizeTimer;
 
     toggleHandle.onclick = function () {
-      var classN = navContainer.className;
-      navContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
+      var classN = pageNavContainer.className;
+      pageNavContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
     };
 
     window.addEventListener('scroll', function () {
@@ -220,7 +242,7 @@
       scrollTimer = setTimeout(function () {
         [].forEach.call(slideList, function (el) {
           var rect = el.getBoundingClientRect(),
-              navLink = nav.querySelector('[href="#' + el.id + '"]');
+              navLink = pageNav.querySelector('[href="#' + el.id + '"]');
           if (rect.top <= divider && rect.bottom > divider) {
             if (navLink.className !== 'active') { navLink.className = 'active'; }
           } else {
@@ -238,9 +260,9 @@
       }, 100);
     });
 
-    nav.addEventListener('click', function () {
-      var classN = navContainer.className;
-      if (classN.indexOf(' active') > 0) { navContainer.className = classN.replace(' active', ''); }
+    pageNav.addEventListener('click', function () {
+      var classN = pageNavContainer.className;
+      if (classN.indexOf(' active') > 0) { pageNavContainer.className = classN.replace(' active', ''); }
     });
 
   </script>

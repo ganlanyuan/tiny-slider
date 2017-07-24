@@ -908,7 +908,7 @@ var tns = function(options) {
         autoplayButton = options.autoplayButton,
         animating = false,
         autoplayHoverStopped = false,
-        autoplayHtmlString = '<span hidden>Stop Animation</span>',
+        autoplayHtmlString = '<span class="tns-visually-hidden">Stop Animation</span>',
         autoplayResetOnVisibility = options.autoplayResetOnVisibility,
         autoplayResetVisibilityState = false;
   }

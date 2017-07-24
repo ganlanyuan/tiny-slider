@@ -126,15 +126,19 @@ var doc = document,
         gutter: gutter,
         edgePadding: edgepadding,
       }, 
-      'animation': {
+      'animation1': {
         container: '',
         mode: 'gallery',
         items: 2,
-        arrowKeys: true,
         animateIn: 'jello',
         animateOut: 'rollOut',
-        animateDelay: speed * 2,
-        speed: speed * 10,
+        speed: 1000,
+      },
+      'animation2': {
+        container: '',
+        mode: 'gallery',
+        items: 2,
+        speed: 0,
       },
       'lazyload': {
         container: '',
@@ -150,20 +154,14 @@ var doc = document,
         items: 3,
         controlsContainer: doc.querySelector('#customize-controls'),
         navContainer: doc.querySelector('#customize-thumbnails'),
-        // autoplay: true,
-        // autoplayButton: doc.querySelector('#customize-toggle'),
+        autoplay: true,
+        autoplayTimeout: 1000,
+        autoplayButton: doc.querySelector('#customize-toggle'),
       },
       'autoHeight': {
         container: '',
         autoHeight: true,
         items: 1,
-      },
-      'nested': {
-        container: '',
-        items: 1,
-        loop: false,
-        autoHeight: true,
-        nested: 'outer'
       },
       'nested_inner': {
         container: '',
@@ -172,6 +170,13 @@ var doc = document,
         edgePadding: 20,
         loop: false,
         slideBy: 'page'
+      },
+      'nested': {
+        container: '',
+        items: 1,
+        loop: false,
+        autoHeight: true,
+        nested: 'outer'
       }
     };
 
