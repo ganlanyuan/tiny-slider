@@ -1464,8 +1464,7 @@ var tns = function(options) {
   }
 
   function getCssRulesLength (sheet) {
-    var rules = (sheet.cssRules) ? sheet.cssRules : sheet.rules;
-    return rules.length;
+    return (sheet.cssRules) ? sheet.cssRules.length : sheet.rules.length;
   }
 
   function updateContainerWidthNonMediaquery () {

@@ -164,14 +164,22 @@ function checkControlsClick(id, info, number, vertical) {
 
   // click prev button n times
   if (assertion) {
-    repeat(function () { info.prevButton.click(); }, number);
+    if (id === 'customize') {
+      repeat(function () { simulateClick(info.prevButton); }, number);
+    } else {
+      repeat(function () { info.prevButton.click(); }, number);
+    }
     var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -number);
     assertion = getAssertion(absIndex);
   }
 
   // click next button n times
   if (assertion) {
-    repeat(function () { info.nextButton.click(); }, number);
+    if (id === 'customize') {
+      repeat(function () { simulateClick(info.nextButton); }, number);
+    } else {
+      repeat(function () { info.nextButton.click(); }, number);
+    }
     assertion = getAssertion(0);
   }
 
@@ -210,33 +218,33 @@ function testAutoplayFn (info, testEl, timeout, equal) {
 
 // [[[[[[[[]]]]]]]]
 window.onload = function () {
-  // testBase();
-  // testGoto();
-  // testNonLoop();
-  // testRewind();
-  // testFixedWidth();
-  // testFixedWidthGutter();
-  // testFixedWidthEdgePadding();
-  // testFixedWidthEdgePaddingGutter();
-  // testVertical();
-  // testVerticalGutter();
-  // testVerticalEdgePadding();
-  // testVerticalEdgePaddingGutter();
-  // testResponsive();
-  // testMouseDrag();
-  // testGutter();
-  // testEdgePadding();
-  // testEdgePaddingGutter();
-  // testFewitems();
-  // testSlideByPage();
-  // testArrowKeys();
-  // testAutoplay();
-  // testAnimation1();
-  // testAnimation2();
-  // testLazyload();
-  // testCustomize();
-  // testAutoHeight();
-  // testNested();
+  testBase();
+  testGoto();
+  testNonLoop();
+  testRewind();
+  testFixedWidth();
+  testFixedWidthGutter();
+  testFixedWidthEdgePadding();
+  testFixedWidthEdgePaddingGutter();
+  testVertical();
+  testVerticalGutter();
+  testVerticalEdgePadding();
+  testVerticalEdgePaddingGutter();
+  testResponsive();
+  testMouseDrag();
+  testGutter();
+  testEdgePadding();
+  testEdgePaddingGutter();
+  testFewitems();
+  testSlideByPage();
+  testArrowKeys();
+  testAutoplay();
+  testAnimation1();
+  testAnimation2();
+  testLazyload();
+  testCustomize();
+  testAutoHeight();
+  testNested();
 };
 
 
@@ -254,11 +262,11 @@ function testBase () {
   addTitle(id);
 
   runTest('Outer wrapper: classes', function () {
-    return containsClasses(info.container.parentNode.parentNode, ['tns-hdx', 'tns-outer']);
+    return containsClasses(info.container.parentNode.parentNode, ['tns-outer']);
   });
 
   runTest('Inner wrapper: classes', function () {
-    return containsClasses(info.container.parentNode, ['tns-inner']);
+    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-ovh']);
   });
 
   runTest('Container: classes', function () {
@@ -623,7 +631,7 @@ function testVertical () {
   addTitle(id);
 
   runTest('Inner wrapper: classes', function () {
-    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-hdy']);
+    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-ovh']);
   });
 
   runTest('Container: classes', function () {
@@ -934,7 +942,7 @@ function testAnimation2 () {
   var count = info.slideCountNew + 1;
   repeat(function () {
     nextButton.click();
-  }, count, 50);
+  }, count, 100);
   setTimeout(function () {
     var visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
         len = visibleSlides.length,
@@ -943,7 +951,7 @@ function testAnimation2 () {
           compare2Nums(visibleSlides[0].getBoundingClientRect().left, rect.left) &&
           compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, rect.right);
     test.className = assertion ? 'item-success' : 'item-fail';
-  }, count * 50);
+  }, count * 100);
 }
 
 function testLazyload () {
@@ -1068,16 +1076,16 @@ function testAutoHeight () {
   addTitle(id);
   runTest('Slide: init, click', function () {
     var assertion = true,
-        container = info.container,
+        wrapper = info.container.parentNode,
         slideItems = info.slideItems,
         nextButton = info.nextButton;
 
-    assertion = compare2Nums(container.clientHeight, slideItems[info.index].clientHeight);
+    assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
 
     repeat(function () {
       nextButton.click();
       if (assertion) {
-        assertion = compare2Nums(container.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+        assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
       }
     }, 2);
 
