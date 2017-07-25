@@ -203,15 +203,13 @@ for (var i in options) {
 // goto
 if (doc.querySelector('#goto_wrapper')) {
   var goto = doc.querySelector('#goto_wrapper .goto-controls'),
-      gotoBtn = goto.querySelector('button'),
+      gotoBtn = goto.querySelector('.button'),
       gotoInput = goto.querySelector('input');
-  gotoBtn.onclick = function (e) {
-    e = e || window.event;
-    e.preventDefault ? e.preventDefault() : (e.returnValue = false);
 
+  gotoBtn.onclick = function (event) {
     var index = Number(gotoInput.value);
     if (typeof index === 'number') {
       sliders['goto'].goTo(index);
     }
-  }
+  };
 }

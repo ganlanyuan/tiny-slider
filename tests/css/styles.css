@@ -223,9 +223,11 @@ pre[class*="language-"] { margin: 0; }
   text-align: center;
 }
 .goto-controls input,
-.goto-controls button {
+.goto-controls .button {
+  display: inline-block;
   font-size: 14px;
   height: 2.6em;
+  line-height: 2.6;
   padding: 0 1em;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -235,7 +237,7 @@ pre[class*="language-"] { margin: 0; }
 .goto-controls input {
   border: 1px solid  #ccc;
 }
-.goto-controls button {
+.goto-controls .button {
   min-width: 4em;
   border: none;
   color: #fff;

@@ -174,7 +174,7 @@ export var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
-      items = options.items,
+      items = Math.min(options.items, slideCount),
       slideBy = (options.slideBy === 'page') ? items : options.slideBy,
       nested = options.nested,
       gutter = options.gutter,
@@ -426,8 +426,7 @@ export var tns = function(options) {
       var stringSlideLeft =
           stringSlideFontSize = 
           stringSlideGutter = '',
-          stringSlideWidth = 'width:',
-          itemTem = Math.min(options.items, slideCount);
+          stringSlideWidth = 'width:';
 
       // * carousel *
       if (carousel) {
@@ -442,8 +441,8 @@ export var tns = function(options) {
         } else {
           if (CSSMQ) {
             stringContainerWidth += (CALC) ? 
-                CALC + '(' + slideCountNew * 100 + '% / ' + itemTem + ')' : 
-                slideCountNew * 100 / itemTem + '%';
+                CALC + '(' + slideCountNew * 100 + '% / ' + items + ')' : 
+                slideCountNew * 100 / items + '%';
           } else {
             updateContainerWidthNonMediaquery();
           }
@@ -470,8 +469,8 @@ export var tns = function(options) {
       } else {
         // get slide width
         stringSlideWidth += (CALC) ? 
-            CALC + '(100% / ' + itemTem + ')' :
-            100 / itemTem + '%';
+            CALC + '(100% / ' + items + ')' :
+            100 / items + '%';
       }
       stringSlideWidth += ';';
 
