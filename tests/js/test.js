@@ -126,12 +126,13 @@ function checkControlsAttrs(id) {
     nextButton.getAttribute('aria-controls') === id;
 }
 
-function getAbsIndexAfterControlsClick(count, by, clicks) {
-  return (count * multiplyer + by * clicks)%count;
+function getAbsIndex(current, by, clicks, count) {
+  return (current + by * clicks + count * multiplyer)%count;
 }
 
 function checkControlsClick(id, info, number, vertical) {
   var assertion = true,
+      slider = sliders[id],
       container = info.container,
       slideCount = info.slideCount,
       navItems = info.navItems,
@@ -151,7 +152,7 @@ function checkControlsClick(id, info, number, vertical) {
         first = visibleSlides[0],
         last = visibleSlides[len - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
-
+        
     return len === items &&
       absIndex === (sliders[id].getInfo().index)%slideCount &&
       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
@@ -164,13 +165,14 @@ function checkControlsClick(id, info, number, vertical) {
   }
 
   // click prev button n times
+  var current = info.index;
   if (assertion) {
     if (id === 'customize') {
       repeat(function () { simulateClick(info.prevButton); }, number);
     } else {
       repeat(function () { info.prevButton.click(); }, number);
     }
-    var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -number);
+    var absIndex = getAbsIndex(current, info.slideBy, -number, info.slideCount);
     assertion = getAssertion(absIndex);
   }
 
@@ -325,10 +327,11 @@ function testBase () {
 
     runTest('Controls: keydown events', function () {
       var assertion = true;
+      var current = info.index;
 
       repeat(function () { fire(info.controlsContainer, 'keydown', {'keyCode': 37}); }, 3);
       if (assertion) {
-        var absIndex = getAbsIndexAfterControlsClick(info.slideCount, info.slideBy, -3),
+        var absIndex = getAbsIndex(current, info.slideBy, -3, info.slideCount),
             current = info.container.querySelector("[aria-hidden='false']");
         assertion = 
           (slider.getInfo().index)%info.slideCount === absIndex &&
@@ -955,7 +958,7 @@ function testAnimation1 () {
   info.nextButton.click();
   setTimeout(function () {
     test.className = (checkAnimationClasses()) ? 'item-success' : 'item-fail';
-  }, speed);
+  }, speed + 300);
 }
 
 function testAnimation2 () {
@@ -963,8 +966,9 @@ function testAnimation2 () {
       slider = sliders[id],
       info = slider.getInfo(),
       container = info.container,
-      items = info.items,
       slideItems = info.slideItems,
+      items = info.items,
+      slideCount = info.slideCount,
       nextButton = info.nextButton;
 
   addTitle(id);
@@ -974,15 +978,16 @@ function testAnimation2 () {
   repeat(function () {
     nextButton.click();
   }, count, 100);
+
   setTimeout(function () {
-    var visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
-        len = visibleSlides.length,
+    var index = slider.getInfo().index,
         rect = container.parentNode.getBoundingClientRect(),
-        assertion = len === items &&
-          compare2Nums(visibleSlides[0].getBoundingClientRect().left, rect.left) &&
-          compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, rect.right);
+        assertion = 
+          index%slideCount === count*items%slideCount &&
+          compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
+          compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
     test.className = assertion ? 'item-success' : 'item-fail';
-  }, count * 100);
+  }, count * 100 + 300);
 }
 
 function testLazyload () {
@@ -1105,7 +1110,7 @@ function testAutoHeight () {
       info = slider.getInfo();
 
   addTitle(id);
-  
+
   var test = addTest('Slide: init, click');
   imagesLoaded(info.container, function () {
     var assertion = true,
