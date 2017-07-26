@@ -3,7 +3,8 @@
  ☐ custom build
  ☐ tests
    ☐ ie 8
-     ☐ autoHeight
+     ☐ responsive
+     ✔ autoHeight @done (17-07-26 14:31)
    ☐ firefox 12
      ☐ animation2
    ☐ chrome 15

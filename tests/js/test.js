@@ -1105,7 +1105,9 @@ function testAutoHeight () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slide: init, click', function () {
+  
+  var test = addTest('Slide: init, click');
+  imagesLoaded(info.container, function () {
     var assertion = true,
         wrapper = info.container.parentNode,
         slideItems = info.slideItems,
@@ -1120,7 +1122,8 @@ function testAutoHeight () {
       }
     }, 2);
 
-    return assertion;
+    test.className = assertion ? 'item-success' : 'item-fail';
+    // return assertion;
   });
 }
 
