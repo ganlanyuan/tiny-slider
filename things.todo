@@ -1,3 +1,11 @@
  ☐ destory
  ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)
  ☐ custom build
+ ☐ tests
+   ☐ ie
+     ☐ autoHeight
+   ☐ firefox
+   ☐ chrome 15
+     ☐ responsive
+   ☐ opera
+   ☐ safari

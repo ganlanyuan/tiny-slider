@@ -63,8 +63,8 @@ function getWindowWidth() {
 }
 
 function compare2Nums(a, b) {
-  var gap = (ua.indexOf('MSIE 8.0') > -1) ? 2 : 1;
-  return Math.abs(a - b) <= gap;
+  // var gap = (ua.indexOf('MSIE 8.0') > -1) ? 2 : 1;
+  return Math.abs(a - b) <= 2;
 }
 
 function repeat(fn, count, timeout) {
@@ -202,13 +202,12 @@ function checkPositionEdgePadding (info, padding, gap, vertical) {
     compare2Nums(slideItems[cloneCount + info.items - 1].getBoundingClientRect()[edge2] - gutterAdjust, wrapper.getBoundingClientRect()[edge2] - (padding + gap));
 }
 
-function testAutoplayFn (info, testEl, timeout, equal) {
+function testAutoplayFn (id, testEl, timeout, equal) {
   var assertion = true,
-      container = info.container,
-      activeSlide = container.querySelector('[aria-hidden="false"]');
+      activeSlideIndex = sliders[id].getInfo().index;
 
   setTimeout(function () {
-    assertion = activeSlide === container.querySelector('[aria-hidden="false"]');
+    assertion = activeSlideIndex === sliders[id].getInfo().index;
     if (equal) {
       testEl.className = (assertion) ? 'item-success' : 'item-fail';
     } else {
@@ -707,48 +706,67 @@ function testResponsive() {
   var newWindow = document.createElement('iframe');
   newWindow.style.cssText = 'width: ' + Number(bps[1]) + 'px; height: 700px; border: 0;';
   newWindow.src = location.origin + '/tests/iframe.html';
-  document.body.appendChild(newWindow);
 
   var init = addTest('Slides: init');
   var resize = addTest('Slides: resize');
 
-  newWindow.onload = function () {
-    // var doc = newWindow.document,
-    var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
-        nextButton = doc.querySelector('[data-controls="next"]');
-    nextButton.click();
-
-    var container = doc.querySelector('#' + id),
-        wrapper = container.parentNode,
-        visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
-        len = visibleSlides.length;
-
-    var assertion = len === responsive[bps[1]] &&
-      compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
-      compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
-
-    if (assertion) {
-      init.className = 'item-success';
-
-      newWindow.style.width = Number(bps[2]) + 'px';
-
-      setTimeout(function () {
-        visibleSlides = container.querySelectorAll('[aria-hidden="false"]');
-        var len2 = visibleSlides.length;
-
-        assertion = len2 === responsive[bps[2]] && 
-          compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
-          compare2Nums(visibleSlides[len2 - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
-        resize.className = assertion ? 'item-success' : 'item-fail';
-
-        document.body.removeChild(newWindow);
-      }, 500);
-    } else {
-      init.className = resize.className = 'item-fail';
-      document.body.removeChild(newWindow);
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsiveTestsOnload, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function () {
+      if (newWindow.readyState === 'complete') {
+        responsiveTestsOnload();
+      }
     }
-
   }
+
+  document.body.appendChild(newWindow);
+
+  function responsiveTestsOnload () {
+    try {
+      // var doc = newWindow.document,
+      var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          nextButton = doc.querySelector('[data-controls="next"]');
+      nextButton.click();
+
+      var container = doc.querySelector('#' + id),
+          wrapper = container.parentNode,
+          visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
+          len = visibleSlides.length;
+
+      var assertion = len === responsive[bps[1]] &&
+        compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
+        compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
+
+      if (assertion) {
+        init.className = 'item-success';
+
+        // newWindow.resizeTo(Number(bps[2]), 700);
+        newWindow.style.width = Number(bps[2]) + 'px';
+
+        setTimeout(function () {
+          visibleSlides = container.querySelectorAll('[aria-hidden="false"]');
+          var len2 = visibleSlides.length;
+
+          assertion = len2 === responsive[bps[2]] && 
+            compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
+            compare2Nums(visibleSlides[len2 - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
+          resize.className = assertion ? 'item-success' : 'item-fail';
+
+          // newWindow.close();
+          document.body.removeChild(newWindow);
+        }, 500);
+      } else {
+        init.className = resize.className = 'item-fail';
+        // newWindow.close();
+        document.body.removeChild(newWindow);
+      }
+    } catch (e) {
+      init.className = 'item-notsure';
+      resize.className = 'item-notsure';
+    }
+  }
+
 }
 
 function testMouseDrag() {
@@ -883,14 +901,14 @@ function testAutoplay () {
   if (ops['speed']) { timeout += ops['speed']; }
 
   var test1 = addTest('Slide: autoplay');
-  testAutoplayFn(info, test1, timeout, false);
+  testAutoplayFn(id, test1, timeout, false);
 
   var test2 = addTest('Slide: autoplay pause');
   setTimeout(function () {
     var buttons = info.navContainer.children,
         autoplayButton = buttons[buttons.length - 1];
     autoplayButton.click();
-    testAutoplayFn(info, test2, timeout, true);
+    testAutoplayFn(id, test2, timeout, true);
   }, timeout);
 }
 
@@ -906,6 +924,11 @@ function testAnimation1 () {
       animateOut = ops['animateOut'] ? ops['animateOut'] : 'tns-fadeOut',
       animateNormal = 'tns-normal',
       speed = ops['speed'] ? ops['speed'] + 100 : 100;
+
+  if (localStorage['tnsAnDu'] === 'false') {
+    animateIn = 'tns-fadeIn';
+    animateOut = 'tns-fadeOut';
+  }
 
   addTitle(id);
 
@@ -1059,13 +1082,13 @@ function testCustomize () {
     if (ops['speed']) { timeout += ops['speed']; }
 
     var test1 = addTest('Slide: autoplay');
-    testAutoplayFn(info, test1, timeout, false);
+    testAutoplayFn(id, test1, timeout, false);
 
     var test2 = addTest('Slide: autoplay pause');
     setTimeout(function () {
       var autoplayButton = ops['autoplayButton'];
       autoplayButton.click();
-      testAutoplayFn(info, test2, timeout, true);
+      testAutoplayFn(id, test2, timeout, true);
     }, timeout);
   }
 
