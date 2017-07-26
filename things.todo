@@ -2,10 +2,15 @@
  ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)
  ☐ custom build
  ☐ tests
-   ☐ ie
+   ☐ ie 8
      ☐ autoHeight
-   ☐ firefox
+   ☐ firefox 12
+     ☐ animation2
    ☐ chrome 15
      ☐ responsive
-   ☐ opera
-   ☐ safari
+   ☐ opera 12.1
+     ☐ animation1
+     ☐ responsive
+   ☐ safari 4
+     ☐ responsive
+     ☐ customize

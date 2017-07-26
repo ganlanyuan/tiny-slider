@@ -705,7 +705,9 @@ function testResponsive() {
   //     newWindow = window.open(location.origin + '/tests/iframe.html', 'new_window', windowFeatures);
   var newWindow = document.createElement('iframe');
   newWindow.style.cssText = 'width: ' + Number(bps[1]) + 'px; height: 700px; border: 0;';
-  newWindow.src = location.origin + '/tests/iframe.html';
+  newWindow.src = 'iframe.html';
+  // newWindow.src = location.origin + '/tests/iframe.html';
+
 
   var init = addTest('Slides: init');
   var resize = addTest('Slides: resize');
