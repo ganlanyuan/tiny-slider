@@ -148,12 +148,13 @@ function checkControlsClick(id, info, number, vertical) {
   }
       
   function getAssertion (absIndex) {
-    var first = slideItems[absIndex],
-        last = slideItems[absIndex + items - 1],
+    var index = sliders[id].getInfo().index,
+        first = slideItems[index],
+        last = slideItems[index + items - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
         
-    return absIndex === (sliders[id].getInfo().index)%slideCount &&
-      first.getAttribute('aria-selected') === 'true' &&
+    return absIndex === index%slideCount 
+      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&
       !first.hasAttribute(tabindex) &&
       last.getAttribute('aria-hidden') === 'false' &&
@@ -979,12 +980,14 @@ function testAnimation2 () {
   }, count, 100);
 
   setTimeout(function () {
-    var index = slider.getInfo().index,
-        rect = container.parentNode.getBoundingClientRect(),
-        assertion = 
-          index%slideCount === count*items%slideCount &&
-          compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
-          compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
+    var assertion = true,
+        index = slider.getInfo().index,
+        rect = container.parentNode.getBoundingClientRect();
+        
+    assertion = 
+      index%slideCount === count*items%slideCount &&
+      compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
+      compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
     test.className = assertion ? 'item-success' : 'item-fail';
   }, count * 100 + 300);
 }
