@@ -1781,13 +1781,24 @@
     }
 
     </script> 
+    <script src="js/prism.js">
+    </script> 
+    <script src="js/es6-promise.auto.min.js">
+    </script> 
     <script src="../dist/tiny-slider.helper.ie8.js">
     </script> 
     <script src="../dist/tiny-slider.js">
     </script> 
     <script src="js/script.js">
     </script> 
-    <script src="js/prism.js">
+    <script>
+    function wait(ms) {
+    return new Promise(function(resolve) {
+      setTimeout(function() {
+        resolve();
+      }, ms);
+    });
+    }
     </script> <!--[if (IE 8)&!(IEMobile)]>
 <script>
   if (Object.defineProperty 
@@ -1811,18 +1822,11 @@
 </script>
 <![endif]-->
      
-    <script src="js/lie.polyfill.min.js">
-    </script> 
     <script src="https://unpkg.com/imagesloaded@3/imagesloaded.pkgd.min.js">
     </script> 
     <script src="js/test-helpers.js">
     </script> 
     <script src="js/test.js">
-    </script> 
-    <script>
-    // if (window.Promise) {
-    // alert("Yeah!");
-    // }
     </script>
   </body>
 </html>

@@ -126,16 +126,18 @@ function checkControlsAttrs(id) {
     nextButton.getAttribute('aria-controls') === id;
 }
 
-function getAbsIndex(current, by, clicks, count) {
-  return (current + by * clicks + count * multiplyer)%count;
+function getAbsIndex(current, clicks, info) {
+  return (current + info.slideBy * clicks + info.slideCount * multiplyer)%info.slideCount;
 }
 
 function checkControlsClick(id, info, number, vertical) {
   var assertion = true,
       slider = sliders[id],
       container = info.container,
+      wrapper = container.parentNode,
       slideCount = info.slideCount,
       navItems = info.navItems,
+      slideItems = info.slideItems,
       items = info.items,
       edge1 = 'left',
       edge2 = 'right';
@@ -145,17 +147,13 @@ function checkControlsClick(id, info, number, vertical) {
     edge2 = 'bottom';
   }
       
-  var wrapper = info.container.parentNode;
   function getAssertion (absIndex) {
-    var visibleSlides = container.querySelectorAll("[aria-hidden='false']"),
-        len = visibleSlides.length,
-        first = visibleSlides[0],
-        last = visibleSlides[len - 1],
+    var first = slideItems[absIndex],
+        last = slideItems[absIndex + items - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
         
-    return len === items &&
-      absIndex === (sliders[id].getInfo().index)%slideCount &&
-      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+    return absIndex === (sliders[id].getInfo().index)%slideCount &&
+      first.getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&
       !first.hasAttribute(tabindex) &&
       last.getAttribute('aria-hidden') === 'false' &&
@@ -172,7 +170,7 @@ function checkControlsClick(id, info, number, vertical) {
     } else {
       repeat(function () { info.prevButton.click(); }, number);
     }
-    var absIndex = getAbsIndex(current, info.slideBy, -number, info.slideCount);
+    var absIndex = getAbsIndex(current, -number, info);
     assertion = getAssertion(absIndex);
   }
 
@@ -303,19 +301,20 @@ function testBase () {
 
   runTest('Nav: click functions', function () {
     var assertion = true,
+        slideItems = info.slideItems,
         visibleNavIndexes = info.visibleNavIndexes,
         len = visibleNavIndexes.length;
 
     for (var i = len; i--;) {
       info.navItems[visibleNavIndexes[i]].click();
-      var current = info.container.querySelector("[aria-hidden='false']");
+      var current = slider.getInfo().index,
+          currentSlide = slideItems[current];
       if (assertion) {
         assertion = 
           info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
-          (slider.getInfo().index)%info.slideCount === visibleNavIndexes[i] &&
-          compare2Nums(current.getBoundingClientRect().left, 0) &&
-          current.querySelector('a').textContent === visibleNavIndexes[i].toString()
-          ;
+          current%info.slideCount === visibleNavIndexes[i] &&
+          compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
+          currentSlide.getAttribute('aria-hidden') === 'false';
       }
     }
 
@@ -331,7 +330,7 @@ function testBase () {
 
       repeat(function () { fire(info.controlsContainer, 'keydown', {'keyCode': 37}); }, 3);
       if (assertion) {
-        var absIndex = getAbsIndex(current, info.slideBy, -3, info.slideCount),
+        var absIndex = getAbsIndex(current, -3, info),
             current = info.container.querySelector("[aria-hidden='false']");
         assertion = 
           (slider.getInfo().index)%info.slideCount === absIndex &&
