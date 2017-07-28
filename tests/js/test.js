@@ -6,6 +6,14 @@ if (!Object.keys) Object.keys = function(o) {
   return k;
 }
 
+function wait(ms) {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve();
+    }, ms);
+  });
+}
+
 var resultsDiv = doc.querySelector('.test-results'),
     windowWidth = getWindowWidth(),
     multiplyer = 100,
@@ -41,6 +49,19 @@ function addTest(str, postfix) {
   return test;
 }
 
+function updateTest(test, assertion) {
+  switch(assertion) {
+    case true:
+      test.className = 'item-success';
+      break;
+    case false:
+      test.className = 'item-fail';
+      break;
+    default:
+      test.className = 'item-notsure';
+  }
+}
+
 function runTest(str, fn) {
   var test = addTest(str);
   test.className = (fn()) ? 'item-success' : 'item-fail';
@@ -68,17 +89,44 @@ function compare2Nums(a, b) {
 }
 
 function repeat(fn, count, timeout) {
+  // var promise = new Promise(function (resolve, reject) { resolve(); });
+  var promise = Promise.resolve(true);
+
   if (timeout) {
-    for (var i = count; i--;) {
-      setTimeout(function () {
-        fn();
-      }, i * timeout);
+    while (count > 0) {
+      promise = promise.then(function () {
+        return wait(timeout);
+      }).then(function () {
+        return new Promise(function (resolve, reject) {
+          fn();
+          resolve();
+        });
+      });
+
+      count--;
     }
+    // for (var i = count; i--;) {
+    //   setTimeout(function () {
+    //     fn();
+    //   }, i * timeout);
+    // }
   } else {
-    for (var i = count; i--;) {
-      fn();
+    while (count > 0) {
+      promise = promise.then(function () {
+        return new Promise(function (resolve, reject) {
+          fn();
+          resolve();
+        });
+      });
+
+      count--;
     }
+    // for (var i = count; i--;) {
+    //   fn();
+    // }
   }
+
+  return promise;
 }
 
 function checkSlidesAttrs(id) {
@@ -127,12 +175,14 @@ function checkControlsAttrs(id) {
 }
 
 function getAbsIndex(current, clicks, info) {
+  // if (info.slideId === 'base') { console.log(current); }
   return (current + info.slideBy * clicks + info.slideCount * multiplyer)%info.slideCount;
 }
 
-function checkControlsClick(id, info, number, vertical) {
-  var assertion = true,
+function checkControlsClick(test, id, count, vertical) {
+  var assertion,
       slider = sliders[id],
+      info = slider.getInfo(),
       container = info.container,
       wrapper = container.parentNode,
       slideCount = info.slideCount,
@@ -153,7 +203,7 @@ function checkControlsClick(id, info, number, vertical) {
         last = slideItems[index + items - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
         
-    return absIndex === index%slideCount 
+    return absIndex === index%slideCount &&
       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&
       !first.hasAttribute(tabindex) &&
@@ -165,27 +215,58 @@ function checkControlsClick(id, info, number, vertical) {
 
   // click prev button n times
   var current = info.index;
-  if (assertion) {
-    if (id === 'customize') {
-      repeat(function () { simulateClick(info.prevButton); }, number);
-    } else {
-      repeat(function () { info.prevButton.click(); }, number);
-    }
-    var absIndex = getAbsIndex(current, -number, info);
-    assertion = getAssertion(absIndex);
-  }
+  var promise = (id === 'customize') ? 
+      repeat(function () { simulateClick(info.prevButton); }, count) : 
+      repeat(function () { info.prevButton.click(); }, count);
 
-  // click next button n times
-  if (assertion) {
-    if (id === 'customize') {
-      repeat(function () { simulateClick(info.nextButton); }, number);
-    } else {
-      repeat(function () { info.nextButton.click(); }, number);
-    }
-    assertion = getAssertion(0);
-  }
+  return promise.then(function () {
+    return new Promise(function (resolve, reject) {
+      var absIndex = getAbsIndex(current, -count, info);
+      assertion = getAssertion(absIndex);
+      resolve();
+    });
+  }).then(function () {
+    if (assertion) {
+      var clickNext = (id === 'customize') ? 
+          repeat(function () { simulateClick(info.nextButton); }, count) : 
+          repeat(function () { info.nextButton.click(); }, count);
 
-  return assertion;
+      return clickNext.then(function () {
+        return new Promise(function (resolve, reject) {
+          assertion = getAssertion(0);
+          resolve();
+        });
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }).then(function () {
+    return Promise.resolve().then(function () {
+      updateTest(test, assertion);
+    });
+  });
+  // if (assertion) {
+  //   promise = 
+  //   if (id === 'customize') {
+  //     repeat(function () { simulateClick(info.prevButton); }, number);
+  //   } else {
+  //     repeat(function () { info.prevButton.click(); }, number);
+  //   }
+  //   var absIndex = getAbsIndex(current, -number, info);
+  //   assertion = getAssertion(absIndex);
+  // }
+
+  // // click next button n times
+  // if (assertion) {
+  //   if (id === 'customize') {
+  //     repeat(function () { simulateClick(info.nextButton); }, number);
+  //   } else {
+  //     repeat(function () { info.nextButton.click(); }, number);
+  //   }
+  //   assertion = getAssertion(0);
+  // }
+
+  // return assertion;
 }
 
 function checkPositionEdgePadding (info, padding, gap, vertical) {
@@ -296,124 +377,171 @@ function testBase () {
       nav1.hasAttribute('hidden');
   });
 
-  runTest('Controls: click functions', function () {
-    return checkControlsClick(id, info, 11);
-  });
+  var controlsClick = addTest('Controls: click functions');
+  var navClick = addTest('Nav: click functions');
+  var controlsKeydown = addTest('Controls: keydown events');
+  var navKeydown = addTest('Nav: keydown events');
 
-  runTest('Nav: click functions', function () {
-    var assertion = true,
-        slideItems = info.slideItems,
-        visibleNavIndexes = info.visibleNavIndexes,
-        len = visibleNavIndexes.length;
-
-    for (var i = len; i--;) {
-      info.navItems[visibleNavIndexes[i]].click();
-      var current = slider.getInfo().index,
-          currentSlide = slideItems[current];
-      if (assertion) {
-        assertion = 
-          info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
-          current%info.slideCount === visibleNavIndexes[i] &&
-          compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
-          currentSlide.getAttribute('aria-hidden') === 'false';
-      }
-    }
-
-    return assertion;
-  });
-
-  // browser support fire keyevents
-  if (document.body.getAttribute('data-fire-keyevent') === 'true') {
-
-    runTest('Controls: keydown events', function () {
-      var assertion = true;
-      var current = info.index;
-
-      repeat(function () { fire(info.controlsContainer, 'keydown', {'keyCode': 37}); }, 3);
-      if (assertion) {
-        var absIndex = getAbsIndex(current, -3, info),
-            current = info.container.querySelector("[aria-hidden='false']");
-        assertion = 
-          (slider.getInfo().index)%info.slideCount === absIndex &&
-          info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-          compare2Nums(current.getBoundingClientRect().left, 0) &&
-          current.querySelector('a').textContent === absIndex.toString();
-      }
-
-      repeat(function () { fire(info.controlsContainer, 'keydown', {'keyCode': 39}); }, 3);
-      if (assertion) {
-        var absIndex = 0,
-            current = info.container.querySelector("[aria-hidden='false']");
-        assertion = 
-          (slider.getInfo().index)%info.slideCount === absIndex &&
-          info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-          compare2Nums(current.getBoundingClientRect().left, 0) &&
-          current.querySelector('a').textContent === absIndex.toString();
-      }
-
-      return assertion;
-    });
-
-    runTest('Nav: keydown events', function () {
+  checkControlsClick(controlsClick, id, 11).then(function () {
+    return Promise.resolve().then(function () {
       var assertion = true,
-          info = slider.getInfo(),
-          navItems = info.navItems,
-          visibleNavIndexes = info.visibleNavIndexes;
+          slideItems = info.slideItems,
+          visibleNavIndexes = info.visibleNavIndexes,
+          len = visibleNavIndexes.length;
 
-      navItems[visibleNavIndexes[0]].focus();
-      fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 39});
-      // the 2nd nav item get focused
-      assertion = document.activeElement === navItems[visibleNavIndexes[1]];
-
-      // press "Enter"
-      fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 13});
-      var current = info.container.querySelector("[aria-hidden='false']");
-      if (assertion) {
-        assertion = 
-          info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
-          (slider.getInfo().index)%info.slideCount === visibleNavIndexes[1] &&
-          compare2Nums(current.getBoundingClientRect().left, 0) &&
-          current.querySelector('a').textContent === visibleNavIndexes[1].toString()
-          ;
+      for (var i = len; i--;) {
+        info.navItems[visibleNavIndexes[i]].click();
+        var current = slider.getInfo().index,
+            currentSlide = slideItems[current];
+        if (assertion) {
+          assertion = 
+            info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
+            current%info.slideCount === visibleNavIndexes[i] &&
+            compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
+            currentSlide.getAttribute('aria-hidden') === 'false';
+        }
       }
 
-      fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 37});
-      // the 1st nav item get focused
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-
-      fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 40});
-      // the 3nd nav item get focused
-      assertion = document.activeElement === navItems[visibleNavIndexes[2]];
-
-      // press "Space"
-      fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 32});
-      var current = info.container.querySelector("[aria-hidden='false']");
-      if (assertion) {
-        assertion = 
-          info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
-          (slider.getInfo().index)%info.slideCount === visibleNavIndexes[2] &&
-          compare2Nums(current.getBoundingClientRect().left, 0) &&
-          current.querySelector('a').textContent === visibleNavIndexes[2].toString()
-          ;
-      }
-
-
-      fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 38});
-      // the 1st nav item get focused
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-
-      // press "Enter"
-      fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 13});
-
-      return assertion;
+      updateTest(navClick, assertion);
     });
+  }).then(function () {
+    // browser support fire keyevents
+    if (document.body.getAttribute('data-fire-keyevent') === 'true') {
+      return Promise.resolve().then(function () {
+        var assertionControls;
+        var current = info.index;
 
-  // browser not support fire keyevents
-  // manual test needed
-  } else {
-    addTest('Controls: keydown events', '-notsure');
-    addTest('Nav: keydown events', '-notsure');
-  }
+        repeat(function () { 
+          fire(info.controlsContainer, 'keydown', {'keyCode': 37}); 
+        }, 3).then(function () {
+          var currentIndex = current;
+          return Promise.resolve().then(function () {
+            var absIndex = getAbsIndex(currentIndex, -3, info),
+                current = slider.getInfo().index,
+                currentSlide = info.slideItems[current];
+                
+            assertionControls = 
+              current%info.slideCount === absIndex &&
+              info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+              compare2Nums(currentSlide.getBoundingClientRect().left, 0);
+          });
+        }).then(function () {
+          if (assertionControls) {
+            return repeat(function () { 
+              fire(info.controlsContainer, 'keydown', {'keyCode': 39});
+            }, 3).then(function () {
+              return Promise.resolve().then(function () {
+                var absIndex = 0,
+                    current = info.container.querySelector("[aria-hidden='false']");
+                assertionControls = 
+                  (slider.getInfo().index)%info.slideCount === absIndex &&
+                  info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+                  compare2Nums(current.getBoundingClientRect().left, 0) &&
+                  current.querySelector('a').textContent === absIndex.toString();
+              });
+            });
+          } else {
+            return Promise.resolve();
+          }
+        }).then(function () {
+          return Promise.resolve().then(function () {
+            updateTest(controlsKeydown, assertionControls);
+          });
+        }).then(function () {
+          return Promise.resolve().then(function () {
+            var assertionNav,
+                info = slider.getInfo(),
+                navItems = info.navItems,
+                visibleNavIndexes = info.visibleNavIndexes;
+
+            navItems[visibleNavIndexes[0]].focus();
+            fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 39});
+            // the 2nd nav item get focused
+            assertionNav = document.activeElement === navItems[visibleNavIndexes[1]];
+
+            // press "Enter"
+            fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 13});
+            var current = info.container.querySelector("[aria-hidden='false']");
+            if (assertionNav) {
+              assertionNav = 
+                info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
+                (slider.getInfo().index)%info.slideCount === visibleNavIndexes[1] &&
+                compare2Nums(current.getBoundingClientRect().left, 0) &&
+                current.querySelector('a').textContent === visibleNavIndexes[1].toString()
+                ;
+            }
+
+            fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 37});
+            // the 1st nav item get focused
+            assertionNav = document.activeElement === navItems[visibleNavIndexes[0]];
+
+            fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 40});
+            // the 3nd nav item get focused
+            assertionNav = document.activeElement === navItems[visibleNavIndexes[2]];
+
+            // press "Space"
+            fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 32});
+            var current = info.container.querySelector("[aria-hidden='false']");
+            if (assertionNav) {
+              assertionNav = 
+                info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
+                (slider.getInfo().index)%info.slideCount === visibleNavIndexes[2] &&
+                compare2Nums(current.getBoundingClientRect().left, 0) &&
+                current.querySelector('a').textContent === visibleNavIndexes[2].toString()
+                ;
+            }
+
+
+            fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 38});
+            // the 1st nav item get focused
+            assertionNav = document.activeElement === navItems[visibleNavIndexes[0]];
+
+            // press "Enter"
+            fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 13});
+
+            updateTest(navKeydown, assertionNav);
+          });
+        });
+
+        // (function () {
+        // })();
+      });
+
+    // browser not support fire keyevents
+    // manual test needed
+    } else {
+      return Promise.resolve().then(function () {
+        updateTest(controlsKeydown, '?');
+        updateTest(navKeydown, '?');
+      });
+    }
+  });
+  // runTest('Controls: click functions', function () {
+  //   return checkControlsClick(id, info, 11);
+  // });
+
+  // runTest('Nav: click functions', function () {
+  //   var assertion = true,
+  //       slideItems = info.slideItems,
+  //       visibleNavIndexes = info.visibleNavIndexes,
+  //       len = visibleNavIndexes.length;
+
+  //   for (var i = len; i--;) {
+  //     info.navItems[visibleNavIndexes[i]].click();
+  //     var current = slider.getInfo().index,
+  //         currentSlide = slideItems[current];
+  //     if (assertion) {
+  //       assertion = 
+  //         info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
+  //         current%info.slideCount === visibleNavIndexes[i] &&
+  //         compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
+  //         currentSlide.getAttribute('aria-hidden') === 'false';
+  //     }
+  //   }
+
+  //   return assertion;
+  // });
+
 }
 
 function testNonLoop() {
@@ -578,9 +706,11 @@ function testFixedWidth() {
     return assertion;
   });
 
-  runTest('Controls: click functions', function () {
-    return checkControlsClick(id, info, (info.slideCount * 3 + 2));
-  });
+  var controlsClick = addTest('Controls: click functions');
+  checkControlsClick(controlsClick, id, (info.slideCount * 3 + 2));
+  // runTest('Controls: click functions', function () {
+  //   return checkControlsClick(id, info, (info.slideCount * 3 + 2));
+  // });
 }
 
 function testFixedWidthGutter () {
@@ -652,9 +782,11 @@ function testVertical () {
     return checkPositionEdgePadding(info, 0, 0, true);
   });
 
-  runTest('slides: click functions', function () {
-    return checkControlsClick(id, info, 11, 'top');
-  });
+  var controlsClick = addTest('slides: click functions');
+  checkControlsClick(controlsClick, id, 11, 'top');
+  // runTest('slides: click functions', function () {
+  //   return checkControlsClick(id, info, 11, 'top');
+  // });
 }
 
 function testVerticalGutter() {
@@ -837,9 +969,11 @@ function testSlideByPage () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Controls: click', function () {
-    return checkControlsClick(id, info, 11);
-  });
+  var controlsClick = addTest('Controls: click');
+  checkControlsClick(controlsClick, id, 11);
+  // runTest('Controls: click', function () {
+  //   return checkControlsClick(id, info, 11);
+  // });
 }
 
 function testArrowKeys () {
@@ -1101,9 +1235,11 @@ function testCustomize () {
     }, timeout);
   }
 
-  runTest('Controls: click functions', function () {
-    return checkControlsClick(id, info, 11);
-  });
+  var controlsClick = addTest('Controls: click functions');
+  checkControlsClick(controlsClick, id, 11);
+  // runTest('Controls: click functions', function () {
+  //   return checkControlsClick(id, info, 11);
+  // });
 }
 
 function testAutoHeight () {
