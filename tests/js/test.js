@@ -240,28 +240,6 @@ function checkControlsClick(test, id, count, vertical) {
       updateTest(test, assertion);
     });
   });
-  // if (assertion) {
-  //   promise = 
-  //   if (id === 'customize') {
-  //     repeat(function () { simulateClick(info.prevButton); }, number);
-  //   } else {
-  //     repeat(function () { info.prevButton.click(); }, number);
-  //   }
-  //   var absIndex = getAbsIndex(current, -number, info);
-  //   assertion = getAssertion(absIndex);
-  // }
-
-  // // click next button n times
-  // if (assertion) {
-  //   if (id === 'customize') {
-  //     repeat(function () { simulateClick(info.nextButton); }, number);
-  //   } else {
-  //     repeat(function () { info.nextButton.click(); }, number);
-  //   }
-  //   assertion = getAssertion(0);
-  // }
-
-  // return assertion;
 }
 
 function checkPositionEdgePadding (info, padding, gap, vertical) {
@@ -270,13 +248,17 @@ function checkPositionEdgePadding (info, padding, gap, vertical) {
   var slideItems = info.slideItems,
       cloneCount = info.cloneCount,
       wrapper = info.container.parentNode,
+      first = slideItems[cloneCount],
+      last = slideItems[cloneCount + info.items - 1],
       edge1 = (vertical) ? 'top' : 'left',
       edge2 = (vertical) ? 'bottom' : 'right',
       gutterAdjust = (vertical) ? 0 : (padding) ? gap : 0;
 
   if (!vertical) { wrapper = wrapper.parentNode; }
-  return compare2Nums(slideItems[cloneCount].getBoundingClientRect()[edge1] - (padding + gap), wrapper.getBoundingClientRect()[edge1]) &&
-    compare2Nums(slideItems[cloneCount + info.items - 1].getBoundingClientRect()[edge2] - gutterAdjust, wrapper.getBoundingClientRect()[edge2] - (padding + gap));
+  var wrapperRect = wrapper.getBoundingClientRect();
+
+  return compare2Nums(first.getBoundingClientRect()[edge1] - (padding + gap), wrapperRect[edge1]) &&
+    compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
 }
 
 function testAutoplayFn (id, testEl, timeout, equal) {
@@ -713,10 +695,6 @@ function testNonLoop() {
   }).then(function() {
     updateTest(test, assertion);
   });
-
-  // runTest('Controls: click functions', function () {
-  //   return assertion;
-  // });
 }
 
 function testRewind() {
@@ -731,40 +709,63 @@ function testRewind() {
       info.prevButton.hasAttribute('disabled');
   });
 
-  runTest('Controls: click functions', function () {
-    var assertion = true,
-        prevButton = info.prevButton,
-        nextButton = info.nextButton,
-        navItems = info.navItems,
-        slideItems = info.slideItems;
+  var test = addTest('Controls: click functions');
+  // runTest('Controls: click functions', function () {
+  // });
+  var assertion = true,
+      prevButton = info.prevButton,
+      nextButton = info.nextButton,
+      navItems = info.navItems,
+      slideItems = info.slideItems;
 
+  new Promise(function(resolve) {
     // click next button once
     nextButton.click();
-    assertion = !prevButton.hasAttribute('disabled');
-
-    // click next button (slideCount - items) times
-    repeat(function () { nextButton.click(); }, (info.slideCount - info.items - 1));
-    var current = info.slideCount - info.items;
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = !prevButton.hasAttribute('disabled');
+      resolve();
+    });
+  }).then(function() {
     if (assertion) {
-      assertion = 
-        !nextButton.hasAttribute('disabled') &&
-        navItems[current].getAttribute('aria-selected') === 'true' &&
-        slideItems[current].getAttribute('aria-hidden') === 'false' &&
-        compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+      // click next button (slideCount - items) times
+      return repeat(function () {
+        nextButton.click();
+      }, (info.slideCount - info.items - 1)).then(function() {
+        var current = info.slideCount - info.items;
+        return new Promise(function(resolve) {
+          assertion = !nextButton.hasAttribute('disabled') &&
+            navItems[current].getAttribute('aria-selected') === 'true' &&
+            slideItems[current].getAttribute('aria-hidden') === 'false' &&
+            compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+          resolve();
+        });
+      }).then(function() {
+        if (assertion) {
+          // click next button once
+          return new Promise(function(resolve) {
+            nextButton.click();
+            resolve();
+          }).then(function() {
+            return new Promise(function(resolve) {
+              var current = 0;
+              assertion = prevButton.hasAttribute('disabled') &&
+                navItems[current].getAttribute('aria-selected') === 'true' &&
+                slideItems[current].getAttribute('aria-hidden') === 'false' &&
+                compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+              resolve();
+            });
+          });
+        } else {
+          return Promise.resolve();
+        }
+      });
+    } else {
+      return Promise.resolve();
     }
-
-    // click next button once
-    nextButton.click();
-    var current = 0;
-    if (assertion) {
-      assertion = 
-        prevButton.hasAttribute('disabled') &&
-        navItems[current].getAttribute('aria-selected') === 'true' &&
-        slideItems[current].getAttribute('aria-hidden') === 'false' &&
-        compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
-    }
-
-    return assertion;
+  }).then(function() {
+    updateTest(test, assertion);
   });
 }
 
@@ -777,7 +778,7 @@ function testFixedWidth() {
   addTitle(id);
 
   runTest('Slides: position', function () {
-    var assertion = true,
+    var assertion,
         slideItems = info.slideItems,
         slideCount = info.slideCount,
         items = info.items;
@@ -788,9 +789,6 @@ function testFixedWidth() {
 
   var controlsClick = addTest('Controls: click functions');
   checkControlsClick(controlsClick, id, (info.slideCount * 3 + 2));
-  // runTest('Controls: click functions', function () {
-  //   return checkControlsClick(id, info, (info.slideCount * 3 + 2));
-  // });
 }
 
 function testFixedWidthGutter () {
@@ -832,7 +830,7 @@ function testFixedWidthEdgePaddingGutter () {
         cloneCount = info.cloneCount,
         items = info.items;
 
-    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + 10);
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
   });
 }
 
@@ -864,9 +862,6 @@ function testVertical () {
 
   var controlsClick = addTest('slides: click functions');
   checkControlsClick(controlsClick, id, 11, 'top');
-  // runTest('slides: click functions', function () {
-  //   return checkControlsClick(id, info, 11, 'top');
-  // });
 }
 
 function testVerticalGutter() {
