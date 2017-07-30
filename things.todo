@@ -2,6 +2,8 @@
  ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)
  ☐ custom build
  ☐ tests
+   ☐ add nest, mouse-drag
+   ☐ combine base & goto
    ☐ ie 8
      ☐ responsive
      ✔ autoHeight @done (17-07-26 14:31)
