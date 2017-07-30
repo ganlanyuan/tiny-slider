@@ -20,18 +20,21 @@ var resultsDiv = doc.querySelector('.test-results'),
     edgePadding = 50,
     gutter = 10,
     ua = navigator.userAgent,
-    tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex';
+    tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex',
+    canFireKeydown;
 
-document.body.onkeydown = function (e) {
+document.onkeydown = function (e) {
   e = e || window.event;
+  var body = document.body;
   if (e.ctrlKey === true && e.keyCode === 192) {
-    if (document.body.getAttribute('data-fire-keyevent') !== 'true') {
-      document.body.setAttribute('data-fire-keyevent', 'true');
+    if (body.getAttribute('data-fire-keyevent') !== 'true') {
+      body.setAttribute('data-fire-keyevent', 'true');
     }
   }
 };
 
-fire(document.body, 'keydown', {'ctrlKey': true, 'keyCode': 192});
+fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
+canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 function addTitle(str) {
   var title = doc.createElement('div');
@@ -85,8 +88,7 @@ function compare2Nums(a, b) {
 }
 
 function repeat(fn, count, timeout) {
-  // var promise = new Promise(function (resolve, reject) { resolve(); });
-  var promise = Promise.resolve(true);
+  var promise = Promise.resolve();
 
   if (timeout) {
     while (count > 0) {
@@ -101,11 +103,6 @@ function repeat(fn, count, timeout) {
 
       count--;
     }
-    // for (var i = count; i--;) {
-    //   setTimeout(function () {
-    //     fn();
-    //   }, i * timeout);
-    // }
   } else {
     while (count > 0) {
       promise = promise.then(function () {
@@ -117,9 +114,6 @@ function repeat(fn, count, timeout) {
 
       count--;
     }
-    // for (var i = count; i--;) {
-    //   fn();
-    // }
   }
 
   return promise;
@@ -261,18 +255,18 @@ function checkPositionEdgePadding (info, padding, gap, vertical) {
     compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
 }
 
-function testAutoplayFn (id, testEl, timeout, equal) {
-  var assertion = true,
-      activeSlideIndex = sliders[id].getInfo().index;
+function testAutoplayFn (id, el, timeout, equal) {
+  var assertion,
+      current = sliders[id].getInfo().index;
 
-  setTimeout(function () {
-    assertion = activeSlideIndex === sliders[id].getInfo().index;
-    if (equal) {
-      testEl.className = (assertion) ? 'item-success' : 'item-fail';
-    } else {
-      testEl.className = (!assertion) ? 'item-success' : 'item-fail';
-    }
-  }, timeout);
+  return wait(timeout).then(function() {
+    return new Promise(function(resolve) {
+      assertion = current === sliders[id].getInfo().index;
+      assertion = (equal) ? assertion : !assertion;
+      updateTest(el, assertion);
+      resolve();
+    });
+  });
 }
 
 // [[[[[[[[]]]]]]]]
@@ -389,7 +383,7 @@ function testBase () {
     });
   }).then(function () {
     // browser support fire keyevents
-    if (document.body.getAttribute('data-fire-keyevent') === 'true') {
+    if (canFireKeydown) {
 
       /* ### check controls keydown functions
        * 
@@ -910,14 +904,15 @@ function testResponsive() {
       slider = sliders[id],
       info = slider.getInfo(),
       responsive = options[id]['responsive'],
-      bps = Object.keys(responsive);
+      bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
 
   addTitle(id);
 
   var init = addTest('Slides: init');
   var resize = addTest('Slides: resize');
   var newWindow = document.createElement('iframe');
-  newWindow.style.cssText = 'width: ' + Number(bps[1]) + 'px; height: 700px; border: 0;';
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = 'iframe.html';
 
   if (newWindow.addEventListener) {
@@ -967,7 +962,7 @@ function testResponsive() {
 
           // resize window
           return new Promise(function(resolve) {
-            newWindow.style.width = Number(bps[2]) + 'px';
+            newWindow.style.width = (Number(bps[2]) + 20) + 'px';
             resolve();
           }).then(function() {
             return wait(500).then(function() {
@@ -978,8 +973,8 @@ function testResponsive() {
               assertion = 
                 compare2Nums(firstRect.left, wrapperRect.left) &&
                 compare2Nums(lastRect.right, wrapperRect.right);
-              resize.className = assertion ? 'item-success' : 'item-fail';
 
+              updateTest(resize, assertion);
               document.body.removeChild(newWindow);
             });
           });
@@ -1071,116 +1066,153 @@ function testArrowKeys () {
       info = slider.getInfo();
 
   addTitle(id);
+
   var test = addTest('Slides: keydown');
-  var assertion,
-      container = info.container,
-      slideBy = info.slideBy,
-      index = slider.getInfo().index;
-  
-  new Promise(function(resolve) {
-    // fire keydown event on right arrow
-    fire(document, 'keydown', { 'keyCode': 39 });
-    resolve();
-  }).then(function() {
-    return new Promise(function(resolve) {
-      assertion = slider.getInfo().index === index + slideBy;
+  // can fire keydown event
+  if (canFireKeydown) {
+    var assertion,
+        container = info.container,
+        slideBy = info.slideBy,
+        index = slider.getInfo().index;
+    
+    new Promise(function(resolve) {
+      // fire keydown event on right arrow
+      fire(document, 'keydown', { 'keyCode': 39 });
       resolve();
-    });
-  }).then(function() {
-    if (assertion) {
+    }).then(function() {
       return new Promise(function(resolve) {
-        // fire keydown event on right arrow
-        fire(document, 'keydown', { 'keyCode': 39 });
+        assertion = slider.getInfo().index === index + slideBy;
         resolve();
-      }).then(function() {
+      });
+    }).then(function() {
+      if (assertion) {
         return new Promise(function(resolve) {
-          assertion = slider.getInfo().index === index + slideBy * 2;
+          // fire keydown event on right arrow
+          fire(document, 'keydown', { 'keyCode': 39 });
           resolve();
-        });
-      }).then(function() {
-        if (assertion) {
+        }).then(function() {
           return new Promise(function(resolve) {
-            // fire keydown event on left arrow
-            fire(document, 'keydown', { 'keyCode': 37 });
+            assertion = slider.getInfo().index === index + slideBy * 2;
             resolve();
-          }).then(function() {
+          });
+        }).then(function() {
+          if (assertion) {
             return new Promise(function(resolve) {
-              assertion = slider.getInfo().index === index + slideBy;
+              // fire keydown event on left arrow
+              fire(document, 'keydown', { 'keyCode': 37 });
               resolve();
-            });
-          }).then(function() {
-            if (assertion) {
+            }).then(function() {
               return new Promise(function(resolve) {
-                // fire keydown event on left arrow
-                fire(document, 'keydown', { 'keyCode': 37 });
+                assertion = slider.getInfo().index === index + slideBy;
                 resolve();
-              }).then(function() {
-                return new Promise(function(resolve) {
-                  assertion = slider.getInfo().index === index;
-                  resolve();
-                });
               });
-            } else {
-              return Promise.resolve();
-            }
-          })
-        } else {
-          return Promise.resolve();
-        }
-      })
-    } else {
-      return Promise.resolve();
-    }
-  }).then(function() {
-    updateTest(test, assertion);
-  });
+            }).then(function() {
+              if (assertion) {
+                return new Promise(function(resolve) {
+                  // fire keydown event on left arrow
+                  fire(document, 'keydown', { 'keyCode': 37 });
+                  resolve();
+                }).then(function() {
+                  return new Promise(function(resolve) {
+                    assertion = slider.getInfo().index === index;
+                    resolve();
+                  });
+                });
+              } else {
+                return Promise.resolve();
+              }
+            })
+          } else {
+            return Promise.resolve();
+          }
+        })
+      } else {
+        return Promise.resolve();
+      }
+    }).then(function() {
+      updateTest(test, assertion);
+    });
+
+  // can't fire keydown event
+  // manual test needed
+  } else {
+    updateTest(test, '-notsure');
+  }
 }
 
 function testAutoplay () {
   var id = 'autoplay',
       slider = sliders[id],
       info = slider.getInfo(),
-      ops = options[id];
+      ops = options[id],
+      buttons = info.navContainer.children,
+      autoplayButton = buttons[buttons.length - 1];
 
   addTitle(id);
-
-  runTest('autoplayButton: attrs, click', function () {
-    var assertion = true,
-        buttons = info.navContainer.children,
-        autoplayButton = buttons[buttons.length - 1];
-
-    assertion = autoplayButton.getAttribute('data-action') === 'stop' && 
+  runTest('autoplayButton: attrs', function () {
+    return autoplayButton.getAttribute('data-action') === 'stop' && 
       autoplayButton.textContent.indexOf('Stop Animation') > -1;
-
-    autoplayButton.click();
-    if (assertion) {
-      assertion = autoplayButton.getAttribute('data-action') === 'start' &&
-      autoplayButton.textContent.indexOf('Start Animation') > -1;
-    }
-
-    autoplayButton.click();
-    if (assertion) {
-      assertion = autoplayButton.getAttribute('data-action') === 'stop' &&
-      autoplayButton.textContent.indexOf('Stop Animation') > -1;
-    }
-
-    return assertion;
   });
 
-  var timeout = 100;
+  var timeout = 0;
   if (ops['autoplayTimeout']) { timeout += ops['autoplayTimeout']; }
   if (ops['speed']) { timeout += ops['speed']; }
 
+  var testClick = addTest('autoplayButton: click');
   var test1 = addTest('Slide: autoplay');
-  testAutoplayFn(id, test1, timeout, false);
-
   var test2 = addTest('Slide: autoplay pause');
-  setTimeout(function () {
-    var buttons = info.navContainer.children,
-        autoplayButton = buttons[buttons.length - 1];
+
+  var assertion;
+  new Promise(function(resolve) {
+    // click autoplay button once
+    // pause
     autoplayButton.click();
-    testAutoplayFn(id, test2, timeout, true);
-  }, timeout);
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = 
+          autoplayButton.getAttribute('data-action') === 'start' &&
+          autoplayButton.textContent.indexOf('Start Animation') > -1;
+      resolve();
+    });
+  }).then(function() {
+    if (assertion) {
+      return new Promise(function(resolve) {
+        // click autoplay button the second time
+        // restart
+        autoplayButton.click();
+        resolve();
+      }).then(function() {
+        assertion = 
+            autoplayButton.getAttribute('data-action') === 'stop' &&
+            autoplayButton.textContent.indexOf('Stop Animation') > -1;
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }).then(function() {
+    return new Promise(function(resolve) {
+      updateTest(testClick, assertion);
+      resolve();
+    });
+  }).then(function() {
+    /* ### test autoplay
+     *
+     */
+    return testAutoplayFn(id, test1, timeout, false);
+  }).then(function() {
+    /* ### test autoplay pause
+     *
+     */
+    return wait(timeout).then(function() {
+      return new Promise(function(resolve) {
+        autoplayButton.click();
+        resolve();
+      });
+    }).then(function() {
+      return testAutoplayFn(id, test2, timeout, true);
+    });
+  });
 }
 
 function testAnimation1 () {
@@ -1194,7 +1226,7 @@ function testAnimation1 () {
       animateIn = ops['animateIn'] ? ops['animateIn'] : 'tns-fadeIn',
       animateOut = ops['animateOut'] ? ops['animateOut'] : 'tns-fadeOut',
       animateNormal = 'tns-normal',
-      speed = ops['speed'] ? ops['speed'] + 100 : 100;
+      speed = ops['speed'] ? ops['speed'] : 0;
 
   if (localStorage['tnsAnDu'] === 'false') {
     animateIn = 'tns-fadeIn';
@@ -1221,10 +1253,14 @@ function testAnimation1 () {
   });
 
   var test = addTest('Slides: classes after click');
-  info.nextButton.click();
-  setTimeout(function () {
-    test.className = (checkAnimationClasses()) ? 'item-success' : 'item-fail';
-  }, speed + 300);
+  new Promise(function(resolve) {
+    info.nextButton.click();
+    resolve();
+  }).then(function() {
+    return wait(speed + 300).then(function() {
+      updateTest(test, checkAnimationClasses());
+    });
+  });
 }
 
 function testAnimation2 () {
@@ -1241,21 +1277,27 @@ function testAnimation2 () {
 
   var test = addTest('Slides: position after click');
   var count = info.slideCountNew + 1;
-  repeat(function () {
-    nextButton.click();
-  }, count, 100);
+  var assertion;
 
-  setTimeout(function () {
-    var assertion = true,
-        index = slider.getInfo().index,
-        rect = container.parentNode.getBoundingClientRect();
-        
-    assertion = 
-      index%slideCount === count*items%slideCount &&
-      compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
-      compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
-    test.className = assertion ? 'item-success' : 'item-fail';
-  }, count * 100 + 300);
+  repeat(function () {
+    // click next button *count* times
+    nextButton.click();
+  }, count).then(function() {
+    return wait(300).then(function() {
+      return new Promise(function(resolve) {
+        var index = slider.getInfo().index,
+            rect = container.parentNode.getBoundingClientRect();
+            
+        assertion = 
+          index%slideCount === count*items%slideCount &&
+          compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
+          compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
+        resolve();
+      }).then(function() {
+        updateTest(test, assertion);
+      });
+    });
+  });
 }
 
 function testLazyload () {
@@ -1264,7 +1306,7 @@ function testLazyload () {
       info = slider.getInfo();
 
   var edgePadding = options[id]['edgePadding'],
-      slideBy = options[id]['slideBy'],
+      slideBy = options[id]['slideBy'] || 1,
       slideItems = info.slideItems,
       items = info.items,
       index = info.index,
@@ -1294,19 +1336,21 @@ function testLazyload () {
       !containsClasses(imgNext, 'loaded'); 
   });
 
-  runTest('Controls: click', function () {
-    var assertion = true;
+  var test = addTest('Controls: click'),
+      assertion;
 
+  new Promise(function(resolve) {
     info.nextButton.click();
+    resolve();
+  }).then(function() {
     for (var i = last + 1; i < last + 1 + slideBy; i++) {
-      if (assertion) {
+      if (assertion === undefined || assertion !== false) {
         var img = slideItems[i].querySelector('img');
         assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
           containsClasses(img, 'loaded');
       }
     }
-
-    return assertion;
+    updateTest(test, assertion);
   });
 }
 
@@ -1327,7 +1371,7 @@ function testCustomize () {
   });
 
   runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function () {
-    var assertion = true,
+    var assertion,
         info = slider.getInfo(),
         slideCount = info.slideCount,
         absIndex = info.index%slideCount,
@@ -1351,27 +1395,28 @@ function testCustomize () {
     return assertion;
   });
 
+  var controlsClick = addTest('Controls: click functions');
+  checkControlsClick(controlsClick, id, 11);
+
   if (ops['autoplay']) {
     var timeout = 100;
     if (ops['autoplayTimeout']) { timeout += ops['autoplayTimeout']; }
     if (ops['speed']) { timeout += ops['speed']; }
+    var autoplayButton = ops['autoplayButton'];
 
     var test1 = addTest('Slide: autoplay');
     testAutoplayFn(id, test1, timeout, false);
 
     var test2 = addTest('Slide: autoplay pause');
-    setTimeout(function () {
-      var autoplayButton = ops['autoplayButton'];
-      autoplayButton.click();
-      testAutoplayFn(id, test2, timeout, true);
-    }, timeout);
+    wait(timeout).then(function() {
+      return new Promise(function(resolve) {
+        autoplayButton.click();
+        resolve();
+      }).then(function() {
+        testAutoplayFn(id, test2, timeout, true);
+      });
+    });
   }
-
-  var controlsClick = addTest('Controls: click functions');
-  checkControlsClick(controlsClick, id, 11);
-  // runTest('Controls: click functions', function () {
-  //   return checkControlsClick(id, info, 11);
-  // });
 }
 
 function testAutoHeight () {
@@ -1381,24 +1426,26 @@ function testAutoHeight () {
 
   addTitle(id);
 
-  var test = addTest('Slide: init, click');
+  var test1 = addTest('Slide: init');
+  var test2 = addTest('Slide: click');
   imagesLoaded(info.container, function () {
-    var assertion = true,
+    var assertion,
         wrapper = info.container.parentNode,
         slideItems = info.slideItems,
         nextButton = info.nextButton;
 
     assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+    updateTest(test1, assertion);
 
+    assertion = null;
     repeat(function () {
       nextButton.click();
-      if (assertion) {
+      if (assertion || assertion === null) {
         assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
       }
-    }, 2);
-
-    test.className = assertion ? 'item-success' : 'item-fail';
-    // return assertion;
+    }, 2).then(function() {
+      updateTest(test2, assertion);
+    });
   });
 }
 
