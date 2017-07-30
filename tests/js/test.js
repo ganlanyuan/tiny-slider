@@ -873,11 +873,14 @@ function testVerticalGutter() {
   runTest('Slides: position, gutter', function () {
     var slideItems = info.slideItems,
         cloneCount = info.cloneCount,
-        innerWrapper = info.container.parentNode;
+        firstRect = slideItems[cloneCount].getBoundingClientRect(),
+        secondRect = slideItems[cloneCount + 1].getBoundingClientRect(),
+        lastRect = slideItems[cloneCount + info.items - 1].getBoundingClientRect(),
+        innerWrapperRect = info.container.parentNode.getBoundingClientRect();
 
-    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().top, innerWrapper.getBoundingClientRect().top) &&
-      compare2Nums(slideItems[cloneCount].getBoundingClientRect().bottom, slideItems[cloneCount + 1].getBoundingClientRect().top - 10) &&
-      compare2Nums(slideItems[cloneCount + info.items - 1].getBoundingClientRect().bottom, innerWrapper.getBoundingClientRect().bottom - 10);
+    return compare2Nums(firstRect.top, innerWrapperRect.top) &&
+      compare2Nums(firstRect.bottom, secondRect.top - gutter) &&
+      compare2Nums(lastRect.bottom, innerWrapperRect.bottom - gutter);
   });
 }
 
@@ -911,16 +914,11 @@ function testResponsive() {
 
   addTitle(id);
 
-  // var windowFeatures = 'menubar=yes, location=yes, resizable=yes, scrollbars=yes, status=yes, left=500, top=500 height=700, width=' + Number(bps[1]),
-  //     newWindow = window.open(location.origin + '/tests/iframe.html', 'new_window', windowFeatures);
+  var init = addTest('Slides: init');
+  var resize = addTest('Slides: resize');
   var newWindow = document.createElement('iframe');
   newWindow.style.cssText = 'width: ' + Number(bps[1]) + 'px; height: 700px; border: 0;';
   newWindow.src = 'iframe.html';
-  // newWindow.src = location.origin + '/tests/iframe.html';
-
-
-  var init = addTest('Slides: init');
-  var resize = addTest('Slides: resize');
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsiveTestsOnload, false);
@@ -936,49 +934,65 @@ function testResponsive() {
 
   function responsiveTestsOnload () {
     try {
-      // var doc = newWindow.document,
       var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           nextButton = doc.querySelector('[data-controls="next"]');
-      nextButton.click();
 
-      var container = doc.querySelector('#' + id),
+      var assertion,
+          container = doc.querySelector('#' + id),
+          slideItems = container.children,
           wrapper = container.parentNode,
-          visibleSlides = container.querySelectorAll('[aria-hidden="false"]'),
-          len = visibleSlides.length;
+          items = responsive[bps[1]],
+          index = info.index + items,
+          firstRect,
+          lastRect,
+          wrapperRect;
 
-      var assertion = len === responsive[bps[1]] &&
-        compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
-        compare2Nums(visibleSlides[len - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
+      new Promise(function(resolve) {
+        nextButton.click();
+        resolve();
+      }).then(function() {
+        return new Promise(function(resolve) {
+          firstRect = slideItems[index].getBoundingClientRect();
+          lastRect = slideItems[index + items - 1].getBoundingClientRect();
+          wrapperRect = wrapper.getBoundingClientRect();
 
-      if (assertion) {
-        init.className = 'item-success';
+          assertion = 
+            compare2Nums(firstRect.left, wrapperRect.left) &&
+            compare2Nums(lastRect.right, wrapperRect.right);
+          resolve();
+        });
+      }).then(function() {
+        if (assertion) {
+          init.className = 'item-success';
 
-        // newWindow.resizeTo(Number(bps[2]), 700);
-        newWindow.style.width = Number(bps[2]) + 'px';
+          // resize window
+          return new Promise(function(resolve) {
+            newWindow.style.width = Number(bps[2]) + 'px';
+            resolve();
+          }).then(function() {
+            return wait(500).then(function() {
+              items = responsive[bps[2]];
+              lastRect = slideItems[index + items - 1].getBoundingClientRect();
+              wrapperRect = wrapper.getBoundingClientRect();
 
-        setTimeout(function () {
-          visibleSlides = container.querySelectorAll('[aria-hidden="false"]');
-          var len2 = visibleSlides.length;
+              assertion = 
+                compare2Nums(firstRect.left, wrapperRect.left) &&
+                compare2Nums(lastRect.right, wrapperRect.right);
+              resize.className = assertion ? 'item-success' : 'item-fail';
 
-          assertion = len2 === responsive[bps[2]] && 
-            compare2Nums(visibleSlides[0].getBoundingClientRect().left, wrapper.getBoundingClientRect().left) &&
-            compare2Nums(visibleSlides[len2 - 1].getBoundingClientRect().right, wrapper.getBoundingClientRect().right);
-          resize.className = assertion ? 'item-success' : 'item-fail';
-
-          // newWindow.close();
+              document.body.removeChild(newWindow);
+            });
+          });
+        } else {
+          init.className = resize.className = 'item-fail';
           document.body.removeChild(newWindow);
-        }, 500);
-      } else {
-        init.className = resize.className = 'item-fail';
-        // newWindow.close();
-        document.body.removeChild(newWindow);
-      }
+        }
+      });
     } catch (e) {
       init.className = 'item-notsure';
       resize.className = 'item-notsure';
     }
   }
-
 }
 
 function testMouseDrag() {
@@ -997,9 +1011,12 @@ function testGutter() {
   addTitle(id);
   runTest('Slide: gutter', function () {
     var slideItems = info.slideItems,
-        cloneCount = info.cloneCount;
-
-    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().right, slideItems[cloneCount + 1].getBoundingClientRect().left);
+        cloneCount = info.cloneCount,
+        firstRect = slideItems[cloneCount].getBoundingClientRect(),
+        secondRect = slideItems[cloneCount + 1].getBoundingClientRect();
+    // There is no "gap" between the two slides
+    // because the gap is made by padding
+    return compare2Nums(firstRect.right, secondRect.left);
   });
 }
 
@@ -1046,9 +1063,6 @@ function testSlideByPage () {
   addTitle(id);
   var controlsClick = addTest('Controls: click');
   checkControlsClick(controlsClick, id, 11);
-  // runTest('Controls: click', function () {
-  //   return checkControlsClick(id, info, 11);
-  // });
 }
 
 function testArrowKeys () {
@@ -1057,25 +1071,68 @@ function testArrowKeys () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slides: keydown', function () {
-    var assertion = true,
-        container = info.container,
-        slideBy = info.slideBy,
-        index = slider.getInfo().index;
-
+  var test = addTest('Slides: keydown');
+  var assertion,
+      container = info.container,
+      slideBy = info.slideBy,
+      index = slider.getInfo().index;
+  
+  new Promise(function(resolve) {
+    // fire keydown event on right arrow
     fire(document, 'keydown', { 'keyCode': 39 });
-    assertion = slider.getInfo().index === index + slideBy;
-    
-    fire(document, 'keydown', { 'keyCode': 39 });
-    assertion = slider.getInfo().index === index + slideBy * 2;
-    
-    fire(document, 'keydown', { 'keyCode': 37 });
-    assertion = slider.getInfo().index === index + slideBy;
-
-    fire(document, 'keydown', { 'keyCode': 37 });
-    assertion = slider.getInfo().index === index;
-
-    return assertion;
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = slider.getInfo().index === index + slideBy;
+      resolve();
+    });
+  }).then(function() {
+    if (assertion) {
+      return new Promise(function(resolve) {
+        // fire keydown event on right arrow
+        fire(document, 'keydown', { 'keyCode': 39 });
+        resolve();
+      }).then(function() {
+        return new Promise(function(resolve) {
+          assertion = slider.getInfo().index === index + slideBy * 2;
+          resolve();
+        });
+      }).then(function() {
+        if (assertion) {
+          return new Promise(function(resolve) {
+            // fire keydown event on left arrow
+            fire(document, 'keydown', { 'keyCode': 37 });
+            resolve();
+          }).then(function() {
+            return new Promise(function(resolve) {
+              assertion = slider.getInfo().index === index + slideBy;
+              resolve();
+            });
+          }).then(function() {
+            if (assertion) {
+              return new Promise(function(resolve) {
+                // fire keydown event on left arrow
+                fire(document, 'keydown', { 'keyCode': 37 });
+                resolve();
+              }).then(function() {
+                return new Promise(function(resolve) {
+                  assertion = slider.getInfo().index === index;
+                  resolve();
+                });
+              });
+            } else {
+              return Promise.resolve();
+            }
+          })
+        } else {
+          return Promise.resolve();
+        }
+      })
+    } else {
+      return Promise.resolve();
+    }
+  }).then(function() {
+    updateTest(test, assertion);
   });
 }
 
