@@ -2,7 +2,10 @@ const rollup = require('rollup').rollup;
 const resolve = require('rollup-plugin-node-resolve');
 
 const gulp = require('gulp');
-const $ = require('gulp-load-plugins')();
+const packages = require('/www/package.json');
+const $ = require('gulp-load-plugins')({
+  config: packages
+});
 const browserSync = require('browser-sync').create();
 const nunjucks = require('nunjucks');
 const path = require('path');
@@ -141,6 +144,11 @@ gulp.task('server', function() {
     server: {
       baseDir: './'
     },
+    ghostMode: {
+      clicks: false,
+      forms: false,
+      scroll: false
+    },
     port: '3000',
     open: false,
     notify: false
@@ -161,7 +169,7 @@ gulp.task('server', function() {
         .pipe($.htmltidy({
           doctype: 'html5',
           wrap: 0,
-          hideComments: true,
+          hideComments: false,
           indent: true,
           'indent-attributes': false,
           'drop-empty-elements': false,
@@ -176,7 +184,7 @@ gulp.task('server', function() {
   gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
   gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']);
-  gulp.watch(['**/*.html', pathTest + testName + '.min.js', pathDest + '*.css']).on('change', browserSync.reload);
+  gulp.watch(['**/*.html', pathTest + '*.js', pathDest + '*.css']).on('change', browserSync.reload);
   // gulp.watch('src/tiny-slider.native.js, tests/tests.js', ['testcafe']);
 });
 

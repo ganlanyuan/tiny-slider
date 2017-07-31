@@ -14,17 +14,273 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   
+  <link rel="stylesheet" href="css/prism.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-speed="{{ 100 if page === 'demos' else 0 }}" data-page="{{ page }}">
 
-<script src="../dist/tiny-slider.helper.ie8.js"></script>
-<script src="../dist/tiny-slider.js"></script>
+{% if page === 'iframe' %}
+  {% set sliders = [
+    'responsive'
+  ] %}
+{% elif page === 'demos' %}
+  {% set sliders = [
+    'base',
+    'non-loop', 
+    'rewind', 
+    'fixedWidth', 
+    'fixedWidth-edgePadding', 
+    'vertical', 
+    'responsive', 
+    'mouse-drag',
+    'gutter', 
+    'edgePadding', 
+    'arrowKeys', 
+    'autoplay',
+    'animation1', 
+    'lazyload', 
+    'customize', 
+    'autoHeight',
+    'nested'
+  ] %}
+{% else %}
+  {% set sliders = [
+    'base',
+    'non-loop', 
+    'rewind', 
+    'fixedWidth', 
+    'fixedWidth-gutter', 
+    'fixedWidth-edgePadding', 
+    'fixedWidth-edgePadding-gutter', 
+    'vertical', 
+    'vertical-gutter', 
+    'vertical-edgePadding', 
+    'vertical-edgePadding-gutter', 
+    'responsive', 
+    'mouse-drag',
+    'gutter', 
+    'edgePadding', 
+    'edgePadding-gutter', 
+    'few-items',
+    'slide-by-page', 
+    'arrowKeys', 
+    'autoplay',
+    'animation1', 
+    'animation2', 
+    'lazyload', 
+    'customize', 
+    'autoHeight',
+    'nested'
+  ] %}
+{% endif %}
+
+{% set titles = [
+  "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
+  "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", 
+  "Corrupti, libero minima nihil expedita officiis? Quo.", 
+  "Alias rem, ab impedit recusandae repellat tempore.", "
+  Nisi inventore quo delectus perspiciatis voluptatibus, quae.", 
+  "Nisi harum earum consectetur laudantium iusto, laboriosam.", 
+  "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.", 
+  "Omnis dolorum eum blanditiis, ratione voluptates quod.", 
+  "Animi quis iste ex ullam, similique laboriosam.", "D
+  eserunt, ipsam! Placeat ullam, nam incidunt odit!"
+] %}
+
+{% set imgs = [
+  "http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", 
+  "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", 
+  "http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", 
+  "http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540",
+  "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"
+] %}
+
 {% block main %}
+  {# test results #}
+  {% if page === 'tests' %}
+  <div class="test-results">
+    {# <div class="title">Test 1</div>
+    <div class="item">Test 1</div>
+    <div class="item-success">Test 1</div>
+    <div class="item-fail">Test 1</div>
+    <div class="item">Test 1</div>
+    <div class="title">Test 1</div>
+    <div class="item">Test 1</div> #}
+  </div>
+  {% endif %}
+
+  {# navigation #}
+  {% if page !== 'iframe' %}
+  <div class="nav">
+    <div class="nav-toggle-handle">menu</div>
+    <ul>
+      {% for slide in sliders %}
+        <li><a href="#{{ slide }}_wrapper">{{ slide }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {# sliders #}
+  <div class="slider-container">
+    {% for slide in sliders %}
+    <div id="{{ slide }}_wrapper">
+      <h2>{{ slide | title }}</h2>
+
+      {# go to #}
+      {% if slide === 'base' %}
+        <div class="goto-controls">
+          Go to slide: <input type="text" value="-100">
+          <button class="button">Go</button>
+        </div>
+      {% endif %}
+
+      {# slider body #}
+      <div class="{{ slide }}" id="{{ slide }}">
+        {# lazy load #}
+        {% if slide === 'lazyload' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+
+        {# customize #}
+        {% elif slide === 'customize' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+
+        {# auto height #}
+        {% elif slide === 'autoHeight' %}
+          {% for i in range(1, 6) %}
+            <div>
+              <div><img src="{{ imgs[i - 1] }}" alt=""></div>
+              <p>{{ titles[i] }}</p>
+            </div>
+          {% endfor %}
+          
+        {# nested #}
+        {% elif slide === 'nested' %}
+          {% for i in range(1, 8) %}
+          <div class="item">
+            {% if i === 1 %}
+              <div class="{{ slide }}_inner_wrapper" id="{{ slide }}_inner_wrapper">
+                <div class="{{ slide }}_inner" id="{{ slide }}_inner">
+                  {% for i in range(1, 8) %}
+                  <div class="item">
+                    <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+                    <p>{{ titles[i] }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+              <p>{{ titles[i] }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+          
+        {# default #}
+        {% else %}
+          {% for i in range(1, 8) %}
+          <div class="item">
+            <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+            <p>{{ titles[i] }}</p>
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      {# customize tools #}
+      {% if slide === 'customize' %}
+        <div class="customize-tools">
+          <ul class="thumbnails" id="customize-thumbnails">
+            {% for i in range(1, 6) %}
+              <li><img src="images/sm/{{ i }}.jpg" alt=""></li>
+            {% endfor %}
+          </ul>
+          <ul class="controls" id="customize-controls">
+            <li class="prev"><img src="images/angle-left.png" alt=""></li>
+            <li class="next"><img src="images/angle-right.png" alt=""></li>
+          </ul>
+          <div class="playbutton-wrapper"><button id="customize-toggle">Pause</button></div>
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {# {% if page === 'tests' %}
+    <iframe id="myiframe" src="iframe.html" frameborder="0" style="width: 600px; height: 700px;"></iframe>
+  {% endif %} #}
+
+  {% if page !== 'iframe' %}
+  <script>
+    var doc = document,
+        slideList = doc.querySelectorAll('.slider-container > div'),
+        pageNavContainer = doc.querySelector('.nav'),
+        pageNav = doc.querySelector('.nav ul'),
+        toggleHandle = doc.querySelector('.nav-toggle-handle'),
+        divider = window.innerHeight / 2,
+        scrollTimer,
+        resizeTimer;
+
+    toggleHandle.onclick = function () {
+      var classN = pageNavContainer.className;
+      pageNavContainer.className = (classN.indexOf(' active') > 0) ? classN.replace(' active', '') : classN + ' active';
+    };
+
+    if (window.addEventListener) {
+      window.addEventListener('scroll', function () {
+        clearTimeout(scrollTimer);
+
+        scrollTimer = setTimeout(function () {
+          [].forEach.call(slideList, function (el) {
+            var rect = el.getBoundingClientRect(),
+                navLink = pageNav.querySelector('[href="#' + el.id + '"]');
+            if (rect.top <= divider && rect.bottom > divider) {
+              if (navLink.className !== 'active') { navLink.className = 'active'; }
+            } else {
+              if (navLink.className !== '') { navLink.className = ''; }
+            }
+          });
+        }, 100);
+      });
+
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+
+        resizeTimer = setTimeout(function () {
+          divider = window.innerHeight / 2;
+        }, 100);
+      });
+
+      pageNav.addEventListener('click', function () {
+        var classN = pageNavContainer.className;
+        if (classN.indexOf(' active') > 0) { pageNavContainer.className = classN.replace(' active', ''); }
+      });
+    }
+
+  </script>
+  {% endif %}
 {% endblock %}
 
-<script src="js/script.min.js"></script>
+<script src="js/prism.js"></script>
+<script src="js/es6-promise.auto.min.js"></script>
+<script src="../dist/tiny-slider.helper.ie8.js"></script>
+<script src="../dist/tiny-slider.js"></script>
+<script src="js/script.js"></script>
+
+{% block footerScripts %}
+{% endblock %}
+
 </body>
 </html>

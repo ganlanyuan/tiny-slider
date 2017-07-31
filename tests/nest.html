@@ -1,5 +1,9 @@
 <!DOCTYPE html>
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie10 lt-ie9" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js lt-ie10" lang="en"><![endif]-->
+<!--[if gt IE 9]><!-->
 <html class="no-js" lang="en">
+  <!--<![endif]-->
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
@@ -13,15 +17,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="stylesheet" href="css/prism.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="../dist/tiny-slider.css">
     <link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
     <script src="../dist/tiny-slider.helper.ie8.js">
-    </script> 
+    </script>
     <script src="../dist/tiny-slider.js">
     </script>
+  </head>
+  <body>
     <style>
     .img { padding: 8% 0; }
     </style>
@@ -135,6 +140,11 @@
     }
     </script> 
     <script src="js/script.min.js">
-    </script>
+    </script> 
+    <script src="js/prism.js">
+    </script> <!--[if (gt IE 8)|(!IE)]><!-->
+     
+    <script src="js/test.js">
+    </script> <!--<![endif]-->
   </body>
 </html>

@@ -1,8 +1,13 @@
 # tiny-slider
 ![version](https://img.shields.io/badge/Version-1.5.6-green.svg)   
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
-<!-- [demo](http://creatiointl.org/william/tiny-slider/v1-new/demo/)    -->
-The previous version is still available in branch [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0), you may want to know how to [transfer from v0](transfer.md).
+[Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
+[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+)   
+
+*Previous versions*  
+[v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
+[v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
+<!-- [transfer from v0 to v1](transfer.md). -->
 
 ## Install
 `bower install tiny-slider` or `npm install tiny-slider`
@@ -135,17 +140,22 @@ There are 2 ways to get slider information, each of them returns an `info` Objec
 info = {
   container: container, // slider container
   slideItems: slideItems, // slides list
+  navContainer: navContainer, // nav container
   navItems: navItems, // dots list
+  controlsContainer: controlsContainer, // controls container
   prevButton: prevButton, // previous button
   nextButton: nextButton, // next button
   items: items, // items on a page
+  slideBy: slideBy // items slide by
+  cloneCount: cloneCount, // cloned slide count
+  slideCount: slideCount, // original slide count
+  slideCountNew: slideCountNew, // total slide count after initialization
   index: index, // current index
   indexCached: indexCached, // previous index
   navCurrent: navCurrent, // current dot index
   navCurrentCached: navCurrentCached, // previous dot index
-  slideCount: slideCount, // original slide count
-  cloneCount: cloneCount, // cloned slide count
-  slideCountNew: slideCountNew, // total slide count after initialization
+  visibleNavIndexes: visibleNavIndexes, // visible nav indexes
+  visibleNavIndexesCached: visibleNavIndexesCached,
   event: e || {}, // event object if available
 };
 ```
@@ -227,11 +237,10 @@ var slider = tns({
 Firefox 8+ ✓  
 Chrome 15+ ✓  
 Safari 4+ ✓  
-Opera 11.5+ ✓  
+Opera 12.1+ ✓  
 IE 8+ ✓  
 
 It should work on _Chrome 4-14_ as well, but I couldn't test it.  
-<del>No animations on IE8-9 since they don't support [CSS3 transition](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions).</del> Animations for legacy browsers have been added in [v1.0.2](https://github.com/ganlanyuan/tiny-slider/releases/tag/v1.0.2).
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
