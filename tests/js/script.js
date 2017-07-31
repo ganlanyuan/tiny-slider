@@ -1,6 +1,7 @@
 // import { tns } from '../../src/tiny-slider';
 
 var doc = document,
+    isDemoPage = doc.body.getAttribute('data-page') === 'demos',
     sliders = new Object(),
     speed = Number(document.body.getAttribute('data-speed')),
     edgepadding = 50,
@@ -189,27 +190,29 @@ for (var i in options) {
     // sliders[i].destroy();
 
     // insert code
-    doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
-      if (typeof value === 'object') {
-        if (value.id) {
-          return "document.querySelector('#" + value.id + "')";
+    if (isDemoPage) {
+      doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
+        if (typeof value === 'object') {
+          if (value.id) {
+            return "document.querySelector('#" + value.id + "')";
+          }
         }
-      }
-      return value;
-    }, '  ') + '</code></pre>');
+        return value;
+      }, '  ') + '</code></pre>');
+    }
   }
 }
 
 // goto
-if (doc.querySelector('#goto_wrapper')) {
-  var goto = doc.querySelector('#goto_wrapper .goto-controls'),
+if (doc.querySelector('#base_wrapper')) {
+  var goto = doc.querySelector('#base_wrapper .goto-controls'),
       gotoBtn = goto.querySelector('.button'),
       gotoInput = goto.querySelector('input');
 
   gotoBtn.onclick = function (event) {
     var index = Number(gotoInput.value);
     if (typeof index === 'number') {
-      sliders['goto'].goTo(index);
+      sliders['base'].goTo(index);
     }
   };
 }

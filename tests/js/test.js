@@ -6,14 +6,6 @@ if (!Object.keys) Object.keys = function(o) {
   return k;
 }
 
-function wait(ms) {
-  return new Promise(function(resolve) {
-    setTimeout(function() {
-      resolve();
-    }, ms);
-  });
-}
-
 var resultsDiv = doc.querySelector('.test-results'),
     windowWidth = (document.documentElement || document.body.parentNode || document.body).clientWidth,
     multiplyer = 100,
@@ -36,243 +28,8 @@ document.onkeydown = function (e) {
 fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
-function addTitle(str) {
-  var title = doc.createElement('div');
-  title.className = 'title';
-  title.textContent = str;
-  resultsDiv.appendChild(title);
-}
-
-function addTest(str, postfix) {
-  var test = doc.createElement('div');
-  if (!postfix) { postfix = '-running'; }
-  test.className = 'item' + postfix;
-  test.textContent = str;
-  resultsDiv.appendChild(test);
-  return test;
-}
-
-function updateTest(test, assertion) {
-  switch(assertion) {
-    case true:
-      test.className = 'item-success';
-      break;
-    case false:
-      test.className = 'item-fail';
-      break;
-    default:
-      test.className = 'item-notsure';
-  }
-}
-
-function runTest(str, fn) {
-  var test = addTest(str);
-  test.className = (fn()) ? 'item-success' : 'item-fail';
-}
-
-function containsClasses(el, arr) {
-  var len = arr.length,
-      classes = el.className,
-      assertion = true;
-
-  for (var i = 0; i < len; i++) {
-    if (classes.indexOf(arr[i]) < 0) { assertion = false; }
-  }
-
-  return assertion;
-}
-
-function compare2Nums(a, b) {
-  // var gap = (ua.indexOf('MSIE 8.0') > -1) ? 2 : 1;
-  return Math.abs(a - b) <= 2;
-}
-
-function repeat(fn, count, timeout) {
-  var promise = Promise.resolve();
-
-  if (timeout) {
-    while (count > 0) {
-      promise = promise.then(function () {
-        return wait(timeout);
-      }).then(function () {
-        return new Promise(function (resolve, reject) {
-          fn();
-          resolve();
-        });
-      });
-
-      count--;
-    }
-  } else {
-    while (count > 0) {
-      promise = promise.then(function () {
-        return new Promise(function (resolve, reject) {
-          fn();
-          resolve();
-        });
-      });
-
-      count--;
-    }
-  }
-
-  return promise;
-}
-
-function checkSlidesAttrs(id) {
-  var info = sliders[id].getInfo(),
-      slideItems = info.slideItems,
-      index = info.index,
-      items = info.items,
-      firstVisible = slideItems[index],
-      lastVisible = slideItems[index + items - 1],
-      firstVisiblePrev = slideItems[index - 1],
-      lastVisibleNext = slideItems[index + items],
-      checkLastItem = (options[id]['axis'] === 'vertical') ? true : compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top);
-
-  return slideItems.length === info.slideCount * 5 &&
-    containsClasses(firstVisible, ['tns-item']) &&
-    firstVisible.id === id + '-item' + 0 &&
-    firstVisible.getAttribute('aria-hidden') === 'false' &&
-    !firstVisible.hasAttribute('tabindex') &&
-    firstVisiblePrev.id === '' &&
-    firstVisiblePrev.getAttribute('aria-hidden') === 'true' &&
-    firstVisiblePrev.getAttribute('tabindex') === '-1' &&
-    lastVisible.id === id + '-item' + (items - 1) &&
-    lastVisible.getAttribute('aria-hidden') === 'false' &&
-    !lastVisible.hasAttribute('tabindex') &&
-    lastVisibleNext.getAttribute('aria-hidden') === 'true' &&
-    lastVisibleNext.getAttribute('tabindex') === '-1' &&
-    compare2Nums(firstVisible.clientWidth, windowWidth / items) &&
-    checkLastItem;
-}
-
-function checkControlsAttrs(id) {
-  var info = sliders[id].getInfo(),
-      controlsContainer = info.controlsContainer,
-      prevButton = info.prevButton,
-      nextButton = info.nextButton,
-      checkClass = options[id]['controlsContainer'] ? true : containsClasses(controlsContainer, 'tns-controls');
-  return checkClass &&
-    controlsContainer.getAttribute('aria-label') === 'Carousel Navigation' &&
-    controlsContainer.getAttribute(tabindex) === '0' &&
-    prevButton.getAttribute(tabindex) === '-1' &&
-    prevButton.getAttribute('data-controls') === 'prev' &&
-    prevButton.getAttribute('aria-controls') === id &&
-    nextButton.getAttribute(tabindex) === '-1' &&
-    nextButton.getAttribute('data-controls') === 'next' &&
-    nextButton.getAttribute('aria-controls') === id;
-}
-
-function getAbsIndex(current, clicks, info) {
-  return (current + info.slideBy * clicks + info.slideCount * multiplyer)%info.slideCount;
-}
-
-function checkControlsClick(test, id, count, vertical) {
-  var assertion,
-      slider = sliders[id],
-      info = slider.getInfo(),
-      container = info.container,
-      wrapper = container.parentNode,
-      slideCount = info.slideCount,
-      navItems = info.navItems,
-      slideItems = info.slideItems,
-      items = info.items,
-      edge1 = 'left',
-      edge2 = 'right';
-
-  if (vertical) {
-    edge1 = 'top';
-    edge2 = 'bottom';
-  }
-      
-  function getAssertion (absIndex) {
-    var index = sliders[id].getInfo().index,
-        first = slideItems[index],
-        last = slideItems[index + items - 1],
-        checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
-        
-    return absIndex === index%slideCount &&
-      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-      first.getAttribute('aria-hidden') === 'false' &&
-      !first.hasAttribute(tabindex) &&
-      last.getAttribute('aria-hidden') === 'false' &&
-      !last.hasAttribute(tabindex) &&
-      compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) &&
-      checkLastEdge;
-  }
-
-  // click prev button n times
-  var current = info.index;
-  var promise = (id === 'customize') ? 
-      repeat(function () { simulateClick(info.prevButton); }, count) : 
-      repeat(function () { info.prevButton.click(); }, count);
-
-  return promise.then(function () {
-    return new Promise(function (resolve, reject) {
-      var absIndex = getAbsIndex(current, -count, info);
-      assertion = getAssertion(absIndex);
-      resolve();
-    });
-  }).then(function () {
-    if (assertion) {
-      var clickNext = (id === 'customize') ? 
-          repeat(function () { simulateClick(info.nextButton); }, count) : 
-          repeat(function () { info.nextButton.click(); }, count);
-
-      return clickNext.then(function () {
-        return new Promise(function (resolve, reject) {
-          assertion = getAssertion(0);
-          resolve();
-        });
-      });
-    } else {
-      return Promise.resolve();
-    }
-  }).then(function () {
-    return Promise.resolve().then(function () {
-      updateTest(test, assertion);
-    });
-  });
-}
-
-function checkPositionEdgePadding (info, padding, gap, vertical) {
-  padding = padding || 0;
-  vertical = vertical || false;
-  var slideItems = info.slideItems,
-      cloneCount = info.cloneCount,
-      wrapper = info.container.parentNode,
-      first = slideItems[cloneCount],
-      last = slideItems[cloneCount + info.items - 1],
-      edge1 = (vertical) ? 'top' : 'left',
-      edge2 = (vertical) ? 'bottom' : 'right',
-      gutterAdjust = (vertical) ? 0 : (padding) ? gap : 0;
-
-  if (!vertical) { wrapper = wrapper.parentNode; }
-  var wrapperRect = wrapper.getBoundingClientRect();
-
-  return compare2Nums(first.getBoundingClientRect()[edge1] - (padding + gap), wrapperRect[edge1]) &&
-    compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
-}
-
-function testAutoplayFn (id, el, timeout, equal) {
-  var assertion,
-      current = sliders[id].getInfo().index;
-
-  return wait(timeout).then(function() {
-    return new Promise(function(resolve) {
-      assertion = current === sliders[id].getInfo().index;
-      assertion = (equal) ? assertion : !assertion;
-      updateTest(el, assertion);
-      resolve();
-    });
-  });
-}
-
-// [[[[[[[[]]]]]]]]
 window.onload = function () {
   testBase();
-  testGoto();
   testNonLoop();
   testRewind();
   testFixedWidth();
@@ -297,7 +54,7 @@ window.onload = function () {
   testLazyload();
   testCustomize();
   testAutoHeight();
-  // testNested();
+  testNested();
 };
 
 
@@ -331,7 +88,7 @@ function testBase () {
   });
 
   runTest('Slides: position', function () {
-    return checkPositionEdgePadding(info, 0, 0);
+    return checkPositionEdgePadding(id);
   });
 
   runTest('Controls: class, aria-label, aria-controls, data-controls, tabindex', function () {
@@ -352,6 +109,7 @@ function testBase () {
   var navClick = addTest('Nav: click functions');
   var controlsKeydown = addTest('Controls: keydown events');
   var navKeydown = addTest('Nav: keydown events');
+  var testGoto = addTest('Goto: Random numbers');
 
   /* ### check controls click functions
    *
@@ -361,7 +119,7 @@ function testBase () {
      *
      */
     return Promise.resolve().then(function () {
-      var assertion = true,
+      var assertion,
           slideItems = info.slideItems,
           visibleNavIndexes = info.visibleNavIndexes,
           len = visibleNavIndexes.length;
@@ -370,7 +128,7 @@ function testBase () {
         info.navItems[visibleNavIndexes[i]].click();
         var current = slider.getInfo().index,
             currentSlide = slideItems[current];
-        if (assertion) {
+        if (assertion !== false) {
           assertion = 
             info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
             current%info.slideCount === visibleNavIndexes[i] &&
@@ -392,7 +150,7 @@ function testBase () {
         var assertion;
 
         // fire keydown events on left arrow
-        repeat(function () {
+        return repeat(function () {
           fire(info.controlsContainer, 'keydown', {'keyCode': 37}); 
         }, 3).then(function () {
           return Promise.resolve().then(function () {
@@ -438,118 +196,127 @@ function testBase () {
           /* ### check nav keydown functions
            * 
            */
-          return Promise.resolve().then(function () {
-            // reset assertion
-            assertion = undefined;
-            var info = slider.getInfo(),
-                navItems = info.navItems,
-                visibleNavIndexes = info.visibleNavIndexes;
+          // reset assertion
+          assertion = undefined;
+          var info = slider.getInfo(),
+              slideCount = info.slideCount,
+              navItems = info.navItems,
+              slideItems = info.slideItems,
+              visibleNavIndexes = info.visibleNavIndexes,
+              wrapperLeft = info.container.parentNode.getBoundingClientRect().left;
 
-            Promise.resolve().then(function() {
-              // focus on the 1st nav item
-              return new Promise(function (resolve) {
-                navItems[visibleNavIndexes[0]].focus();
-                resolve();
-              });
-            }).then(function () {
-              return new Promise(function (resolve) {
-                // fire keydown event on right arrow
-                // the 2nd nav item get focused
-                fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 39});
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function(resolve) {
-                assertion = document.activeElement === navItems[visibleNavIndexes[1]];
-                resolve();
-              });
-            }).then(function() {
-              // press "Enter"
-              return new Promise(function(resolve) {
-                fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 13});
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function (resolve) {
-                var current = slider.getInfo().index,
-                    currentSlide = info.slideItems[current],
-                    wrapper = info.container.parentNode;
-
-                if (assertion) {
-                  assertion = current%info.slideCount === visibleNavIndexes[1] &&
-                    info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
-                    compare2Nums(currentSlide.getBoundingClientRect().left, wrapper.getBoundingClientRect().left);
-                }
-                resolve();
-              });
-            }).then(function () {
-              return new Promise(function (resolve) {
-                // fire keydown event on left arrow
-                // the 1st nav item get focused
-                fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 37});
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function(resolve) {
-                assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-                resolve();
-              })
-            }).then(function () {
-              return new Promise(function(resolve) {
-                // fire keydown event on down arrow
-                // the 3nd nav item get focused
-                fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 40});
-                resolve();
-              })
-            }).then(function() {
-              return new Promise(function(resolve) {
-                assertion = document.activeElement === navItems[visibleNavIndexes[2]];
-                resolve();
-              });
-            }).then(function(){
-              return new Promise(function(resolve) {
-                // press "Space"
-                fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 32});
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function (resolve) {
-                var current = slider.getInfo().index,
-                    currentSlide = info.slideItems[current],
-                    wrapper = info.container.parentNode;
-
-                if (assertion) {
-                  assertion = current%info.slideCount === visibleNavIndexes[2] &&
-                    info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
-                    compare2Nums(currentSlide.getBoundingClientRect().left, wrapper.getBoundingClientRect().left);
-                }
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function(resolve) {
-                // fire keydown event on up arrow
-                // the 1st nav item get focused
-                fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 38});
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function(resolve) {
-                assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-                resolve();
-              });
-            }).then(function() {
-              return new Promise(function(resolve) {
-                // press "Enter"
-                fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 13});
-                resolve();
-              });
-            }).then(function(){
-              updateTest(navKeydown, assertion);
+          return new Promise(function(resolve) {
+            // focus on the 1st nav item
+            navItems[visibleNavIndexes[0]].focus();
+            // fire keydown event on right arrow
+            // the 2nd nav item get focused
+            fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 39});
+            resolve();
+          }).then(function() {
+            return new Promise(function(resolve) {
+              assertion = document.activeElement === navItems[visibleNavIndexes[1]];
+              resolve();
             });
+          }).then(function() {
+            // press "Enter"
+            return new Promise(function(resolve) {
+              fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 13});
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function (resolve) {
+              var current = slider.getInfo().index,
+                  currentSlide = slideItems[current];
 
+              if (assertion) {
+                assertion = current%slideCount === visibleNavIndexes[1] &&
+                  info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
+                  compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              }
+              resolve();
+            });
+          }).then(function () {
+            return new Promise(function (resolve) {
+              // fire keydown event on left arrow
+              // the 1st nav item get focused
+              fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 37});
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function(resolve) {
+              if (assertion) {
+                assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+              }
+              resolve();
+            })
+          }).then(function () {
+            return new Promise(function(resolve) {
+              // fire keydown event on down arrow
+              // the 3nd nav item get focused
+              fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 40});
+              resolve();
+            })
+          }).then(function() {
+            return new Promise(function(resolve) {
+              if (assertion) {
+                assertion = document.activeElement === navItems[visibleNavIndexes[2]];
+              }
+              resolve();
+            });
+          }).then(function(){
+            return new Promise(function(resolve) {
+              // press "Space"
+              fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 32});
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function (resolve) {
+              var current = slider.getInfo().index,
+                  currentSlide = slideItems[current];
+
+              if (assertion) {
+                assertion = current%slideCount === visibleNavIndexes[2] &&
+                  info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
+                  compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              }
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function(resolve) {
+              // fire keydown event on up arrow
+              // the 1st nav item get focused
+              fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 38});
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function(resolve) {
+              if (assertion) {
+                assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+              }
+              resolve();
+            });
+          }).then(function() {
+            return new Promise(function(resolve) {
+              // press "Enter"
+              fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 13});
+              resolve();
+            });
+          }).then(function(){
+            return new Promise(function (resolve) {
+              var current = slider.getInfo().index,
+                  currentSlide = slideItems[current];
+
+              if (assertion) {
+                assertion = current%slideCount === visibleNavIndexes[0] &&
+                  info.navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
+                  compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              }
+              resolve();
+            });
+          }).then(function(){
+            updateTest(navKeydown, assertion);
           });
         });
-
       });
 
     // browser not support fire keyevents
@@ -560,40 +327,32 @@ function testBase () {
         updateTest(navKeydown, '?');
       });
     }
-  });
-}
-
-function testGoto () {
-  var id = 'goto',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      slideCount = info.slideCount,
-      controls = document.querySelector('#goto_wrapper .goto-controls'),
-      input = controls.querySelector('input'),
-      button = controls.querySelector('.button');
-
-  addTitle(id);
-  var test = addTest('Random positive numbers');
-
-  var assertion,
-      mul = 100;
-
-  function checkGoto() {
-    var number = Math.round(Math.random() * mul);
-    input.value = number;
-    button.click();
-    while (number < 0) { number += slideCount; }
-    if (assertion !== false) {
-      assertion = slider.getInfo().index%slideCount === number%slideCount;
-    }
-  }
-
-  repeat(checkGoto, 3).then(function () {
-    mul = -100;
-    return repeat(checkGoto, 3);
   }).then(function() {
-    updateTest(test, assertion);
-  })
+    var slideCount = info.slideCount,
+        controls = document.querySelector('#base_wrapper .goto-controls'),
+        input = controls.querySelector('input'),
+        button = controls.querySelector('.button');
+
+    var assertion,
+        mul = 100;
+
+    function checkGoto() {
+      var number = Math.round(Math.random() * mul);
+      input.value = number;
+      button.click();
+      while (number < 0) { number += slideCount; }
+      if (assertion !== false) {
+        assertion = slider.getInfo().index%slideCount === number%slideCount;
+      }
+    }
+
+    repeat(checkGoto, 3).then(function () {
+      mul = -100;
+      return repeat(checkGoto, 3);
+    }).then(function() {
+      updateTest(testGoto, assertion);
+    });
+  });
 }
 
 function testNonLoop() {
@@ -706,7 +465,7 @@ function testRewind() {
   var test = addTest('Controls: click functions');
   // runTest('Controls: click functions', function () {
   // });
-  var assertion = true,
+  var assertion,
       prevButton = info.prevButton,
       nextButton = info.nextButton,
       navItems = info.navItems,
@@ -851,7 +610,7 @@ function testVertical () {
   });
 
   runTest('Slides: position', function () {
-    return checkPositionEdgePadding(info, 0, 0, true);
+    return checkPositionEdgePadding(id, true);
   });
 
   var controlsClick = addTest('slides: click functions');
@@ -885,7 +644,7 @@ function testVerticalEdgePadding () {
 
   addTitle(id);
   runTest('Slides: position, edge padding', function () {
-    return checkPositionEdgePadding(info, edgePadding, 0, true);
+    return checkPositionEdgePadding(id, true);
   });
 }
 
@@ -896,7 +655,7 @@ function testVerticalEdgePaddingGutter () {
 
   addTitle(id);
   runTest('Slides: position, edge padding', function () {
-    return checkPositionEdgePadding(info, edgePadding, gutter, true);
+    return checkPositionEdgePadding(id, true);
   });}
 
 function testResponsive() {
@@ -993,9 +752,12 @@ function testResponsive() {
 function testMouseDrag() {
   var id = 'mouse-drag',
       slider = sliders[id],
-      info = slider.getInfo();
+      info = slider.getInfo(),
+      container = info.container;
 
   addTitle(id);
+  var test = addTest('Mouse drag');
+  updateTest(test, '-notsure');
 }
 
 function testGutter() {
@@ -1022,7 +784,7 @@ function testEdgePadding() {
 
   addTitle(id);
   runTest('Slide: position', function () {
-    return checkPositionEdgePadding(info, edgePadding, 0);
+    return checkPositionEdgePadding(id, 0);
   });
 }
 
@@ -1033,7 +795,7 @@ function testEdgePaddingGutter() {
 
   addTitle(id);
   runTest('Slide: position', function () {
-    return checkPositionEdgePadding(info, edgePadding, gutter);
+    return checkPositionEdgePadding(id);
   });
 }
 
@@ -1236,11 +998,11 @@ function testAnimation1 () {
   addTitle(id);
 
   function checkAnimationClasses() {
-    var assertion = true,
+    var assertion,
         index = slider.getInfo().index;
 
     for (var i = slideCountNew; i--;) {
-      if (assertion) {
+      if (assertion !== false) {
         assertion = (i >= index && i < index + items) ? containsClasses(slideItems[i], animateIn) : containsClasses(slideItems[i], animateNormal);
       }
     }
@@ -1452,8 +1214,302 @@ function testAutoHeight () {
 function testNested () {
   var id = 'nested',
       slider = sliders[id],
-      info = slider.getInfo();
+      info = slider.getInfo(),
+      index = info.index,
+      slideBy = info.slideBy,
+      nextButton = info.nextButton,
+      prevButton = info.prevButton,
+      assertion,
+      _id = 'nested_inner',
+      _slider = sliders[_id],
+      _info = _slider.getInfo(),
+      _index = _info.index,
+      _slideBy = _info.slideBy,
+      _nextButton = _info.nextButton,
+      _edgePadding = _info.edgePadding ? _info.edgePadding : 0,
+      _assertion;
 
   addTitle(id);
+  runTest('Slides: position', function () {
+    return checkPositionEdgePadding(id);
+  });
+  var test = addTest('Controls: click');
+
+  addTitle(_id);
+  runTest('Slides: position', function () {
+    return checkPositionEdgePadding(_id);
+  });
+  var _test = addTest('Controls: click');
+
+  new Promise(function(resolve) {
+    nextButton.click();
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = slider.getInfo().index === index + slideBy &&
+        _slider.getInfo().index === _index;
+      updateTest(test, assertion);
+      resolve();
+    });
+  }).then(function () {
+    return new Promise(function(resolve) {
+      prevButton.click();
+      _nextButton.click();
+      resolve();
+    }).then(function() {
+      return new Promise(function(resolve) {
+        _assertion = _slider.getInfo().index === _index + _slideBy &&
+          slider.getInfo().index === index;    
+        updateTest(_test, _assertion);
+        resolve();
+      });
+    });
+  });
+}
+
+function wait(ms) {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve();
+    }, ms);
+  });
+}
+
+function addTitle(str) {
+  var title = doc.createElement('div');
+  title.className = 'title';
+  title.textContent = str;
+  resultsDiv.appendChild(title);
+}
+
+function addTest(str, postfix) {
+  var test = doc.createElement('div');
+  if (!postfix) { postfix = '-running'; }
+  test.className = 'item' + postfix;
+  test.textContent = str;
+  resultsDiv.appendChild(test);
+  return test;
+}
+
+function updateTest(test, assertion) {
+  switch(assertion) {
+    case true:
+      test.className = 'item-success';
+      break;
+    case false:
+      test.className = 'item-fail';
+      break;
+    default:
+      test.className = 'item-notsure';
+  }
+}
+
+function runTest(str, fn) {
+  var test = addTest(str);
+  test.className = (fn()) ? 'item-success' : 'item-fail';
+}
+
+function containsClasses(el, arr) {
+  var len = arr.length,
+      classes = el.className,
+      assertion = true;
+
+  for (var i = 0; i < len; i++) {
+    if (classes.indexOf(arr[i]) < 0) { assertion = false; }
+  }
+
+  return assertion;
+}
+
+function compare2Nums(a, b) {
+  // var gap = (ua.indexOf('MSIE 8.0') > -1) ? 2 : 1;
+  return Math.abs(a - b) <= 2;
+}
+
+function getAbsIndex(current, clicks, info) {
+  return (current + info.slideBy * clicks + info.slideCount * multiplyer)%info.slideCount;
+}
+
+function repeat(fn, count, timeout) {
+  var promise = Promise.resolve();
+
+  if (timeout) {
+    while (count > 0) {
+      promise = promise.then(function () {
+        return wait(timeout);
+      }).then(function () {
+        return new Promise(function (resolve, reject) {
+          fn();
+          resolve();
+        });
+      });
+
+      count--;
+    }
+  } else {
+    while (count > 0) {
+      promise = promise.then(function () {
+        return new Promise(function (resolve, reject) {
+          fn();
+          resolve();
+        });
+      });
+
+      count--;
+    }
+  }
+
+  return promise;
+}
+
+function checkSlidesAttrs(id) {
+  var info = sliders[id].getInfo(),
+      slideItems = info.slideItems,
+      index = info.index,
+      items = info.items,
+      firstVisible = slideItems[index],
+      lastVisible = slideItems[index + items - 1],
+      firstVisiblePrev = slideItems[index - 1],
+      lastVisibleNext = slideItems[index + items],
+      checkLastItem = (options[id]['axis'] === 'vertical') ? true : compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top);
+
+  return slideItems.length === info.slideCount * 5 &&
+    containsClasses(firstVisible, ['tns-item']) &&
+    firstVisible.id === id + '-item' + 0 &&
+    firstVisible.getAttribute('aria-hidden') === 'false' &&
+    !firstVisible.hasAttribute('tabindex') &&
+    firstVisiblePrev.id === '' &&
+    firstVisiblePrev.getAttribute('aria-hidden') === 'true' &&
+    firstVisiblePrev.getAttribute('tabindex') === '-1' &&
+    lastVisible.id === id + '-item' + (items - 1) &&
+    lastVisible.getAttribute('aria-hidden') === 'false' &&
+    !lastVisible.hasAttribute('tabindex') &&
+    lastVisibleNext.getAttribute('aria-hidden') === 'true' &&
+    lastVisibleNext.getAttribute('tabindex') === '-1' &&
+    compare2Nums(firstVisible.clientWidth, windowWidth / items) &&
+    checkLastItem;
+}
+
+function checkControlsAttrs(id) {
+  var info = sliders[id].getInfo(),
+      controlsContainer = info.controlsContainer,
+      prevButton = info.prevButton,
+      nextButton = info.nextButton,
+      checkClass = options[id]['controlsContainer'] ? true : containsClasses(controlsContainer, 'tns-controls');
+  return checkClass &&
+    controlsContainer.getAttribute('aria-label') === 'Carousel Navigation' &&
+    controlsContainer.getAttribute(tabindex) === '0' &&
+    prevButton.getAttribute(tabindex) === '-1' &&
+    prevButton.getAttribute('data-controls') === 'prev' &&
+    prevButton.getAttribute('aria-controls') === id &&
+    nextButton.getAttribute(tabindex) === '-1' &&
+    nextButton.getAttribute('data-controls') === 'next' &&
+    nextButton.getAttribute('aria-controls') === id;
+}
+
+function checkControlsClick(test, id, count, vertical) {
+  var assertion,
+      slider = sliders[id],
+      info = slider.getInfo(),
+      container = info.container,
+      wrapper = container.parentNode,
+      slideCount = info.slideCount,
+      navItems = info.navItems,
+      slideItems = info.slideItems,
+      items = info.items,
+      edge1 = 'left',
+      edge2 = 'right';
+
+  if (vertical) {
+    edge1 = 'top';
+    edge2 = 'bottom';
+  }
+      
+  function getAssertion (absIndex) {
+    var index = sliders[id].getInfo().index,
+        first = slideItems[index],
+        last = slideItems[index + items - 1],
+        checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
+        
+    return absIndex === index%slideCount &&
+      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      first.getAttribute('aria-hidden') === 'false' &&
+      !first.hasAttribute(tabindex) &&
+      last.getAttribute('aria-hidden') === 'false' &&
+      !last.hasAttribute(tabindex) &&
+      compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) &&
+      checkLastEdge;
+  }
+
+  // click prev button n times
+  var current = info.index;
+  var promise = (id === 'customize') ? 
+      repeat(function () { simulateClick(info.prevButton); }, count) : 
+      repeat(function () { info.prevButton.click(); }, count);
+
+  return promise.then(function () {
+    return new Promise(function (resolve, reject) {
+      var absIndex = getAbsIndex(current, -count, info);
+      assertion = getAssertion(absIndex);
+      resolve();
+    });
+  }).then(function () {
+    if (assertion) {
+      var clickNext = (id === 'customize') ? 
+          repeat(function () { simulateClick(info.nextButton); }, count) : 
+          repeat(function () { info.nextButton.click(); }, count);
+
+      return clickNext.then(function () {
+        return new Promise(function (resolve, reject) {
+          assertion = getAssertion(0);
+          resolve();
+        });
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }).then(function () {
+    return Promise.resolve().then(function () {
+      updateTest(test, assertion);
+    });
+  });
+}
+
+function checkPositionEdgePadding (id, vertical) {
+  var opt = options[id],
+      info = sliders[id].getInfo();
+
+  padding = opt.edgePadding ? opt.edgePadding : 0;
+  gap = opt.gutter ? opt.gutter : 0;
+  vertical = vertical || false;
+
+  var slideItems = info.slideItems,
+      cloneCount = info.cloneCount,
+      wrapper = info.container.parentNode,
+      first = slideItems[cloneCount],
+      last = slideItems[cloneCount + info.items - 1],
+      edge1 = (vertical) ? 'top' : 'left',
+      edge2 = (vertical) ? 'bottom' : 'right',
+      gutterAdjust = (vertical) ? 0 : (padding) ? gap : 0;
+
+  if (!vertical) { wrapper = wrapper.parentNode; }
+  var wrapperRect = wrapper.getBoundingClientRect();
+
+  return compare2Nums(first.getBoundingClientRect()[edge1] - (padding + gap), wrapperRect[edge1]) &&
+    compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
+}
+
+function testAutoplayFn (id, el, timeout, equal) {
+  var assertion,
+      current = sliders[id].getInfo().index;
+
+  return wait(timeout).then(function() {
+    return new Promise(function(resolve) {
+      assertion = current === sliders[id].getInfo().index;
+      assertion = (equal) ? assertion : !assertion;
+      updateTest(el, assertion);
+      resolve();
+    });
+  });
 }
 

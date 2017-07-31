@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body data-speed="{{ 100 if page === 'demos' else 0 }}">
+<body data-speed="{{ 100 if page === 'demos' else 0 }}" data-page="{{ page }}">
 
 {% if page === 'iframe' %}
   {% set sliders = [
@@ -46,11 +46,10 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = ['autoplay'] %} #}
+  {% set sliders = ['nested'] %}
 {% else %}
   {% set sliders = [
     'base',
-    'goto',
     'non-loop', 
     'rewind', 
     'fixedWidth', 
@@ -74,9 +73,9 @@
     'animation2', 
     'lazyload', 
     'customize', 
-    'autoHeight'
+    'autoHeight',
+    'nested'
   ] %}
-    {# 'nested' #}
 {% endif %}
 
 {% set titles = [
@@ -133,7 +132,7 @@
       <h2>{{ slide | title }}</h2>
 
       {# go to #}
-      {% if slide === 'goto' %}
+      {% if slide === 'base' %}
         <div class="goto-controls">
           Go to slide: <input type="text" value="-100">
           <button class="button">Go</button>

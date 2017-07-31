@@ -1073,6 +1073,8 @@ var tns = function(options) {
 
     // append stylesheet
     // == horizontal slider ==
+    // prevent rewriting from parent slider
+    var importantStr = (nested === 'inner') ? ' !important' : '';
     if (horizontal) {
       var stringSlideLeft =
           stringSlideFontSize = 
@@ -1123,7 +1125,7 @@ var tns = function(options) {
             CALC + '(100% / ' + items + ')' :
             100 / items + '%';
       }
-      stringSlideWidth += ';';
+      stringSlideWidth += importantStr + ';';
 
       // set gutter
       if (gutter) {
@@ -1143,7 +1145,7 @@ var tns = function(options) {
               q * 100 / slideCountNew + "%";
           // webkit
           if (CSSMQ) {
-            sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + '; }', sheet.cssRules.length);
+            sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + importantStr + '; }', sheet.cssRules.length);
             
           // IE8
           } else {
@@ -2102,9 +2104,7 @@ var tns = function(options) {
 
       case KEYS.ENTER:
       case KEYS.SPACE:
-        if (options.navContainer) {
-          onNavClick(e);
-        }
+        onNavClick(e);
         break;
     }
   }
