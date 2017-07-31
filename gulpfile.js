@@ -144,6 +144,11 @@ gulp.task('server', function() {
     server: {
       baseDir: './'
     },
+    ghostMode: {
+      clicks: false,
+      forms: false,
+      scroll: false
+    },
     port: '3000',
     open: false,
     notify: false

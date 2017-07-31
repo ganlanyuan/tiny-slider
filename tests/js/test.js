@@ -906,7 +906,7 @@ function testAutoplay () {
   var id = 'autoplay',
       slider = sliders[id],
       info = slider.getInfo(),
-      ops = options[id],
+      opt = options[id],
       buttons = info.navContainer.children,
       autoplayButton = buttons[buttons.length - 1];
 
@@ -917,8 +917,8 @@ function testAutoplay () {
   });
 
   var timeout = 0;
-  if (ops['autoplayTimeout']) { timeout += ops['autoplayTimeout']; }
-  if (ops['speed']) { timeout += ops['speed']; }
+  if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+  if (opt['speed']) { timeout += opt['speed']; }
 
   var testClick = addTest('autoplayButton: click');
   var test1 = addTest('Slide: autoplay');
@@ -984,11 +984,11 @@ function testAnimation1 () {
       slideCountNew = info.slideCountNew,
       items = info.items,
       slideItems = info.slideItems,
-      ops = options[id],
-      animateIn = ops['animateIn'] ? ops['animateIn'] : 'tns-fadeIn',
-      animateOut = ops['animateOut'] ? ops['animateOut'] : 'tns-fadeOut',
+      opt = options[id],
+      animateIn = opt['animateIn'] ? opt['animateIn'] : 'tns-fadeIn',
+      animateOut = opt['animateOut'] ? opt['animateOut'] : 'tns-fadeOut',
       animateNormal = 'tns-normal',
-      speed = ops['speed'] ? ops['speed'] : 0;
+      speed = opt['speed'] ? opt['speed'] : 0;
 
   if (localStorage['tnsAnDu'] === 'false') {
     animateIn = 'tns-fadeIn';
@@ -1120,13 +1120,23 @@ function testCustomize () {
   var id = 'customize',
       slider = sliders[id],
       info = slider.getInfo(),
-      ops = options[id];
+      opt = options[id],
+      autoplayButton = opt['autoplayButton'];
 
   addTitle(id);
 
+  // stop autoplay and go to the first slide
+  // before testing slide attrs
+  if (opt['autoplay']) {
+    autoplayButton.click();
+    slider.goTo(0);
+  }
   runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
     return checkSlidesAttrs(id);
   });
+  if (opt['autoplay']) {
+    autoplayButton.click();
+  }
 
   runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function () {
     return checkControlsAttrs(id);
@@ -1160,11 +1170,10 @@ function testCustomize () {
   var controlsClick = addTest('Controls: click functions');
   checkControlsClick(controlsClick, id, 11);
 
-  if (ops['autoplay']) {
+  if (opt['autoplay']) {
     var timeout = 100;
-    if (ops['autoplayTimeout']) { timeout += ops['autoplayTimeout']; }
-    if (ops['speed']) { timeout += ops['speed']; }
-    var autoplayButton = ops['autoplayButton'];
+    if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+    if (opt['speed']) { timeout += opt['speed']; }
 
     var test1 = addTest('Slide: autoplay');
     testAutoplayFn(id, test1, timeout, false);
@@ -1367,6 +1376,7 @@ function checkSlidesAttrs(id) {
       slideItems = info.slideItems,
       index = info.index,
       items = info.items,
+      slideCount = info.slideCount,
       firstVisible = slideItems[index],
       lastVisible = slideItems[index + items - 1],
       firstVisiblePrev = slideItems[index - 1],

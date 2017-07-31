@@ -12,13 +12,6 @@ var doc = document,
         items: 3,
         slideBy: 'page',
       },
-      'goto': {
-        container: '',
-        items: 3,
-        slideBy: 'page',
-        nav: false,
-        controls: false,
-      },
       'few-items': {
         container: '',
         items: 9,
