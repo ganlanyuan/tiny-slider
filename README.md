@@ -1,5 +1,4 @@
-# tiny-slider
-![version](https://img.shields.io/badge/Version-1.5.6-green.svg)   
+# tiny-slider 2.0 (Beta)
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+)   
@@ -8,6 +7,12 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
 <!-- [transfer from v0 to v1](transfer.md). -->
+
+## What's new
+- Using `%` instead of `px`
+- Using inserted stylesheet instead of inline `style` attribute
+- Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- Some selectors changes in `tiny-slider.css`
 
 ## Install
 `bower install tiny-slider` or `npm install tiny-slider`
@@ -200,7 +205,7 @@ var slider = tns(...);
 slider.destroy();
 ```
 ## Custom Events
-Available events include: <del>`initialized`, </del>`indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
+Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
 var slider = tns(...);
 
@@ -215,18 +220,6 @@ slider.events.on('transitionEnd', customizedFunction);
 // remove function binding
 slider.events.off('transitionEnd', customizedFunction);
 ```
-**Initialized**  
-The `initialized` event doesn't work actually because the initialization has been finished when you call `var slider = tns(...);`, and it won't fire when you bind the function to the event later.   
-You can use a fallback function `onInit` instead from [v1.2.0](https://github.com/ganlanyuan/tiny-slider/tree/v1.2.0).
-```javascript
-var slider = tns({
-  // other options
-  // ...
-  onInit: function (info) {
-    console.log(info.container);
-  }
-})
-```  
 #### Fallback
 ```css
 .no-js .your-slider { overflow-x: auto; }
@@ -237,10 +230,11 @@ var slider = tns({
 Firefox 8+ ✓  
 Chrome 15+ ✓  
 Safari 4+ ✓  
-Opera 12.1+ ✓  
+Opera 15+ ✓  
+<!-- Opera 12.1+ ✓ (except `gallery`)   -->
 IE 8+ ✓  
-
-It should work on _Chrome 4-14_ as well, but I couldn't test it.  
+Should be working on _Chrome 4-14_ as well, but I couldn't test it.  
+`gallery` mode doesn't work on _Opera 12.1 - 12.6_, will fix this soon.
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
