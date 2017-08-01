@@ -1741,6 +1741,7 @@ var tns = function(options) {
         eve[TRANSITIONEND] = eve[ANIMATIONEND] = onTransitionEnd;
         removeEvents(slideItems[indexCached], eve);
         addEvents(slideItems[index], eve);
+        // console.log(slideItems[index]);
 
         (function () {
           for (var i = indexCached, l = indexCached + items; i < l; i++) {
@@ -1774,6 +1775,7 @@ var tns = function(options) {
           }
         })();
 
+        // console.log(TRANSITIONEND, speed);
         if (!TRANSITIONEND || speed === 0) {
           setTimeout(onTransitionEnd, speed);
         }
@@ -1808,6 +1810,7 @@ var tns = function(options) {
   // 6. update container height
   function onTransitionEnd(event) {
     events.emit('transitionEnd', info(event));
+    // console.log(slideItemsOut.length);
 
     if (!carousel && slideItemsOut.length > 0) {
       for (var i = 0; i < items; i++) {
@@ -1921,6 +1924,7 @@ var tns = function(options) {
 
   // on controls click
   function onControlClick(dir) {
+    // console.log(running);
     if (!running) {
       index = index + dir * slideBy;
 
