@@ -1,7 +1,11 @@
 # tiny-slider 2.0 (Beta)
+![version](https://img.shields.io/badge/Version-2.0.0-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
-[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+)   
+
+[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
+Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
+Note: some features may need a manual test.  
 
 *Previous versions*  
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
@@ -12,10 +16,11 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 - Using `%` instead of `px`
 - Using inserted stylesheet instead of inline `style` attribute
 - Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
-- Some selectors changes in `tiny-slider.css`
+- Some selector changes in [`tiny-slider.scss`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss)
 
-## Install
-`bower install tiny-slider` or `npm install tiny-slider`
+*From v1 to v2*
+- Update `controls` and / or `nav` styles based on their position changes. 
+- Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
 
 ## Features
 - carousel / gallery
@@ -39,63 +44,44 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 - custom events
 - nested slider
 
+## Install
+`bower install tiny-slider` or `npm install tiny-slider`
+
 ## Usage
 ##### 1. Include tiny-slider
 ```html
 <link rel="stylesheet" href="tiny-slider.css">
 
-<!--[if (lt IE 9)]><script src="tiny-slider.ie8.js"></script><![endif]-->
-<script src="tiny-slider.js"></script>
+<!--[if (lt IE 9)]><script src="path/to/tiny-slider.ie8.js"></script><![endif]-->
+<script src="path/to/tiny-slider.js"></script>
 ```
-Or tiny-slider.native + [go-native](https://github.com/ganlanyuan/go-native),
-```html
-<link rel="stylesheet" href="tiny-slider.css">
-
-<!--[if (lt IE 9)]><script src="go-native.ie8.js"></script><![endif]-->
-<script src="go-native.js"></script>
-<script src="tiny-slider.native.js"></script>
-```
-You can import it via `webpack` or `rollup`:
+Or import it via `webpack` or `rollup`:
 ```javascript
+// yourScript.js
 import { tns } from "path/to/src/tiny-slider.module"
-
-var slider = tns({
-  key: value
-});
 ```
 
 ##### 2. Add markup
 ```html
-<!-- markup -->
-<div class="slider">
+<div class="my-slider">
   <div></div>
   <div></div>
   <div></div>
 </div>
-
-<!-- or
-<ul class="slider">
-  <li></li>
-  <li></li>
-  <li></li>
-</ul>
--->
+<!-- or ul.my-slider > li -->
 ```
 
 ##### 3. Call tiny-slider on DOM ready
 ```html
 <script>
-  gn.ready(function () {
-    var slider = tns({
-      container: document.querySelector('.slider'),
-      items: 3,
-      slideBy: 'page',
-      autoplay: true
-    });
+  var slider = tns({
+    container: document.querySelector('.my-slider'),
+    items: 3,
+    slideBy: 'page',
+    autoplay: true
   });
 </script>
 ```
-Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, or check out some [examples](examples.md) of usage.
 
 ## Options
 
@@ -119,7 +105,7 @@ Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, 
 | `autoplay` | Boolean | Default: `false`. <br> Toggles the automatic change of slides. |
 | `autoplayTimeout` | Integer | Default: `5000`. <br> Time between 2 `autoplay` slides change (in "ms"). |
 | `autoplayDirection` | `'forward'` \| `'backward'` | Default: `'forward'`. <br> Direction of slide movement (ascending/descending the slide index). |
-| `autoplayText` | (Text \| Markup) Array | Default: `['start', 'stop']`. <br> Text or markup in the autoplay start/stop button. |
+| `autoplayText` | Array (Text \| Markup) | Default: `['start', 'stop']`. <br> Text or markup in the autoplay start/stop button. |
 | `autoplayHoverPause` | Boolean | Default: `false`. <br> Stops sliding on mouseover. |
 | `autoplayButton` | Node \| `false` | Default: `false`. <br> The autoplay start/stop button. |
 | `autoplayResetOnVisibility` | Boolean | Default: `true`. <br> Pauses the sliding when the page is invisiable and resumes it when the page become visiable again. ([Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)) |
@@ -130,15 +116,15 @@ Have a look at the [demo](http://ganlanyuan.github.io/tiny-slider/tests/) page, 
 | `loop` | Boolean | Default: `true`. <br> Moves to the first slide with the same direction when reaching the last slide. |
 | `rewind` | Boolean | Default: `false`. <br> Moves to the first slide with the opposite direction when reaching the last slide. |
 | `autoHeight` | Boolean | Default: `false`. <br> Height of slider container changes according to each slide's height. |
-| `responsive` | Map (breakpoint, items) \| `false` | Default: `false`. <br> Defines number of slides for different viewport widths (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#responsive)). |
-| `lazyload` | Boolean | Default: `false`. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [example](https://github.com/ganlanyuan/tiny-slider/blob/master/examples.md#lazyload)). |
+| `responsive` | Map { breakpoint: items } \| `false` | Default: `false`. <br> Defines number of slides for different viewport widths (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#responsive_wrapper)). |
+| `lazyload` | Boolean | Default: `false`. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). |
 | `touch` | Boolean | Default: `true`. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: `false`. <br> Changing slides by dragging them. |
-| `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/nest.html)) |
+| `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
 
 ## Get slider information
-There are 2 ways to get slider information, each of them returns an `info` Object:   
+There are 2 ways to get slider information, both return `info` Object:   
 1. `getInfo` method.   
 2. Subscribe to an event.   
 ```javascript
@@ -230,11 +216,9 @@ slider.events.off('transitionEnd', customizedFunction);
 Firefox 8+ ✓  
 Chrome 15+ ✓  
 Safari 4+ ✓  
-Opera 15+ ✓  
-<!-- Opera 12.1+ ✓ (except `gallery`)   -->
+Opera 12.1+ ✓   
 IE 8+ ✓  
 Should be working on _Chrome 4-14_ as well, but I couldn't test it.  
-`gallery` mode doesn't work on _Opera 12.1 - 12.6_, will fix this soon.
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  

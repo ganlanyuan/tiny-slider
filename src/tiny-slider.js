@@ -127,10 +127,10 @@ export var tns = function(options) {
     autoplayHoverPause: false,
     autoplayButton: false,
     autoplayResetOnVisibility: true,
-    animateIn: 'tns-fadeIn',
-    animateOut: 'tns-fadeOut',
-    animateNormal: 'tns-normal',
-    animateDelay: false,
+    // animateIn: 'tns-fadeIn',
+    // animateOut: 'tns-fadeOut',
+    // animateNormal: 'tns-normal',
+    // animateDelay: false,
     loop: true,
     rewind: false,
     autoHeight: false,
@@ -143,7 +143,7 @@ export var tns = function(options) {
   }, options || {});
   
   // make sure slide container exists
-  if (typeof options.container !== 'object' || options.container === null) { return; }
+  if (typeof options.container !== 'object' || options.container === null || options.container.children.length < 2) { return; }
 
   // === define and set variables ===
   if (options.mode === 'gallery') {
@@ -155,14 +155,13 @@ export var tns = function(options) {
 
     var animateIn = 'tns-fadeIn',
         animateOut = 'tns-fadeOut',
-        animateNormal = 'tns-normal',
+        animateNormal = options.animateNormal || 'tns-normal',
         animateDelay = false;
 
-    if (ANIMATIONDURATION) {
-      animateIn = options.animateIn;
-      animateOut = options.animateOut;
-      animateNormal = options.animateNormal;
-      animateDelay = options.animateDelay;
+    if (TRANSITIONEND && ANIMATIONEND) {
+      animateIn = options.animateIn || animateIn;
+      animateOut = options.animateOut || animateOut;
+      animateDelay = options.animateDelay || animateDelay;
     }
   }
 
@@ -238,7 +237,6 @@ export var tns = function(options) {
     var nav = options.nav,
         navContainer = options.navContainer || false,
         navItems,
-        // navCountVisible = (options.navContainer) ? slideCount : Math.ceil(slideCount / items),
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
@@ -304,7 +302,6 @@ export var tns = function(options) {
   events.on('itemsChanged', function () {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
-    // if (nav && !options.navContainer) { navCountVisible = Math.ceil(slideCount / items); }
     updateSlideStatus();
   });
 
@@ -1055,6 +1052,24 @@ export var tns = function(options) {
     container.style[transformAttr] = transformPrefix + val + transformPostfix;
   }
 
+  function animateSlide(number, classOut, classIn, isOut) {
+    for (var i = number, l = number + items; i < l; i++) {
+      var item = slideItems[i];
+
+      // set item positions
+      if (!isOut) { item.style.left = (i - index) * 100 / items + '%'; }
+
+      if (TRANSITIONDURATION) { setDurations(speed, item); }
+      if (animateDelay && TRANSITIONDELAY) {
+        item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = animateDelay * (i - number) / 1000 + 's';
+      }
+      item.classList.remove(classOut);
+      item.classList.add(classIn);
+      
+      if (isOut) { slideItemsOut.push(item); }
+    }
+  }
+
   // make transfer after click/drag:
   // 1. change 'transform' property for mordern browsers
   // 2. change 'left' property for legacy browsers
@@ -1090,44 +1105,11 @@ export var tns = function(options) {
         eve[TRANSITIONEND] = eve[ANIMATIONEND] = onTransitionEnd;
         removeEvents(slideItems[indexCached], eve);
         addEvents(slideItems[index], eve);
-        // console.log(slideItems[index]);
 
-        (function () {
-          for (var i = indexCached, l = indexCached + items; i < l; i++) {
-            var item = slideItems[i];
-            if (TRANSITIONDURATION) { setDurations(speed, item); }
-            if (animateDelay && TRANSITIONDELAY) {
-              var d = animateDelay * (i - indexCached) / 1000; 
-              item.style[TRANSITIONDELAY] = d + 's'; 
-              item.style[ANIMATIONDELAY] = d + 's'; 
-            }
-            item.classList.remove(animateIn);
-            item.classList.add(animateOut);
-            slideItemsOut.push(item);
-          }
-        })();
+        animateSlide(indexCached, animateIn, animateOut, true);
+        animateSlide(index, animateNormal, animateIn);
 
-        (function () {
-          for (var i = index, l = index + items; i < l; i++) {
-            var item = slideItems[i];
-            // set item positions
-            item.style.left = (i - index) * 100 / items + '%';
-
-            if (TRANSITIONDURATION) { setDurations(speed, item); }
-            if (animateDelay && TRANSITIONDELAY) {
-              var d = animateDelay * (i - index) / 1000; 
-              item.style[TRANSITIONDELAY] = d + 's'; 
-              item.style[ANIMATIONDELAY] = d + 's'; 
-            }
-            item.classList.remove(animateNormal);
-            item.classList.add(animateIn);
-          }
-        })();
-
-        // console.log(TRANSITIONEND, speed);
-        if (!TRANSITIONEND || speed === 0) {
-          setTimeout(onTransitionEnd, speed);
-        }
+        if (!TRANSITIONEND || !ANIMATIONEND || speed === 0) { setTimeout(onTransitionEnd, 0); }
       };
     }
   })();
@@ -1159,7 +1141,6 @@ export var tns = function(options) {
   // 6. update container height
   function onTransitionEnd(event) {
     events.emit('transitionEnd', info(event));
-    // console.log(slideItemsOut.length);
 
     if (!carousel && slideItemsOut.length > 0) {
       for (var i = 0; i < items; i++) {
@@ -1273,7 +1254,6 @@ export var tns = function(options) {
 
   // on controls click
   function onControlClick(dir) {
-    // console.log(running);
     if (!running) {
       index = index + dir * slideBy;
 
