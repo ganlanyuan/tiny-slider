@@ -1,27 +1,15 @@
 {
   "name": "tiny-slider",
-  "version": "1.5.6",
-  "description": "Pure javascript slider for all purposes, inspired by Owl Carousel.",
+  "version": "2.0.0",
+  "description": "Vanilla javascript slider for all purposes, inspired by Owl Carousel.",
   "main": "dist/tiny-slider.js",
   "directories": {
     "test": "tests"
   },
   "devDependencies": {
-    "chai": "^4.1.0",
-    "go-native": "^1.0.0",
-    "testcafe": "^0.16.2",
-    "testcafe-browser-provider-browserstack": "^1.1.1",
-    "testcafe-browser-provider-saucelabs": "^1.3.0"
   },
   "scripts": {
-    "test": "testcafe \"browserstack:firefox@8.0:Windows XP\", \"browserstack:chrome@15.0:Windows 7\", \"browserstack:safari@4.0:OS X Snow Leopard\", \"browserstack:opera@11.5:Windows 7\", \"browserstack:ie@9.0:Windows 7\" tests/features/base.js",
-    "local": "testcafe \"chrome:headless\" tests/features/base.js",
-    "remote": "testcafe remote tests/features/base.js",
-    "firefox": "testcafe \"browserstack:firefox@8.0:Windows XP\" tests/features/base.js",
-    "chrome": "testcafe \"browserstack:chrome@15.0:Windows 7\" tests/features/base.js",
-    "safari": "testcafe \"browserstack:safari@4.0:OS X Snow Leopard\" tests/features/base.js",
-    "opera": "testcafe \"browserstack:opera@11.5:Windows 7\" tests/features/base.js",
-    "ie": "testcafe \"browserstack:ie@9.0:Windows 7\" tests/features/base.js"
+    "test": ""
   },
   "repository": {
     "type": "git",
@@ -35,7 +23,5 @@
   },
   "homepage": "https://github.com/ganlanyuan/tiny-slider#readme",
   "dependencies": {
-    "concat-map": "0.0.1",
-    "ms": "^2.0.0"
   }
 }

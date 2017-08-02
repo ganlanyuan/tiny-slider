@@ -1,4 +1,4 @@
-# tiny-slider 2.0 (Beta)
+# tiny-slider 2.0
 ![version](https://img.shields.io/badge/Version-2.0.0-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
@@ -10,7 +10,6 @@ Note: some features may need a manual test.
 *Previous versions*  
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
-<!-- [transfer from v0 to v1](transfer.md). -->
 
 ## What's new
 - Using `%` instead of `px`
