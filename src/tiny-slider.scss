@@ -74,6 +74,11 @@
   border-width: 0;
   padding: 0;
 }
+.tns-ah {
+  -webkit-transition: height 0s;
+  -moz-transition: height 0s;
+  transition: height 0s;
+}
 .tns-ovh { overflow: hidden; }
 .tns-hdx { overflow-x: hidden; }
 .tns-hdy { overflow-y: hidden; }

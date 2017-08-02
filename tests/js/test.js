@@ -1205,7 +1205,8 @@ function testAutoHeight () {
         slideItems = info.slideItems,
         nextButton = info.nextButton;
 
-    assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+    assertion = containsClasses(wrapper, ['tns-ah']) &&
+      compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
     updateTest(test1, assertion);
 
     assertion = null;

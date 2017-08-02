@@ -1,6 +1,7 @@
 // PRODUCTION
 
 // from go-native
+import "../bower_components/go-native/src/es5/object/keys.js";
 import "../bower_components/go-native/src/utilities/childNode.remove";
 import "../bower_components/go-native/src/vendors/token-list";
 import { extend } from "../bower_components/go-native/src/gn/extend";
@@ -326,12 +327,16 @@ export var tns = function(options) {
       } else {
         dataInner += ' tns-ovh';
       }
-    } else {
-      dataOuter += ' tns-hdx';
+    // } else {
+    //   dataOuter += ' tns-hdx';
     }
 
     outerWrapper.className = dataOuter;
     innerWrapper.className = dataInner;
+    if (autoHeight) {
+      innerWrapper.className += ' tns-ah';
+      innerWrapper.style[TRANSITIONDURATION] = speed / 1000 + 's';
+    }
 
     // set container properties
     if (container.id === '') { container.id = slideId; }

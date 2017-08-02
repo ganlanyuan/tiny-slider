@@ -1,4 +1,3 @@
-import "../bower_components/go-native/src/es5/object/keys.js";
 import "../bower_components/go-native/src/es5/array/isArray.js";
 import "../bower_components/go-native/src/es5/array/forEach.js";
 import "../bower_components/go-native/src/es5/array/indexOf.js";

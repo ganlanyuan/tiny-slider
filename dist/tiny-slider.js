@@ -1,4 +1,17 @@
 var tns = (function (){
+// keys
+if (!Object.keys) {
+    Object.keys = function (object) {
+        var keys = [];
+        for (var name in object) {
+            if (Object.prototype.hasOwnProperty.call(object, name)) {
+                keys.push(name);
+            }
+        }
+        return keys;
+    };
+}
+
 // ChildNode.remove
 (function () {
   "use strict";
@@ -977,12 +990,16 @@ var tns = function(options) {
       } else {
         dataInner += ' tns-ovh';
       }
-    } else {
-      dataOuter += ' tns-hdx';
+    // } else {
+    //   dataOuter += ' tns-hdx';
     }
 
     outerWrapper.className = dataOuter;
     innerWrapper.className = dataInner;
+    if (autoHeight) {
+      innerWrapper.className += ' tns-ah';
+      innerWrapper.style[TRANSITIONDURATION] = speed / 1000 + 's';
+    }
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
