@@ -151,11 +151,11 @@ var doc = document,
       'customize': {
         container: '',
         items: 3,
-        controlsContainer: doc.querySelector('#customize-controls'),
-        navContainer: doc.querySelector('#customize-thumbnails'),
+        controlsContainer: '#customize-controls',
+        navContainer: '#customize-thumbnails',
         autoplay: true,
         autoplayTimeout: 1000,
-        autoplayButton: doc.querySelector('#customize-toggle'),
+        autoplayButton: '#customize-toggle',
       },
       'autoHeight': {
         container: '',
@@ -181,9 +181,9 @@ var doc = document,
 
 for (var i in options) {
   var item = options[i];
-  item.container = doc.querySelector('#' + i);
+  item.container = '#' + i;
   if (!item.speed) { item.speed = speed; }
-  if (item.container) {
+  if (doc.querySelector(item.container)) {
     sliders[i] = tns(options[i]);
     // sliders[i].destroy();
 

@@ -1121,7 +1121,7 @@ function testCustomize () {
       slider = sliders[id],
       info = slider.getInfo(),
       opt = options[id],
-      autoplayButton = opt['autoplayButton'];
+      autoplayButton = document.querySelector(opt['autoplayButton']);
 
   addTitle(id);
 
