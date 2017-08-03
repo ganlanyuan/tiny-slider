@@ -1,5 +1,5 @@
 # tiny-slider 2.0
-![version](https://img.shields.io/badge/Version-2.0.1-green.svg)  
+![version](https://img.shields.io/badge/Version-2.0.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 
@@ -74,7 +74,7 @@ import { tns } from "path/to/src/tiny-slider.module"
 ```html
 <script>
   var slider = tns({
-    container: document.querySelector('.my-slider'),
+    container: '.my-slider',
     items: 3,
     slideBy: 'page',
     autoplay: true
@@ -86,7 +86,7 @@ import { tns } from "path/to/src/tiny-slider.module"
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `container` | Node | Default: `document.querySelector('.slider')`. <br> The slider container element. |
+| `container` | Node \| String | Default: `document.querySelector('.slider')`. <br> The slider container element or selector. |
 | `mode` | `'carousel'` \| `'gallery'` | Default: `'carousel'`. <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | `'horizontal'` \| `'vertical'` | Default: `horizontal`. <br> The axis of the slider. |
 | `items` | Integer | Default: `1`. <br> Number of slides being displayed. |
@@ -96,9 +96,9 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `slideBy` | Integer \| `'page'` | Default: `1`. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: `true`. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: `['prev', 'next']`. <br> Text or markup in the prev/next buttons. |
-| `controlsContainer` | Node \| `false` | Default: `false`. <br> The container element around the prev/next buttons. |
+| `controlsContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the prev/next buttons. |
 | `nav` | Boolean | Default: `true`. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
-| `navContainer` | Node \| `false` | Default: `false`. <br> The container around the dots and the autoplay start/stop button. |
+| `navContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the dots and the autoplay start/stop button. |
 | `arrowKeys` | Boolean | Default: `false`. <br> Allows using arrow keys to switch slides. |
 | `speed` | Integer | Default: `300`. <br> Speed of the slide animation (in "ms"). |
 | `autoplay` | Boolean | Default: `false`. <br> Toggles the automatic change of slides. |
@@ -106,7 +106,7 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `autoplayDirection` | `'forward'` \| `'backward'` | Default: `'forward'`. <br> Direction of slide movement (ascending/descending the slide index). |
 | `autoplayText` | Array (Text \| Markup) | Default: `['start', 'stop']`. <br> Text or markup in the autoplay start/stop button. |
 | `autoplayHoverPause` | Boolean | Default: `false`. <br> Stops sliding on mouseover. |
-| `autoplayButton` | Node \| `false` | Default: `false`. <br> The autoplay start/stop button. |
+| `autoplayButton` | Node \| String \| `false` | Default: `false`. <br> The autoplay start/stop button or selector. |
 | `autoplayResetOnVisibility` | Boolean | Default: `true`. <br> Pauses the sliding when the page is invisiable and resumes it when the page become visiable again. ([Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)) |
 | `animateIn` | String | Default: `'tns-fadeIn'`. <br> Name of intro animation `class`. |
 | `animateOut` | String | Default: `'tns-fadeOut'`. <br> Name of outro animation `class`. |
