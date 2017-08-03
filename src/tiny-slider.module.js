@@ -217,7 +217,8 @@ export var tns = function(options) {
       containerClassCached = container.className,
       slideItemIdCached = slideItems[0].id,
       slideItemClassCached = slideItems[0].className,
-      slideId = container.id || getSlideId();
+      slideId = container.id || getSlideId(),
+      eventsRemoved = false;
 
   if (responsive) {
     if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
@@ -598,9 +599,6 @@ export var tns = function(options) {
         navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
         autoplayButton = navContainer.querySelector('[data-action]');
       }
-
-      // start autoplay
-      startAction();
     }
 
 
@@ -634,28 +632,10 @@ export var tns = function(options) {
 
 
     // == addSliderEvents ==
-    if (carousel) {
-      if (TRANSITIONEND) {
-        var eve = {};
-        eve[TRANSITIONEND] = onTransitionEnd;
-        addEvents(container, eve);
-      }
-      if (touch) {
-        addEvents(container, {
-          'touchstart': onTouchOrMouseStart,
-          'touchmove': onTouchOrMouseMove,
-          'touchend': onTouchOrMouseEnd,
-          'touchcancel': onTouchOrMouseEnd
-        });
-      }
-      if (mouseDrag) {
-        addEvents(container, {
-          'mousedown': onTouchOrMouseStart,
-          'mousemove': onTouchOrMouseMove,
-          'mouseup': onTouchOrMouseEnd,
-          'mouseleave': onTouchOrMouseEnd
-        });
-      }
+    if (carousel && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      addEvents(container, eve);
     }
 
     if (nav) {
@@ -673,32 +653,6 @@ export var tns = function(options) {
       addEvents(nextButton,{'click': onNextClick});
     }
 
-    if (autoplay) {
-      addEvents(autoplayButton, {'click': toggleAnimation});
-      if (autoplayHoverPause) {
-        addEvents(container, {'mouseover': function () {
-          if (animating) { 
-            stopAction(); 
-            autoplayHoverStopped = true;
-          }
-        }});
-        addEvents(container, {'mouseout': function () {
-          if (!animating && autoplayHoverStopped) { 
-            startAction(); 
-            autoplayHoverStopped = false;
-          }
-        }});
-      }
-
-      if (autoplayResetOnVisibility) {
-        addEvents(document, {'visibilitychange': onVisibilityChange});
-      }
-    }
-
-    if (arrowKeys) {
-      addEvents(document, {'keydown': onDocumentKeydown});
-    }
-
     if (nested === 'inner') {
       events.on('outerResized', function () {
         resizeTasks();
@@ -711,8 +665,7 @@ export var tns = function(options) {
       }
     }
 
-    checkSlideCount();
-
+    checkSlideCount(true);
     lazyLoad();
     runAutoHeight();
 
@@ -792,11 +745,12 @@ export var tns = function(options) {
 
   // compare slide count & items
   // (items) => nav, controls, autoplay
-  function checkSlideCount() {
-    // a. slide count < items
-    //  => disable nav, controls, autoplay
+  function checkSlideCount(isInitializing) {
+    // disable nav, controls, autoplay
     if (slideCount <= items) { 
-      arrowKeys = false;
+      touch = mouseDrag = arrowKeys = autoplay = false;
+      toggleSliderEvents(isInitializing);
+      if (animating) { stopAction(); }
 
       var indexTem;
       index = (!carousel) ? 0 : cloneCount;
@@ -805,10 +759,15 @@ export var tns = function(options) {
       if (navContainer) { hideElement(navContainer); }
       if (controlsContainer) { hideElement(controlsContainer); }
       if (autoplayButton) { hideElement(autoplayButton); }
-    // b. slide count > items
-    //  => enable nav, controls, autoplay
+    // enable nav, controls, autoplay
     } else {
+      touch = options.touch;
+      mouseDrag = options.mouseDrag;
       arrowKeys = options.arrowKeys;
+      autoplay = options.autoplay;
+      toggleSliderEvents(isInitializing);
+      if (autoplay && !animating) { startAction(); }
+
       if (nav) { showElement(navContainer); }
       if (controls) { showElement(controlsContainer); }
       if (autoplay) { showElement(autoplayButton); }
@@ -847,6 +806,76 @@ export var tns = function(options) {
       };
     }
   })();
+
+  function toggleSliderEvents(isInitializing) {
+    var add = isInitializing || eventsRemoved;
+
+    // touch and drag
+    if (carousel) {
+      var touchEvents = {
+            'touchstart': onTouchOrMouseStart,
+            'touchmove': onTouchOrMouseMove,
+            'touchend': onTouchOrMouseEnd,
+            'touchcancel': onTouchOrMouseEnd
+          }, dragEvents = {
+            'mousedown': onTouchOrMouseStart,
+            'mousemove': onTouchOrMouseMove,
+            'mouseup': onTouchOrMouseEnd,
+            'mouseleave': onTouchOrMouseEnd
+          };
+
+      if (add) {
+        if (touch) { addEvents(container, touchEvents); }
+        if (mouseDrag) { addEvents(container, dragEvents); }
+      } else {
+        if (!touch && options.touch) { removeEvents(container, touchEvents); }
+        if (!mouseDrag && options.mouseDrag) { removeEvents(container, dragEvents); }
+      }
+    }
+
+    // autoplay and arrow keys
+    var autoplayEvent = {'click': toggleAnimation},
+        hoverEvents = {
+          'mouseover': mouseoverPause,
+          'mouseout': mouseoutRestart
+        },
+        visibilityEvent = {'visibilitychange': onVisibilityChange},
+        docmentKeydownEvent = {'keydown': onDocumentKeydown};
+
+    if (add) {
+      if (autoplay) {
+        addEvents(autoplayButton, autoplayEvent);
+        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { addEvents(document, visibilityEvent); }
+      }
+
+      if (arrowKeys) { addEvents(document, docmentKeydownEvent); }
+      eventsRemoved = false;
+    } else {
+      if (!autoplay && options.autoplay) {
+        removeEvents(autoplayButton, autoplayEvent);
+        if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { removeEvents(document, visibilityEvent); }
+      }
+
+      if (!arrowKeys && options.arrowKeys) { removeEvents(document, docmentKeydownEvent); }
+      eventsRemoved = true;
+    }
+  }
+
+  function mouseoverPause() {
+    if (animating) { 
+      stopAction(); 
+      autoplayHoverStopped = true;
+    }
+  }
+
+  function mouseoutRestart() {
+    if (!animating && autoplayHoverStopped) { 
+      startAction(); 
+      autoplayHoverStopped = false;
+    }
+  }
 
   // lazyload
   function lazyLoad() {
