@@ -805,7 +805,7 @@ function testFewitems() {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slide: count && controls: hidden && nav: hidden', function () {
+  runTest('Slide: count, controls: hidden, nav: hidden', function () {
     return compare2Nums(info.slideItems[info.slideCount * 3 - 1].getBoundingClientRect().right, windowWidth) &&
       info.controlsContainer.hasAttribute('hidden') &&
       info.navContainer.hasAttribute('hidden');

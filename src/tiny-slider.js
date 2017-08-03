@@ -225,7 +225,7 @@ export var tns = function(options) {
       slideItemIdCached = slideItems[0].id,
       slideItemClassCached = slideItems[0].className,
       slideId = container.id || getSlideId(),
-      eventsRemoved = false;
+      sliderFrozen = false;
 
   if (responsive) {
     if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
@@ -236,7 +236,7 @@ export var tns = function(options) {
   if (options.controls) {
     var controls = options.controls,
         controlsText = options.controlsText,
-        controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
+        controlsContainer = options.controlsContainer,
         prevButton,
         nextButton;
   }
@@ -244,7 +244,7 @@ export var tns = function(options) {
   // nav
   if (options.nav) {
     var nav = options.nav,
-        navContainer = options.navContainer || false,
+        navContainer = options.navContainer,
         navItems,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
@@ -559,7 +559,7 @@ export var tns = function(options) {
     if (nav) {
       // customized nav
       // will not hide the navs in case they're thumbnails
-      if (options.navContainer) {
+      if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
         [].forEach.call(navItems, function (item, index) {
@@ -611,7 +611,7 @@ export var tns = function(options) {
 
     // == controlsInit ==
     if (controls) {
-      if (options.controlsContainer) {
+      if (controlsContainer) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
         setAttrs(controlsContainer, {
@@ -720,23 +720,24 @@ export var tns = function(options) {
     // things do only when items changed
     if (responsive && items !== itemsTem) {
       events.emit('itemsChanged');
-      checkSlideCount();
       checkIndex();
+      checkSlideCount();
 
       // update container width on non-mediaquery browser
       if (!fixedWidth && !CSSMQ) {
         updateContainerWidthNonMediaquery();
       }
 
-      doTransform(0); 
       lazyLoad(); 
+      updateControlsStatus();
       updateNavVisibility();
       updateNavStatus();
 
       if (index !== indexTem) { 
         events.emit('indexChanged', info());
-        updateControlsStatus();
+        doTransform(0); 
       }
+
       if (navigator.msMaxTouchPoints) { setSnapInterval(); }
     }
   }
@@ -750,34 +751,31 @@ export var tns = function(options) {
     return outerWrapper.clientWidth;
   }
 
-  // compare slide count & items
-  // (items) => nav, controls, autoplay
   function checkSlideCount(isInitializing) {
-    // disable nav, controls, autoplay
-    if (slideCount <= items) { 
-      touch = mouseDrag = arrowKeys = autoplay = false;
-      toggleSliderEvents(isInitializing);
+    // disable 
+    if (!sliderFrozen && slideCount <= items) { 
+      toggleSliderEvents(!isInitializing);
       if (animating) { stopAction(); }
 
-      var indexTem;
+      // reset index to initial status
       index = (!carousel) ? 0 : cloneCount;
-      if (index !== indexTem) { events.emit('indexChanged', info()); }
 
-      if (navContainer) { hideElement(navContainer); }
-      if (controlsContainer) { hideElement(controlsContainer); }
-      if (autoplayButton) { hideElement(autoplayButton); }
-    // enable nav, controls, autoplay
+      if (nav) { hideElement(navContainer); }
+      if (controls) { hideElement(controlsContainer); }
+      if (autoplay) { hideElement(autoplayButton); }
+
+      sliderFrozen = true;
+
+    // enable
     } else {
-      touch = options.touch;
-      mouseDrag = options.mouseDrag;
-      arrowKeys = options.arrowKeys;
-      autoplay = options.autoplay;
-      toggleSliderEvents(isInitializing);
+      toggleSliderEvents(false);
       if (autoplay && !animating) { startAction(); }
 
       if (nav) { showElement(navContainer); }
       if (controls) { showElement(controlsContainer); }
       if (autoplay) { showElement(autoplayButton); }
+
+      sliderFrozen = false;
     }
   }
 
@@ -814,9 +812,7 @@ export var tns = function(options) {
     }
   })();
 
-  function toggleSliderEvents(isInitializing) {
-    var add = isInitializing || eventsRemoved;
-
+  function toggleSliderEvents(freeze) {
     // touch and drag
     if (carousel) {
       var touchEvents = {
@@ -831,12 +827,12 @@ export var tns = function(options) {
             'mouseleave': onTouchOrMouseEnd
           };
 
-      if (add) {
+      if (freeze) {
+        if (touch) { removeEvents(container, touchEvents); }
+        if (mouseDrag) { removeEvents(container, dragEvents); }
+      } else {
         if (touch) { addEvents(container, touchEvents); }
         if (mouseDrag) { addEvents(container, dragEvents); }
-      } else {
-        if (!touch && options.touch) { removeEvents(container, touchEvents); }
-        if (!mouseDrag && options.mouseDrag) { removeEvents(container, dragEvents); }
       }
     }
 
@@ -849,7 +845,15 @@ export var tns = function(options) {
         visibilityEvent = {'visibilitychange': onVisibilityChange},
         docmentKeydownEvent = {'keydown': onDocumentKeydown};
 
-    if (add) {
+    if (freeze) {
+      if (autoplay) {
+        removeEvents(autoplayButton, autoplayEvent);
+        if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { removeEvents(document, visibilityEvent); }
+      }
+
+      if (arrowKeys) { removeEvents(document, docmentKeydownEvent); }
+    } else {
       if (autoplay) {
         addEvents(autoplayButton, autoplayEvent);
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
@@ -857,16 +861,6 @@ export var tns = function(options) {
       }
 
       if (arrowKeys) { addEvents(document, docmentKeydownEvent); }
-      eventsRemoved = false;
-    } else {
-      if (!autoplay && options.autoplay) {
-        removeEvents(autoplayButton, autoplayEvent);
-        if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { removeEvents(document, visibilityEvent); }
-      }
-
-      if (!arrowKeys && options.arrowKeys) { removeEvents(document, docmentKeydownEvent); }
-      eventsRemoved = true;
     }
   }
 
