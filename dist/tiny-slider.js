@@ -781,11 +781,9 @@ var tns = function(options) {
   }, options || {});
   
   // get element nodes from selectors
-  var nodes = ['container', 'controlsContainer', 'navContainer', 'autoplayButton'];
-  for (var i = 4; i--;) {
-    var el = options[nodes[i]];
-    if (typeof el === 'string') { options[nodes[i]] = document.querySelector(el); }
-  }
+  ['container', 'controlsContainer', 'navContainer', 'autoplayButton'].forEach(function(item) {
+    if (typeof options[item] === 'string') { options[item] = document.querySelector(options[item]); }
+  });
 
   // make sure slide container exists
   if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
