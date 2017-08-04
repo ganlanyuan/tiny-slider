@@ -779,8 +779,16 @@ var tns = function(options) {
     nested: false,
     onInit: false
   }, options || {});
+  
+  // get element nodes from selectors
+  var nodes = ['container', 'controlsContainer', 'navContainer', 'autoplayButton'];
+  for (var i = 4; i--;) {
+    var el = options[nodes[i]];
+    if (typeof el === 'string') { options[nodes[i]] = document.querySelector(el); }
+  }
+
   // make sure slide container exists
-  if (typeof options.container !== 'object' || options.container === null) { return; }
+  if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
 
   // === define and set variables ===
   var mode = options.mode,

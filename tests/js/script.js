@@ -120,10 +120,10 @@ var doc = document,
       },
       'customize': {
         items: 3,
-        controlsContainer: doc.querySelector('.customize-tools .controls'),
-        navContainer: doc.querySelector('.customize-tools .thumbnails'),
+        controlsContainer: '.customize-tools .controls',
+        navContainer: '.customize-tools .thumbnails',
         autoplay: true,
-        autoplayButton: doc.querySelector('.playbutton-wrapper > button'),
+        autoplayButton: '.playbutton-wrapper > button',
       },
       'autoHeight': {
         autoHeight: true,
@@ -133,9 +133,11 @@ var doc = document,
 
 for (var i in options) {
   var item = options[i];
-  item.container = doc.querySelector('#' + i);
+  item.container = '#' + i;
   if (!item.speed) { item.speed = speed; }
-  sliders[i] = tns(options[i]);
+  if (doc.querySelector(item.container)) {
+    sliders[i] = tns(options[i]);
+  }
 }
 
 // tns().events.on('initilized', function(info) {
