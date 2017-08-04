@@ -11,6 +11,19 @@ Note: some features may need a manual test.
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
 
+## Contents
+\+ [What's new](#Whats-new)  
+\+ [Features](#Features)  
+\+ [Install](#Install)  
+\+ [Usage](#Usage)  
+\+ [Options](#Options)  
+\+ [Get slider information](#Get-slider-information)  
+\+ [Methods](#Methods)  
+\+ [Custom Events](#Custom-Events)  
+\+ [Fallback](#Fallback)  
+\+ [Browser Support](#Browser-Support)  
+\+ [License](#License)  
+
 ## What's new
 - Using `%` instead of `px`
 - Using inserted stylesheet instead of inline `style` attribute
