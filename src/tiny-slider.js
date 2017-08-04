@@ -1,6 +1,7 @@
 // PRODUCTION
 
 // from go-native
+import "../bower_components/go-native/src/es5/object/keys.js";
 import "../bower_components/go-native/src/utilities/childNode.remove";
 import "../bower_components/go-native/src/vendors/requestAnimationFrame";
 import "../bower_components/go-native/src/vendors/token-list";

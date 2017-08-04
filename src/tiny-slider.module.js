@@ -1,6 +1,7 @@
 // DEVELOPMENT
 
 // from go-native
+import "../../go-native/src/es5/object/keys.js";
 import "../../go-native/src/utilities/childNode.remove";
 import "../../go-native/src/vendors/requestAnimationFrame";
 import "../../go-native/src/vendors/token-list";

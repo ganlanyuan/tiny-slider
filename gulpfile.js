@@ -2,7 +2,10 @@ const rollup = require('rollup').rollup;
 const resolve = require('rollup-plugin-node-resolve');
 
 const gulp = require('gulp');
-const $ = require('gulp-load-plugins')();
+const packages = require('/www/package.json');
+const $ = require('gulp-load-plugins')({
+  config: packages
+});
 const browserSync = require('browser-sync').create();
 const nunjucks = require('nunjucks');
 const path = require('path');
@@ -140,6 +143,11 @@ gulp.task('server', function() {
   browserSync.init({
     server: {
       baseDir: './'
+    },
+    ghostMode: {
+      clicks: false,
+      forms: false,
+      scroll: false
     },
     port: '3000',
     open: false,

@@ -1,27 +1,29 @@
 {% extends './parts/layout.njk' %}
-{% set sliders = ['base',
-        'mouseDrag',
-        'gutter', 
-        'edgePadding', 
-        'edgePaddingGutter', 
-        'nonLoop', 
-        'rewind', 
-        'slideByPage', 
-        'fixedWidth', 
-        'fixedWidthGutter', 
-        'fixedWidthEdgePadding', 
-        'fixedWidthEdgePaddingGutter', 
-        'responsive', 
-        'arrowKeys', 
-        'autoplay', 
-        'vertical', 
-        'verticalGutter', 
-        'verticalEdgepadding', 
-        'verticalEdgepaddingGutter', 
-        'animation', 
-        'lazyload', 
-        'customize', 
-        'autoHeight'
+{% set sliders = [
+  'base',
+  'few-items',
+  'mouseDrag',
+  'gutter', 
+  'edgePadding', 
+  'edgePaddingGutter', 
+  'nonLoop', 
+  'rewind', 
+  'slideByPage', 
+  'fixedWidth', 
+  'fixedWidthGutter', 
+  'fixedWidthEdgePadding', 
+  'fixedWidthEdgePaddingGutter', 
+  'responsive', 
+  'arrowKeys', 
+  'autoplay', 
+  'vertical', 
+  'verticalGutter', 
+  'verticalEdgepadding', 
+  'verticalEdgepaddingGutter', 
+  'animation', 
+  'lazyload', 
+  'customize', 
+  'autoHeight'
 ] %}
 
 {% block main %}
@@ -117,6 +119,14 @@
         <div class="item">
           <div class="img img-5"><a href="">5</a></div>
           <p>Sint ad, praesentium est delectus</p>
+        </div>
+        <div class="item">
+          <div class="img img-6"><a href="">6</a></div>
+          <p>Eveniet, saepe. Voluptatum a facere fugiat rerum.</p>
+        </div>
+        <div class="item">
+          <div class="img img-7"><a href="">7</a></div>
+          <p>Unde dolores maiores, repudiandae enim laboriosam rerum!</p>
         </div>
       {% endif %}
     </div>
