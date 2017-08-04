@@ -166,7 +166,8 @@ export var tns = function(options) {
       touchedOrDraged,
       running = false,
       onInit = options.onInit,
-      events = new Events();
+      events = new Events(),
+      sliderFrozen = false;
 
   // controls
   if (options.controls) {
@@ -287,31 +288,6 @@ export var tns = function(options) {
       return function () { return wrapper.clientWidth; };
     }
   })();
-
-  // compare slide count & items
-  // (items) => nav, controls, autoplay
-  function checkSlideCount() {
-    // a. slide count < items
-    //  => disable nav, controls, autoplay
-    if (slideCount <= items) { 
-      arrowKeys = false;
-
-      var indexTem;
-      index = (mode === 'gallery') ? 0 : cloneCount;
-      if (index !== indexTem) { events.emit('indexChanged', info()); }
-
-      if (navContainer) { hideElement(navContainer); }
-      if (controlsContainer) { hideElement(controlsContainer); }
-      if (autoplayButton) { hideElement(autoplayButton); }
-    // b. slide count > items
-    //  => enable nav, controls, autoplay
-    } else {
-      arrowKeys = options.arrowKeys;
-      if (nav) { showElement(navContainer); }
-      if (controls) { showElement(controlsContainer); }
-      if (autoplay) { showElement(autoplayButton); }
-    }
-  }
 
   // === INITIALIZATION FUNCTIONS === //
   function wrapperInit() {
@@ -524,29 +500,29 @@ export var tns = function(options) {
   }
 
   function addSliderEvents() {
-    if (mode === 'carousel') {
-      if (TRANSITIONEND) {
-        var eve = {};
-        eve[TRANSITIONEND] = onTransitionEnd;
-        addEvents(container, eve);
-      }
-      if (touch) {
-        addEvents(container, {
-          'touchstart': onTouchOrMouseStart,
-          'touchmove': onTouchOrMouseMove,
-          'touchend': onTouchOrMouseEnd,
-          'touchcancel': onTouchOrMouseEnd
-        });
-      }
-      if (mouseDrag) {
-        addEvents(container, {
-          'mousedown': onTouchOrMouseStart,
-          'mousemove': onTouchOrMouseMove,
-          'mouseup': onTouchOrMouseEnd,
-          'mouseleave': onTouchOrMouseEnd
-        });
-      }
+    if (mode === 'carousel' && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      addEvents(container, eve);
     }
+    // if (mode === 'carousel') {
+    //   if (touch) {
+    //     addEvents(container, {
+    //       'touchstart': onTouchOrMouseStart,
+    //       'touchmove': onTouchOrMouseMove,
+    //       'touchend': onTouchOrMouseEnd,
+    //       'touchcancel': onTouchOrMouseEnd
+    //     });
+    //   }
+    //   if (mouseDrag) {
+    //     addEvents(container, {
+    //       'mousedown': onTouchOrMouseStart,
+    //       'mousemove': onTouchOrMouseMove,
+    //       'mouseup': onTouchOrMouseEnd,
+    //       'mouseleave': onTouchOrMouseEnd
+    //     });
+    //   }
+    // }
 
     if (nav) {
       for (var y = 0; y < slideCount; y++) {
@@ -563,31 +539,31 @@ export var tns = function(options) {
       addEvents(nextButton,{'click': onClickNext});
     }
 
-    if (autoplay) {
-      addEvents(autoplayButton, {'click': toggleAnimation});
-      if (autoplayHoverPause) {
-        addEvents(container, {'mouseover': function () {
-          if (animating) { 
-            stopAction(); 
-            autoplayHoverStopped = true;
-          }
-        }});
-        addEvents(container, {'mouseout': function () {
-          if (!animating && autoplayHoverStopped) { 
-            startAction(); 
-            autoplayHoverStopped = false;
-          }
-        }});
-      }
+    // if (autoplay) {
+    //   addEvents(autoplayButton, {'click': toggleAnimation});
+    //   if (autoplayHoverPause) {
+    //     addEvents(container, {'mouseover': function () {
+    //       if (animating) { 
+    //         stopAction(); 
+    //         autoplayHoverStopped = true;
+    //       }
+    //     }});
+    //     addEvents(container, {'mouseout': function () {
+    //       if (!animating && autoplayHoverStopped) { 
+    //         startAction(); 
+    //         autoplayHoverStopped = false;
+    //       }
+    //     }});
+    //   }
 
-      if (autoplayResetOnVisibility) {
-        addEvents(document, {'visibilitychange': onVisibilityChange});
-      }
-    }
+    //   if (autoplayResetOnVisibility) {
+    //     addEvents(document, {'visibilitychange': onVisibilityChange});
+    //   }
+    // }
 
-    if (arrowKeys) {
-      addEvents(document, {'keydown': onKeydownDocument});
-    }
+    // if (arrowKeys) {
+    //   addEvents(document, {'keydown': onKeydownDocument});
+    // }
 
     if (nested === 'inner') {
       events.on('outerResized', function () {
@@ -599,6 +575,107 @@ export var tns = function(options) {
       if (nested === 'outer') {
         events.on('innerLoaded', runAutoHeight);
       }
+    }
+  }
+
+  function checkSlideCount(isInitializing) {
+    // disable 
+    if (!sliderFrozen && slideCount <= items) { 
+      toggleSliderEvents(isInitializing, true);
+      if (animating) { stopAction(); }
+
+      // reset index to initial status
+      index = (mode !== 'carousel') ? 0 : cloneCount;
+
+      if (nav) { hideElement(navContainer); }
+      if (controls) { hideElement(controlsContainer); }
+      if (autoplay) { hideElement(autoplayButton); }
+
+      sliderFrozen = true;
+
+    // enable
+    } else {
+      toggleSliderEvents(isInitializing, false);
+      if (autoplay && !animating) { startAction(); }
+
+      if (nav) { showElement(navContainer); }
+      if (controls) { showElement(controlsContainer); }
+      if (autoplay) { showElement(autoplayButton); }
+
+      sliderFrozen = false;
+    }
+  }
+
+  function toggleSliderEvents(isInitializing, freeze) {
+    var remove = !isInitializing && freeze,
+        add = !freeze;
+        
+    // touch and drag
+    if (mode === 'carousel') {
+      var touchEvents = {
+            'touchstart': onTouchOrMouseStart,
+            'touchmove': onTouchOrMouseMove,
+            'touchend': onTouchOrMouseEnd,
+            'touchcancel': onTouchOrMouseEnd
+          }, dragEvents = {
+            'mousedown': onTouchOrMouseStart,
+            'mousemove': onTouchOrMouseMove,
+            'mouseup': onTouchOrMouseEnd,
+            'mouseleave': onTouchOrMouseEnd
+          };
+
+      if (remove) {
+        if (touch) { removeEvents(container, touchEvents); }
+        if (mouseDrag) { removeEvents(container, dragEvents); }
+      }
+
+      if (add) {
+        if (touch) { addEvents(container, touchEvents); }
+        if (mouseDrag) { addEvents(container, dragEvents); }
+      }
+    }
+
+    // autoplay and arrow keys
+    var autoplayEvent = {'click': toggleAnimation},
+        hoverEvents = {
+          'mouseover': mouseoverPause,
+          'mouseout': mouseoutRestart
+        },
+        visibilityEvent = {'visibilitychange': onVisibilityChange},
+        docmentKeydownEvent = {'keydown': onKeydownDocument};
+
+    if (remove) {
+      if (autoplay) {
+        removeEvents(autoplayButton, autoplayEvent);
+        if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { removeEvents(document, visibilityEvent); }
+      }
+
+      if (arrowKeys) { removeEvents(document, docmentKeydownEvent); }
+    } 
+
+    if (add) {
+      if (autoplay) {
+        addEvents(autoplayButton, autoplayEvent);
+        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { addEvents(document, visibilityEvent); }
+      }
+
+      if (arrowKeys) { addEvents(document, docmentKeydownEvent); }
+    }
+  }
+
+  function mouseoverPause() {
+    if (animating) { 
+      stopAction(); 
+      autoplayHoverStopped = true;
+    }
+  }
+
+  function mouseoutRestart() {
+    if (!animating && autoplayHoverStopped) { 
+      startAction(); 
+      autoplayHoverStopped = false;
     }
   }
 
@@ -684,7 +761,7 @@ export var tns = function(options) {
 
     activateSlider();
     addSliderEvents();
-    checkSlideCount();
+    checkSlideCount(true);
 
     lazyLoad();
     runAutoHeight();
@@ -1495,8 +1572,8 @@ export var tns = function(options) {
     var indexTem = index,
         itemsTem = items;
     getVariables();
-    checkSlideCount();
     checkIndex();
+    checkSlideCount();
 
     if (axis === 'horizontal') {
       if (fixedWidth && edgePadding) {
