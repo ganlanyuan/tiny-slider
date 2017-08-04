@@ -836,7 +836,7 @@ var tns = function(options) {
   if (options.controls) {
     var controls = options.controls,
         controlsText = options.controlsText,
-        controlsContainer = (!options.controlsContainer) ? false : options.controlsContainer,
+        controlsContainer = options.controlsContainer,
         prevButton,
         nextButton;
   }
@@ -844,7 +844,7 @@ var tns = function(options) {
   // nav
   if (options.nav) {
     var nav = options.nav,
-        navContainer = options.navContainer || false,
+        navContainer = options.navContainer,
         navItems,
         navCountVisible,
         navCountVisibleCached = slideCount,
@@ -1085,7 +1085,7 @@ var tns = function(options) {
 
   function controlsInit() {
     if (controls) {
-      if (options.controlsContainer) {
+      if (controlsContainer) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
         setAttrs(controlsContainer, {
@@ -2252,13 +2252,13 @@ var tns = function(options) {
 
       // nav
       if (nav) {
-        if (!options.navContainer) {
-          navContainer.remove();
-          navContainer = null;
-        } else {
+        if (options.navContainer) {
           removeAttrs(navContainer, ['aria-label']);
           removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
           removeEventsByClone(navContainer);
+        } else {
+          navContainer.remove();
+          navContainer = null;
         }
         navItems = null;
       }
