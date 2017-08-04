@@ -1177,17 +1177,14 @@ var tns = function(options) {
 
       // media queries
       if (responsive && CSSMQ) {
-        var bpLen = breakpoints.length;
-        for (var i = 0; i < bpLen; i++) {
-          var bp = breakpoints[i],
-              itemsTem = responsive[bp],
-              strContainer;
+        breakpoints.forEach(function(bp) {
+          var itemsTem = responsive[bp], strContainer;
 
           strContainer = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
           strContainer = '#' + slideId + '{width: ' + strContainer + '}';
 
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + strContainer + '}', sheet.cssRules.length);
-        }
+        });
       }
 
     // vertical slider

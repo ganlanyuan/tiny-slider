@@ -8,3 +8,6 @@ Tiny-slider was strongly inspired by [Owl Carousel](https://owlcarousel2.github.
 - [ ] modular
 
 ## How can I contribute?
+#### Fire an issue
+#### Request missing features
+#### Submit a pull request
