@@ -1417,11 +1417,11 @@ var tns = function(options) {
   function checkSlideCount(isInitializing) {
     // disable 
     if (!sliderFrozen && slideCount <= items) { 
-      toggleSliderEvents(!isInitializing);
+      toggleSliderEvents(isInitializing, true);
       if (animating) { stopAction(); }
 
       // reset index to initial status
-      index = (!carousel) ? 0 : cloneCount;
+      index = (carousel) ? 0 : cloneCount;
 
       if (nav) { hideElement(navContainer); }
       if (controls) { hideElement(controlsContainer); }
@@ -1431,7 +1431,7 @@ var tns = function(options) {
 
     // enable
     } else {
-      toggleSliderEvents(false);
+      toggleSliderEvents(isInitializing, false);
       if (autoplay && !animating) { startAction(); }
 
       if (nav) { showElement(navContainer); }
@@ -1475,7 +1475,10 @@ var tns = function(options) {
     }
   })();
 
-  function toggleSliderEvents(freeze) {
+  function toggleSliderEvents(isInitializing, freeze) {
+    var remove = !isInitializing && freeze,
+        add = !freeze;
+        
     // touch and drag
     if (carousel) {
       var touchEvents = {
@@ -1490,10 +1493,12 @@ var tns = function(options) {
             'mouseleave': onTouchOrMouseEnd
           };
 
-      if (freeze) {
+      if (remove) {
         if (touch) { removeEvents(container, touchEvents); }
         if (mouseDrag) { removeEvents(container, dragEvents); }
-      } else {
+      }
+
+      if (add) {
         if (touch) { addEvents(container, touchEvents); }
         if (mouseDrag) { addEvents(container, dragEvents); }
       }
@@ -1508,7 +1513,7 @@ var tns = function(options) {
         visibilityEvent = {'visibilitychange': onVisibilityChange},
         docmentKeydownEvent = {'keydown': onDocumentKeydown};
 
-    if (freeze) {
+    if (remove) {
       if (autoplay) {
         removeEvents(autoplayButton, autoplayEvent);
         if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
@@ -1516,7 +1521,9 @@ var tns = function(options) {
       }
 
       if (arrowKeys) { removeEvents(document, docmentKeydownEvent); }
-    } else {
+    } 
+
+    if (add) {
       if (autoplay) {
         addEvents(autoplayButton, autoplayEvent);
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
