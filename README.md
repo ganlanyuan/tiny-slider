@@ -12,17 +12,17 @@ Note: some features may need a manual test.
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
 
 ## Contents
-\+ [What's new](#Whats-new)  
-\+ [Features](#Features)  
-\+ [Install](#Install)  
-\+ [Usage](#Usage)  
-\+ [Options](#Options)  
-\+ [Get slider information](#Get-slider-information)  
-\+ [Methods](#Methods)  
-\+ [Custom Events](#Custom-Events)  
-\+ [Fallback](#Fallback)  
-\+ [Browser Support](#Browser-Support)  
-\+ [License](#License)  
+\+ [What's new](#whats-new)  
+\+ [Features](#features)  
+\+ [Install](#install)  
+\+ [Usage](#usage)  
+\+ [Options](#options)  
+\+ [Get slider information](#get-slider-information)  
+\+ [Methods](#methods)  
+\+ [Custom Events](#custom-events)  
+\+ [Fallback](#fallback)  
+\+ [Browser Support](#browser-support)  
+\+ [License](#license)  
 
 ## What's new
 - Using `%` instead of `px`
