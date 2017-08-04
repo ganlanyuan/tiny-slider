@@ -1,6 +1,6 @@
 {
   "name": "tiny-slider",
-  "version": "1.5.6",
+  "version": "1.6.0",
   "description": "Pure javascript slider for all purposes, inspired by Owl Carousel.",
   "main": "dist/tiny-slider.js",
   "directories": {
