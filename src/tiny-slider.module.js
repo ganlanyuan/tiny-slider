@@ -52,6 +52,7 @@ if (!tnsStorage['tnsApp']) {
 // otherwise, run the functions again and save these data to local storage
 // checkStorageValue() convert non-string value to its original value: "true" > true
 var doc = document,
+    win = window,
     KEYS = {
       ENTER: 13,
       SPACE: 32,
@@ -144,11 +145,9 @@ export var tns = function(options) {
   }, options || {});
   
   // get element nodes from selectors
-  var nodes = ['container', 'controlsContainer', 'navContainer', 'autoplayButton'];
-  for (var i = 4; i--;) {
-    var el = options[nodes[i]];
-    if (typeof el === 'string') { options[nodes[i]] = document.querySelector(el); }
-  }
+  ['container', 'controlsContainer', 'navContainer', 'autoplayButton'].forEach(function(item) {
+    if (typeof options[item] === 'string') { options[item] = doc.querySelector(options[item]); }
+  });
 
   // make sure slide container exists
   if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
@@ -467,7 +466,7 @@ export var tns = function(options) {
 
         // get font-size string
         if (SUBPIXEL) {
-          var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+          var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
           // em, rem to px (for IE8-)
           if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
 
@@ -666,7 +665,7 @@ export var tns = function(options) {
         events.emit('innerLoaded', info());
       });
     } else {
-      addEvents(window, {'resize': onResize});
+      addEvents(win, {'resize': onResize});
       if (nested === 'outer') {
         events.on('innerLoaded', runAutoHeight);
       }
@@ -854,20 +853,20 @@ export var tns = function(options) {
       if (autoplay) {
         removeEvents(autoplayButton, autoplayEvent);
         if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { removeEvents(document, visibilityEvent); }
+        if (autoplayResetOnVisibility) { removeEvents(doc, visibilityEvent); }
       }
 
-      if (arrowKeys) { removeEvents(document, docmentKeydownEvent); }
+      if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
     } 
 
     if (add) {
       if (autoplay) {
         addEvents(autoplayButton, autoplayEvent);
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { addEvents(document, visibilityEvent); }
+        if (autoplayResetOnVisibility) { addEvents(doc, visibilityEvent); }
       }
 
-      if (arrowKeys) { addEvents(document, docmentKeydownEvent); }
+      if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
     }
   }
 
@@ -1379,7 +1378,7 @@ export var tns = function(options) {
 
   // keydown events on document 
   function onDocumentKeydown(e) {
-    e = e || window.event;
+    e = e || win.event;
     switch(e.keyCode) {
       case KEYS.LEFT:
         onPrevClick();
@@ -1401,7 +1400,7 @@ export var tns = function(options) {
 
   // on key control
   function onControlKeydown(e) {
-    e = e || window.event;
+    e = e || win.event;
     var code = e.keyCode,
         curElement = doc.activeElement;
 
@@ -1431,7 +1430,7 @@ export var tns = function(options) {
 
   // on key nav
   function onNavKeydown(e) {
-    e = e || window.event;
+    e = e || win.event;
     var code = e.keyCode,
         curElement = doc.activeElement,
         dataSlide = Number(getAttr(curElement, 'data-nav')),
@@ -1507,7 +1506,7 @@ export var tns = function(options) {
   }
 
   function onTouchOrMouseStart(e) {
-    e = e || window.event;
+    e = e || win.event;
     if (isLinkElement(getTarget(e)) && e.type !== 'touchstart') { preventDefaultBehavior(e); }
 
     var ev = (e.type === 'touchstart') ? e.changedTouches[0] : e;
@@ -1524,7 +1523,7 @@ export var tns = function(options) {
   }
 
   function onTouchOrMouseMove(e) {
-    e = e || window.event;
+    e = e || win.event;
 
     // "mousemove" event after "mousedown" indecate it's "drag", not "click"
     // set isDragEvent to true
@@ -1571,7 +1570,7 @@ export var tns = function(options) {
   }
 
   function onTouchOrMouseEnd(e) {
-    e = e || window.event;
+    e = e || win.event;
 
     // reset mousePressed
     if (mousePressed) { mousePressed = false; }
@@ -1785,7 +1784,7 @@ export var tns = function(options) {
         } else {
           navContainer = null;
         }
-        removeEvents(document, {'visibilitychange': onVisibilityChange});
+        removeEvents(doc, {'visibilitychange': onVisibilityChange});
       }
 
       // remove slider container events at the end
@@ -1794,11 +1793,11 @@ export var tns = function(options) {
 
       // remove arrowKeys eventlistener
       if (arrowKeys) {
-        removeEvents(document, {'keydown': onDocumentKeydown});
+        removeEvents(doc, {'keydown': onDocumentKeydown});
       }
 
-      // remove window event listeners
-      removeEvents(window, {'resize': onResize});
+      // remove win event listeners
+      removeEvents(win, {'resize': onResize});
     },
 
     // $ Private methods, for test only
