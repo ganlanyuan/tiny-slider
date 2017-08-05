@@ -583,8 +583,6 @@ function testFixedWidthEdgePaddingGutter () {
         cloneCount = info.cloneCount,
         items = info.items;
 
-    console.log(items);
-    console.log(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
     return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
   });
 }

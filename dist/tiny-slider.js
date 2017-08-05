@@ -1429,30 +1429,64 @@ var tns = function(options) {
 
   function checkSlideCount(isInitializing) {
     // disable 
-    if (!sliderFrozen && slideCount <= items) { 
-      toggleSliderEvents(isInitializing, true);
+    if (!sliderFrozen && slideCount <= items) {
+      nav = controls = autoplay = autoplayHoverPause = autoplayResetOnVisibility = touch = mouseDrag = arrowKeys = false;
       if (animating) { stopAction(); }
 
       // reset index to initial status
       index = (carousel) ? 0 : cloneCount;
-
-      if (nav) { hideElement(navContainer); }
-      if (controls) { hideElement(controlsContainer); }
-      if (autoplay) { hideElement(autoplayButton); }
-
       sliderFrozen = true;
 
     // enable
     } else {
-      toggleSliderEvents(isInitializing, false);
+
       if (autoplay && !animating) { startAction(); }
-
-      if (nav) { showElement(navContainer); }
-      if (controls) { showElement(controlsContainer); }
-      if (autoplay) { showElement(autoplayButton); }
-
       sliderFrozen = false;
     }
+
+    // === events ===
+    // touch and drag
+    if (carousel) {
+      var touchEvents = {
+            'touchstart': onTouchOrMouseStart,
+            'touchmove': onTouchOrMouseMove,
+            'touchend': onTouchOrMouseEnd,
+            'touchcancel': onTouchOrMouseEnd
+          }, dragEvents = {
+            'mousedown': onTouchOrMouseStart,
+            'mousemove': onTouchOrMouseMove,
+            'mouseup': onTouchOrMouseEnd,
+            'mouseleave': onTouchOrMouseEnd
+          };
+
+      (touch) ? addEvents(container, touchEvents) : removeEvents(container, touchEvents);
+      (mouseDrag) ? addEvents(container, dragEvents) : removeEvents(container, dragEvents);
+    }
+    // autoplay and arrow keys
+    var autoplayEvent = {'click': toggleAnimation},
+        hoverEvents = {
+          'mouseover': mouseoverPause,
+          'mouseout': mouseoutRestart
+        },
+        visibilityEvent = {'visibilitychange': onVisibilityChange},
+        docmentKeydownEvent = {'keydown': onDocumentKeydown};
+
+    if (autoplayButton) {
+      (autoplay) ? addEvents(autoplayButton, autoplayEvent) : removeEvents(autoplayButton, autoplayEvent);
+    }
+    (autoplayHoverPause) ? addEvents(container, hoverEvents) : removeEvents(container, hoverEvents);
+    (autoplayResetOnVisibility) ? addEvents(doc, visibilityEvent) : removeEvents(doc, visibilityEvent);
+    (arrowKeys) ? addEvents(doc, docmentKeydownEvent) : removeEvents(doc, docmentKeydownEvent);
+
+    // === display ===
+    [
+      [navContainer, nav],
+      [controlsContainer, controls],
+      [autoplayButton, autoplay]
+    ].forEach(function(group) {
+      var el = group[0];
+      if (el) { (group[1]) ? showElement(el) : hideElement(el); }
+    });
   }
 
   function getCssRulesLength (sheet) {
@@ -1487,65 +1521,6 @@ var tns = function(options) {
       };
     }
   })();
-
-  function toggleSliderEvents(isInitializing, freeze) {
-    var remove = !isInitializing && freeze,
-        add = !freeze;
-        
-    // touch and drag
-    if (carousel) {
-      var touchEvents = {
-            'touchstart': onTouchOrMouseStart,
-            'touchmove': onTouchOrMouseMove,
-            'touchend': onTouchOrMouseEnd,
-            'touchcancel': onTouchOrMouseEnd
-          }, dragEvents = {
-            'mousedown': onTouchOrMouseStart,
-            'mousemove': onTouchOrMouseMove,
-            'mouseup': onTouchOrMouseEnd,
-            'mouseleave': onTouchOrMouseEnd
-          };
-
-      if (remove) {
-        if (touch) { removeEvents(container, touchEvents); }
-        if (mouseDrag) { removeEvents(container, dragEvents); }
-      }
-
-      if (add) {
-        if (touch) { addEvents(container, touchEvents); }
-        if (mouseDrag) { addEvents(container, dragEvents); }
-      }
-    }
-
-    // autoplay and arrow keys
-    var autoplayEvent = {'click': toggleAnimation},
-        hoverEvents = {
-          'mouseover': mouseoverPause,
-          'mouseout': mouseoutRestart
-        },
-        visibilityEvent = {'visibilitychange': onVisibilityChange},
-        docmentKeydownEvent = {'keydown': onDocumentKeydown};
-
-    if (remove) {
-      if (autoplay) {
-        removeEvents(autoplayButton, autoplayEvent);
-        if (autoplayHoverPause) { removeEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { removeEvents(doc, visibilityEvent); }
-      }
-
-      if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
-    } 
-
-    if (add) {
-      if (autoplay) {
-        addEvents(autoplayButton, autoplayEvent);
-        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { addEvents(doc, visibilityEvent); }
-      }
-
-      if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
-    }
-  }
 
   function mouseoverPause() {
     if (animating) { 
