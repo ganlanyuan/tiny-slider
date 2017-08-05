@@ -193,6 +193,7 @@ export var tns = function(options) {
       autoHeight = options.autoHeight,
       responsive = (fixedWidth) ? false : options.responsive,
       breakpoints = false,
+      breakpointZone = 0,
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
@@ -212,7 +213,8 @@ export var tns = function(options) {
       indexMin = indexAdjust,
       indexMax = slideCountNew - items - indexAdjust,
       // resize
-      vw,
+      vwInner,
+      vwOuter,
       resizeTimer,
       touchedOrDraged,
       running = false,
@@ -295,12 +297,12 @@ export var tns = function(options) {
   // === COMMON FUNCTIONS === //
   var getItems = (function () {
     if (fixedWidth) {
-      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vw / fixedWidth))); };
+      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vwOuter / fixedWidth))); };
     } else {
       return function () {
         var itemsTem;
-        breakpoints.forEach(function (key) {
-          if (vw >= key) { itemsTem = responsive[key]; }
+        breakpoints.forEach(function (bp) {
+          if (vwOuter >= bp) { itemsTem = responsive[bp]; }
         });
         return Math.max(1, Math.min(slideCount, itemsTem));
       };
@@ -370,7 +372,8 @@ export var tns = function(options) {
     }
 
     // get vw after setting edge padding
-    vw = getViewWidth();
+    getViewWidth();
+    if (breakpoints) { getBreakpointZone(); }
 
     // add id, class, aria attributes 
     // before clone slides
@@ -689,7 +692,7 @@ export var tns = function(options) {
   function onResize(e) {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (vw !== getViewWidth()) {
+      if (vwOuter !== outerWrapper.clientWidth) {
         resizeTasks();
         if (nested === 'outer') { 
           events.emit('outerResized', info(e)); 
@@ -699,9 +702,11 @@ export var tns = function(options) {
   }
 
   function resizeTasks() {
-    vw = getViewWidth();
-    var indexTem = index, itemsTem = items;
-    if (responsive || fixedWidth) { items = getItems(); }
+    var breakpointZoneTem = breakpointZone,
+        indexTem = index, 
+        itemsTem = items;
+    getViewWidth();
+    getBreakpointZone();
 
     // things always do 
     // regardless of items changing
@@ -713,29 +718,34 @@ export var tns = function(options) {
     if (fixedWidth && edgePadding) { updateFixedWidthEdgePadding(); }
     runAutoHeight(); 
     
-    // things do only when items changed
-    if (responsive && items !== itemsTem) {
-      events.emit('itemsChanged');
-      checkIndex();
-      checkSlideCount();
+    if (breakpointZoneTem !== breakpointZone) {
+      if (responsive || fixedWidth) { items = getItems(); }
 
-      // update container width on non-mediaquery browser
-      if (!fixedWidth && !CSSMQ) {
-        updateContainerWidthNonMediaquery();
+      // things do only when items changed
+      if (items !== itemsTem) {
+        events.emit('itemsChanged');
+        checkIndex();
+        checkSlideCount();
+
+        // update container width on non-mediaquery browser
+        if (!fixedWidth && !CSSMQ) {
+          updateContainerWidthNonMediaquery();
+        }
+
+        lazyLoad(); 
+        updateControlsStatus();
+        updateNavVisibility();
+        updateNavStatus();
+
+        if (index !== indexTem) { 
+          events.emit('indexChanged', info());
+          doTransform(0); 
+        }
+
+        if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
-
-      lazyLoad(); 
-      updateControlsStatus();
-      updateNavVisibility();
-      updateNavStatus();
-
-      if (index !== indexTem) { 
-        events.emit('indexChanged', info());
-        doTransform(0); 
-      }
-
-      if (navigator.msMaxTouchPoints) { setSnapInterval(); }
     }
+
   }
 
 
@@ -744,7 +754,14 @@ export var tns = function(options) {
 
   // === INITIALIZATION FUNCTIONS === //
   function getViewWidth () {
-    return outerWrapper.clientWidth;
+    vwOuter = outerWrapper.clientWidth;
+    vwInner = innerWrapper.clientWidth;
+  }
+
+  function getBreakpointZone() {
+    breakpoints.forEach(function(bp, i) {
+      if (vwOuter >= bp) { breakpointZone = i; }
+    });
   }
 
   function checkSlideCount(isInitializing) {
@@ -793,7 +810,7 @@ export var tns = function(options) {
           rightEdge -= slideBy;
         }
 
-        if (fixedWidth && vw%(fixedWidth + gutter) !== 0) { rightEdge -= 1; }
+        if (fixedWidth && vwOuter%fixedWidth > gutter) { rightEdge -= 1; }
 
         if (index > rightEdge) {
           while(index >= leftEdge + slideCount) { index -= slideCount; }
@@ -1551,7 +1568,7 @@ export var tns = function(options) {
             x += disX;
             x += 'px';
           } else {
-            var percentageX = (TRANSFORM) ? disX * items * 100 / (vw * slideCountNew): disX * 100 / vw;
+            var percentageX = (TRANSFORM) ? disX * items * 100 / (vwInner * slideCountNew): disX * 100 / vwInner;
             x += percentageX;
             x += '%';
           }
@@ -1583,7 +1600,7 @@ export var tns = function(options) {
       startX = startY = null;
 
       if (horizontal) {
-        var indexMoved = - disX * items / vw;
+        var indexMoved = - disX * items / vwInner;
         indexMoved = (disX > 0) ? Math.floor(indexMoved) : Math.ceil(indexMoved);
         index += indexMoved;
       } else {
