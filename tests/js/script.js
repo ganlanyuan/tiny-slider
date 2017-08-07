@@ -82,8 +82,12 @@ var doc = document,
       'responsive': {
         container: '',
         responsive: {
-          600: 2,
-          900: 3
+          600: {
+            items: 2
+          },
+          900: {
+            items: 3
+          }
         },
         slideBy: 'page',
       }, 

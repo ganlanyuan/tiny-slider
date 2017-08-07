@@ -815,6 +815,18 @@ var tns = function(options) {
   // make sure slide container exists
   if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
 
+  // update responsive
+  if (options.responsive) {
+    var resTem = {}, res = options.responsive;
+    for(var key in res) {
+      var val = res[key];
+      resTem[key] = (typeof val === 'number') ? {items: val} :  val;
+    }
+
+    options.responsive = resTem;
+    resTem = null;
+  }
+
   // === define and set variables ===
   if (options.mode === 'gallery') {
     options.axis = 'horizontal';
@@ -854,7 +866,7 @@ var tns = function(options) {
       rewind = options.rewind,
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
-      responsive = (fixedWidth) ? false : options.responsive,
+      responsive = options.responsive,
       breakpoints = false,
       breakpointZone = 0,
       sheet = createStyleSheet(),
@@ -963,9 +975,9 @@ var tns = function(options) {
       return function () { return Math.max(1, Math.min(slideCount, Math.floor(vwOuter / fixedWidth))); };
     } else {
       return function () {
-        var itemsTem;
+        var itemsTem = options.items;
         breakpoints.forEach(function (bp) {
-          if (vwOuter >= bp) { itemsTem = responsive[bp]; }
+          if (vwOuter >= bp) { itemsTem = responsive[bp].items; }
         });
         return Math.max(1, Math.min(slideCount, itemsTem));
       };
@@ -1181,7 +1193,7 @@ var tns = function(options) {
       // media queries
       if (responsive && CSSMQ) {
         breakpoints.forEach(function(bp) {
-          var itemsTem = responsive[bp], strContainer;
+          var itemsTem = responsive[bp].items, strContainer;
 
           strContainer = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
           strContainer = '#' + slideId + '{width: ' + strContainer + '}';

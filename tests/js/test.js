@@ -671,7 +671,7 @@ function testResponsive() {
   var resize = addTest('Slides: resize');
   var newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
-  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = 'iframe.html';
 
   if (newWindow.addEventListener) {
@@ -695,7 +695,7 @@ function testResponsive() {
           container = doc.querySelector('#' + id),
           slideItems = container.children,
           wrapper = container.parentNode,
-          items = responsive[bps[1]],
+          items = responsive[bps[0]].items,
           index = info.index + items,
           firstRect,
           lastRect,
@@ -721,11 +721,11 @@ function testResponsive() {
 
           // resize window
           return new Promise(function(resolve) {
-            newWindow.style.width = (Number(bps[2]) + 20) + 'px';
+            newWindow.style.width = (Number(bps[0]) + 20) + 'px';
             resolve();
           }).then(function() {
             return wait(500).then(function() {
-              items = responsive[bps[2]];
+              items = responsive[bps[0]].items;
               lastRect = slideItems[index + items - 1].getBoundingClientRect();
               wrapperRect = wrapper.getBoundingClientRect();
 
