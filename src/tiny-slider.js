@@ -256,10 +256,8 @@ export var tns = function(options) {
       sliderFrozen = false;
 
   if (responsive) {
-    // if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
     breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
     if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
-    // if (breakpoints.indexOf(0) < 0) { breakpoints.unshift(0); }
   } 
 
   // controls
@@ -338,6 +336,16 @@ export var tns = function(options) {
     }
   })();
 
+  function checkOption(item) {
+    var result = options[item];
+    if (!result && breakpoints) {
+      breakpoints.forEach(function (bp) {
+        if (responsive[bp][item]) { result = true; }
+      });
+    }
+    return result;
+  }
+
   events.on('itemsChanged', function () {
     indexMax = slideCountNew - items - indexAdjust;
     if (options.slideBy === 'page') { slideBy = items; }
@@ -382,6 +390,13 @@ export var tns = function(options) {
     dataContainer += (CALC) ? ' tns-calc' : ' tns-no-calc';
     if (carousel) { dataContainer += ' tns-' + options.axis; }
     container.className += dataContainer;
+    // add event
+    if (carousel && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      addEvents(container, eve);
+    }
+
 
     // delete datas after init
     dataOuter = dataInner = dataContainer = null;
@@ -465,7 +480,7 @@ export var tns = function(options) {
     // == horizontal slider ==
     // prevent rewriting from parent slider
     var importantStr = (nested === 'inner') ? ' !important' : '',
-        itemsTem = (CSSMQ) ? options.items : items;
+        itemsTem = (CSSMQ) ? Math.min(slideCount, options.items) : items;
     if (horizontal) {
       var stringSlideFontSize =
           stringSlideGutter = '',
@@ -584,7 +599,7 @@ export var tns = function(options) {
 
 
     // == navInit ==
-    if (nav) {
+    if (checkOption('nav')) {
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
@@ -618,11 +633,19 @@ export var tns = function(options) {
       }
 
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
+
+      // add events
+      for (var y = 0; y < slideCount; y++) {
+        addEvents(navItems[y],{
+          'click': onNavClick,
+          'keydown': onNavKeydown
+        });
+      }
     }
 
 
     // == autoplayInit ==
-    if (autoplay) {
+    if (checkOption('autoplay')) {
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
       } else {
@@ -634,11 +657,14 @@ export var tns = function(options) {
         navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
         autoplayButton = navContainer.querySelector('[data-action]');
       }
+
+      // add event
+      addEvents(autoplayButton, {'click': toggleAnimation});
     }
 
 
     // == controlsInit ==
-    if (controls) {
+    if (checkOption('controls')) {
       if (controlsContainer) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
@@ -663,30 +689,13 @@ export var tns = function(options) {
       }
 
       if (!loop) { prevButton.disabled = true; }
-    }
 
-
-    // == addSliderEvents ==
-    if (carousel && TRANSITIONEND) {
-      var eve = {};
-      eve[TRANSITIONEND] = onTransitionEnd;
-      addEvents(container, eve);
-    }
-
-    if (nav) {
-      for (var y = 0; y < slideCount; y++) {
-        addEvents(navItems[y],{
-          'click': onNavClick,
-          'keydown': onNavKeydown
-        });
-      }
-    }
-
-    if (controls) {
+      // add events
       addEvents(controlsContainer, {'keydown': onControlKeydown});
       addEvents(prevButton,{'click': onPrevClick});
       addEvents(nextButton,{'click': onNextClick});
     }
+
 
     if (nested === 'inner') {
       events.on('outerResized', function () {
@@ -795,7 +804,7 @@ export var tns = function(options) {
     });
   }
 
-  function checkSlideCount(isInitializing) {
+  function checkSlideCount(isInit) {
     // disable 
     if (!sliderFrozen && slideCount <= items) {
       nav = controls = autoplay = autoplayHoverPause = autoplayResetOnVisibility = touch = mouseDrag = arrowKeys = false;
@@ -831,17 +840,13 @@ export var tns = function(options) {
       (mouseDrag) ? addEvents(container, dragEvents) : removeEvents(container, dragEvents);
     }
     // autoplay and arrow keys
-    var autoplayEvent = {'click': toggleAnimation},
-        hoverEvents = {
+    var hoverEvents = {
           'mouseover': mouseoverPause,
           'mouseout': mouseoutRestart
         },
         visibilityEvent = {'visibilitychange': onVisibilityChange},
         docmentKeydownEvent = {'keydown': onDocumentKeydown};
 
-    if (autoplayButton) {
-      (autoplay) ? addEvents(autoplayButton, autoplayEvent) : removeEvents(autoplayButton, autoplayEvent);
-    }
     (autoplayHoverPause) ? addEvents(container, hoverEvents) : removeEvents(container, hoverEvents);
     (autoplayResetOnVisibility) ? addEvents(doc, visibilityEvent) : removeEvents(doc, visibilityEvent);
     (arrowKeys) ? addEvents(doc, docmentKeydownEvent) : removeEvents(doc, docmentKeydownEvent);
