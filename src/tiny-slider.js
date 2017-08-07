@@ -1,10 +1,10 @@
 // PRODUCTION
 
 // from go-native
-import "../bower_components/go-native/src/es5/object/keys.js";
-import "../bower_components/go-native/src/utilities/childNode.remove";
-import "../bower_components/go-native/src/vendors/token-list";
-import { extend } from "../bower_components/go-native/src/gn/extend";
+import '../bower_components/go-native/src/es5/object/keys.js';
+import '../bower_components/go-native/src/utilities/childNode.remove';
+import '../bower_components/go-native/src/vendors/token-list';
+import { extend } from '../bower_components/go-native/src/gn/extend';
 
 // helper functions
 import { checkStorageValue } from './helpers/checkStorageValue';
@@ -50,7 +50,7 @@ if (!tnsStorage['tnsApp']) {
 
 // get browser related data from local storage if they exist
 // otherwise, run the functions again and save these data to local storage
-// checkStorageValue() convert non-string value to its original value: "true" > true
+// checkStorageValue() convert non-string value to its original value: 'true' > true
 var doc = document,
     win = window,
     KEYS = {
@@ -153,6 +153,20 @@ export var tns = function(options) {
   if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
 
   // update responsive
+  // from: { 
+  //    300: 2, 
+  //    800: {
+  //      loop: false
+  //    }
+  // }
+  // to: {
+  //    300: { 
+  //      items: 2 
+  //    }, 
+  //    800: {
+  //      loop: false
+  //    }
+  // }
   if (options.responsive) {
     var resTem = {}, res = options.responsive;
     for(var key in res) {
@@ -206,6 +220,7 @@ export var tns = function(options) {
       responsive = options.responsive,
       breakpoints = false,
       breakpointZone = 0,
+      breakpointZoneAdjust = 0,
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
@@ -241,8 +256,10 @@ export var tns = function(options) {
       sliderFrozen = false;
 
   if (responsive) {
-    if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
+    // if (!responsive[0]) { responsive[0] = Math.min(options.items, slideCount); }
     breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
+    if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
+    // if (breakpoints.indexOf(0) < 0) { breakpoints.unshift(0); }
   } 
 
   // controls
@@ -277,7 +294,7 @@ export var tns = function(options) {
         autoplayButton = options.autoplayButton,
         animating = false,
         autoplayHoverStopped = false,
-        autoplayHtmlString = '<span class="tns-visually-hidden">Stop Animation</span>',
+        autoplayHtmlString = '<span class=\'tns-visually-hidden\'>Stop Animation</span>',
         autoplayResetOnVisibility = options.autoplayResetOnVisibility,
         autoplayResetVisibilityState = false;
   }
@@ -328,7 +345,7 @@ export var tns = function(options) {
   });
 
   (function sliderInit() {
-    // First thing first, wrap container with "outerWrapper > innerWrapper",
+    // First thing first, wrap container with 'outerWrapper > innerWrapper',
     // to get the correct view width
     outerWrapper.appendChild(innerWrapper);
     containerParent.insertBefore(outerWrapper, container);
@@ -447,10 +464,10 @@ export var tns = function(options) {
     // append stylesheet
     // == horizontal slider ==
     // prevent rewriting from parent slider
-    var importantStr = (nested === 'inner') ? ' !important' : '';
+    var importantStr = (nested === 'inner') ? ' !important' : '',
+        itemsTem = (CSSMQ) ? options.items : items;
     if (horizontal) {
-      var stringSlideLeft =
-          stringSlideFontSize = 
+      var stringSlideFontSize =
           stringSlideGutter = '',
           stringSlideWidth = 'width:';
 
@@ -467,8 +484,8 @@ export var tns = function(options) {
         } else {
           if (CSSMQ) {
             stringContainerWidth += (CALC) ? 
-                CALC + '(' + slideCountNew * 100 + '% / ' + items + ')' : 
-                slideCountNew * 100 / items + '%';
+                CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
+                slideCountNew * 100 / itemsTem + '%';
           } else {
             updateContainerWidthNonMediaquery();
           }
@@ -495,8 +512,8 @@ export var tns = function(options) {
       } else {
         // get slide width
         stringSlideWidth += (CALC) ? 
-            CALC + '(100% / ' + items + ')' :
-            100 / items + '%';
+            CALC + '(100% / ' + itemsTem + ')' :
+            100 / itemsTem + '%';
       }
       stringSlideWidth += importantStr + ';';
 
@@ -515,7 +532,7 @@ export var tns = function(options) {
         for (var q = 0; q < slideItems.length; q++) {
           var marginLeft = (CALC) ? 
               CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : 
-              q * 100 / slideCountNew + "%";
+              q * 100 / slideCountNew + '%';
           // webkit
           if (CSSMQ) {
             sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + importantStr + '; }', sheet.cssRules.length);
@@ -742,6 +759,7 @@ export var tns = function(options) {
         // update container width on non-mediaquery browser
         if (!fixedWidth && !CSSMQ) {
           updateContainerWidthNonMediaquery();
+          doTransform(0);
         }
 
         lazyLoad(); 
@@ -771,8 +789,9 @@ export var tns = function(options) {
   }
 
   function getBreakpointZone() {
+    breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
-      if (vwOuter >= bp) { breakpointZone = i; }
+      if (vwOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
     });
   }
 
@@ -1799,18 +1818,6 @@ export var tns = function(options) {
 
       // remove win event listeners
       removeEvents(win, {'resize': onResize});
-    },
-
-    // $ Private methods, for test only
-    // hasAttr: hasAttr, 
-    // getAttr: getAttr, 
-    // setAttrs: setAttrs, 
-    // removeAttrs: removeAttrs, 
-    // removeEventsByClone: removeEventsByClone, 
-    // getSlideId: getSlideId, 
-    // toDegree: toDegree, 
-    // getTouchDirection: getTouchDirection, 
-    // hideElement: hideElement, 
-    // showElement: showElement,
+    }
   };
-}
+};
