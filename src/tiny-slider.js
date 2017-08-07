@@ -252,8 +252,7 @@ export var tns = function(options) {
       containerClassCached = container.className,
       slideItemIdCached = slideItems[0].id,
       slideItemClassCached = slideItems[0].className,
-      slideId = container.id || getSlideId(),
-      sliderFrozen = false;
+      slideId = container.id || getSlideId();
 
   if (responsive) {
     breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
@@ -758,12 +757,12 @@ export var tns = function(options) {
     
     if (breakpointZoneTem !== breakpointZone) {
       if (responsive || fixedWidth) { items = getItems(); }
+      checkIndex();
+      checkSlideCount();
 
       // things do only when items changed
       if (items !== itemsTem) {
         events.emit('itemsChanged');
-        checkIndex();
-        checkSlideCount();
 
         // update container width on non-mediaquery browser
         if (!fixedWidth && !CSSMQ) {
@@ -806,19 +805,14 @@ export var tns = function(options) {
 
   function checkSlideCount(isInit) {
     // disable 
-    if (!sliderFrozen && slideCount <= items) {
-      nav = controls = autoplay = autoplayHoverPause = autoplayResetOnVisibility = touch = mouseDrag = arrowKeys = false;
+    if (slideCount <= items) {
       if (animating) { stopAction(); }
 
+      nav = controls = autoplay = autoplayHoverPause = autoplayResetOnVisibility = touch = mouseDrag = arrowKeys = false;
       // reset index to initial status
       index = (carousel) ? 0 : cloneCount;
-      sliderFrozen = true;
-
-    // enable
     } else {
-
       if (autoplay && !animating) { startAction(); }
-      sliderFrozen = false;
     }
 
     // === events ===
