@@ -945,9 +945,12 @@ function testAutoplay () {
         autoplayButton.click();
         resolve();
       }).then(function() {
-        assertion = 
-            autoplayButton.getAttribute('data-action') === 'stop' &&
-            autoplayButton.textContent.indexOf('Stop Animation') > -1;
+        return new Promise(function (resolve) {
+          assertion = 
+              autoplayButton.getAttribute('data-action') === 'stop' &&
+              autoplayButton.textContent.indexOf('Stop Animation') > -1;
+          resolve();
+        });
       });
     } else {
       return Promise.resolve();

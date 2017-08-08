@@ -1,16 +1,3 @@
-// keys
-if (!Object.keys) {
-    Object.keys = function (object) {
-        var keys = [];
-        for (var name in object) {
-            if (Object.prototype.hasOwnProperty.call(object, name)) {
-                keys.push(name);
-            }
-        }
-        return keys;
-    };
-}
-
 // Array.isArray
 if (!Array.isArray) {
     Array.isArray = function(obj) {
@@ -29,6 +16,19 @@ if (!Array.prototype.forEach) {
       }
     }
   };
+}
+
+// Filter
+
+if (!Array.prototype.filter) {
+    Array.prototype.filter = function (block /*, thisp */) {
+        var values = [];
+        var thisp = arguments[1];
+        for (var i = 0; i < this.length; i++)
+            if (block.call(thisp, this[i]))
+                values.push(this[i]);
+        return values;
+    };
 }
 
 // indexOf

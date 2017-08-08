@@ -206,11 +206,12 @@ export var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
+      vwOuter = containerParent.clientWidth,
       items = Math.min(options.items, slideCount),
       slideBy = (options.slideBy === 'page') ? items : options.slideBy,
       nested = options.nested,
-      gutter = options.gutter,
-      edgePadding = options.edgePadding,
+      gutter = getOption('gutter'),
+      edgePadding = getOption('edgePadding'),
       fixedWidth = (options.fixedWidth) ? options.fixedWidth + Number(options.gutter) : false,
       arrowKeys = options.arrowKeys,
       speed = options.speed,
@@ -218,6 +219,7 @@ export var tns = function(options) {
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
       responsive = options.responsive,
+      responsiveItems = [],
       breakpoints = false,
       breakpointZone = 0,
       breakpointZoneAdjust = 0,
@@ -240,8 +242,6 @@ export var tns = function(options) {
       indexMin = indexAdjust,
       indexMax = slideCountNew - items - indexAdjust,
       // resize
-      vwInner,
-      vwOuter,
       resizeTimer,
       touchedOrDraged,
       running = false,
@@ -252,15 +252,42 @@ export var tns = function(options) {
       containerClassCached = container.className,
       slideItemIdCached = slideItems[0].id,
       slideItemClassCached = slideItems[0].className,
-      slideId = container.id || getSlideId();
+      slideId = container.id || getSlideId(),
+      freeze = false,
+      hoverEvents = {
+        'mouseover': mouseoverPause,
+        'mouseout': mouseoutRestart
+      },
+      visibilityEvent = {'visibilitychange': onVisibilityChange},
+      docmentKeydownEvent = {'keydown': onDocumentKeydown},
+      touchEvents = {
+        'touchstart': onTouchOrMouseStart,
+        'touchmove': onTouchOrMouseMove,
+        'touchend': onTouchOrMouseEnd,
+        'touchcancel': onTouchOrMouseEnd
+      }, dragEvents = {
+        'mousedown': onTouchOrMouseStart,
+        'mousemove': onTouchOrMouseMove,
+        'mouseup': onTouchOrMouseEnd,
+        'mouseleave': onTouchOrMouseEnd
+      };
 
   if (responsive) {
     breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
     if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
+
+    breakpoints.forEach(function(bp) {
+      responsiveItems = responsiveItems.concat(Object.keys(responsive[bp]));
+    });
+    responsiveItems = responsiveItems.filter(function(x, i, a) {
+      return a.indexOf(x) === i; 
+    });
+
+    breakpointZone = getBreakpointZone();
   } 
 
   // controls
-  if (options.controls) {
+  if (checkOption('controls')) {
     var controls = options.controls,
         controlsText = options.controlsText,
         controlsContainer = options.controlsContainer,
@@ -269,7 +296,7 @@ export var tns = function(options) {
   }
 
   // nav
-  if (options.nav) {
+  if (checkOption('nav')) {
     var nav = options.nav,
         navContainer = options.navContainer,
         navItems,
@@ -281,7 +308,7 @@ export var tns = function(options) {
   }
 
   // autoplay
-  if (options.autoplay) {
+  if (checkOption('autoplay')) {
     var autoplay = options.autoplay,
         autoplayTimeout = options.autoplayTimeout,
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
@@ -297,7 +324,7 @@ export var tns = function(options) {
   }
 
   // touch
-  if (options.touch) {
+  if (checkOption('touch')) {
     var touch = options.touch,
         startX = null,
         startY = null,
@@ -307,7 +334,7 @@ export var tns = function(options) {
   }
 
   //mouse
-  if (options.mouseDrag) {
+  if (checkOption('mouseDrag')) {
     var mouseDrag = options.mouseDrag,
         mousePressed = false,
         isDragEvent = false;
@@ -321,20 +348,6 @@ export var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
-  var getItems = (function () {
-    if (fixedWidth) {
-      return function () { return Math.max(1, Math.min(slideCount, Math.floor(vwOuter / fixedWidth))); };
-    } else {
-      return function () {
-        var itemsTem = options.items;
-        breakpoints.forEach(function (bp) {
-          if (vwOuter >= bp) { itemsTem = responsive[bp].items; }
-        });
-        return Math.max(1, Math.min(slideCount, itemsTem));
-      };
-    }
-  })();
-
   function checkOption(item) {
     var result = options[item];
     if (!result && breakpoints) {
@@ -342,6 +355,23 @@ export var tns = function(options) {
         if (responsive[bp][item]) { result = true; }
       });
     }
+    return result;
+  }
+
+  function getOption(item) {
+    var result = options[item];
+    if (fixedWidth && item === 'items') {
+      var fw = (!responsive) ? fixedWidth : getOption('fixedWidth');
+      result = Math.floor(vwOuter / fw);
+    } else if (breakpoints) {
+      breakpoints.forEach(function (bp) {
+        if (vwOuter >= bp && item in responsive[bp]) { result = responsive[bp][item]; }
+      });
+    }
+    if (item === 'fixedWidth' && result) { result += Number(getOption('gutter')); }
+    if (item === 'slideBy' && result === 'page') { result = items; }
+    if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
+    if (item === 'loop' && getOption('rewind')) { result = false; }
     return result;
   }
 
@@ -364,7 +394,7 @@ export var tns = function(options) {
 
     if (carousel) {
       if (horizontal) {
-        if (edgePadding || gutter && !fixedWidth) {
+        if (checkOption('edgePadding') || checkOption('gutter') && !fixedWidth) {
           dataOuter += ' tns-ovh';
         } else {
           dataInner += ' tns-ovh';
@@ -378,6 +408,7 @@ export var tns = function(options) {
 
     outerWrapper.className = dataOuter;
     innerWrapper.className = dataInner;
+    innerWrapper.id = slideId + '-iw';
     if (autoHeight) {
       innerWrapper.className += ' tns-ah';
       innerWrapper.style[TRANSITIONDURATION] = speed / 1000 + 's';
@@ -401,22 +432,22 @@ export var tns = function(options) {
     dataOuter = dataInner = dataContainer = null;
 
     // set edge padding on innerWrapper
-    if (edgePadding) {
-      if (fixedWidth) {
-        updateFixedWidthEdgePadding();
-      } else {
-        var gap1 = edgePadding + gutter,
-            gap2 = edgePadding;
+    if (fixedWidth) {
+      if (edgePadding) { updateFixedWidthEdgePadding(); }
+    } else {
+      var edgePaddingTem = (CSSMQ) ? options.edgePadding : edgePadding;
+      if (edgePaddingTem) {
+        var gutterTem = (CSSMQ) ? options.gutter : gutter;
+        var gap1 = edgePaddingTem + gutterTem,
+            gap2 = edgePaddingTem,
+            innerWrapperStr;
 
-        innerWrapper.style.cssText += (horizontal) ?
+        innerWrapperStr = (horizontal) ?
             'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
             'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
+        addCSSRule(sheet, '#' + slideId + '-iw', innerWrapperStr, getCssRulesLength(sheet));
       }
     }
-
-    // get vw after setting edge padding
-    getViewWidth();
-    if (breakpoints) { getBreakpointZone(); }
 
     // add id, class, aria attributes 
     // before clone slides
@@ -456,7 +487,7 @@ export var tns = function(options) {
 
     // update the items before activate visible slides
     if (responsive || fixedWidth) { 
-      items = getItems();
+      items = getOption('items');
       events.emit('itemsChanged');
     }
 
@@ -481,9 +512,9 @@ export var tns = function(options) {
     var importantStr = (nested === 'inner') ? ' !important' : '',
         itemsTem = (CSSMQ) ? Math.min(slideCount, options.items) : items;
     if (horizontal) {
-      var stringSlideFontSize =
-          stringSlideGutter = '',
-          stringSlideWidth = 'width:';
+      var slideFontSizeStr =
+          slideGutterStr = '',
+          slideWidthStr = 'width:';
 
       // * carousel *
       if (carousel) {
@@ -494,7 +525,7 @@ export var tns = function(options) {
         stringContainerWidth += 'width:';
         if (fixedWidth) {
             stringContainerWidth += fixedWidth * slideCountNew + 'px';
-            stringSlideWidth += fixedWidth + 'px';
+            slideWidthStr += fixedWidth + 'px';
         } else {
           if (CSSMQ) {
             stringContainerWidth += (CALC) ? 
@@ -504,7 +535,7 @@ export var tns = function(options) {
             updateContainerWidthNonMediaquery();
           }
 
-          stringSlideWidth += (CALC) ? 
+          slideWidthStr += (CALC) ? 
               CALC + '(100% / ' + slideCountNew + ')' : 
               100 / slideCountNew + '%';
         }
@@ -517,7 +548,7 @@ export var tns = function(options) {
           if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
 
           stringContainerFontSize = ' font-size: 0;';
-          stringSlideFontSize = ' font-size: ' + cssFontSize + ';';
+          slideFontSizeStr = ' font-size: ' + cssFontSize + ';';
         }
 
         addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, getCssRulesLength(sheet));
@@ -525,19 +556,19 @@ export var tns = function(options) {
       // * gallery *
       } else {
         // get slide width
-        stringSlideWidth += (CALC) ? 
+        slideWidthStr += (CALC) ? 
             CALC + '(100% / ' + itemsTem + ')' :
             100 / itemsTem + '%';
       }
-      stringSlideWidth += importantStr + ';';
+      slideWidthStr += importantStr + ';';
 
       // set gutter
       if (gutter) {
         if (!edgePadding && !fixedWidth) { innerWrapper.style.marginRight = - gutter + 'px';}
-        stringSlideGutter = 'padding-right: ' + gutter + 'px;';
+        slideGutterStr = 'padding-right: ' + gutter + 'px;';
       }
 
-      addCSSRule(sheet, '#' + slideId + ' .tns-item',  stringSlideWidth + stringSlideGutter + stringSlideFontSize, getCssRulesLength(sheet));
+      addCSSRule(sheet, '#' + slideId + ' .tns-item',  slideWidthStr + slideGutterStr + slideFontSizeStr, getCssRulesLength(sheet));
 
       // insert margin-left styles
       // for non-subpixel browsers (webkit)
@@ -561,12 +592,36 @@ export var tns = function(options) {
       // media queries
       if (responsive && CSSMQ) {
         breakpoints.forEach(function(bp) {
-          var itemsTem = responsive[bp].items, strContainer;
+          var opts = responsive[bp], innerWrapperStr = containerStr = slideStr = '';
 
-          strContainer = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
-          strContainer = '#' + slideId + '{width: ' + strContainer + '}';
+          if ('edgePadding' in opts) {
+            var edgePaddingTem = opts.edgePadding,
+                gutterTem = ('gutter' in opts) ? opts.gutter : 0,
+                gap1 = edgePaddingTem + gutterTem,
+                gap2 = edgePaddingTem;
+          }
 
-          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + strContainer + '}', sheet.cssRules.length);
+          innerWrapperStr = (horizontal) ?
+              'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
+              'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
+          innerWrapperStr = '#' + slideId + '-iw{' + innerWrapperStr + '}';
+
+          if ('items' in opts) {
+            var itemsTem = opts.items;
+            containerStr = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
+            containerStr = '#' + slideId + '{width:' + containerStr + '}';
+          }
+
+          if ('gutter' in opts) {
+            var gutterTem = opts.gutter;
+            slideStr = '#' + slideId + ' .tns-item{padding-right:' + gutterTem + 'px}';
+          }
+
+          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + 
+            innerWrapperStr +
+            containerStr +
+            slideStr +
+            '}', sheet.cssRules.length);
         });
       }
 
@@ -596,6 +651,8 @@ export var tns = function(options) {
       setSnapInterval();
     }
 
+ 
+    freeze = slideCount <= items;
 
     // == navInit ==
     if (checkOption('nav')) {
@@ -640,6 +697,9 @@ export var tns = function(options) {
           'keydown': onNavKeydown
         });
       }
+
+      nav = (freeze) ? false : getOption('nav');
+      if (!nav) { hideElement(navContainer); }
     }
 
 
@@ -659,6 +719,17 @@ export var tns = function(options) {
 
       // add event
       addEvents(autoplayButton, {'click': toggleAnimation});
+
+      autoplay = (freeze) ? false : getOption('autoplay');
+      if (!autoplay) {
+        autoplayHoverPause = autoplayResetOnVisibility = false;
+        hideElement(autoplayButton);
+      } else {
+        autoplayHoverPause = getOption('autoplayHoverPause');
+        autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
+        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
+      }
     }
 
 
@@ -693,6 +764,21 @@ export var tns = function(options) {
       addEvents(controlsContainer, {'keydown': onControlKeydown});
       addEvents(prevButton,{'click': onPrevClick});
       addEvents(nextButton,{'click': onNextClick});
+
+      controls = (freeze) ? false : getOption('controls');
+      if (!controls) { hideElement(controlsContainer); }
+    }
+
+
+    if (freeze) {
+      touch = mouseDrag = arrowKeys = false;
+    } else {
+      touch = getOption('touch');
+      mouseDrag = getOption('mouseDrag');
+      arrowKeys = getOption('arrowKeys');
+      if (touch) { addEvents(container, touchEvents); }
+      if (mouseDrag) { addEvents(container, dragEvents); }
+      if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
     }
 
 
@@ -708,7 +794,6 @@ export var tns = function(options) {
       }
     }
 
-    checkSlideCount(true);
     lazyLoad();
     runAutoHeight();
 
@@ -742,8 +827,8 @@ export var tns = function(options) {
     var breakpointZoneTem = breakpointZone,
         indexTem = index, 
         itemsTem = items;
-    getViewWidth();
-    getBreakpointZone();
+    vwOuter = outerWrapper.clientWidth;
+    if (breakpoints) { breakpointZone = getBreakpointZone(); }
 
     // things always do 
     // regardless of items changing
@@ -756,7 +841,7 @@ export var tns = function(options) {
     runAutoHeight(); 
     
     if (breakpointZoneTem !== breakpointZone) {
-      if (responsive || fixedWidth) { items = getItems(); }
+      if (responsive || fixedWidth) { items = getOption('items'); }
       checkIndex();
       checkSlideCount();
 
@@ -791,68 +876,199 @@ export var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
-  function getViewWidth () {
-    vwOuter = outerWrapper.clientWidth;
-    vwInner = innerWrapper.clientWidth;
-  }
-
   function getBreakpointZone() {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
       if (vwOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
     });
+    return breakpointZone;
   }
 
   function checkSlideCount(isInit) {
-    // disable 
-    if (slideCount <= items) {
-      if (animating) { stopAction(); }
+    var caches = {
+      touch: touch,
+      mouseDrag: mouseDrag,
+      arrowKeys: arrowKeys,
+      autoplay: autoplay,
+      autoplayHoverPause: autoplayHoverPause,
+      autoplayResetOnVisibility: autoplayResetOnVisibility,
+      controls: controls,
+      nav: nav,
+      gutter: gutter,
+      edgePadding: edgePadding,
+      controlsText: controlsText,
+      autoplayText: autoplayText,
+      animateIn: animateIn,
+      animateOut: animateOut,
+      animateNormal: animateNormal,
+      animateDelay: animateDelay,
+      fixedWidth: fixedWidth,
+      slideBy: slideBy,
+      speed: speed,
+      autoplayTimeout: autoplayTimeout,
+      autoHeight: autoHeight,
+      loop: loop,
+      rewind: rewind
+    }, 
+    autoplayUpdated = false,
+    freezeCache = freeze;
+    freeze = slideCount <= items;
 
-      nav = controls = autoplay = autoplayHoverPause = autoplayResetOnVisibility = touch = mouseDrag = arrowKeys = false;
-      // reset index to initial status
-      index = (carousel) ? 0 : cloneCount;
-    } else {
-      if (autoplay && !animating) { startAction(); }
+    // toggle autoplay animation when freeze status changed
+    if (freeze !== freezeCache) {
+      if (freeze) {
+        if (animating) { stopAction(); }
+        index = (carousel) ? 0 : cloneCount; // reset index to initial status
+      } else {
+        if (getOption('autoplay') && !animating) { startAction(); }
+      }
     }
 
-    // === events ===
-    // touch and drag
-    if (carousel) {
-      var touchEvents = {
-            'touchstart': onTouchOrMouseStart,
-            'touchmove': onTouchOrMouseMove,
-            'touchend': onTouchOrMouseEnd,
-            'touchcancel': onTouchOrMouseEnd
-          }, dragEvents = {
-            'mousedown': onTouchOrMouseStart,
-            'mousemove': onTouchOrMouseMove,
-            'mouseup': onTouchOrMouseEnd,
-            'mouseleave': onTouchOrMouseEnd
-          };
-
-      (touch) ? addEvents(container, touchEvents) : removeEvents(container, touchEvents);
-      (mouseDrag) ? addEvents(container, dragEvents) : removeEvents(container, dragEvents);
-    }
-    // autoplay and arrow keys
-    var hoverEvents = {
-          'mouseover': mouseoverPause,
-          'mouseout': mouseoutRestart
-        },
-        visibilityEvent = {'visibilitychange': onVisibilityChange},
-        docmentKeydownEvent = {'keydown': onDocumentKeydown};
-
-    (autoplayHoverPause) ? addEvents(container, hoverEvents) : removeEvents(container, hoverEvents);
-    (autoplayResetOnVisibility) ? addEvents(doc, visibilityEvent) : removeEvents(doc, visibilityEvent);
-    (arrowKeys) ? addEvents(doc, docmentKeydownEvent) : removeEvents(doc, docmentKeydownEvent);
-
-    // === display ===
-    [
-      [navContainer, nav],
-      [controlsContainer, controls],
-      [autoplayButton, autoplay]
-    ].forEach(function(group) {
-      var el = group[0];
-      if (el) { (group[1]) ? showElement(el) : hideElement(el); }
+    responsiveItems.forEach(function(i) {
+      switch (i) {
+        case 'touch':
+          touch = (freeze) ? false : getOption(i);
+          if (touch !== caches[i] && carousel) {
+            (touch) ?
+              addEvents(container, touchEvents) :
+              removeEvents(container, touchEvents);
+          }
+          break;
+        case 'mouseDrag':
+          mouseDrag = (freeze) ? false : getOption(i);
+          if (mouseDrag !== caches[i] && carousel) {
+            (mouseDrag) ?
+              addEvents(container, dragEvents) :
+              removeEvents(container, dragEvents);
+          }
+          break;
+        case 'arrowKeys':
+          arrowKeys = (freeze) ? false : getOption(i);
+          if (arrowKeys !== caches[i]) {
+            (arrowKeys) ?
+              addEvents(doc, docmentKeydownEvent) :
+              removeEvents(doc, docmentKeydownEvent);
+          }
+          break;
+        case 'autoplay':
+          autoplay = (freeze) ? false : getOption(i);
+          autoplayUpdated = true;
+          if (autoplay !== caches[i] && autoplayButton) {
+            (autoplay) ?
+              showElement(autoplayButton) :
+              hideElement(autoplayButton); 
+          }
+          break;
+        case 'autoplayHoverPause':
+          autoplayHoverPause = (freeze) ? false : getOption(i);
+          if (!autoplayUpdated) { autoplay = (freeze) ? false : getOption('autoplay'); }
+          if (autoplay !== caches['autoplay'] || autoplayHoverPause !== caches[i]) {
+            (autoplay && autoplayHoverPause) ?
+              addEvents(container, hoverEvents) :
+              removeEvents(container, hoverEvents);
+          }
+          break;
+        case 'autoplayResetOnVisibility':
+          autoplayResetOnVisibility = (freeze) ? false : getOption(i);
+          if (!autoplayUpdated) { autoplay = (freeze) ? false : getOption('autoplay'); }
+          if (autoplay !== caches['autoplay'] || autoplayResetOnVisibility !== caches[i]) {
+            (autoplay && autoplayResetOnVisibility) ?
+              addEvents(doc, visibilityEvent) :
+              removeEvents(doc, visibilityEvent);
+          }
+          break;
+        case 'controls':
+          controls = getOption(i);
+          if (controls !== caches[i]) {
+            (controls) ?
+              showElement(controlsContainer) :
+              hideElement(controlsContainer); 
+          }
+          break;
+        case 'nav':
+          nav = (freeze) ? false : getOption(i);
+          if (nav !== caches[i]) {
+            (nav) ?
+              showElement(navContainer) :
+              hideElement(navContainer);
+          }
+          break;
+        case 'gutter':
+          gutter = getOption(i);
+          if (gutter !== caches[i]) {
+          }
+          break;
+        case 'edgePadding':
+          edgePadding = getOption(i);
+          if (edgePadding !== caches[i]) {
+          }
+          break;
+        case 'controlsText':
+          controlsText = getOption(i);
+          if (controlsText !== caches[i]) {
+          }
+          break;
+        case 'autoplayText':
+          autoplayText = getOption(i);
+          if (autoplayText !== caches[i]) {
+          }
+          break;
+        case 'animateIn':
+          animateIn = getOption(i);
+          if (animateIn !== caches[i]) {
+          }
+          break;
+        case 'animateOut':
+          animateOut = getOption(i);
+          if (animateOut !== caches[i]) {
+          }
+          break;
+        case 'animateNormal':
+          animateNormal = getOption(i);
+          if (animateNormal !== caches[i]) {
+          }
+          break;
+        case 'animateDelay':
+          animateDelay = getOption(i);
+          if (animateDelay !== caches[i]) {
+          }
+          break;
+        case 'fixedWidth':
+          fixedWidth = getOption(i);
+          if (fixedWidth !== caches[i]) {
+          }
+          break;
+        case 'slideBy':
+          slideBy = getOption(i);
+          if (slideBy !== caches[i]) {
+          }
+          break;
+        case 'speed':
+          speed = getOption(i);
+          if (speed !== caches[i]) {
+          }
+          break;
+        case 'autoplayTimeout':
+          autoplayTimeout = getOption(i);
+          if (autoplayTimeout !== caches[i]) {
+          }
+          break;
+        case 'autoHeight':
+          autoHeight = getOption(i);
+          if (autoHeight !== caches[i]) {
+          }
+          break;
+        case 'loop':
+          loop = getOption(i);
+          if (loop !== caches[i]) {
+          }
+          break;
+        case 'rewind':
+          rewind = getOption(i);
+          if (rewind !== caches[i]) {
+          }
+          break;
+      }
     });
   }
 
@@ -1543,6 +1759,7 @@ export var tns = function(options) {
 
   function onTouchOrMouseMove(e) {
     e = e || win.event;
+    var vwInner = innerWrapper.clientWidth;
 
     // "mousemove" event after "mousedown" indecate it's "drag", not "click"
     // set isDragEvent to true
@@ -1589,6 +1806,7 @@ export var tns = function(options) {
   }
 
   function onTouchOrMouseEnd(e) {
+    var vwInner = innerWrapper.clientWidth;
     e = e || win.event;
 
     // reset mousePressed

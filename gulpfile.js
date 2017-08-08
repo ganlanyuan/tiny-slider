@@ -183,6 +183,7 @@ gulp.task('server', function() {
   });
   gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
+  gulp.watch(pathSrc + helperIEScript, ['helper-ie8']);
   gulp.watch(scriptSources.concat([pathTest + testScript]), ['test']);
   gulp.watch(['**/*.html', pathTest + '*.js', pathDest + '*.css']).on('change', browserSync.reload);
   // gulp.watch('src/tiny-slider.native.js, tests/tests.js', ['testcafe']);

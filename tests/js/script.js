@@ -81,12 +81,18 @@ var doc = document,
       }, 
       'responsive': {
         container: '',
+        gutter: 10,
         responsive: {
           600: {
-            items: 2
+            items: 2,
+            edgePadding: 20,
+            controls: false
           },
           900: {
-            items: 3
+            items: 3,
+            gutter: 0,
+            edgePadding: 40,
+            nav: false
           }
         },
         slideBy: 'page',
