@@ -869,9 +869,27 @@ var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
-      vwOuter = containerParent.clientWidth,
-      items = Math.min(options.items, slideCount),
-      slideBy = (options.slideBy === 'page') ? items : options.slideBy,
+      vpOuter = containerParent.clientWidth,
+      responsive = options.responsive,
+      responsiveItems = [],
+      breakpoints = false;
+
+  if (responsive) {
+    breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
+    if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
+
+    breakpoints.forEach(function(bp) {
+      responsiveItems = responsiveItems.concat(Object.keys(responsive[bp]));
+    });
+    responsiveItems = responsiveItems.filter(function(x, i, a) {
+      return a.indexOf(x) === i; 
+    });
+
+    breakpointZone = getBreakpointZone();
+  } 
+
+  var items = getOption('items'),
+      slideBy = (getOption('slideBy') === 'page') ? items : getOption('slideBy'),
       nested = options.nested,
       gutter = getOption('gutter'),
       edgePadding = getOption('edgePadding'),
@@ -881,9 +899,6 @@ var tns = function(options) {
       rewind = options.rewind,
       loop = (options.rewind)? false : options.loop,
       autoHeight = options.autoHeight,
-      responsive = options.responsive,
-      responsiveItems = [],
-      breakpoints = false,
       breakpointZone = 0,
       breakpointZoneAdjust = 0,
       sheet = createStyleSheet(),
@@ -916,7 +931,8 @@ var tns = function(options) {
       slideItemIdCached = slideItems[0].id,
       slideItemClassCached = slideItems[0].className,
       slideId = container.id || getSlideId(),
-      freeze = false,
+      freeze = slideCount <= items,
+      importantStr = (nested === 'inner') ? ' !important' : '',
       hoverEvents = {
         'mouseover': mouseoverPause,
         'mouseout': mouseoutRestart
@@ -934,20 +950,6 @@ var tns = function(options) {
         'mouseup': onTouchOrMouseEnd,
         'mouseleave': onTouchOrMouseEnd
       };
-
-  if (responsive) {
-    breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
-    if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
-
-    breakpoints.forEach(function(bp) {
-      responsiveItems = responsiveItems.concat(Object.keys(responsive[bp]));
-    });
-    responsiveItems = responsiveItems.filter(function(x, i, a) {
-      return a.indexOf(x) === i; 
-    });
-
-    breakpointZone = getBreakpointZone();
-  } 
 
   // controls
   if (checkOption('controls')) {
@@ -1013,7 +1015,7 @@ var tns = function(options) {
   // === COMMON FUNCTIONS === //
   function checkOption(item) {
     var result = options[item];
-    if (!result && breakpoints) {
+    if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
       breakpoints.forEach(function (bp) {
         if (responsive[bp][item]) { result = true; }
       });
@@ -1021,21 +1023,91 @@ var tns = function(options) {
     return result;
   }
 
-  function getOption(item) {
+  function getOption(item, view) {
+    view = view ? view : vpOuter;
     var result = options[item];
-    if (fixedWidth && item === 'items') {
-      var fw = (!responsive) ? fixedWidth : getOption('fixedWidth');
-      result = Math.floor(vwOuter / fw);
-    } else if (breakpoints) {
-      breakpoints.forEach(function (bp) {
-        if (vwOuter >= bp && item in responsive[bp]) { result = responsive[bp][item]; }
-      });
+
+    if (item === 'items' && getOption('fixedWidth')) {
+      var fw = (!responsive) ? getOption('fixedWidth') : getOption('fixedWidth');
+      result = Math.floor(view / fw);
+    } else if (breakpoints && responsiveItems.indexOf(item) >= 0) {
+      for (var i = 0, len = breakpoints.length; i < len; i++) {
+        var bp = breakpoints[i];
+        if (view >= bp) {
+          if (item in responsive[bp]) { result = responsive[bp][item]; }
+        } else { break; }
+      }
     }
+
     if (item === 'fixedWidth' && result) { result += Number(getOption('gutter')); }
     if (item === 'slideBy' && result === 'page') { result = items; }
     if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
     if (item === 'loop' && getOption('rewind')) { result = false; }
     return result;
+  }
+
+  function getSlideMarginLeft(i) {
+    var str = (CALC) ? 
+      CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
+      i * 100 / slideCountNew + '%';
+    return str;
+  }
+
+  function getInnerWrapperStyles(edge, gap) {
+    var str = '';
+    if (edge) {
+      var gap1 = edge;
+      if (gap) { gap1 += gap; }
+      str = (horizontal) ?
+        'margin: 0 ' + edge + 'px 0 ' + gap1 + 'px;' :
+        'padding: ' + gap1 + 'px 0 ' + edge + 'px 0;';
+    } else if (gap && !fixedWidth) {
+      var dir = (horizontal) ? 'right' : 'bottom';
+      str = 'margin-' + dir + ': -' + gap + 'px;';
+    }
+
+    return str;
+  }
+
+  function getContainerStyles(fixedWidthTem, itemsTem) {
+    itemsTem = Math.min(slideCount, itemsTem);
+    var widthStr;
+
+    if (fixedWidthTem) {
+      widthStr = fixedWidthTem * slideCountNew + 'px';
+    } else {
+      widthStr = (CALC) ? 
+        CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
+        slideCountNew * 100 / itemsTem + '%';
+    }
+
+    return 'width:' + widthStr + ';';
+  }
+
+  function getSlideStyles(fixedWidthTem, itemsTem, gutterTem) {
+    itemsTem = Math.min(slideCount, itemsTem);
+    var widthStr = gutterStr = '';
+
+    if (horizontal) {
+      widthStr = 'width:';
+      if (fixedWidthTem) {
+        widthStr += fixedWidthTem + Number(gutterTem) + 'px';
+      } else {
+        var dividend = (carousel) ? slideCountNew : Math.min(slideCount, itemsTem);
+        widthStr += (CALC) ? 
+          CALC + '(100% / ' + dividend + ')' : 
+          100 / dividend + '%';
+      }
+      widthStr += importantStr + ';';
+    }
+
+    if (gutterTem) {
+      var prop = (horizontal) ? 'padding-' : 'margin-',
+          dir = (horizontal) ? 'right' : 'bottom';
+      gutterStr = prop +  dir + ': ' + gutterTem + 'px;';
+    }
+
+    return widthStr + gutterStr;
   }
 
   events.on('itemsChanged', function () {
@@ -1090,27 +1162,8 @@ var tns = function(options) {
       addEvents(container, eve);
     }
 
-
     // delete datas after init
     dataOuter = dataInner = dataContainer = null;
-
-    // set edge padding on innerWrapper
-    if (fixedWidth) {
-      if (edgePadding) { updateFixedWidthEdgePadding(); }
-    } else {
-      var edgePaddingTem = (CSSMQ) ? options.edgePadding : edgePadding;
-      if (edgePaddingTem) {
-        var gutterTem = (CSSMQ) ? options.gutter : gutter;
-        var gap1 = edgePaddingTem + gutterTem,
-            gap2 = edgePaddingTem,
-            innerWrapperStr;
-
-        innerWrapperStr = (horizontal) ?
-            'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
-            'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
-        addCSSRule(sheet, '#' + slideId + '-iw', innerWrapperStr, getCssRulesLength(sheet));
-      }
-    }
 
     // add id, class, aria attributes 
     // before clone slides
@@ -1148,12 +1201,6 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
-    // update the items before activate visible slides
-    if (responsive || fixedWidth) { 
-      items = getOption('items');
-      events.emit('itemsChanged');
-    }
-
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
@@ -1169,136 +1216,82 @@ var tns = function(options) {
       }
     }
 
-    // append stylesheet
-    // == horizontal slider ==
-    // prevent rewriting from parent slider
-    var importantStr = (nested === 'inner') ? ' !important' : '',
-        itemsTem = (CSSMQ) ? Math.min(slideCount, options.items) : items;
-    if (horizontal) {
-      var slideFontSizeStr =
-          slideGutterStr = '',
-          slideWidthStr = 'width:';
+    if (CSSMQ) {
+      // inner wrapper styles
+      var str = getInnerWrapperStyles(options.edgePadding, options.gutter);
+      sheet.insertRule('#' + slideId + '-iw{' + str + '}', sheet.cssRules.length);
 
-      // * carousel *
-      if (carousel) {
-        var stringContainerWidth = 
-            stringContainerFontSize = ''; 
-
-        // get container width, slide width
-        stringContainerWidth += 'width:';
-        if (fixedWidth) {
-            stringContainerWidth += fixedWidth * slideCountNew + 'px';
-            slideWidthStr += fixedWidth + 'px';
-        } else {
-          if (CSSMQ) {
-            stringContainerWidth += (CALC) ? 
-                CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
-                slideCountNew * 100 / itemsTem + '%';
-          } else {
-            updateContainerWidthNonMediaquery();
-          }
-
-          slideWidthStr += (CALC) ? 
-              CALC + '(100% / ' + slideCountNew + ')' : 
-              100 / slideCountNew + '%';
-        }
-        stringContainerWidth += ';';
-
-        // get font-size string
-        if (SUBPIXEL) {
-          var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
-          // em, rem to px (for IE8-)
-          if (cssFontSize.indexOf('em') !== -1) { cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px'; }
-
-          stringContainerFontSize = ' font-size: 0;';
-          slideFontSizeStr = ' font-size: ' + cssFontSize + ';';
-        }
-
-        addCSSRule(sheet, '#' + slideId, stringContainerWidth + stringContainerFontSize, getCssRulesLength(sheet));
-
-      // * gallery *
-      } else {
-        // get slide width
-        slideWidthStr += (CALC) ? 
-            CALC + '(100% / ' + itemsTem + ')' :
-            100 / itemsTem + '%';
-      }
-      slideWidthStr += importantStr + ';';
-
-      // set gutter
-      if (gutter) {
-        if (!edgePadding && !fixedWidth) { innerWrapper.style.marginRight = - gutter + 'px';}
-        slideGutterStr = 'padding-right: ' + gutter + 'px;';
+      // container styles
+      if (carousel && horizontal) {
+        str = getContainerStyles(options.fixedWidth, options.items);
+        sheet.insertRule('#' + slideId + '{' + str + '}', sheet.cssRules.length);
       }
 
-      addCSSRule(sheet, '#' + slideId + ' .tns-item',  slideWidthStr + slideGutterStr + slideFontSizeStr, getCssRulesLength(sheet));
-
-      // insert margin-left styles
-      // for non-subpixel browsers (webkit)
-      // after insert container and slide styles
-      if (carousel && !SUBPIXEL) {
-        for (var q = 0; q < slideItems.length; q++) {
-          var marginLeft = (CALC) ? 
-              CALC + '(' + q * 100 + '% / ' + slideCountNew + ')' : 
-              q * 100 / slideCountNew + '%';
-          // webkit
-          if (CSSMQ) {
-            sheet.insertRule('#' + slideId + ' .tns-item:nth-child(' + (q + 1) + ') { margin-left: ' + marginLeft + importantStr + '; }', sheet.cssRules.length);
-            
-          // IE8
-          } else {
-            slideItems[q].style.marginLeft = marginLeft;
-          }
-        }
+      // slide styles
+      if (horizontal || options.gutter) {
+        str = getSlideStyles(options.fixedWidth, options.items, options.gutter);
+        sheet.insertRule('#' + slideId + ' .tns-item{' + str + '}', sheet.cssRules.length);
       }
 
-      // media queries
-      if (responsive && CSSMQ) {
-        breakpoints.forEach(function(bp) {
-          var opts = responsive[bp], innerWrapperStr = containerStr = slideStr = '';
-
-          if ('edgePadding' in opts) {
-            var edgePaddingTem = opts.edgePadding,
-                gutterTem = ('gutter' in opts) ? opts.gutter : 0,
-                gap1 = edgePaddingTem + gutterTem,
-                gap2 = edgePaddingTem;
-          }
-
-          innerWrapperStr = (horizontal) ?
-              'margin: 0 ' + gap2 + 'px 0 ' + gap1 + 'px' :
-              'padding: ' + gap1 + 'px 0 ' + gap2 + 'px 0';
-          innerWrapperStr = '#' + slideId + '-iw{' + innerWrapperStr + '}';
-
-          if ('items' in opts) {
-            var itemsTem = opts.items;
-            containerStr = (CALC) ? CALC + '(100% * ' + slideCountNew + ' / ' + itemsTem + ')' : 100 * slideCountNew / itemsTem + '%',
-            containerStr = '#' + slideId + '{width:' + containerStr + '}';
-          }
-
-          if ('gutter' in opts) {
-            var gutterTem = opts.gutter;
-            slideStr = '#' + slideId + ' .tns-item{padding-right:' + gutterTem + 'px}';
-          }
-
-          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + 
-            innerWrapperStr +
-            containerStr +
-            slideStr +
-            '}', sheet.cssRules.length);
-        });
-      }
-
-    // vertical slider
+    // non CSS mediaqueries => IE8
     } else {
-      // set slide gutter
-      if (gutter) {
-        if (!edgePadding) { innerWrapper.style.marginBottom = - gutter + 'px';}
-        addCSSRule(sheet, '#' + slideId + ' .tns-item', 'margin-bottom: ' + gutter + 'px;', 0);
+      if (carousel && horizontal && !getOption('fixedWidth')) {
+        updateContainerWidthNonMediaquery();
+      }
+    }
+
+    // set left margin
+    if (!SUBPIXEL && carousel && horizontal) {
+      for (var i = slideCountNew; i--;) {
+        slideItems[i].style.marginLeft = getSlideMarginLeft(i);
+      }
+    }
+
+    // set font-size rules
+    if (carousel && horizontal && SUBPIXEL) {
+      var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) {
+        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
       }
 
+      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+    }
+
+    if (!horizontal) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
     }
+
+    if (fixedWidth && edgePadding) { updateFixedWidthEdgePadding(); }
+
+    // media queries
+    if (responsive && CSSMQ) {
+      breakpoints.forEach(function(bp) {
+        var opts = responsive[bp],
+            innerWrapperStr = containerStr = slideStr = '';
+
+        if ('edgePadding' in opts || 'gutter' in opts) {
+          innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(getOption('edgePadding', bp), getOption('gutter', bp)) + '}';
+        }
+
+        if (carousel && horizontal && ('fixedWidth' in opts || 'items' in opts)) {
+          containerStr = '#' + slideId + '{' + getContainerStyles(getOption('fixedWidth', bp), getOption('items', bp)) + '}';
+        }
+
+        if ('fixedWidth' in opts || 'items' in opts || 'gutter' in opts) {
+          slideStr = '#' + slideId + ' .tns-item{' + getSlideStyles(getOption('fixedWidth', bp), getOption('items', bp), getOption('gutter', bp)) + '}';
+        }
+
+        sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + 
+          innerWrapperStr +
+          containerStr +
+          slideStr +
+          '}', sheet.cssRules.length);
+      });
+    }
+
 
     // set container transform property
     if (carousel) {
@@ -1315,8 +1308,6 @@ var tns = function(options) {
     }
 
  
-    freeze = slideCount <= items;
-
     // == navInit ==
     if (checkOption('nav')) {
       // customized nav
@@ -1477,7 +1468,7 @@ var tns = function(options) {
   function onResize(e) {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (vwOuter !== outerWrapper.clientWidth) {
+      if (vpOuter !== outerWrapper.clientWidth) {
         resizeTasks();
         if (nested === 'outer') { 
           events.emit('outerResized', info(e)); 
@@ -1490,7 +1481,7 @@ var tns = function(options) {
     var breakpointZoneTem = breakpointZone,
         indexTem = index, 
         itemsTem = items;
-    vwOuter = outerWrapper.clientWidth;
+    vpOuter = outerWrapper.clientWidth;
     if (breakpoints) { breakpointZone = getBreakpointZone(); }
 
     // things always do 
@@ -1542,7 +1533,7 @@ var tns = function(options) {
   function getBreakpointZone() {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
-      if (vwOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
+      if (vpOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
     });
     return breakpointZone;
   }
@@ -1753,7 +1744,7 @@ var tns = function(options) {
           rightEdge -= slideBy;
         }
 
-        if (fixedWidth && vwOuter%fixedWidth > gutter) { rightEdge -= 1; }
+        if (fixedWidth && vpOuter%fixedWidth > gutter) { rightEdge -= 1; }
 
         if (index > rightEdge) {
           while(index >= leftEdge + slideCount) { index -= slideCount; }
