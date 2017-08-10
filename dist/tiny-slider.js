@@ -1224,6 +1224,29 @@ var tns = function(options) {
       }
     }
 
+    // slide left margin
+    // for IE8 & webkit browsers (no subpixel)
+    // run once
+    if (!SUBPIXEL && carousel && horizontal) {
+      [].forEach.call(slideItems, function (slide, i) {
+        slide.style.marginLeft = getSlideMarginLeft(i);
+      });
+    }
+
+    // set font-size rules
+    // for IE8 & webkit browsers (no subpixel)
+    // run once
+    if (carousel && horizontal && SUBPIXEL) {
+      var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) {
+        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+      }
+
+      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+    }
+
     if (CSSMQ) {
       // inner wrapper styles
       var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth);
@@ -1257,32 +1280,9 @@ var tns = function(options) {
       // slide styles
       if (horizontal || getOption('gutter')) {
         var str = getSlideStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
-        // insert one line stylesheet
-        sheet.addRule('#' + slideId + ' .tns-item', str);
+        // append to the last line
+        sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
-    }
-
-    // slide left margin
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (!SUBPIXEL && carousel && horizontal) {
-      [].forEach.call(slideItems, function (slide, i) {
-        slide.style.marginLeft = getSlideMarginLeft(i);
-      });
-    }
-
-    // set font-size rules
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (carousel && horizontal && SUBPIXEL) {
-      var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
-      // em, rem to px (for IE8-)
-      if (cssFontSize.indexOf('em') !== -1) {
-        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
-      }
-
-      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
     }
 
     if (!horizontal) {
@@ -1552,10 +1552,10 @@ var tns = function(options) {
           // slide styles
           if (horizontal || 'gutter' in opts) {
             str = getSlideStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
-            // remove the one line style and
+            // remove the last line and
             // add it again
-            sheet.removeRule(0);
-            sheet.addRule('#' + slideId + ' .tns-item', str);
+            sheet.removeRule(getCssRulesLength(sheet) - 1);
+            sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
           }
         }
       }
