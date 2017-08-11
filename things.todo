@@ -1,24 +1,29 @@
  ☐ destory
- ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)
  ☐ custom build
+ ☐ check init fns (lazyload, autoheight)
+ ☐ resize fn
  ☐ tests
    ☐ add mouse-drag
-   ✔ add nested @done (17-07-31 13:16)
-   ✔ combine base & goto @done (17-07-31 13:29)
-   ✔ ie 8 @done (17-07-31 13:31)
-     ✔ responsive @done (17-07-30 05:54)
-     ✔ autoHeight @done (17-07-26 14:31)
-   ✔ firefox 12 @done (17-07-31 13:32)
-     ✔ responsive @done (17-07-30 05:56)
-     ✔ animation2 @done (17-07-26 15:40)
-   ✔ chrome 15 @done (17-07-31 13:47)
-     ✔ responsive @done (17-07-30 05:56)
-     ✔ nested_inner @done (17-07-31 13:47)
    ☐ opera 12.1
-     ✔ responsive @done (17-07-30 05:57)
-     ✔ nested_inner @done (17-07-31 13:47)
      ☐ animation1
-   ✔ safari 4 @done (17-07-31 14:46)
-     ✔ responsive @done (17-07-30 05:58)
-     ✔ nested_inner @done (17-07-31 13:48)
-     ✔ customize @done (17-07-31 14:46)
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✔ safari 4 @done (17-07-31 14:46)
+ ✔ customize @done (17-07-31 14:46)
+ ✔ nested_inner @done (17-07-31 13:48)
+ ✔ nested_inner @done (17-07-31 13:47)
+ ✔ nested_inner @done (17-07-31 13:47)
+ ✔ chrome 15 @done (17-07-31 13:47)
+ ✔ firefox 12 @done (17-07-31 13:32)
+ ✔ ie 8 @done (17-07-31 13:31)
+ ✔ combine base & goto @done (17-07-31 13:29)
+ ✔ add nested @done (17-07-31 13:16)
+ ✔ responsive @done (17-07-30 05:58)
+ ✔ responsive @done (17-07-30 05:57)
+ ✔ responsive @done (17-07-30 05:56)
+ ✔ responsive @done (17-07-30 05:56)
+ ✔ responsive @done (17-07-30 05:54)
+ ✔ animation2 @done (17-07-26 15:40)
+ ✔ autoHeight @done (17-07-26 14:31)
+ ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)

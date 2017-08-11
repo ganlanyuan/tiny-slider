@@ -179,7 +179,9 @@ export var tns = function(options) {
   }
 
   // === define and set variables ===
-  if (options.mode === 'gallery') {
+  var carousel = (options.mode === 'carousel') ? true : false;
+
+  if (!carousel) {
     options.axis = 'horizontal';
     options.edgePadding = false;
     options.loop = true;
@@ -198,8 +200,7 @@ export var tns = function(options) {
     }
   }
 
-  var carousel = (options.mode === 'carousel') ? true : false,
-      horizontal = (options.axis === 'horizontal') ? true : false,
+  var horizontal = (options.axis === 'horizontal') ? true : false,
       outerWrapper = doc.createElement('div'),
       innerWrapper = doc.createElement('div'),
       container = options.container,
@@ -234,12 +235,12 @@ export var tns = function(options) {
       nested = options.nested,
       gutter = getOption('gutter'),
       edgePadding = getOption('edgePadding'),
-      fixedWidth = options.fixedWidth,
-      arrowKeys = options.arrowKeys,
-      speed = options.speed,
-      rewind = options.rewind,
-      loop = (options.rewind)? false : options.loop,
-      autoHeight = options.autoHeight,
+      fixedWidth = getOption('fixedWidth'),
+      arrowKeys = getOption('arrowKeys'),
+      speed = getOption('speed'),
+      rewind = getOption('rewind'),
+      loop = rewind ? false : getOption('loop'),
+      autoHeight = getOption('autoHeight'),
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
@@ -288,20 +289,25 @@ export var tns = function(options) {
         'mousemove': onTouchOrMouseMove,
         'mouseup': onTouchOrMouseEnd,
         'mouseleave': onTouchOrMouseEnd
-      };
+      },
+      hasControls = checkOption('controls'),
+      hasNav = checkOption('nav'),
+      hasAutoplay = checkOption('autoplay'),
+      hasTouch = checkOption('touch'),
+      hasMouseDrag = checkOption('mouseDrag');
 
   // controls
-  if (checkOption('controls')) {
-    var controls = options.controls,
-        controlsText = options.controlsText,
+  if (hasControls) {
+    var controls = getOption('controls'),
+        controlsText = getOption('controlsText'),
         controlsContainer = options.controlsContainer,
         prevButton,
         nextButton;
   }
 
   // nav
-  if (checkOption('nav')) {
-    var nav = options.nav,
+  if (hasNav) {
+    var nav = getOption('nav'),
         navContainer = options.navContainer,
         navItems,
         visibleNavIndexes = [],
@@ -312,24 +318,24 @@ export var tns = function(options) {
   }
 
   // autoplay
-  if (checkOption('autoplay')) {
-    var autoplay = options.autoplay,
-        autoplayTimeout = options.autoplayTimeout,
+  if (hasAutoplay) {
+    var autoplay = getOption('autoplay'),
+        autoplayTimeout = getOption('autoplayTimeout'),
         autoplayDirection = (options.autoplayDirection === 'forward') ? 1 : -1,
-        autoplayText = options.autoplayText,
-        autoplayHoverPause = options.autoplayHoverPause,
+        autoplayText = getOption('autoplayText'),
+        autoplayHoverPause = getOption('autoplayHoverPause'),
         autoplayTimer,
         autoplayButton = options.autoplayButton,
         animating = false,
         autoplayHoverStopped = false,
         autoplayHtmlString = '<span class=\'tns-visually-hidden\'>Stop Animation</span>',
-        autoplayResetOnVisibility = options.autoplayResetOnVisibility,
+        autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
         autoplayResetVisibilityState = false;
   }
 
   // touch
-  if (checkOption('touch')) {
-    var touch = options.touch,
+  if (hasTouch) {
+    var touch = getOption('touch'),
         startX = null,
         startY = null,
         translateInit,
@@ -337,11 +343,16 @@ export var tns = function(options) {
         disY;
   }
 
-  //mouse
-  if (checkOption('mouseDrag')) {
-    var mouseDrag = options.mouseDrag,
+  // mouse drag
+  if (hasMouseDrag) {
+    var mouseDrag = getOption('mouseDrag'),
         mousePressed = false,
         isDragEvent = false;
+  }
+
+  // disable slider when slidecount <= items
+  if (freeze) {
+    controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
   }
 
   if (TRANSFORM) {
@@ -377,10 +388,9 @@ export var tns = function(options) {
       }
     }
 
-    if (item === 'fixedWidth' && result) { result += Number(getOption('gutter')); }
     if (item === 'slideBy' && result === 'page') { result = items; }
     if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
-    if (item === 'loop' && getOption('rewind')) { result = false; }
+    if (item === 'loop' && getOption('rewind') && result) { result = false; }
     return result;
   }
 
@@ -411,7 +421,7 @@ export var tns = function(options) {
     return str;
   }
 
-  function getContainerStyles(fixedWidthTem, gutterTem, itemsTem) {
+  function getContainerWidth(fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
     var widthStr;
 
@@ -423,7 +433,7 @@ export var tns = function(options) {
         slideCountNew * 100 / itemsTem + '%';
     }
 
-    return 'width:' + widthStr + ';';
+    return widthStr;
   }
 
   function getSlideStyles(fixedWidthTem, gutterTem, itemsTem) {
@@ -474,7 +484,7 @@ export var tns = function(options) {
 
     if (carousel) {
       if (horizontal) {
-        if (checkOption('edgePadding') || checkOption('gutter') && !fixedWidth) {
+        if (checkOption('edgePadding') || checkOption('gutter') && !options.fixedWidth) {
           dataOuter += ' tns-ovh';
         } else {
           dataInner += ' tns-ovh';
@@ -591,7 +601,7 @@ export var tns = function(options) {
 
       // container styles
       if (carousel && horizontal) {
-        str = getContainerStyles(options.fixedWidth, options.gutter, options.items);
+        str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items);
         sheet.insertRule('#' + slideId + '{' + str + '}', sheet.cssRules.length);
       }
 
@@ -601,22 +611,22 @@ export var tns = function(options) {
         sheet.insertRule('#' + slideId + ' .tns-item{' + str + '}', sheet.cssRules.length);
       }
 
-    // non CSS mediaqueries => IE8
+    // non CSS mediaqueries: IE8
     // ## update inner wrapper, container, slides if needed
     // set inline styles for inner wrapper & container
     // insert stylesheet (one line) for slides only (since slides are many)
     } else {
       // inner wrapper styles
-      innerWrapper.style.cssText = getInnerWrapperStyles(getOption('edgePadding'), getOption('gutter'), getOption('fixedWidth'));
+      innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
 
       // container styles
       if (carousel && horizontal) {
-        container.style.cssText = getContainerStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
+        container.style.width = getContainerWidth(fixedWidth, gutter, items);
       }
 
       // slide styles
-      if (horizontal || getOption('gutter')) {
-        var str = getSlideStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
+      if (horizontal || gutter) {
+        var str = getSlideStyles(fixedWidth, gutter, items);
         // append to the last line
         sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
@@ -631,19 +641,23 @@ export var tns = function(options) {
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
         var opts = responsive[bp],
-            innerWrapperStr = containerStr = slideStr = '';
+            innerWrapperStr = containerStr = slideStr = '',
+            itemsBP = getOption('items', bp),
+            fixedWidthBP = getOption('fixedWidth', bp),
+            edgePaddingBP = getOption('edgePadding', bp),
+            gutterBP = getOption('gutter', bp);
 
         if ('edgePadding' in opts || 'gutter' in opts) {
-          innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(getOption('edgePadding', bp), getOption('gutter', bp), getOption('fixedWidth')) + '}';
+          innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(edgePaddingBP, gutterBP, fixedWidthBP) + '}';
         }
 
         if ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts) {
           if (carousel && horizontal) {
-            containerStr = '#' + slideId + '{' + getContainerStyles(getOption('fixedWidth', bp), getOption('gutter', bp), getOption('items', bp)) + '}';
+            containerStr = '#' + slideId + '{' + 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + '}';
           }
 
           if (horizontal || 'gutter' in opts) {
-            slideStr = '#' + slideId + ' .tns-item{' + getSlideStyles(getOption('fixedWidth', bp), getOption('gutter', bp), getOption('items', bp)) + '}';
+            slideStr = '#' + slideId + ' .tns-item{' + getSlideStyles(fixedWidthBP, gutterBP, itemsBP) + '}';
           }
         }
 
@@ -672,7 +686,7 @@ export var tns = function(options) {
 
  
     // == navInit ==
-    if (checkOption('nav')) {
+    if (hasNav) {
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
@@ -715,13 +729,12 @@ export var tns = function(options) {
         });
       }
 
-      nav = (freeze) ? false : getOption('nav');
       if (!nav) { hideElement(navContainer); }
     }
 
 
     // == autoplayInit ==
-    if (checkOption('autoplay')) {
+    if (hasAutoplay) {
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': 'stop'});
       } else {
@@ -737,13 +750,9 @@ export var tns = function(options) {
       // add event
       addEvents(autoplayButton, {'click': toggleAnimation});
 
-      autoplay = (freeze) ? false : getOption('autoplay');
       if (!autoplay) {
-        autoplayHoverPause = autoplayResetOnVisibility = false;
         hideElement(autoplayButton);
       } else {
-        autoplayHoverPause = getOption('autoplayHoverPause');
-        autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
         if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
       }
@@ -751,7 +760,7 @@ export var tns = function(options) {
 
 
     // == controlsInit ==
-    if (checkOption('controls')) {
+    if (hasControls) {
       if (controlsContainer) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
@@ -782,21 +791,13 @@ export var tns = function(options) {
       addEvents(prevButton,{'click': onPrevClick});
       addEvents(nextButton,{'click': onNextClick});
 
-      controls = (freeze) ? false : getOption('controls');
       if (!controls) { hideElement(controlsContainer); }
     }
 
 
-    if (freeze) {
-      touch = mouseDrag = arrowKeys = false;
-    } else {
-      touch = getOption('touch');
-      mouseDrag = getOption('mouseDrag');
-      arrowKeys = getOption('arrowKeys');
-      if (touch) { addEvents(container, touchEvents); }
-      if (mouseDrag) { addEvents(container, dragEvents); }
-      if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
-    }
+    if (touch) { addEvents(container, touchEvents); }
+    if (mouseDrag) { addEvents(container, dragEvents); }
+    if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
 
     if (nested === 'inner') {
@@ -844,68 +845,213 @@ export var tns = function(options) {
     var breakpointZoneTem = breakpointZone,
         indexTem = index, 
         itemsTem = items;
+
     vpOuter = outerWrapper.clientWidth;
     vpInner = innerWrapper.clientWidth;
     if (breakpoints) { breakpointZone = getBreakpointZone(); }
 
-    // things always do 
-    // regardless of breakpoint zone changing
-    if (!horizontal) {
-      getSlideOffsetTops();
-      updateContentWrapperHeight();
-      doContainerTransform();
-    }
-    if (getOption('fixedWidth') && getOption('edgePadding')) {
-      innerWrapper.style.cssText = getInnerWrapperStyles(getOption('edgePadding'), getOption('gutter'), getOption('fixedWidth'));
-    }
-    runAutoHeight(); 
-    
-    // things do when
-    // breakpoint zone change
+    // things do when breakpoint zone change
     if (breakpointZoneTem !== breakpointZone) {
+      checkIndex();
+
       // get options for current breakpoint zone
       var opts = (breakpointZone > 0) ? responsive[breakpoints[breakpointZone - 1]] : options;
 
-      if (responsive || fixedWidth) { items = getOption('items'); }
-      checkIndex();
-      checkSlideCount();
+      var arrowKeysTem = arrowKeys,
+          slideByTem = slideBy,
+          speedTem = speed,
+          autoHeightTem = autoHeight,
+          loopTem = loop,
+          rewindTem = rewind,
+          fixedWidthTem = fixedWidth,
+          edgePaddingTem = edgePadding,
+          gutterTem = gutter,
+          freezeTem = freeze;
+          freeze = slideCount <= items;
+
+      // update variables
+      items = opts.items || getOption('items');
+      arrowKeys = (freeze) ? false : opts.arrowKeys || getOption('arrowKeys');
+      slideBy = opts.slideBy || getOption('slideBy');
+      speed = opts.speed || getOption('speed');
+      autoHeight = opts.autoHeight || getOption('autoHeight');
+      loop = opts.loop || getOption('loop');
+      rewind = opts.rewind || getOption('rewind');
+      fixedWidth = opts.fixedWidth || getOption('fixedWidth');
+      edgePadding = opts.edgePadding || getOption('edgePadding');
+      gutter = opts.gutter || getOption('gutter');
+
+      if (!carousel) {
+        // var animateInTem = animateIn,
+        //     animateOutTem = animateOut,
+        //     animateNormalTem = animateNormal,
+        //     animateDelayTem = animateDelay;
+
+        animateIn = opts.animateIn || getOption('animateIn');
+        animateOut = opts.animateOut || getOption('animateOut');
+        animateNormal = opts.animateNormal || getOption('animateNormal');
+        animateDelay = opts.animateDelay || getOption('animateDelay');
+
+        // if (animateIn !== animateInTem) {
+        // }
+        // if (animateOut !== animateOutTem) {
+        // }
+        // if (animateNormal !== animateNormalTem) {
+        // }
+        // if (animateDelay !== animateDelayTem) {
+        // }
+      }
+      if (hasControls) {
+        var controlsTem = controls,
+            controlsTextTem = controlsText;
+        controls = (freeze) ? false : opts.controls || getOption('controls');
+        controlsText = opts.controlsText || getOption('controlsText');
+
+        if (controls !== controlsTem) {
+          (controls) ?
+            showElement(controlsContainer) :
+            hideElement(controlsContainer); 
+        }
+        if (controlsText !== controlsTextTem) {
+          prevButton.innerHTML = controlsText[0];
+          nextButton.innerHTML = controlsText[1];
+        }
+      }
+      if (hasNav) {
+        var navTem = nav;
+        nav = (freeze) ? false : opts.nav || getOption('nav');
+
+        if (nav !== navTem) {
+          (nav) ?
+            showElement(navContainer) :
+            hideElement(navContainer);
+        }
+      }
+      if (hasTouch) {
+        var touchTem = touch;
+        touch = (freeze) ? false : opts.touch || getOption('touch');
+
+        if (touch !== touchTem && carousel) {
+          (touch) ?
+            addEvents(container, touchEvents) :
+            removeEvents(container, touchEvents);
+        }
+      }
+      if (hasMouseDrag) {
+        var mouseDragTem = mouseDrag;
+        mouseDrag = (freeze) ? false : opts.mouseDrag || getOption('mouseDrag');
+
+        if (mouseDrag !== mouseDragTem && carousel) {
+          (mouseDrag) ?
+            addEvents(container, dragEvents) :
+            removeEvents(container, dragEvents);
+        }
+      }
+      if (hasAutoplay) {
+        var autoplayTem = autoplay,
+            autoplayHoverPauseTem = autoplayHoverPause,
+            autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
+            autoplayTextTem = autoplayText,
+            autoplayTimeoutTem = autoplayTimeout;
+
+        if (freeze) {
+          autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+        } else {
+          autoplay = opts.autoplay || getOption('autoplay');
+          
+          if (autoplay) {
+            autoplayHoverPause = opts.autoplayHoverPause || getOption('autoplayHoverPause');
+            autoplayResetOnVisibility = opts.autoplayResetOnVisibility || getOption('autoplayResetOnVisibility');
+          } else {
+            autoplayHoverPause = autoplayResetOnVisibility = false;
+          }
+        }
+        autoplayText = opts.autoplayText || getOption('autoplayText');
+        autoplayTimeout = opts.autoplayTimeout || getOption('autoplayTimeout');
+
+        if (autoplay !== autoplayTem) {
+          (autoplay) ?
+            showElement(autoplayButton) :
+            hideElement(autoplayButton); 
+        }
+        if (autoplayHoverPause !== autoplayHoverPauseTem) {
+          (autoplayHoverPause) ?
+            addEvents(container, hoverEvents) :
+            removeEvents(container, hoverEvents);
+        }
+        if (autoplayResetOnVisibility !== autoplayResetOnVisibilityTem) {
+          (autoplayResetOnVisibility) ?
+            addEvents(doc, visibilityEvent) :
+            removeEvents(doc, visibilityEvent);
+        }
+        if (autoplayText !== autoplayTextTem) {
+          var i = (animating) ? 1 : 0;
+          autoplayButton.innerHTML = autoplayHtmlString + autoplayText[i];
+        }
+        // if (autoplayTimeout !== autoplayTimeoutTem) {
+        // }
+      }
+
+
+      // toggle autoplay animation when freeze status changed
+      if (freeze !== freezeTem) {
+        if (freeze) {
+          if (animating) { stopAction(); }
+          index = (carousel) ? 0 : cloneCount; // reset index to initial status
+        } else {
+          if (getOption('autoplay') && !animating) { startAction(); }
+        }
+      }
+
+      if (arrowKeys !== arrowKeysTem) {
+        (arrowKeys) ?
+          addEvents(doc, docmentKeydownEvent) :
+          removeEvents(doc, docmentKeydownEvent);
+      }
+
+      if (slideBy !== slideByTem) {
+      }
+      if (speed !== speedTem) {
+      }
+      if (autoHeight !== autoHeightTem) {
+      }
+      if (loop !== loopTem) {
+      }
+      if (rewind !== rewindTem) {
+      }
 
       // IE8
       // ## update inner wrapper, container, slides if needed
       // set inline styles for inner wrapper & container
       // insert stylesheet (one line) for slides only (since slides are many)
       if (!CSSMQ) {
-        if ('edgePadding' in opts || 'gutter' in opts) {
+        if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
           // inner wrapper styles
-          innerWrapper.style.cssText = getInnerWrapperStyles(getOption('edgePadding'), getOption('gutter'), getOption('fixedWidth'));
+          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
         }
 
-        if ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts) {
+        if (fixedWidth !== fixedWidthTem || gutter !== gutterTem || items !== itemsTem) {
           if (carousel && horizontal) {
             // container styles
-            container.style.cssText = getContainerStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
+            container.style.width = getContainerWidth(fixedWidth, gutter, items);
           }
 
           // slide styles
-          if (horizontal || 'gutter' in opts) {
-            str = getSlideStyles(getOption('fixedWidth'), getOption('gutter'), getOption('items'));
+          if (horizontal || gutter !== gutterTem) {
+            str = getSlideStyles(fixedWidth, gutter, items);
             // remove the last line and
             // add it again
             sheet.removeRule(getCssRulesLength(sheet) - 1);
             sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
           }
         }
+
+        if (!fixedWidth) { doTransform(0); }
       }
 
-      // things do only when items changed
+      // things do when items changed
       if (items !== itemsTem) {
         events.emit('itemsChanged');
-
-        // update container width on non-mediaquery browser
-        if (!fixedWidth && !CSSMQ) {
-          // updateContainerWidthNonMediaquery();
-          doTransform(0);
-        }
 
         lazyLoad(); 
         updateControlsStatus();
@@ -919,8 +1065,27 @@ export var tns = function(options) {
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
+
+    // breakpoint zone didn't change 
+    } else {
+      if (getOption('fixedWidth')) {
+        items = getOption('items');
+      }
     }
 
+    // things always do regardless of breakpoint zone changing
+    if (!horizontal) {
+      getSlideOffsetTops();
+      updateContentWrapperHeight();
+      doContainerTransform();
+    }
+    // update fixed-width edge-padding
+    if (fixedWidth && edgePadding) {
+      innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+    }
+    // auto height
+    runAutoHeight(); 
+    
   }
 
 
@@ -936,200 +1101,8 @@ export var tns = function(options) {
     return breakpointZone;
   }
 
-  function checkSlideCount(isInit) {
-    var caches = {
-      touch: touch,
-      mouseDrag: mouseDrag,
-      arrowKeys: arrowKeys,
-      autoplay: autoplay,
-      autoplayHoverPause: autoplayHoverPause,
-      autoplayResetOnVisibility: autoplayResetOnVisibility,
-      controls: controls,
-      nav: nav,
-      gutter: gutter,
-      edgePadding: edgePadding,
-      controlsText: controlsText,
-      autoplayText: autoplayText,
-      animateIn: animateIn,
-      animateOut: animateOut,
-      animateNormal: animateNormal,
-      animateDelay: animateDelay,
-      fixedWidth: fixedWidth,
-      slideBy: slideBy,
-      speed: speed,
-      autoplayTimeout: autoplayTimeout,
-      autoHeight: autoHeight,
-      loop: loop,
-      rewind: rewind
-    }, 
-    autoplayUpdated = false,
-    freezeCache = freeze;
-    freeze = slideCount <= items;
-
-    // toggle autoplay animation when freeze status changed
-    if (freeze !== freezeCache) {
-      if (freeze) {
-        if (animating) { stopAction(); }
-        index = (carousel) ? 0 : cloneCount; // reset index to initial status
-      } else {
-        if (getOption('autoplay') && !animating) { startAction(); }
-      }
-    }
-
-    responsiveItems.forEach(function(i) {
-      switch (i) {
-        case 'touch':
-          touch = (freeze) ? false : getOption(i);
-          if (touch !== caches[i] && carousel) {
-            (touch) ?
-              addEvents(container, touchEvents) :
-              removeEvents(container, touchEvents);
-          }
-          break;
-        case 'mouseDrag':
-          mouseDrag = (freeze) ? false : getOption(i);
-          if (mouseDrag !== caches[i] && carousel) {
-            (mouseDrag) ?
-              addEvents(container, dragEvents) :
-              removeEvents(container, dragEvents);
-          }
-          break;
-        case 'arrowKeys':
-          arrowKeys = (freeze) ? false : getOption(i);
-          if (arrowKeys !== caches[i]) {
-            (arrowKeys) ?
-              addEvents(doc, docmentKeydownEvent) :
-              removeEvents(doc, docmentKeydownEvent);
-          }
-          break;
-        case 'autoplay':
-          autoplay = (freeze) ? false : getOption(i);
-          autoplayUpdated = true;
-          if (autoplay !== caches[i] && autoplayButton) {
-            (autoplay) ?
-              showElement(autoplayButton) :
-              hideElement(autoplayButton); 
-          }
-          break;
-        case 'autoplayHoverPause':
-          autoplayHoverPause = (freeze) ? false : getOption(i);
-          if (!autoplayUpdated) { autoplay = (freeze) ? false : getOption('autoplay'); }
-          if (autoplay !== caches['autoplay'] || autoplayHoverPause !== caches[i]) {
-            (autoplay && autoplayHoverPause) ?
-              addEvents(container, hoverEvents) :
-              removeEvents(container, hoverEvents);
-          }
-          break;
-        case 'autoplayResetOnVisibility':
-          autoplayResetOnVisibility = (freeze) ? false : getOption(i);
-          if (!autoplayUpdated) { autoplay = (freeze) ? false : getOption('autoplay'); }
-          if (autoplay !== caches['autoplay'] || autoplayResetOnVisibility !== caches[i]) {
-            (autoplay && autoplayResetOnVisibility) ?
-              addEvents(doc, visibilityEvent) :
-              removeEvents(doc, visibilityEvent);
-          }
-          break;
-        case 'controls':
-          controls = getOption(i);
-          if (controls !== caches[i]) {
-            (controls) ?
-              showElement(controlsContainer) :
-              hideElement(controlsContainer); 
-          }
-          break;
-        case 'nav':
-          nav = (freeze) ? false : getOption(i);
-          if (nav !== caches[i]) {
-            (nav) ?
-              showElement(navContainer) :
-              hideElement(navContainer);
-          }
-          break;
-        case 'gutter':
-          gutter = getOption(i);
-          if (gutter !== caches[i]) {
-          }
-          break;
-        case 'edgePadding':
-          edgePadding = getOption(i);
-          if (edgePadding !== caches[i]) {
-          }
-          break;
-        case 'controlsText':
-          controlsText = getOption(i);
-          if (controlsText !== caches[i]) {
-          }
-          break;
-        case 'autoplayText':
-          autoplayText = getOption(i);
-          if (autoplayText !== caches[i]) {
-          }
-          break;
-        case 'animateIn':
-          animateIn = getOption(i);
-          if (animateIn !== caches[i]) {
-          }
-          break;
-        case 'animateOut':
-          animateOut = getOption(i);
-          if (animateOut !== caches[i]) {
-          }
-          break;
-        case 'animateNormal':
-          animateNormal = getOption(i);
-          if (animateNormal !== caches[i]) {
-          }
-          break;
-        case 'animateDelay':
-          animateDelay = getOption(i);
-          if (animateDelay !== caches[i]) {
-          }
-          break;
-        case 'fixedWidth':
-          fixedWidth = getOption(i);
-          if (fixedWidth !== caches[i]) {
-          }
-          break;
-        case 'slideBy':
-          slideBy = getOption(i);
-          if (slideBy !== caches[i]) {
-          }
-          break;
-        case 'speed':
-          speed = getOption(i);
-          if (speed !== caches[i]) {
-          }
-          break;
-        case 'autoplayTimeout':
-          autoplayTimeout = getOption(i);
-          if (autoplayTimeout !== caches[i]) {
-          }
-          break;
-        case 'autoHeight':
-          autoHeight = getOption(i);
-          if (autoHeight !== caches[i]) {
-          }
-          break;
-        case 'loop':
-          loop = getOption(i);
-          if (loop !== caches[i]) {
-          }
-          break;
-        case 'rewind':
-          rewind = getOption(i);
-          if (rewind !== caches[i]) {
-          }
-          break;
-      }
-    });
-  }
-
   function getCssRulesLength (sheet) {
     return (sheet.cssRules) ? sheet.cssRules.length : sheet.rules.length;
-  }
-
-  function updateContainerWidthNonMediaquery () {
-    container.style.width = slideCountNew * 100 / items + '%';
   }
 
   // (slideBy, indexMin, indexMax) => index
@@ -1142,7 +1115,8 @@ export var tns = function(options) {
           rightEdge -= slideBy;
         }
 
-        if (fixedWidth && vpOuter%(fixedWidth + Number(gutter)) > gutter) { rightEdge -= 1; }
+        var gt = gutter ? gutter : 0;
+        if (fixedWidth && vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
 
         if (index > rightEdge) {
           while(index >= leftEdge + slideCount) { index -= slideCount; }
@@ -1151,9 +1125,7 @@ export var tns = function(options) {
         }
       };
     } else {
-      return function () {
-        index = Math.max(indexMin, Math.min(indexMax, index));
-      };
+      return function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
     }
   })();
 
@@ -1361,18 +1333,18 @@ export var tns = function(options) {
   }
 
   function getContainerTransformValue() {
-    var containerTransformValue;
-    if (!horizontal) {
-      containerTransformValue = - slideOffsetTops[index] + 'px';
-    } else {
+    var val;
+    if (horizontal) {
       if (fixedWidth) {
-        containerTransformValue = - (fixedWidth + Number(gutter)) * index + 'px';
+        val = - (fixedWidth + Number(gutter)) * index + 'px';
       } else {
         var denominator = (TRANSFORM) ? slideCountNew : items;
-        containerTransformValue = - index * 100 / denominator + '%';
+        val = - index * 100 / denominator + '%';
       }
+    } else {
+      val = - slideOffsetTops[index] + 'px';
     }
-    return containerTransformValue;
+    return val;
   }
 
   function doContainerTransform(val) {

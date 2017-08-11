@@ -83,10 +83,12 @@ var doc = document,
         container: '',
         // axis: 'vertical',
         gutter: 10,
+        controlsText: ['&lt;', '&gt;'],
         responsive: {
           600: {
             items: 2,
             edgePadding: 20,
+            controlsText: ['Prev', 'Next'],
             // controls: false
           },
           900: {
