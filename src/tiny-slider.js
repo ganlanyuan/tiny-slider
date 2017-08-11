@@ -245,7 +245,7 @@ export var tns = function(options) {
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
-      cloneCount = (loop) ? slideCount * 2 : (edgePadding) ? 1 : 0,
+      cloneCount = (loop) ? slideCount * 2 : (checkOption('edgePadding')) ? 1 : 0,
       slideCountNew = (!carousel) ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = (fixedWidth && !loop && !edgePadding)? true : false,
       checkIndexBeforeTransform = (!carousel || !loop)? true : false,
@@ -852,8 +852,6 @@ export var tns = function(options) {
 
     // things do when breakpoint zone change
     if (breakpointZoneTem !== breakpointZone) {
-      checkIndex();
-
       // get options for current breakpoint zone
       var opts = (breakpointZone > 0) ? responsive[breakpoints[breakpointZone - 1]] : options;
 
@@ -872,7 +870,7 @@ export var tns = function(options) {
       // update variables
       items = opts.items || getOption('items');
       arrowKeys = (freeze) ? false : opts.arrowKeys || getOption('arrowKeys');
-      slideBy = opts.slideBy || getOption('slideBy');
+      slideBy = getOption('slideBy');
       speed = opts.speed || getOption('speed');
       autoHeight = opts.autoHeight || getOption('autoHeight');
       loop = opts.loop || getOption('loop');
@@ -1008,6 +1006,11 @@ export var tns = function(options) {
           addEvents(doc, docmentKeydownEvent) :
           removeEvents(doc, docmentKeydownEvent);
       }
+      if (edgePadding !== edgePaddingTem) {
+        indexAdjust = (edgePadding) ? 1 : 0;
+        indexMin = indexAdjust;
+        indexMax = slideCountNew - items - indexAdjust;
+      }
 
       if (slideBy !== slideByTem) {
       }
@@ -1019,6 +1022,8 @@ export var tns = function(options) {
       }
       if (rewind !== rewindTem) {
       }
+
+      checkIndex();
 
       // IE8
       // ## update inner wrapper, container, slides if needed

@@ -84,12 +84,14 @@ var doc = document,
         // axis: 'vertical',
         gutter: 10,
         controlsText: ['&lt;', '&gt;'],
+        slideBy: 2,
         responsive: {
           600: {
             items: 2,
             edgePadding: 20,
             controlsText: ['Prev', 'Next'],
             // controls: false
+            slideBy: 'page',
           },
           900: {
             items: 3,
@@ -98,7 +100,6 @@ var doc = document,
             // nav: false
           }
         },
-        slideBy: 'page',
       }, 
       'arrowKeys': {
         container: '',

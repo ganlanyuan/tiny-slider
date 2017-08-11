@@ -1,7 +1,10 @@
  ☐ destory
  ☐ custom build
+
  ☐ check init fns (lazyload, autoheight)
  ☐ resize fn
+ ☐ check speed, autoHeight, loop, rewind on resize
+
  ☐ tests
    ☐ add mouse-drag
    ☐ opera 12.1
