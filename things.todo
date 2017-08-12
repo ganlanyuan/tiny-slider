@@ -1,6 +1,7 @@
  ☐ destory
  ☐ custom build
 
+ ☐ update getCssRulesLength, insertRule & addRule => addCSSRule
  ☐ check init fns (lazyload, autoheight)
  ☐ resize fn
  ☐ check speed, autoHeight, loop, rewind on resize
