@@ -1,8 +1,15 @@
 // cross browsers addRule method
-export function addCSSRule(sheet, selector, rules, index) {
-  if("insertRule" in sheet) {
-    sheet.insertRule(selector + "{" + rules + "}", index);
-  } else if("addRule" in sheet) {
-    sheet.addRule(selector, rules, index);
+export var addCSSRule = (function () {
+  var styleSheet = document.styleSheets[0];
+  if('insertRule' in styleSheet) {
+
+    return function (sheet, selector, rules, index) {
+      sheet.insertRule(selector + '{' + rules + '}', index);
+    };
+  } else if('addRule' in styleSheet) {
+
+    return function (sheet, selector, rules, index) {
+      sheet.addRule(selector, rules, index);
+    };
   }
-}
+})();
