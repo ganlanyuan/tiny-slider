@@ -1,7 +1,6 @@
  ☐ destory
  ☐ custom build
 
- ☐ update getCssRulesLength, insertRule & addRule => addCSSRule
  ☐ check init fns (lazyload, autoheight)
  ☐ resize fn
  ☐ check speed, autoHeight, loop, rewind on resize
@@ -13,6 +12,7 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ update getCssRulesLength, insertRule & addRule => addCSSRule @done (17-08-12 09:54)
  ✔ safari 4 @done (17-07-31 14:46)
  ✔ customize @done (17-07-31 14:46)
  ✔ nested_inner @done (17-07-31 13:48)

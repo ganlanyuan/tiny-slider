@@ -516,6 +516,16 @@ var addCSSRule = (function () {
   }
 })();
 
+// cross browsers addRule method
+var getCssRulesLength = (function () {
+  var styleSheet = document.styleSheets[0];
+  if(styleSheet.cssRules) {
+    return function (sheet) { return sheet.cssRules.length; };
+  } else {
+    return function (sheet) { return sheet.rules.length; };
+  }
+})();
+
 function toDegree (y, x) {
   return Math.atan2(y, x) * (180 / Math.PI);
 }
@@ -1273,18 +1283,18 @@ var tns = function(options) {
     if (CSSMQ) {
       // inner wrapper styles
       var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth);
-      sheet.insertRule('#' + slideId + '-iw{' + str + '}', sheet.cssRules.length);
+      addCSSRule(sheet, '#' + slideId + '-iw', str, getCssRulesLength(sheet));
 
       // container styles
       if (carousel && horizontal) {
         str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items);
-        sheet.insertRule('#' + slideId + '{' + str + '}', sheet.cssRules.length);
+        addCSSRule(sheet, '#' + slideId + '', str, getCssRulesLength(sheet));
       }
 
       // slide styles
       if (horizontal || options.gutter) {
         str = getSlideStyles(options.fixedWidth, options.gutter, options.items);
-        sheet.insertRule('#' + slideId + ' .tns-item{' + str + '}', sheet.cssRules.length);
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
 
     // non CSS mediaqueries: IE8
@@ -1304,7 +1314,7 @@ var tns = function(options) {
       if (horizontal || gutter) {
         var str = getSlideStyles(fixedWidth, gutter, items);
         // append to the last line
-        sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
     }
 
@@ -1718,7 +1728,7 @@ var tns = function(options) {
             // remove the last line and
             // add it again
             sheet.removeRule(getCssRulesLength(sheet) - 1);
-            sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+            addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
           }
         }
 
@@ -1776,10 +1786,6 @@ var tns = function(options) {
       if (vpOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
     });
     return breakpointZone;
-  }
-
-  function getCssRulesLength (sheet) {
-    return (sheet.cssRules) ? sheet.cssRules.length : sheet.rules.length;
   }
 
   // (slideBy, indexMin, indexMax) => index

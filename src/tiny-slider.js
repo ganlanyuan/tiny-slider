@@ -15,6 +15,7 @@ import { subpixelLayout } from './helpers/subpixelLayout';
 import { mediaquerySupport } from './helpers/mediaquerySupport';
 import { createStyleSheet } from './helpers/createStyleSheet';
 import { addCSSRule } from './helpers/addCSSRule';
+import { getCssRulesLength } from './helpers/getCssRulesLength';
 import { toDegree } from './helpers/toDegree';
 import { getTouchDirection } from './helpers/getTouchDirection';
 import { hasAttr } from './helpers/hasAttr';
@@ -603,18 +604,18 @@ export var tns = function(options) {
     if (CSSMQ) {
       // inner wrapper styles
       var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth);
-      sheet.insertRule('#' + slideId + '-iw{' + str + '}', sheet.cssRules.length);
+      addCSSRule(sheet, '#' + slideId + '-iw', str, getCssRulesLength(sheet));
 
       // container styles
       if (carousel && horizontal) {
         str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items);
-        sheet.insertRule('#' + slideId + '{' + str + '}', sheet.cssRules.length);
+        addCSSRule(sheet, '#' + slideId + '', str, getCssRulesLength(sheet));
       }
 
       // slide styles
       if (horizontal || options.gutter) {
         str = getSlideStyles(options.fixedWidth, options.gutter, options.items);
-        sheet.insertRule('#' + slideId + ' .tns-item{' + str + '}', sheet.cssRules.length);
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
 
     // non CSS mediaqueries: IE8
@@ -634,7 +635,7 @@ export var tns = function(options) {
       if (horizontal || gutter) {
         var str = getSlideStyles(fixedWidth, gutter, items);
         // append to the last line
-        sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
     }
 
@@ -1048,7 +1049,7 @@ export var tns = function(options) {
             // remove the last line and
             // add it again
             sheet.removeRule(getCssRulesLength(sheet) - 1);
-            sheet.addRule('#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+            addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
           }
         }
 
@@ -1106,10 +1107,6 @@ export var tns = function(options) {
       if (vpOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
     });
     return breakpointZone;
-  }
-
-  function getCssRulesLength (sheet) {
-    return (sheet.cssRules) ? sheet.cssRules.length : sheet.rules.length;
   }
 
   // (slideBy, indexMin, indexMax) => index
