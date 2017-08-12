@@ -188,7 +188,7 @@ var doc = document,
         container: '',
         items: 1,
         loop: false,
-        autoHeight: true,
+        // autoHeight: true,
         nested: 'outer'
       }
     };

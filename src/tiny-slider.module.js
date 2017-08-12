@@ -183,10 +183,6 @@ export var tns = function(options) {
 
   if (!carousel) {
     options.axis = 'horizontal';
-    options.edgePadding = false;
-    options.loop = true;
-    options.autoHeight = true;
-    options.slideBy = 'page';
 
     var animateIn = 'tns-fadeIn',
         animateOut = 'tns-fadeOut',
@@ -239,13 +235,13 @@ export var tns = function(options) {
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
       rewind = getOption('rewind'),
-      loop = rewind ? false : getOption('loop'),
+      loop = getOption('loop'),
       autoHeight = getOption('autoHeight'),
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
-      cloneCount = (loop) ? slideCount * 2 : (checkOption('edgePadding')) ? 1 : 0,
+      cloneCount = (loop) ? slideCount * 2 : checkOption('edgePadding') ? 1 : 0,
       slideCountNew = (!carousel) ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = (fixedWidth && !loop && !edgePadding)? true : false,
       checkIndexBeforeTransform = (!carousel || !loop)? true : false,
@@ -256,7 +252,7 @@ export var tns = function(options) {
       // index
       index = (!carousel) ? 0 : cloneCount,
       indexCached = index,
-      indexAdjust = (edgePadding) ? 1 : 0,
+      indexAdjust = checkOption('edgePadding') ? 1 : 0,
       indexMin = indexAdjust,
       indexMax = slideCountNew - items - indexAdjust,
       // resize
@@ -375,22 +371,38 @@ export var tns = function(options) {
 
   function getOption(item, view) {
     view = view ? view : vpOuter;
-    var result = options[item];
+    var result;
 
     if (item === 'items' && getOption('fixedWidth')) {
       result = Math.floor(view / getOption('fixedWidth'));
-    } else if (breakpoints && responsiveItems.indexOf(item) >= 0) {
-      for (var i = 0, len = breakpoints.length; i < len; i++) {
-        var bp = breakpoints[i];
-        if (view >= bp) {
-          if (item in responsive[bp]) { result = responsive[bp][item]; }
-        } else { break; }
+    } else if (item === 'rewind' && !carousel) {
+      result = false;
+    } else if (item === 'loop' && !carousel) {
+      result = true;
+    } else if (item === 'loop' && carousel && getOption('rewind')) {
+      result = false;
+    } else if (item === 'slideBy' && !carousel) {
+      result = items;
+    } else if (item === 'edgePadding' && !carousel) {
+      result = false;
+    } else if (item === 'autoHeight' && (!carousel || nested === 'outer')) {
+      result = true;
+    } else {
+      result = options[item];
+
+      if (breakpoints && responsiveItems.indexOf(item) >= 0) {
+        for (var i = 0, len = breakpoints.length; i < len; i++) {
+          var bp = breakpoints[i];
+          if (view >= bp) {
+            if (item in responsive[bp]) { result = responsive[bp][item]; }
+          } else { break; }
+        }
       }
+
+      if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
+      if (item === 'slideBy' && result === 'page') { result = items; }
     }
 
-    if (item === 'slideBy' && result === 'page') { result = items; }
-    if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
-    if (item === 'loop' && getOption('rewind') && result) { result = false; }
     return result;
   }
 
@@ -463,12 +475,6 @@ export var tns = function(options) {
 
     return widthStr + gutterStr;
   }
-
-  events.on('itemsChanged', function () {
-    indexMax = slideCountNew - items - indexAdjust;
-    if (options.slideBy === 'page') { slideBy = items; }
-    updateSlideStatus();
-  });
 
   (function sliderInit() {
     // First thing first, wrap container with 'outerWrapper > innerWrapper',
@@ -813,7 +819,7 @@ export var tns = function(options) {
     }
 
     lazyLoad();
-    runAutoHeight();
+    if (autoHeight) { runAutoHeight(); }
 
     if (typeof onInit === 'function') {
       onInit(info());
@@ -857,10 +863,10 @@ export var tns = function(options) {
 
       var arrowKeysTem = arrowKeys,
           slideByTem = slideBy,
-          speedTem = speed,
-          autoHeightTem = autoHeight,
-          loopTem = loop,
+          // speedTem = speed,
+          // autoHeightTem = autoHeight,
           rewindTem = rewind,
+          loopTem = loop,
           fixedWidthTem = fixedWidth,
           edgePaddingTem = edgePadding,
           gutterTem = gutter,
@@ -870,14 +876,41 @@ export var tns = function(options) {
       // update variables
       items = opts.items || getOption('items');
       arrowKeys = (freeze) ? false : opts.arrowKeys || getOption('arrowKeys');
-      slideBy = getOption('slideBy');
+      slideBy = getOption('slideBy'); // slideBy may have value 'page'
       speed = opts.speed || getOption('speed');
-      autoHeight = opts.autoHeight || getOption('autoHeight');
-      loop = opts.loop || getOption('loop');
-      rewind = opts.rewind || getOption('rewind');
+      autoHeight = getOption('autoHeight');
+      rewind = getOption('rewind');
+      loop = getOption('loop');
       fixedWidth = opts.fixedWidth || getOption('fixedWidth');
       edgePadding = opts.edgePadding || getOption('edgePadding');
       gutter = opts.gutter || getOption('gutter');
+
+      // toggle autoplay animation on freeze status change
+      if (freeze !== freezeTem) {
+        if (freeze) {
+          if (animating) { stopAction(); }
+          index = (carousel) ? 0 : cloneCount; // reset index to initial status
+        } else {
+          if (getOption('autoplay') && !animating) { startAction(); }
+        }
+      }
+
+      if (arrowKeys !== arrowKeysTem) {
+        (arrowKeys) ?
+          addEvents(doc, docmentKeydownEvent) :
+          removeEvents(doc, docmentKeydownEvent);
+      }
+
+      // if (slideBy !== slideByTem) {
+      // }
+      // if (speed !== speedTem) {
+      // }
+      // if (autoHeight !== autoHeightTem) {
+      // }
+      if (rewind !== rewindTem) {
+      }
+      if (loop !== loopTem) {
+      }
 
       if (!carousel) {
         // var animateInTem = animateIn,
@@ -991,38 +1024,6 @@ export var tns = function(options) {
       }
 
 
-      // toggle autoplay animation when freeze status changed
-      if (freeze !== freezeTem) {
-        if (freeze) {
-          if (animating) { stopAction(); }
-          index = (carousel) ? 0 : cloneCount; // reset index to initial status
-        } else {
-          if (getOption('autoplay') && !animating) { startAction(); }
-        }
-      }
-
-      if (arrowKeys !== arrowKeysTem) {
-        (arrowKeys) ?
-          addEvents(doc, docmentKeydownEvent) :
-          removeEvents(doc, docmentKeydownEvent);
-      }
-      if (edgePadding !== edgePaddingTem) {
-        indexAdjust = (edgePadding) ? 1 : 0;
-        indexMin = indexAdjust;
-        indexMax = slideCountNew - items - indexAdjust;
-      }
-
-      if (slideBy !== slideByTem) {
-      }
-      if (speed !== speedTem) {
-      }
-      if (autoHeight !== autoHeightTem) {
-      }
-      if (loop !== loopTem) {
-      }
-      if (rewind !== rewindTem) {
-      }
-
       checkIndex();
 
       // IE8
@@ -1056,7 +1057,8 @@ export var tns = function(options) {
 
       // things do when items changed
       if (items !== itemsTem) {
-        events.emit('itemsChanged');
+        indexMax = slideCountNew - items - indexAdjust;
+        updateSlideStatus();
 
         lazyLoad(); 
         updateControlsStatus();
@@ -1089,7 +1091,7 @@ export var tns = function(options) {
       innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
     }
     // auto height
-    runAutoHeight(); 
+    if (autoHeight) { runAutoHeight(); }
     
   }
 
@@ -1178,21 +1180,19 @@ export var tns = function(options) {
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight() {
-    if (autoHeight) {
-      // get all images inside visible slide items
-      var images = [];
+    // get all images inside visible slide items
+    var images = [];
 
-      for (var i = index; i < index + items; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
-          images.push(img);
-        });
-      }
+    for (var i = index; i < index + items; i++) {
+      [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        images.push(img);
+      });
+    }
 
-      if (images.length === 0) {
-        updateInnerWrapperHeight(); 
-      } else {
-        checkImagesLoaded(images);
-      }
+    if (images.length === 0) {
+      updateInnerWrapperHeight(); 
+    } else {
+      checkImagesLoaded(images);
     }
   }
 
@@ -1506,11 +1506,9 @@ export var tns = function(options) {
       updateNavStatus();
       updateControlsStatus();
       lazyLoad();
-      runAutoHeight();
+      if (autoHeight) { runAutoHeight(); }
 
-      if (nested === 'inner') { 
-        events.emit('innerLoaded', info()); 
-      } 
+      if (nested === 'inner') { events.emit('innerLoaded', info()); }
       running = false;
       indexCached = index;
     }
