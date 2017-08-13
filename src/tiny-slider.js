@@ -909,6 +909,7 @@ export var tns = function(options) {
       // if (autoHeight !== autoHeightTem) {
       // }
       if (rewind !== rewindTem) {
+        updateControlsStatus();
       }
       if (loop !== loopTem) {
       }
@@ -1059,9 +1060,9 @@ export var tns = function(options) {
       // things do when items changed
       if (items !== itemsTem) {
         indexMax = slideCountNew - items - indexAdjust;
-        updateSlideStatus();
 
         lazyLoad(); 
+        updateSlideStatus();
         updateControlsStatus();
         updateNavVisibility();
         updateNavStatus();
@@ -1290,6 +1291,7 @@ export var tns = function(options) {
   function updateControlsStatus() {
     if (controls && !loop) {
       var disable = [], active = [];
+      // console.log(index, slideCount, index%slideCount, indexMin);
       if (index === indexMin) {
         disable.push(prevButton);
         active.push(nextButton);
