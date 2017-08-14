@@ -1006,7 +1006,7 @@ var tns = function(options) {
         autoplayButton = options.autoplayButton,
         animating = false,
         autoplayHoverStopped = false,
-        autoplayHtmlString = '<span class=\'tns-visually-hidden\'>Stop Animation</span>',
+        autoplayHtmlStrings = ['<span class=\'tns-visually-hidden\'>', ' animation</span>'],
         autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
         autoplayResetVisibilityState = false;
   }
@@ -1417,16 +1417,18 @@ var tns = function(options) {
 
     // == autoplayInit ==
     if (hasAutoplay) {
+      var txt = autoplay ? 'stop' : 'start';
       if (autoplayButton) {
-        setAttrs(autoplayButton, {'data-action': 'stop'});
+        setAttrs(autoplayButton, {'data-action': txt});
       } else {
-        if (!navContainer) {
-          outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
-          navContainer = outerWrapper.querySelector('.tns-nav');
-        }
+        innerWrapper.insertAdjacentHTML('beforebegin', '<button data-action="stop" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
+        // if (!navContainer) {
+        //   outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-nav" aria-label="Carousel Pagination"></div>');
+        //   navContainer = outerWrapper.querySelector('.tns-nav');
+        // }
 
-        navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlString + autoplayText[0] + '</button>');
-        autoplayButton = navContainer.querySelector('[data-action]');
+        // navContainer.insertAdjacentHTML('beforeend', '<button data-action="stop" type="button">' + autoplayHtmlStrings + autoplayText[0] + '</button>');
+        autoplayButton = outerWrapper.querySelector('[data-action]');
       }
 
       // add event
@@ -1435,6 +1437,7 @@ var tns = function(options) {
       if (!autoplay) {
         hideElement(autoplayButton);
       } else {
+        startAction();
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
         if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
       }
@@ -1558,13 +1561,8 @@ var tns = function(options) {
       gutter = opts.gutter || getOption('gutter');
 
       // toggle autoplay animation on freeze status change
-      if (freeze !== freezeTem) {
-        if (freeze) {
-          if (animating) { stopAction(); }
-          index = carousel ? 0 : cloneCount; // reset index to initial status
-        } else {
-          if (getOption('autoplay') && !animating) { startAction(); }
-        }
+      if (freeze !== freezeTem && freeze) {
+        index = carousel ? 0 : cloneCount; // reset index to initial status
       }
 
       if (arrowKeys !== arrowKeysTem) {
@@ -1621,9 +1619,12 @@ var tns = function(options) {
         nav = freeze ? false : opts.nav || getOption('nav');
 
         if (nav !== navTem) {
-          nav ?
-            showElement(navContainer) :
+          if (nav) {
+            showElement(navContainer);
+            updateNavVisibility();
+          } else {
             hideElement(navContainer);
+          }
         }
       }
       if (hasTouch) {
@@ -1669,9 +1670,14 @@ var tns = function(options) {
         autoplayTimeout = opts.autoplayTimeout || getOption('autoplayTimeout');
 
         if (autoplay !== autoplayTem) {
-          autoplay ?
-            showElement(autoplayButton) :
+          if (autoplay) {
+            showElement(autoplayButton);
+            if (!animating) { startAction(); }
+          } else {
             hideElement(autoplayButton); 
+            if (animating) { stopAction(); }
+          }
+          // console.log(autoplayTimer);
         }
         if (autoplayHoverPause !== autoplayHoverPauseTem) {
           autoplayHoverPause ?
@@ -1685,7 +1691,7 @@ var tns = function(options) {
         }
         if (autoplayText !== autoplayTextTem) {
           var i = animating ? 1 : 0;
-          autoplayButton.innerHTML = autoplayHtmlString + autoplayText[i];
+          autoplayButton.innerHTML = autoplayHtmlStrings + autoplayText[i];
         }
         // if (autoplayTimeout !== autoplayTimeoutTem) {
         // }
@@ -2245,17 +2251,19 @@ var tns = function(options) {
   }
 
   function startAction() {
+    var txt = 'stop';
     resetActionTimer();
-    setAttrs(autoplayButton, {'data-action': 'stop'});
-    autoplayButton.innerHTML = autoplayHtmlString + autoplayText[1];
+    setAttrs(autoplayButton, {'data-action': txt});
+    autoplayButton.innerHTML = autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[1];
 
     animating = true;
   }
 
   function stopAction() {
+    var txt = 'start';
     pauseActionTimer();
-    setAttrs(autoplayButton, {'data-action': 'start'});
-    autoplayButton.innerHTML = autoplayHtmlString.replace('Stop', 'Start') + autoplayText[0];
+    setAttrs(autoplayButton, {'data-action': txt});
+    autoplayButton.innerHTML = autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0];
 
     animating = false;
   }
@@ -2578,28 +2586,28 @@ var tns = function(options) {
    * 3. remove "hidden" attrubutes to new visible nav items
    */
   function updateNavVisibility() {
-    if (nav && !options.navContainer) {
-      // update visible nav indexes
-      getVisibleNavIndex();
+    if (!nav || options.navContainer) { return; }
 
-      if (visibleNavIndexes !== visibleNavIndexesCached) {
-        // add 'hidden' attribute to previous visible navs
-        if (visibleNavIndexesCached.length > 0) {
-          visibleNavIndexesCached.forEach(function (ind) {
-            setAttrs(navItems[ind], {'hidden': ''});
-          });
-        }
+    // update visible nav indexes
+    getVisibleNavIndex();
 
-        // remove 'hidden' attribute from visible navs
-        if (visibleNavIndexes.length > 0) {
-          visibleNavIndexes.forEach(function (ind) {
-            removeAttrs(navItems[ind], 'hidden');
-          });
-        }
-
-        // cache visible nav indexes
-        visibleNavIndexesCached = visibleNavIndexes;
+    if (visibleNavIndexes !== visibleNavIndexesCached) {
+      // add 'hidden' attribute to previous visible navs
+      if (visibleNavIndexesCached.length > 0) {
+        visibleNavIndexesCached.forEach(function (ind) {
+          setAttrs(navItems[ind], {'hidden': ''});
+        });
       }
+
+      // remove 'hidden' attribute from visible navs
+      if (visibleNavIndexes.length > 0) {
+        visibleNavIndexes.forEach(function (ind) {
+          removeAttrs(navItems[ind], 'hidden');
+        });
+      }
+
+      // cache visible nav indexes
+      visibleNavIndexesCached = visibleNavIndexes;
     }
   }
 

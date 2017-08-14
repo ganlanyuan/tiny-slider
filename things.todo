@@ -1,8 +1,4 @@
  ☐ destory
- ☐ custom build
-
- ☐ check init fns (lazyload, autoheight)
- ☐ resize fn
 
  ☐ tests
    ☐ add mouse-drag
@@ -11,6 +7,8 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ resize fn @done (17-08-14 11:52)
+ ✔ check init fns (lazyload, autoheight) @done (17-08-14 11:52)
  ✔ check speed, autoHeight, loop, rewind on resize @done (17-08-14 11:00)
  ✔ update getCssRulesLength, insertRule & addRule => addCSSRule @done (17-08-12 09:54)
  ✔ safari 4 @done (17-07-31 14:46)

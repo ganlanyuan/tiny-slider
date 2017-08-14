@@ -148,7 +148,8 @@ button[data-controls] {
   line-height: 2.5em;
 }
 [data-action] {
-  margin-top: 4px;
+  display: block;
+  margin: 10px auto;
   font-size: 17px;
   vertical-align: middle;
   background: transparent;

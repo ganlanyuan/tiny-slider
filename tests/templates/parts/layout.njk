@@ -25,10 +25,8 @@
 </head>
 <body data-speed="{{ 100 if page === 'demos' else 0 }}" data-page="{{ page }}">
 
-{% if page === 'iframe' %}
-  {% set sliders = [
-    'responsive'
-  ] %}
+{% if page.indexOf('responsive') >= 0 %}
+  {% set sliders = [page] %}
 {% elif page === 'demos' %}
   {% set sliders = [
     'base',
@@ -62,7 +60,6 @@
     'vertical-gutter', 
     'vertical-edgePadding', 
     'vertical-edgePadding-gutter', 
-    'responsive', 
     'mouse-drag',
     'gutter', 
     'edgePadding', 
@@ -78,6 +75,7 @@
     'autoHeight',
     'nested'
   ] %}
+  {% set sliders = [] %}
 {% endif %}
 
 {% set titles = [
@@ -116,7 +114,7 @@
   {% endif %}
 
   {# navigation #}
-  {% if page !== 'iframe' %}
+  {% if page.indexOf('responsive') < 0 %}
   <div class="nav">
     <div class="nav-toggle-handle">menu</div>
     <ul>
@@ -222,11 +220,7 @@
     {% endfor %}
   </div>
 
-  {# {% if page === 'tests' %}
-    <iframe id="myiframe" src="iframe.html" frameborder="0" style="width: 600px; height: 700px;"></iframe>
-  {% endif %} #}
-
-  {% if page !== 'iframe' %}
+  {% if page.indexOf('responsive') < 0 %}
   <script>
     var doc = document,
         slideList = doc.querySelectorAll('.slider-container > div'),

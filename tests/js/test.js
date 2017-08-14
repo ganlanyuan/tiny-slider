@@ -29,32 +29,32 @@ fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 window.onload = function () {
-  testBase();
-  testNonLoop();
-  testRewind();
-  testFixedWidth();
-  testFixedWidthGutter();
-  testFixedWidthEdgePadding();
-  testFixedWidthEdgePaddingGutter();
-  testVertical();
-  testVerticalGutter();
-  testVerticalEdgePadding();
-  testVerticalEdgePaddingGutter();
-  testResponsive();
-  testMouseDrag();
-  testGutter();
-  testEdgePadding();
-  testEdgePaddingGutter();
-  testFewitems();
-  testSlideByPage();
-  testArrowKeys();
-  testAutoplay();
-  testAnimation1();
-  testAnimation2();
-  testLazyload();
-  testCustomize();
-  testAutoHeight();
-  testNested();
+  // testBase();
+  // testNonLoop();
+  // testRewind();
+  // testFixedWidth();
+  // testFixedWidthGutter();
+  // testFixedWidthEdgePadding();
+  // testFixedWidthEdgePaddingGutter();
+  // testVertical();
+  // testVerticalGutter();
+  // testVerticalEdgePadding();
+  // testVerticalEdgePaddingGutter();
+  testResponsive1();
+  // testMouseDrag();
+  // testGutter();
+  // testEdgePadding();
+  // testEdgePaddingGutter();
+  // testFewitems();
+  // testSlideByPage();
+  // testArrowKeys();
+  // testAutoplay();
+  // testAnimation1();
+  // testAnimation2();
+  // testLazyload();
+  // testCustomize();
+  // testAutoHeight();
+  // testNested();
 };
 
 
@@ -658,21 +658,21 @@ function testVerticalEdgePaddingGutter () {
     return checkPositionEdgePadding(id, true);
   });}
 
-function testResponsive() {
-  var id = 'responsive',
-      slider = sliders[id],
-      info = slider.getInfo(),
+function testResponsive1() {
+  var id = 'responsive1',
       responsive = options[id]['responsive'],
       bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
 
   addTitle(id);
 
-  var init = addTest('Slides: init');
-  var resize = addTest('Slides: resize');
+  var testItems = addTest('items');
+  var testSlideBy = addTest('slideBy');
+  var testGutter = addTest('gutter');
+  var testEdgePadding = addTest('edgePadding');
   var newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = 'iframe.html';
+  newWindow.src = id + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsiveTestsOnload, false);
@@ -691,12 +691,18 @@ function testResponsive() {
       var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           nextButton = doc.querySelector('[data-controls="next"]');
 
-      var assertion,
+      var assertionItems,
+          assertionSlideBy,
+          assertionGutter,
+          assertionEdgePadding,
           container = doc.querySelector('#' + id),
           slideItems = container.children,
           wrapper = container.parentNode,
+          slideBy = options[id].slideBy,
           items = responsive[bps[0]].items,
-          index = info.index + items,
+          index = 14 + slideBy,
+          gutter = options[id].gutter,
+          edgePadding = responsive[bps[0]].edgePadding,
           firstRect,
           lastRect,
           wrapperRect;
@@ -710,41 +716,196 @@ function testResponsive() {
           lastRect = slideItems[index + items - 1].getBoundingClientRect();
           wrapperRect = wrapper.getBoundingClientRect();
 
-          assertion = 
+          assertionItems = 
             compare2Nums(firstRect.left, wrapperRect.left) &&
             compare2Nums(lastRect.right, wrapperRect.right);
+          assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+          assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
+            compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
           resolve();
         });
       }).then(function() {
-        if (assertion) {
-          init.className = 'item-success';
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[1]) + 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            items = responsive[bps[1]].items;
+            gutter = responsive[bps[1]].gutter;
+            edgePadding = responsive[bps[1]].edgePadding,
 
-          // resize window
-          return new Promise(function(resolve) {
-            newWindow.style.width = (Number(bps[0]) + 20) + 'px';
-            resolve();
-          }).then(function() {
-            return wait(500).then(function() {
-              items = responsive[bps[0]].items;
-              lastRect = slideItems[index + items - 1].getBoundingClientRect();
-              wrapperRect = wrapper.getBoundingClientRect();
+            firstRect = slideItems[index].getBoundingClientRect();
+            secondRect = slideItems[index + 1].getBoundingClientRect();
+            lastRect = slideItems[index + items - 1].getBoundingClientRect();
+            wrapperRect = wrapper.getBoundingClientRect();
 
-              assertion = 
+            if (assertionItems) {
+              assertionItems = 
                 compare2Nums(firstRect.left, wrapperRect.left) &&
                 compare2Nums(lastRect.right, wrapperRect.right);
+            }
 
-              updateTest(resize, assertion);
-              document.body.removeChild(newWindow);
-            });
+            if (assertionGutter) {
+              assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+            }
+
+            if (assertionEdgePadding) {
+              assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
+                compare2Nums(wrapperRect.right + edgePadding, Number(bps[1]) + 20);
+            }
           });
-        } else {
-          init.className = resize.className = 'item-fail';
+        });
+      }).then(function() {
+        return new Promise(function(resolve) {
+          updateTest(testItems, assertionItems);
+          updateTest(testGutter, assertionGutter);
+          updateTest(testEdgePadding, assertionEdgePadding);
+          nextButton.click();
+          resolve();
+        }).then(function () {
+          firstRect = slideItems[index + items].getBoundingClientRect();
+          lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
+          wrapperRect = wrapper.getBoundingClientRect();
+
+          if (assertionItems) {
+            assertionSlideBy = 
+              compare2Nums(firstRect.left, wrapperRect.left) &&
+              compare2Nums(lastRect.right, wrapperRect.right);
+          }
+
+          updateTest(testSlideBy, assertionSlideBy);
           document.body.removeChild(newWindow);
-        }
+        });
       });
     } catch (e) {
-      init.className = 'item-notsure';
-      resize.className = 'item-notsure';
+      testItems.className = 'item-notsure';
+    }
+  }
+}
+
+function testResponsive2() {
+  var id = 'responsive2',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
+
+  addTitle(id);
+
+  var testItems = addTest('items');
+  var testSlideBy = addTest('slideBy');
+  var testGutter = addTest('gutter');
+  var testEdgePadding = addTest('edgePadding');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsiveTestsOnload, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function () {
+      if (newWindow.readyState === 'complete') {
+        responsiveTestsOnload();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsiveTestsOnload () {
+    try {
+      var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          nextButton = doc.querySelector('[data-controls="next"]');
+
+      var assertionItems,
+          assertionSlideBy,
+          assertionGutter,
+          assertionEdgePadding,
+          container = doc.querySelector('#' + id),
+          slideItems = container.children,
+          wrapper = container.parentNode,
+          slideBy = options[id].slideBy,
+          items = responsive[bps[0]].items,
+          index = 14 + slideBy,
+          gutter = options[id].gutter,
+          edgePadding = responsive[bps[0]].edgePadding,
+          firstRect,
+          lastRect,
+          wrapperRect;
+
+      new Promise(function(resolve) {
+        nextButton.click();
+        resolve();
+      }).then(function() {
+        return new Promise(function(resolve) {
+          firstRect = slideItems[index].getBoundingClientRect();
+          lastRect = slideItems[index + items - 1].getBoundingClientRect();
+          wrapperRect = wrapper.getBoundingClientRect();
+
+          assertionItems = 
+            compare2Nums(firstRect.left, wrapperRect.left) &&
+            compare2Nums(lastRect.right, wrapperRect.right);
+          assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+          assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
+            compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
+          resolve();
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[1]) + 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            items = responsive[bps[1]].items;
+            gutter = responsive[bps[1]].gutter;
+            edgePadding = responsive[bps[1]].edgePadding,
+
+            firstRect = slideItems[index].getBoundingClientRect();
+            secondRect = slideItems[index + 1].getBoundingClientRect();
+            lastRect = slideItems[index + items - 1].getBoundingClientRect();
+            wrapperRect = wrapper.getBoundingClientRect();
+
+            if (assertionItems) {
+              assertionItems = 
+                compare2Nums(firstRect.left, wrapperRect.left) &&
+                compare2Nums(lastRect.right, wrapperRect.right);
+            }
+
+            if (assertionGutter) {
+              assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+            }
+
+            if (assertionEdgePadding) {
+              assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
+                compare2Nums(wrapperRect.right + edgePadding, Number(bps[1]) + 20);
+            }
+          });
+        });
+      }).then(function() {
+        return new Promise(function(resolve) {
+          updateTest(testItems, assertionItems);
+          updateTest(testGutter, assertionGutter);
+          updateTest(testEdgePadding, assertionEdgePadding);
+          nextButton.click();
+          resolve();
+        }).then(function () {
+          firstRect = slideItems[index + items].getBoundingClientRect();
+          lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
+          wrapperRect = wrapper.getBoundingClientRect();
+
+          if (assertionItems) {
+            assertionSlideBy = 
+              compare2Nums(firstRect.left, wrapperRect.left) &&
+              compare2Nums(lastRect.right, wrapperRect.right);
+          }
+
+          updateTest(testSlideBy, assertionSlideBy);
+          document.body.removeChild(newWindow);
+        });
+      });
+    } catch (e) {
+      testItems.className = 'item-notsure';
     }
   }
 }
@@ -969,11 +1130,9 @@ function testAutoplay () {
     /* ### test autoplay pause
      *
      */
-    return wait(timeout).then(function() {
-      return new Promise(function(resolve) {
-        autoplayButton.click();
-        resolve();
-      });
+    return new Promise(function(resolve) {
+      autoplayButton.click();
+      resolve();
     }).then(function() {
       return testAutoplayFn(id, test2, timeout, true);
     });

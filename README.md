@@ -30,11 +30,13 @@ Note: some features may need a manual test.
 - Using CSS Mediaqueries if supported
 - Save browser capbility values to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), so they will not be recheck again until browser get upgraded or user clear the localStorage manuelly.
 - Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- Move `autoplay` button out of `nav` container.
 - Some selector changes in [`tiny-slider.scss`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss)
 
 *Migrating to v2*
 - Update `controls` and / or `nav` styles based on their position changes. 
 - Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
+- Update styles related to `autoplay` button.
 
 ## Features
 - carousel / gallery
