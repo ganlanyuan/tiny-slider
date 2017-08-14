@@ -92,7 +92,6 @@ var doc = document,
             controlsText: ['Prev', 'Next'],
             // controls: false
             slideBy: 'page',
-            rewind: true,
           },
           900: {
             items: 3,

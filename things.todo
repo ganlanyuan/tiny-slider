@@ -3,7 +3,6 @@
 
  ☐ check init fns (lazyload, autoheight)
  ☐ resize fn
- ☐ check speed, autoHeight, loop, rewind on resize
 
  ☐ tests
    ☐ add mouse-drag
@@ -12,6 +11,7 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+ ✔ check speed, autoHeight, loop, rewind on resize @done (17-08-14 11:00)
  ✔ update getCssRulesLength, insertRule & addRule => addCSSRule @done (17-08-12 09:54)
  ✔ safari 4 @done (17-07-31 14:46)
  ✔ customize @done (17-07-31 14:46)

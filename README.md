@@ -17,6 +17,7 @@ Note: some features may need a manual test.
 \+ [Install](#install)  
 \+ [Usage](#usage)  
 \+ [Options](#options)  
+\+ [Responsive options](#responsive-options)  
 \+ [Get slider information](#get-slider-information)  
 \+ [Methods](#methods)  
 \+ [Custom Events](#custom-events)  
@@ -25,12 +26,13 @@ Note: some features may need a manual test.
 \+ [License](#license)  
 
 ## What's new
-- Using `%` instead of `px`
-- Using inserted stylesheet instead of inline `style` attribute
+- Using `%` instead of `px` (No more recalculation of each slide width on window resize)
+- Using CSS Mediaqueries if supported
+- Save browser capbility values to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), so they will not be recheck again until browser get upgraded or user clear the localStorage manuelly.
 - Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 - Some selector changes in [`tiny-slider.scss`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss)
 
-*From v1 to v2*
+*Migrating to v2*
 - Update `controls` and / or `nav` styles based on their position changes. 
 - Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
 
@@ -128,12 +130,59 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `loop` | Boolean | Default: `true`. <br> Moves to the first slide with the same direction when reaching the last slide. |
 | `rewind` | Boolean | Default: `false`. <br> Moves to the first slide with the opposite direction when reaching the last slide. |
 | `autoHeight` | Boolean | Default: `false`. <br> Height of slider container changes according to each slide's height. |
-| `responsive` | Map { breakpoint: items } \| `false` | Default: `false`. <br> Defines number of slides for different viewport widths (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#responsive_wrapper)). |
+| `responsive` | Map: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| `false` | Default: `false`. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
 | `lazyload` | Boolean | Default: `false`. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). |
 | `touch` | Boolean | Default: `true`. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: `false`. <br> Changing slides by dragging them. |
 | `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
+
+## Responsive options
+The following options can be redefined in `responsive` field:  
+`items`,   
+`slideBy`,   
+`speed`,   
+`autoHeight`,   
+`fixedWidth`,   
+`edgePadding`,   
+`gutter`,   
+`controls`,   
+`controlsText`,   
+`nav`,   
+`autoplay`,   
+`autoplayHoverPause`,   
+`autoplayResetOnVisibility`,   
+`autoplayText`,   
+`autoplayTimeout`,   
+`touch`,   
+`mouseDrag`,   
+`arrowKeys`,   
+`animateIn`,   
+`animateOut`,   
+`animateNormal`,  
+`animateDelay`.  
+NOTE: `fixedWidth` can only be changed from positive integer to positive interger, not from integer to false/0 (or in reverse).
+```javascript
+<script>
+  var slider = tns({
+    container: '.my-slider',
+    items: 1,
+    responsive: {
+      640: {
+        edgePadding: 20,
+        gutter: 20,
+        items: 2
+      },
+      700: {
+        gutter: 30
+      },
+      900: {
+        items: 3
+      }
+    }
+  });
+</script>
+```
 
 ## Get slider information
 There are 2 ways to get slider information, both return `info` Object:   
