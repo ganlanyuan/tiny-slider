@@ -143,12 +143,10 @@ var doc = document,
         }
       },
       'responsive5': {
+        fixedWidth: 300,
+        autoHeight: false,
         responsive: {
           600: {
-            autoHeight: false,
-            fixedWidth: 300,
-          },
-          900: {
             autoHeight: true,
             fixedWidth: 500,
           }

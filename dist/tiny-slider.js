@@ -1537,7 +1537,7 @@ var tns = function(options) {
       var arrowKeysTem = arrowKeys,
           slideByTem = slideBy,
           // speedTem = speed,
-          // autoHeightTem = autoHeight,
+          autoHeightTem = autoHeight,
           fixedWidthTem = fixedWidth,
           edgePaddingTem = edgePadding,
           gutterTem = gutter,
@@ -1569,8 +1569,12 @@ var tns = function(options) {
       // }
       // if (speed !== speedTem) {
       // }
-      // if (autoHeight !== autoHeightTem) {
-      // }
+      if (fixedWidth !== fixedWidthTem) {
+        doContainerTransform();
+      }
+      if (autoHeight !== autoHeightTem) {
+        if (!autoHeight) { innerWrapper.style.height = ''; }
+      }
 
       // if (!carousel) {
       //   var animateInTem = animateIn,

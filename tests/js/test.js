@@ -44,6 +44,7 @@ window.onload = function () {
   testResponsive2();
   testResponsive3();
   testResponsive4();
+  testResponsive5();
   testMouseDrag();
   testGutter();
   testEdgePadding();
@@ -1043,7 +1044,7 @@ function testResponsive4() {
           container = doc.querySelector('#' + id),
           left;
 
-      return new Promise(function(resolve) {
+      new Promise(function(resolve) {
         left = container.getBoundingClientRect().left;
         // fire keydown event on right arrow
         fire(doc, 'keydown', { 'keyCode': 39 });
@@ -1084,10 +1085,86 @@ function testResponsive4() {
         });
       }).then(function() {
         updateTest(testArrowKeysT, assertionArrowKeys);
-        // document.body.removeChild(newWindow);
+        document.body.removeChild(newWindow);
       });
     } else {
       testArrowKeysT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
+}
+
+function testResponsive5() {
+  var id = 'responsive5',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
+
+  addTitle(id);
+
+  var testFixedWidthT = addTest('fixedWidth');
+  var testAutoHeightT = addTest('auto height');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[0]) - 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive5Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function () {
+      if (newWindow.readyState === 'complete') {
+        responsive5Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsive5Tests () {
+    try {
+      var assertionFixedWidth,
+          assertionAutoHeight,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          wrapper = doc.querySelector('#' + id + '-iw'),
+          first = doc.querySelector('#' + id).children[14];
+
+      new Promise(function(resolve) {
+        assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
+          wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+        assertionAutoHeight = wrapper.style.height === '';
+        // console.log(assertionFixedWidth, assertionAutoHeight);
+
+        resolve();
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+
+          resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionFixedWidth) {
+                assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth &&
+                  wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+              }
+              if (assertionAutoHeight) {
+                assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
+              }
+              // console.log(assertionFixedWidth, assertionAutoHeight);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testFixedWidthT, assertionFixedWidth);
+        updateTest(testAutoHeightT, assertionAutoHeight);
+        document.body.removeChild(newWindow);
+      });
+    } catch(e) {
+      testFixedWidthT.className = 'item-notsure';
+      testAutoHeightT.className = 'item-notsure';
       document.body.removeChild(newWindow);
     }
   }
