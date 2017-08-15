@@ -98,6 +98,7 @@ var doc = document,
       }, 
       'responsive2': {
         items: 3,
+        autoplayTimeout: 500,
         responsive: {
           600: {
             controls: false,
@@ -113,6 +114,8 @@ var doc = document,
         }
       },
       'responsive3': {
+        items: 3,
+        autoplay: true,
         responsive: {
           600: {
             controlsText: ['&lt;', '&gt;'],
@@ -125,36 +128,21 @@ var doc = document,
         }
       },
       'responsive4': {
+        items: 3,
         responsive: {
           600: {
-            touch: true,
+            touch: false,
             mouseDrag: false,
             arrowKeys: false,
           },
           900: {
-            touch: false,
+            touch: true,
             mouseDrag: true,
             arrowKeys: true,
           }
         }
       },
       'responsive5': {
-        responsive: {
-          600: {
-            animateIn: '',
-            animateOut: '',
-            animateNormal: '',
-            animateDelay: '',
-          },
-          900: {
-            animateIn: '',
-            animateOut: '',
-            animateNormal: '',
-            animateDelay: '',
-          }
-        }
-      },
-      'responsive6': {
         responsive: {
           600: {
             autoHeight: false,

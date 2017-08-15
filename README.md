@@ -158,11 +158,7 @@ The following options can be redefined in `responsive` field:
 `autoplayTimeout`,   
 `touch`,   
 `mouseDrag`,   
-`arrowKeys`,   
-`animateIn`,   
-`animateOut`,   
-`animateNormal`,  
-`animateDelay`.  
+`arrowKeys`.   
 NOTE: `fixedWidth` can only be changed from positive integer to positive interger, not from integer to false/0 (or in reverse).
 ```javascript
 <script>

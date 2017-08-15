@@ -29,32 +29,35 @@ fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 window.onload = function () {
-  // testBase();
-  // testNonLoop();
-  // testRewind();
-  // testFixedWidth();
-  // testFixedWidthGutter();
-  // testFixedWidthEdgePadding();
-  // testFixedWidthEdgePaddingGutter();
-  // testVertical();
-  // testVerticalGutter();
-  // testVerticalEdgePadding();
-  // testVerticalEdgePaddingGutter();
+  testBase();
+  testNonLoop();
+  testRewind();
+  testFixedWidth();
+  testFixedWidthGutter();
+  testFixedWidthEdgePadding();
+  testFixedWidthEdgePaddingGutter();
+  testVertical();
+  testVerticalGutter();
+  testVerticalEdgePadding();
+  testVerticalEdgePaddingGutter();
   testResponsive1();
-  // testMouseDrag();
-  // testGutter();
-  // testEdgePadding();
-  // testEdgePaddingGutter();
-  // testFewitems();
-  // testSlideByPage();
-  // testArrowKeys();
-  // testAutoplay();
-  // testAnimation1();
-  // testAnimation2();
-  // testLazyload();
-  // testCustomize();
-  // testAutoHeight();
-  // testNested();
+  testResponsive2();
+  testResponsive3();
+  testResponsive4();
+  testMouseDrag();
+  testGutter();
+  testEdgePadding();
+  testEdgePaddingGutter();
+  testFewitems();
+  testSlideByPage();
+  testArrowKeys();
+  testAutoplay();
+  testAnimation1();
+  testAnimation2();
+  testLazyload();
+  testCustomize();
+  testAutoHeight();
+  testNested();
 };
 
 
@@ -675,18 +678,18 @@ function testResponsive1() {
   newWindow.src = id + '.html';
 
   if (newWindow.addEventListener) {
-    newWindow.addEventListener('load', responsiveTestsOnload, false);
+    newWindow.addEventListener('load', responsive1Tests, false);
   } else if (newWindow.readyState) {
     newWindow.onreadystatechange = function () {
       if (newWindow.readyState === 'complete') {
-        responsiveTestsOnload();
+        responsive1Tests();
       }
     }
   }
 
   document.body.appendChild(newWindow);
 
-  function responsiveTestsOnload () {
+  function responsive1Tests () {
     try {
       var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           nextButton = doc.querySelector('[data-controls="next"]');
@@ -780,6 +783,10 @@ function testResponsive1() {
       });
     } catch (e) {
       testItems.className = 'item-notsure';
+      testSlideBy.className = 'item-notsure';
+      testGutter.className = 'item-notsure';
+      testEdgePadding.className = 'item-notsure';
+      document.body.removeChild(newWindow);
     }
   }
 }
@@ -791,121 +798,297 @@ function testResponsive2() {
 
   addTitle(id);
 
-  var testItems = addTest('items');
-  var testSlideBy = addTest('slideBy');
-  var testGutter = addTest('gutter');
-  var testEdgePadding = addTest('edgePadding');
+  var testControlsT = addTest('controls');
+  var testNavT = addTest('nav');
+  var testAutoplayT = addTest('autoplay');
   var newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
-  newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
 
   if (newWindow.addEventListener) {
-    newWindow.addEventListener('load', responsiveTestsOnload, false);
+    newWindow.addEventListener('load', responsive2Tests, false);
   } else if (newWindow.readyState) {
     newWindow.onreadystatechange = function () {
       if (newWindow.readyState === 'complete') {
-        responsiveTestsOnload();
+        responsive2Tests();
       }
     }
   }
 
   document.body.appendChild(newWindow);
 
-  function responsiveTestsOnload () {
+  function responsive2Tests () {
     try {
-      var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
-          nextButton = doc.querySelector('[data-controls="next"]');
+      var assertionControls,
+          assertionNav,
+          assertionAutoplay,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          box = doc.querySelector('#' + id + '_wrapper'),
+          slideItems = box.querySelector('#' + id).children,
+          controlsContainer = box.querySelector('.tns-controls'),
+          navContainer = box.querySelector('.tns-nav'),
+          autoplayButton = box.querySelector('[data-action]'),
+          index = 14,
+          timeouts = [options[id].autoplayTimeout, responsive[bps[0]].autoplayTimeout],
+          firstRect;
 
-      var assertionItems,
-          assertionSlideBy,
-          assertionGutter,
-          assertionEdgePadding,
+      return new Promise(function(resolve) {
+        firstRect = slideItems[index].getBoundingClientRect();
+
+        resolve();
+      }).then(function() {
+        return wait(timeouts[1]).then(function() {
+          return new Promise(function(resolve) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
+            assertionControls = controlsContainer.offsetParent !== null;
+            assertionNav = navContainer.offsetParent === null;
+            assertionAutoplay = autoplayButton.offsetParent === null &&
+              autoplayButton.getAttribute('data-action') === 'start' &&
+              firstRect.left === slideItems[index].getBoundingClientRect().left;
+            // console.log(assertionControls, assertionNav, assertionAutoplay);
+            resolve();
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          firstRect = slideItems[index].getBoundingClientRect();
+          resolve();
+        }).then(function() {
+          return wait(timeouts[1] + 500).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionControls) { assertionControls = controlsContainer.offsetParent === null; }
+              if (assertionNav) { assertionNav = navContainer.offsetParent !== null; }
+              if (assertionAutoplay) {
+                assertionAutoplay = autoplayButton.offsetParent !== null &&
+                  autoplayButton.getAttribute('data-action') === 'stop' &&
+                  firstRect.left !== slideItems[index].getBoundingClientRect().left;
+              }
+              // console.log(assertionControls, assertionNav, assertionAutoplay);
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+          firstRect = slideItems[index].getBoundingClientRect();
+          resolve();
+        }).then(function() {
+          return wait(timeouts[0] + 500).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionControls) { assertionControls = controlsContainer.offsetParent !== null; }
+              if (assertionNav) { assertionNav = navContainer.offsetParent !== null; }
+              if (assertionAutoplay) {
+                assertionAutoplay = autoplayButton.offsetParent === null &&
+                  autoplayButton.getAttribute('data-action') === 'start' &&
+                  firstRect.left === slideItems[index].getBoundingClientRect().left;
+              }
+              // console.log(assertionControls, assertionNav, assertionAutoplay);
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testControlsT, assertionControls);
+        updateTest(testNavT, assertionNav);
+        updateTest(testAutoplayT, assertionAutoplay);
+        document.body.removeChild(newWindow);
+      });
+    } catch (e) {
+      testControlsT.className = 'item-notsure';
+      testNavT.className = 'item-notsure';
+      testAutoplayT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
+}
+
+function testResponsive3() {
+  var id = 'responsive3',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
+
+  addTitle(id);
+
+  var testControlsT = addTest('controlsText');
+  var testAutoplayT = addTest('autoplayText');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive3Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function () {
+      if (newWindow.readyState === 'complete') {
+        responsive3Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsive3Tests () {
+    try {
+      var assertionControls,
+          assertionAutoplay,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          box = doc.querySelector('#' + id + '_wrapper'),
+          controlsContainer = box.querySelector('.tns-controls'),
+          prevButton = controlsContainer.children[0],
+          nextButton = controlsContainer.children[1],
+          autoplayButton = box.querySelector('[data-action]');
+
+      return new Promise(function(resolve) {
+        var str = autoplayButton.innerHTML;
+        assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+        assertionAutoplay = str.substring(str.length - 4) === 'stop';
+        // console.log(assertionControls, assertionAutoplay);
+
+        resolve();
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            return new Promise(function(resolve) {
+              var str = autoplayButton.innerHTML;
+              if (assertionControls) {
+                assertionControls = prevButton.innerHTML === '&lt;' && nextButton.innerHTML === '&gt;';
+              }
+              if (assertionAutoplay) {
+                assertionAutoplay = str.substring(str.length - 2) === '||';
+              }
+              // console.log(assertionControls, assertionAutoplay);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            return new Promise(function(resolve) {
+              var str = autoplayButton.innerHTML;
+              if (assertionControls) {
+                assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+              }
+              if (assertionAutoplay) {
+                assertionAutoplay = str.substring(str.length - 4) === 'stop';
+              }
+              // console.log(assertionControls, assertionAutoplay);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testControlsT, assertionControls);
+        updateTest(testAutoplayT, assertionAutoplay);
+        document.body.removeChild(newWindow);
+      });
+    } catch (e) {
+      testControlsT.className = 'item-notsure';
+      testAutoplayT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
+}
+
+function testResponsive4() {
+  var id = 'responsive4',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
+
+  addTitle(id);
+
+  var testTouchT = addTest('touch');
+  var testMouseDragT = addTest('mouse drag');
+  var testArrowKeysT = addTest('arrow keys');
+  updateTest(testTouchT, '-notsure');
+  updateTest(testMouseDragT, '-notsure');
+  updateTest(testArrowKeysT, '-notsure');
+  // var newWindow = document.createElement('iframe');
+  // newWindow.setAttribute('frameBorder', '0');
+  // newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  // newWindow.src = id + '.html';
+
+  // if (newWindow.addEventListener) {
+  //   newWindow.addEventListener('load', responsive4Tests, false);
+  // } else if (newWindow.readyState) {
+  //   newWindow.onreadystatechange = function () {
+  //     if (newWindow.readyState === 'complete') {
+  //       responsive4Tests();
+  //     }
+  //   }
+  // }
+
+  // document.body.appendChild(newWindow);
+
+  function responsive4Tests () {
+    if (canFireKeydown) {
+      var assertionArrowKeys,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           container = doc.querySelector('#' + id),
-          slideItems = container.children,
-          wrapper = container.parentNode,
-          slideBy = options[id].slideBy,
-          items = responsive[bps[0]].items,
-          index = 14 + slideBy,
-          gutter = options[id].gutter,
-          edgePadding = responsive[bps[0]].edgePadding,
-          firstRect,
-          lastRect,
-          wrapperRect;
+          left;
 
-      new Promise(function(resolve) {
-        nextButton.click();
+      return new Promise(function(resolve) {
+        left = container.getBoundingClientRect().left;
+        // fire keydown event on right arrow
+        fire(doc, 'keydown', { 'keyCode': 39 });
+
         resolve();
       }).then(function() {
         return new Promise(function(resolve) {
-          firstRect = slideItems[index].getBoundingClientRect();
-          lastRect = slideItems[index + items - 1].getBoundingClientRect();
-          wrapperRect = wrapper.getBoundingClientRect();
+          assertionArrowKeys = container.getBoundingClientRect().left !== left;
+          // console.log(assertionArrowKeys);
 
-          assertionItems = 
-            compare2Nums(firstRect.left, wrapperRect.left) &&
-            compare2Nums(lastRect.right, wrapperRect.right);
-          assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
-          assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
-            compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
           resolve();
         });
       }).then(function() {
         // resize window
         return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[1]) + 20) + 'px';
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          left = container.getBoundingClientRect().left;
+
           resolve();
         }).then(function() {
+          return new Promise(function(resolve) {
+            // fire keydown event on right arrow
+            fire(doc, 'keydown', { 'keyCode': 39 });
+
+            resolve();
+          });
+        }).then(function() {
           return wait(500).then(function() {
-            items = responsive[bps[1]].items;
-            gutter = responsive[bps[1]].gutter;
-            edgePadding = responsive[bps[1]].edgePadding,
+            return new Promise(function(resolve) {
+              if (assertionArrowKeys) {
+                assertionArrowKeys = container.getBoundingClientRect().left === left;
+              }
+              // console.log(assertionArrowKeys);
 
-            firstRect = slideItems[index].getBoundingClientRect();
-            secondRect = slideItems[index + 1].getBoundingClientRect();
-            lastRect = slideItems[index + items - 1].getBoundingClientRect();
-            wrapperRect = wrapper.getBoundingClientRect();
-
-            if (assertionItems) {
-              assertionItems = 
-                compare2Nums(firstRect.left, wrapperRect.left) &&
-                compare2Nums(lastRect.right, wrapperRect.right);
-            }
-
-            if (assertionGutter) {
-              assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
-            }
-
-            if (assertionEdgePadding) {
-              assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
-                compare2Nums(wrapperRect.right + edgePadding, Number(bps[1]) + 20);
-            }
+              resolve();
+            });
           });
         });
       }).then(function() {
-        return new Promise(function(resolve) {
-          updateTest(testItems, assertionItems);
-          updateTest(testGutter, assertionGutter);
-          updateTest(testEdgePadding, assertionEdgePadding);
-          nextButton.click();
-          resolve();
-        }).then(function () {
-          firstRect = slideItems[index + items].getBoundingClientRect();
-          lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
-          wrapperRect = wrapper.getBoundingClientRect();
-
-          if (assertionItems) {
-            assertionSlideBy = 
-              compare2Nums(firstRect.left, wrapperRect.left) &&
-              compare2Nums(lastRect.right, wrapperRect.right);
-          }
-
-          updateTest(testSlideBy, assertionSlideBy);
-          document.body.removeChild(newWindow);
-        });
+        updateTest(testArrowKeysT, assertionArrowKeys);
+        // document.body.removeChild(newWindow);
       });
-    } catch (e) {
-      testItems.className = 'item-notsure';
+    } else {
+      testArrowKeysT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
     }
   }
 }
@@ -1069,12 +1252,12 @@ function testAutoplay () {
       info = slider.getInfo(),
       opt = options[id],
       buttons = info.navContainer.children,
-      autoplayButton = buttons[buttons.length - 1];
+      autoplayButton = doc.querySelector('#' + id + '_wrapper [data-action]');
 
   addTitle(id);
   runTest('autoplayButton: attrs', function () {
     return autoplayButton.getAttribute('data-action') === 'stop' && 
-      autoplayButton.textContent.indexOf('Stop Animation') > -1;
+      autoplayButton.textContent.indexOf('stop animation') > -1;
   });
 
   var timeout = 0;
@@ -1094,8 +1277,8 @@ function testAutoplay () {
   }).then(function() {
     return new Promise(function(resolve) {
       assertion = 
-          autoplayButton.getAttribute('data-action') === 'start' &&
-          autoplayButton.textContent.indexOf('Start Animation') > -1;
+        autoplayButton.getAttribute('data-action') === 'start' &&
+        autoplayButton.textContent.indexOf('start animation') > -1;
       resolve();
     });
   }).then(function() {
@@ -1109,7 +1292,7 @@ function testAutoplay () {
         return new Promise(function (resolve) {
           assertion = 
               autoplayButton.getAttribute('data-action') === 'stop' &&
-              autoplayButton.textContent.indexOf('Stop Animation') > -1;
+              autoplayButton.textContent.indexOf('stop animation') > -1;
           resolve();
         });
       });
