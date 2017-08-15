@@ -841,10 +841,9 @@ function testResponsive2() {
       }).then(function() {
         return wait(timeouts[1]).then(function() {
           return new Promise(function(resolve) {
-            // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
-            assertionControls = controlsContainer.offsetParent !== null;
-            assertionNav = navContainer.offsetParent === null;
-            assertionAutoplay = autoplayButton.offsetParent === null &&
+            assertionControls = getComputedStyle(controlsContainer, null).display !== 'none';
+            assertionNav = getComputedStyle(navContainer, null).display === 'none';
+            assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
               autoplayButton.getAttribute('data-action') === 'start' &&
               firstRect.left === slideItems[index].getBoundingClientRect().left;
             // console.log(assertionControls, assertionNav, assertionAutoplay);
@@ -860,10 +859,10 @@ function testResponsive2() {
         }).then(function() {
           return wait(timeouts[1] + 500).then(function() {
             return new Promise(function(resolve) {
-              if (assertionControls) { assertionControls = controlsContainer.offsetParent === null; }
-              if (assertionNav) { assertionNav = navContainer.offsetParent !== null; }
+              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display === 'none'; }
+              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
               if (assertionAutoplay) {
-                assertionAutoplay = autoplayButton.offsetParent !== null &&
+                assertionAutoplay = getComputedStyle(autoplayButton, null).display !== 'none' &&
                   autoplayButton.getAttribute('data-action') === 'stop' &&
                   firstRect.left !== slideItems[index].getBoundingClientRect().left;
               }
@@ -881,10 +880,10 @@ function testResponsive2() {
         }).then(function() {
           return wait(timeouts[0] + 500).then(function() {
             return new Promise(function(resolve) {
-              if (assertionControls) { assertionControls = controlsContainer.offsetParent !== null; }
-              if (assertionNav) { assertionNav = navContainer.offsetParent !== null; }
+              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display !== 'none'; }
+              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
               if (assertionAutoplay) {
-                assertionAutoplay = autoplayButton.offsetParent === null &&
+                assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
                   autoplayButton.getAttribute('data-action') === 'start' &&
                   firstRect.left === slideItems[index].getBoundingClientRect().left;
               }

@@ -2,30 +2,6 @@
 
  ☐ tests
    ☐ add mouse-drag
-   ☐ opera 12.1
-     ☐ animation1
-
-＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
-Archive:
- ✔ resize fn @done (17-08-14 11:52)
- ✔ check init fns (lazyload, autoheight) @done (17-08-14 11:52)
- ✔ check speed, autoHeight, loop, rewind on resize @done (17-08-14 11:00)
- ✔ update getCssRulesLength, insertRule & addRule => addCSSRule @done (17-08-12 09:54)
- ✔ safari 4 @done (17-07-31 14:46)
- ✔ customize @done (17-07-31 14:46)
- ✔ nested_inner @done (17-07-31 13:48)
- ✔ nested_inner @done (17-07-31 13:47)
- ✔ nested_inner @done (17-07-31 13:47)
- ✔ chrome 15 @done (17-07-31 13:47)
- ✔ firefox 12 @done (17-07-31 13:32)
- ✔ ie 8 @done (17-07-31 13:31)
- ✔ combine base & goto @done (17-07-31 13:29)
- ✔ add nested @done (17-07-31 13:16)
- ✔ responsive @done (17-07-30 05:58)
- ✔ responsive @done (17-07-30 05:57)
- ✔ responsive @done (17-07-30 05:56)
- ✔ responsive @done (17-07-30 05:56)
- ✔ responsive @done (17-07-30 05:54)
- ✔ animation2 @done (17-07-26 15:40)
- ✔ autoHeight @done (17-07-26 14:31)
- ✔ fix animation on non-subpixel browsers @done (17-07-20 09:51)
+   ☐ IE8-9, chrome15, Safari4: responsive2
+   ☐ Safari4: responsive3
+   ☐ IE10: fixedWidth-EdgePadding-Gutter
