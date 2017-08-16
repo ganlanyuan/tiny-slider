@@ -6,6 +6,12 @@ var doc = document,
     edgepadding = 50,
     gutter = 10,
     options= {
+      'test': {
+        items: 1,
+        slideBy: 'page',
+        nav: false,
+        loop: false,
+      },
       'base': {
         items: 3,
         slideBy: 'page',

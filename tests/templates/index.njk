@@ -25,6 +25,7 @@
   'customize', 
   'autoHeight'
 ] %}
+{# {% set sliders = ['test'] %} #}
 
 {% block main %}
   {% for slide in sliders %}
@@ -99,6 +100,16 @@
           <p>Quis deserunt quo sequi qui fugiat nobis </p>
         </div>
         
+      {% elif slide === 'test' %}
+        <div class="item">
+          <div class="img img-1"><a href="">1</a></div>
+          <p>Lorem ipsum dolor sit amet</p>
+        </div>
+        <div class="item">
+          <div class="img img-2"><a href="">2</a></div>
+          <p>Blanditiis sapiente tempora </p>
+        </div>
+
       {% else %}
         <div class="item">
           <div class="img img-1"><a href="">1</a></div>

@@ -16,6 +16,7 @@
   transition: all 0s;
 }
 [data-tns-mode="carousel"][data-tns-axis="horizontal"] {
+  white-space: nowrap;
   left: 0;
   &:after {
     content: '';
@@ -23,7 +24,10 @@
     clear: both;
   }
   > div, > li, > span, > a {
-    float: left;
+    // float: left;
+    display: inline-block;
+    vertical-align: top;
+    white-space: normal;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;

@@ -15,6 +15,8 @@ import { unwrap } from "../bower_components/go-native/src/gn/unwrap";
 
 // helper functions
 import { getSlideId } from './helpers/getSlideId';
+import { createStyleSheet } from './helpers/createStyleSheet';
+import { addCSSRule } from './helpers/addCSSRule';
 import { toDegree } from './helpers/toDegree';
 import { getTouchDirection } from './helpers/getTouchDirection';
 import { hasAttr } from './helpers/hasAttr';
@@ -135,6 +137,7 @@ export var tns = function(options) {
       rewind = options.rewind,
       loop = (mode === 'gallery')? true: (options.rewind)? false : options.loop,
       autoHeight = (mode === 'gallery') ? true : options.autoHeight,
+      sheet = createStyleSheet(),
       responsive = (fixedWidth) ? false : options.responsive,
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
@@ -314,6 +317,10 @@ export var tns = function(options) {
     slideBy = getSlideBy();
   }
 
+  function getCssRulesLength(sheet) {
+    return sheet.cssRules ? sheet.cssRules.length : sheet.rules.length;
+  }
+
   function containerInit() {
     // add id
     if (container.id === '') { container.id = slideId; }
@@ -351,6 +358,7 @@ export var tns = function(options) {
 
       // add slide id
       item.id = slideId + '-item' + x;
+      item.classList.add('tns-item');
 
       // add class
       if (mode === 'gallery' && animateNormal) { item.classList.add(animateNormal); }
@@ -390,6 +398,19 @@ export var tns = function(options) {
       container.insertBefore(fragmentBefore, container.firstChild);
       container.appendChild(fragmentAfter);
       slideItems = container.children;
+    }
+
+    // set font-size rules
+    // run once
+    if (mode === 'carousel' && axis === 'horizontal') {
+      var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) {
+        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+      }
+
+      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
     }
   }
 
@@ -578,29 +599,33 @@ export var tns = function(options) {
 
   function checkSlideCount(isInitializing) {
     // disable 
-    if (!sliderFrozen && slideCount <= items) { 
-      toggleSliderEvents(isInitializing, true);
-      if (animating) { stopAction(); }
+    if (slideCount <= items) { 
+      if (!sliderFrozen) {
+        toggleSliderEvents(isInitializing, true);
+        if (animating) { stopAction(); }
 
-      // reset index to initial status
-      index = (mode !== 'carousel') ? 0 : cloneCount;
+        // reset index to initial status
+        index = (mode !== 'carousel') ? 0 : cloneCount;
 
-      if (nav) { hideElement(navContainer); }
-      if (controls) { hideElement(controlsContainer); }
-      if (autoplay) { hideElement(autoplayButton); }
+        if (nav) { hideElement(navContainer); }
+        if (controls) { hideElement(controlsContainer); }
+        if (autoplay) { hideElement(autoplayButton); }
 
-      sliderFrozen = true;
+        sliderFrozen = true;
+      }
 
     // enable
     } else {
-      toggleSliderEvents(isInitializing, false);
-      if (autoplay && !animating) { startAction(); }
+      if (sliderFrozen || isInitializing) {
+        toggleSliderEvents(isInitializing, false);
+        if (autoplay && !animating) { startAction(); }
 
-      if (nav) { showElement(navContainer); }
-      if (controls) { showElement(controlsContainer); }
-      if (autoplay) { showElement(autoplayButton); }
+        if (nav) { showElement(navContainer); }
+        if (controls) { showElement(controlsContainer); }
+        if (autoplay) { showElement(autoplayButton); }
 
-      sliderFrozen = false;
+        sliderFrozen = false;
+      }
     }
   }
 

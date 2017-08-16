@@ -535,6 +535,42 @@ function getSlideId() {
   return 'tns' + window.tnsId;
 }
 
+// create and append style sheet
+function createStyleSheet (media) {
+  // Create the <style> tag
+  var style = document.createElement("style");
+  // style.setAttribute("type", "text/css");
+
+  // Add a media (and/or media query) here if you'd like!
+  // style.setAttribute("media", "screen")
+  // style.setAttribute("media", "only screen and (max-width : 1024px)")
+  if (media) { style.setAttribute("media", media); }
+
+  // WebKit hack :(
+  // style.appendChild(document.createTextNode(""));
+
+  // Add the <style> element to the page
+  document.querySelector('head').appendChild(style);
+
+  return (style.sheet) ? style.sheet : style.styleSheet;
+}
+
+// cross browsers addRule method
+var addCSSRule = (function () {
+  var styleSheet = document.styleSheets[0];
+  if('insertRule' in styleSheet) {
+
+    return function (sheet, selector, rules, index) {
+      sheet.insertRule(selector + '{' + rules + '}', index);
+    };
+  } else if('addRule' in styleSheet) {
+
+    return function (sheet, selector, rules, index) {
+      sheet.addRule(selector, rules, index);
+    };
+  }
+})();
+
 function toDegree (y, x) {
   return Math.atan2(y, x) * (180 / Math.PI);
 }
@@ -807,6 +843,7 @@ var tns = function(options) {
       rewind = options.rewind,
       loop = (mode === 'gallery')? true: (options.rewind)? false : options.loop,
       autoHeight = (mode === 'gallery') ? true : options.autoHeight,
+      sheet = createStyleSheet(),
       responsive = (fixedWidth) ? false : options.responsive,
       lazyload = options.lazyload,
       slideId = container.id || getSlideId(),
@@ -986,6 +1023,10 @@ var tns = function(options) {
     slideBy = getSlideBy();
   }
 
+  function getCssRulesLength(sheet) {
+    return sheet.cssRules ? sheet.cssRules.length : sheet.rules.length;
+  }
+
   function containerInit() {
     // add id
     if (container.id === '') { container.id = slideId; }
@@ -1023,6 +1064,7 @@ var tns = function(options) {
 
       // add slide id
       item.id = slideId + '-item' + x;
+      item.classList.add('tns-item');
 
       // add class
       if (mode === 'gallery' && animateNormal) { item.classList.add(animateNormal); }
@@ -1062,6 +1104,19 @@ var tns = function(options) {
       container.insertBefore(fragmentBefore, container.firstChild);
       container.appendChild(fragmentAfter);
       slideItems = container.children;
+    }
+
+    // set font-size rules
+    // run once
+    if (mode === 'carousel' && axis === 'horizontal') {
+      var cssFontSize = window.getComputedStyle(slideItems[0]).fontSize;
+      // em, rem to px (for IE8-)
+      if (cssFontSize.indexOf('em') !== -1) {
+        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+      }
+
+      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
     }
   }
 
@@ -1250,29 +1305,33 @@ var tns = function(options) {
 
   function checkSlideCount(isInitializing) {
     // disable 
-    if (!sliderFrozen && slideCount <= items) { 
-      toggleSliderEvents(isInitializing, true);
-      if (animating) { stopAction(); }
+    if (slideCount <= items) { 
+      if (!sliderFrozen) {
+        toggleSliderEvents(isInitializing, true);
+        if (animating) { stopAction(); }
 
-      // reset index to initial status
-      index = (mode !== 'carousel') ? 0 : cloneCount;
+        // reset index to initial status
+        index = (mode !== 'carousel') ? 0 : cloneCount;
 
-      if (nav) { hideElement(navContainer); }
-      if (controls) { hideElement(controlsContainer); }
-      if (autoplay) { hideElement(autoplayButton); }
+        if (nav) { hideElement(navContainer); }
+        if (controls) { hideElement(controlsContainer); }
+        if (autoplay) { hideElement(autoplayButton); }
 
-      sliderFrozen = true;
+        sliderFrozen = true;
+      }
 
     // enable
     } else {
-      toggleSliderEvents(isInitializing, false);
-      if (autoplay && !animating) { startAction(); }
+      if (sliderFrozen || isInitializing) {
+        toggleSliderEvents(isInitializing, false);
+        if (autoplay && !animating) { startAction(); }
 
-      if (nav) { showElement(navContainer); }
-      if (controls) { showElement(controlsContainer); }
-      if (autoplay) { showElement(autoplayButton); }
+        if (nav) { showElement(navContainer); }
+        if (controls) { showElement(controlsContainer); }
+        if (autoplay) { showElement(autoplayButton); }
 
-      sliderFrozen = false;
+        sliderFrozen = false;
+      }
     }
   }
 
