@@ -6,7 +6,9 @@
   "directories": {
     "test": "tests"
   },
-  "devDependencies": {},
+  "dependencies": {
+    "go-native": "^1.0.0"
+  },
   "scripts": {
     "test": ""
   },
