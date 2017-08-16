@@ -2,9 +2,9 @@
 - [ ] Question
 - [ ] Bug
 
-**How can others repruduce the issue?**  
-Link or Code example:
+**How can others reproduce the issue?**  
+Live link or Code example:
 
 Tiny-slider version:   
-OS:   
-Browser:   
+OS version:   
+Browser version:

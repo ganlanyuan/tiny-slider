@@ -5,7 +5,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
 Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
-Note: some features may need manual test.  
+Note: some features may need manual tests.  
 
 *Previous versions*  
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
@@ -160,7 +160,7 @@ The following options can be redefined in `responsive` field:
 `touch`,   
 `mouseDrag`,   
 `arrowKeys`.   
-NOTE: `fixedWidth` can only be changed from positive integer to positive interger, not from integer to false/0 (or in reverse).
+NOTE: `fixedWidth` can only be changed from positive integer to positive integer, not from integer to false/0 (or in reverse).
 ```javascript
 <script>
   var slider = tns({
