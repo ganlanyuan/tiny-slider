@@ -1323,7 +1323,7 @@ var tns = function(options) {
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
         var opts = responsive[bp],
-            innerWrapperStr = containerStr = slideStr = '',
+            str = innerWrapperStr = containerStr = slideStr = '',
             itemsBP = getOption('items', bp),
             fixedWidthBP = getOption('fixedWidth', bp),
             edgePaddingBP = getOption('edgePadding', bp),
@@ -1343,11 +1343,10 @@ var tns = function(options) {
           }
         }
 
-        sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + 
-          innerWrapperStr +
-          containerStr +
-          slideStr +
-          '}', sheet.cssRules.length);
+        str = innerWrapperStr + containerStr + slideStr;
+        if (str.length > 0) {
+          sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
+        }
       });
     }
 

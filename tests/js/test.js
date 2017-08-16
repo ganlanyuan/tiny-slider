@@ -847,6 +847,7 @@ function testResponsive2() {
               autoplayButton.getAttribute('data-action') === 'start' &&
               firstRect.left === slideItems[index].getBoundingClientRect().left;
             // console.log(assertionControls, assertionNav, assertionAutoplay);
+            // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
             resolve();
           });
         });
@@ -867,6 +868,7 @@ function testResponsive2() {
                   firstRect.left !== slideItems[index].getBoundingClientRect().left;
               }
               // console.log(assertionControls, assertionNav, assertionAutoplay);
+              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
               resolve();
             });
           });
@@ -884,10 +886,11 @@ function testResponsive2() {
               if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
               if (assertionAutoplay) {
                 assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
-                  autoplayButton.getAttribute('data-action') === 'start' &&
+                  autoplayButton.getAttribute('data-action') === 'start' 
                   firstRect.left === slideItems[index].getBoundingClientRect().left;
               }
               // console.log(assertionControls, assertionNav, assertionAutoplay);
+              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
               resolve();
             });
           });
@@ -896,7 +899,7 @@ function testResponsive2() {
         updateTest(testControlsT, assertionControls);
         updateTest(testNavT, assertionNav);
         updateTest(testAutoplayT, assertionAutoplay);
-        document.body.removeChild(newWindow);
+        // document.body.removeChild(newWindow);
       });
     } catch (e) {
       testControlsT.className = 'item-notsure';

@@ -151,7 +151,8 @@ button[data-controls] {
   display: block;
   margin: 10px auto;
   font-size: 17px;
-  vertical-align: middle;
+  width: 3em;
+  text-align: center;
   background: transparent;
 }
 button[disabled] { 

@@ -1,7 +1,7 @@
  ☐ destory
 
- ☐ tests
-   ☐ add mouse-drag
-   ☐ IE8-9, chrome15, Safari4: responsive2
-   ☐ Safari4: responsive3
-   ☐ IE10: fixedWidth-EdgePadding-Gutter
+ ☐ add mouse-drag
+ ☐ IE8-9: responsive2 
+ ✔ chrome15, Safari4: responsive2 @done (17-08-16 11:14)
+ ✔ Safari4: responsive3 @done (17-08-16 11:14)
+ ✔ IE10: fixedWidth-EdgePadding-Gutter @done (17-08-16 11:16)
