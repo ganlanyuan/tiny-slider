@@ -29,9 +29,9 @@ Note: some features may need manual tests.
 - Using `%` instead of `px` (No more recalculation of each slide width on window resize)
 - Using CSS Mediaqueries if supported
 - Save browser capbility values to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), so they will not be recheck again until browser get upgraded or user clear the localStorage manuelly.
-- More options available for `responsive`. (from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0), [issue 53](https://github.com/ganlanyuan/tiny-slider/issues/53))
+- More options available for `responsive`. (Start from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0), [issue 53](https://github.com/ganlanyuan/tiny-slider/issues/53))
 - Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
-- Move `autoplay` button out of `nav` container. (from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0))
+- Move `autoplay` button out of `nav` container. (Start from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0))
 - Some selector changes in [`tiny-slider.scss`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss)
 
 *Migrating to v2*
