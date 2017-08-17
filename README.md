@@ -2,10 +2,9 @@
 ![version](https://img.shields.io/badge/Version-2.1.0-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
-
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
 Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
-Note: some features may need manual tests.  
+Note: some features may need a manual test.  
 
 *Previous versions*  
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
