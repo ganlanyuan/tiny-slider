@@ -899,7 +899,7 @@ function testResponsive2() {
         updateTest(testControlsT, assertionControls);
         updateTest(testNavT, assertionNav);
         updateTest(testAutoplayT, assertionAutoplay);
-        // document.body.removeChild(newWindow);
+        document.body.removeChild(newWindow);
       });
     } catch (e) {
       testControlsT.className = 'item-notsure';
