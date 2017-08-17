@@ -25,7 +25,7 @@ It's those who use tiny-slider shape the future of this project. If there is one
 ### Submit a pull request
 If you know what's wrong or missing and willing to help :heart: :clap: :+1:, follow the following steps:
 - Open your command line tool, go to the target directory, clone this project with `git clone git@github.com:ganlanyuan/tiny-slider.git` command.
-- Install Docker ([Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac), [Windows](https://store.docker.com/editions/community/docker-ce-desktop-windows)).
+- Install Docker ([Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac), [Windows](https://store.docker.com/editions/community/docker-ce-desktop-windows)) and run.
 - Pull the required image with `docker pull cmcdev/web` in the command line tool.
 - Run `docker-compose up` in the command line tool after located in the cloned directory.
 - Make changes in "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and a series of tasks will automatically run to minify, compile source files to final js and CSS files.
