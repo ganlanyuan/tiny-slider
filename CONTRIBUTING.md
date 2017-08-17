@@ -32,4 +32,4 @@ If you know what's wrong or missing and willing to help :heart: :clap: :+1:, fol
 - Test the project with "http://localhost:3000/tests/tests.html".
 - Turn down Docker with `docker-compose down -v` following command + C (Mac).   
 
-If you don't want to get complicated, just make changes to "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and send a pull request.
+NOTE: if you don't want to get complicated, just make changes to "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and send a pull request.
