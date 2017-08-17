@@ -1610,37 +1610,17 @@ var tns = function(options) {
 
   // set 'disabled' to true on controls when reach the edge
   function updateControlsStatus() {
-    if (controls && !loop) {
-      var disable = [], active = [];
-      if (index === indexMin) {
-        disable.push(prevButton);
-        active.push(nextButton);
-        changeFocus(prevButton, nextButton);
-      } else if (!rewind && index === indexMax) {
-        disable.push(nextButton);
-        active.push(prevButton);
-        changeFocus(nextButton, prevButton);
-      } else {
-        active.push(prevButton, nextButton);
-      }
+    if (!controls || loop) { return; }
 
-      if (disable.length > 0) {
-        disable.forEach(function (button) {
-          if (!button.disabled) {
-            button.disabled = true;
-            // setAttrs(button, {'tabindex': '-1'});
-          }
-        });
-      }
-
-      if (active.length > 0) {
-        active.forEach(function (button) {
-          if (button.disabled) {
-            button.disabled = false;
-            // setAttrs(button, {'tabindex': '0'});
-          }
-        });
-      }
+    if (index === indexMin) {
+      if (!prevButton.disabled) { prevButton.disabled = true; }
+      if (nextButton.disabled) { nextButton.disabled = false; }
+    } else if (!rewind && index === indexMax) {
+      if (prevButton.disabled) { prevButton.disabled = false; }
+      if (!nextButton.disabled) { nextButton.disabled = true; }
+    } else {
+      if (prevButton.disabled) { prevButton.disabled = false; }
+      if (nextButton.disabled) { nextButton.disabled = false; }
     }
   }
 
@@ -1950,16 +1930,6 @@ var tns = function(options) {
     }
   }
 
-  // change focus
-  function changeFocus(blur, focus) {
-    if (typeof blur === 'object' && 
-        typeof focus === 'object' && 
-        blur === document.activeElement) {
-      blur.blur();
-      focus.focus();
-    }
-  }
-
   // on key control
   function onKeydownControl(e) {
     e = e || window.event;
@@ -1990,6 +1960,11 @@ var tns = function(options) {
     }
   }
 
+  // set focus
+  function setFocus(focus) {
+    focus.focus();
+  }
+
   // on key nav
   function onKeydownNav(e) {
     e = e || window.event;
@@ -2000,19 +1975,19 @@ var tns = function(options) {
     switch(code) {
       case KEY.LEFT:
       case KEY.PAGEUP:
-        if (dataSlide > 0) { changeFocus(curElement, curElement.previousElementSibling); }
+        if (dataSlide > 0) { setFocus(curElement.previousElementSibling); }
         break;
       case KEY.UP:
       case KEY.HOME:
-        if (dataSlide !== 0) { changeFocus(curElement, navItems[0]); }
+        if (dataSlide !== 0) { setFocus(navItems[0]); }
         break;
       case KEY.RIGHT:
       case KEY.PAGEDOWN:
-        if (dataSlide < navCountVisible - 1) { changeFocus(curElement, curElement.nextElementSibling); }
+        if (dataSlide < navCountVisible - 1) { setFocus(curElement.nextElementSibling); }
         break;
       case KEY.DOWN:
       case KEY.END:
-        if (dataSlide < navCountVisible - 1) { changeFocus(curElement, navItems[navCountVisible - 1]); }
+        if (dataSlide < navCountVisible - 1) { setFocus(navItems[navCountVisible - 1]); }
         break;
       case KEY.ENTER:
       case KEY.SPACE:

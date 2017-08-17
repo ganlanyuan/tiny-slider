@@ -9,7 +9,7 @@ var doc = document,
       'test': {
         items: 1,
         slideBy: 'page',
-        nav: false,
+        // nav: false,
         loop: false,
       },
       'base': {
