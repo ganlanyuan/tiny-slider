@@ -79,6 +79,20 @@ var doc = document,
         edgePadding: edgepadding,
         fixedWidth: 300,
       }, 
+      'responsive': {
+        items: 2,
+        controls: false,
+        responsive: {
+          600: {
+            items: 3,
+            controls: true,
+            edgePadding: 30,
+          },
+          900: {
+            items: 4
+          }
+        }
+      },
       'responsive1': {
         container: '',
         gutter: 10,
