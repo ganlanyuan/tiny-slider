@@ -574,27 +574,28 @@ export var tns = function(options) {
       }
     }
 
-    // slide left margin
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (!SUBPIXEL && carousel && horizontal) {
-      [].forEach.call(slideItems, function (slide, i) {
-        slide.style.marginLeft = getSlideMarginLeft(i);
-      });
-    }
+    if (carousel && horizontal) {
+      // set font-size rules
+      // for modern browsers
+      // run once
+      if (SUBPIXEL) {
+        var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
+        // em, rem to px (for IE8-)
+        if (cssFontSize.indexOf('em') !== -1) {
+          cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+        }
 
-    // set font-size rules
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (carousel && horizontal && SUBPIXEL) {
-      var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
-      // em, rem to px (for IE8-)
-      if (cssFontSize.indexOf('em') !== -1) {
-        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+        addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+
+      // slide left margin
+      // for IE8 & webkit browsers (no subpixel)
+      // run once
+      } else {
+        [].forEach.call(slideItems, function (slide, i) {
+          slide.style.marginLeft = getSlideMarginLeft(i);
+        });
       }
-
-      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
     }
 
     if (CSSMQ) {
