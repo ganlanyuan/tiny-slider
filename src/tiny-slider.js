@@ -1289,11 +1289,9 @@ export var tns = function(options) {
     if (index%slideCount === indexMin) {
       if (!prevButton.disabled) { prevButton.disabled = true; }
       if (nextButton.disabled) { nextButton.disabled = false; }
-      changeFocus(prevButton, nextButton);
     } else if (!rewind && index%slideCount === indexMax) {
       if (prevButton.disabled) { prevButton.disabled = false; }
       if (!nextButton.disabled) { nextButton.disabled = true; }
-      changeFocus(nextButton, prevButton);
     } else {
       if (prevButton.disabled) { prevButton.disabled = false; }
       if (nextButton.disabled) { nextButton.disabled = false; }
@@ -1630,16 +1628,6 @@ export var tns = function(options) {
     }
   }
 
-  // change focus
-  function changeFocus(blur, focus) {
-    if (typeof blur === 'object' && 
-        typeof focus === 'object' && 
-        blur === doc.activeElement) {
-      blur.blur();
-      focus.focus();
-    }
-  }
-
   // on key control
   function onControlKeydown(e) {
     e = e || win.event;
@@ -1670,6 +1658,11 @@ export var tns = function(options) {
     }
   }
 
+  // set focus
+  function setFocus(focus) {
+    focus.focus();
+  }
+
   // on key nav
   function onNavKeydown(e) {
     e = e || win.event;
@@ -1692,30 +1685,22 @@ export var tns = function(options) {
     switch(code) {
       case KEYS.LEFT:
       case KEYS.PAGEUP:
-        if (current > 0) { 
-          changeFocus(curElement, navItems[getNavIndex(current - 1)]); 
-        }
+        if (current > 0) { setFocus(navItems[getNavIndex(current - 1)]); }
         break;
 
       case KEYS.UP:
       case KEYS.HOME:
-        if (current > 0) { 
-          changeFocus(curElement, navItems[getNavIndex(0)]); 
-        }
+        if (current > 0) { setFocus(navItems[getNavIndex(0)]); }
         break;
 
       case KEYS.RIGHT:
       case KEYS.PAGEDOWN:
-        if (current < len - 1) { 
-          changeFocus(curElement, navItems[getNavIndex(current + 1)]); 
-        }
+        if (current < len - 1) { setFocus(navItems[getNavIndex(current + 1)]); }
         break;
 
       case KEYS.DOWN:
       case KEYS.END:
-        if (current < len - 1) { 
-          changeFocus(curElement, navItems[getNavIndex(len - 1)]); 
-        }
+        if (current < len - 1) { setFocus(navItems[getNavIndex(len - 1)]); }
         break;
 
       case KEYS.ENTER:
