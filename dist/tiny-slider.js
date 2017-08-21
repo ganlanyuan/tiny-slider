@@ -611,7 +611,7 @@ function whichProperty(props){
   var el = document.createElement('fakeelement'),
       len = props.length;
   for(var i = 0; i < props.length; i++){
-    prop = props[i];
+    var prop = props[i];
     if( el.style[prop] !== undefined ){ return prop; }
   }
 
@@ -1333,7 +1333,10 @@ var tns = function(options) {
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
         var opts = responsive[bp],
-            str = innerWrapperStr = containerStr = slideStr = '',
+            str = '',
+            innerWrapperStr = '',
+            containerStr = '',
+            slideStr = '',
             itemsBP = getOption('items', bp),
             fixedWidthBP = getOption('fixedWidth', bp),
             edgePaddingBP = getOption('edgePadding', bp),

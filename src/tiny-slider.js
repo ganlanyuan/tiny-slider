@@ -654,7 +654,10 @@ export var tns = function(options) {
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
         var opts = responsive[bp],
-            str = innerWrapperStr = containerStr = slideStr = '',
+            str = '',
+            innerWrapperStr = '',
+            containerStr = '',
+            slideStr = '',
             itemsBP = getOption('items', bp),
             fixedWidthBP = getOption('fixedWidth', bp),
             edgePaddingBP = getOption('edgePadding', bp),
