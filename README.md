@@ -66,8 +66,10 @@ Note: some features may need a manual test.
 ## Usage
 ##### 1. Include tiny-slider
 ```html
-<link rel="stylesheet" href="tiny-slider.css">
+<!-- inside <head> -->
+<link rel="stylesheet" href="path/to/tiny-slider.css">
 
+<!-- inside <body> -->
 <!--[if (lt IE 9)]><script src="path/to/tiny-slider.ie8.js"></script><![endif]-->
 <script src="path/to/tiny-slider.js"></script>
 ```
