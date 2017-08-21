@@ -1,5 +1,5 @@
 # tiny-slider 2.0
-![version](https://img.shields.io/badge/Version-2.1.1-green.svg)  
+![version](https://img.shields.io/badge/Version-2.1.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
