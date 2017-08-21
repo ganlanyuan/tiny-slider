@@ -96,6 +96,10 @@ import { tns } from "path/to/src/tiny-slider.module"
     slideBy: 'page',
     autoplay: true
   });
+  
+  // NOTE: 
+  // prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.
+  // e.g. container: document.querySelector('.my-slider'),
 </script>
 ```
 
