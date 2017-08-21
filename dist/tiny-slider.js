@@ -894,7 +894,9 @@ var tns = function(options) {
       breakpointZoneAdjust = 0;
 
   if (responsive) {
-    breakpoints = Object.keys(responsive).sort(function (a, b) { return a - b; });
+    breakpoints = Object.keys(responsive)
+      .map(function (x) { return Number(x); })
+      .sort(function (a, b) { return a - b; });
     if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
 
     breakpoints.forEach(function(bp) {
@@ -1111,45 +1113,51 @@ var tns = function(options) {
 
   function getContainerWidth(fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
-    var widthStr;
+    var str;
 
     if (fixedWidthTem) {
-      widthStr = (fixedWidthTem + Number(gutterTem)) * slideCountNew + 'px';
+      str = (fixedWidthTem + Number(gutterTem)) * slideCountNew + 'px';
     } else {
-      widthStr = CALC ? 
+      str = CALC ? 
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
         slideCountNew * 100 / itemsTem + '%';
     }
 
-    return widthStr;
+    return str;
   }
 
-  function getSlideStyles(fixedWidthTem, gutterTem, itemsTem) {
+  function getSlideWidthStyle(fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
-    var widthStr = gutterStr = '';
+    var str = '';
 
     if (horizontal) {
-      widthStr = 'width:';
+      str = 'width:';
       if (fixedWidthTem) {
-        widthStr += (fixedWidthTem + Number(gutterTem)) + 'px';
+        str += (fixedWidthTem + Number(gutterTem)) + 'px';
       } else {
         var dividend = carousel ? slideCountNew : Math.min(slideCount, itemsTem);
-        widthStr += CALC ? 
+        str += CALC ? 
           CALC + '(100% / ' + dividend + ')' : 
           100 / dividend + '%';
       }
-      widthStr += importantStr + ';';
+      str += importantStr + ';';
     }
+
+    return str;
+  }
+
+  function getSlideGutterStyle(gutterTem) {
+    var str = '';
 
     // gutter maybe interger || 0
     // so can't use 'if (gutter)'
     if (gutterTem !== false) {
       var prop = horizontal ? 'padding-' : 'margin-',
           dir = horizontal ? 'right' : 'bottom';
-      gutterStr = prop +  dir + ': ' + gutterTem + 'px;';
+      str = prop +  dir + ': ' + gutterTem + 'px;';
     }
 
-    return widthStr + gutterStr;
+    return str;
   }
 
   (function sliderInit() {
@@ -1253,27 +1261,27 @@ var tns = function(options) {
       }
     }
 
-    // slide left margin
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (!SUBPIXEL && carousel && horizontal) {
-      [].forEach.call(slideItems, function (slide, i) {
-        slide.style.marginLeft = getSlideMarginLeft(i);
-      });
-    }
+    if (carousel && horizontal) {
+      // set font-size rules
+      // for modern browsers
+      // run once
+      if (SUBPIXEL) {
+        var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
+        // em, rem to px (for IE8-)
+        if (cssFontSize.indexOf('em') !== -1) {
+          cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+        }
 
-    // set font-size rules
-    // for IE8 & webkit browsers (no subpixel)
-    // run once
-    if (carousel && horizontal && SUBPIXEL) {
-      var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
-      // em, rem to px (for IE8-)
-      if (cssFontSize.indexOf('em') !== -1) {
-        cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+        addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+
+      // slide left margin
+      // for IE8 & webkit browsers (no subpixel)
+      } else {
+        [].forEach.call(slideItems, function (slide, i) {
+          slide.style.marginLeft = getSlideMarginLeft(i);
+        });
       }
-
-      addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-      addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
     }
 
     if (CSSMQ) {
@@ -1289,7 +1297,8 @@ var tns = function(options) {
 
       // slide styles
       if (horizontal || options.gutter) {
-        str = getSlideStyles(options.fixedWidth, options.gutter, options.items);
+        str = getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) + 
+              getSlideGutterStyle(options.gutter);
         addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
 
@@ -1308,7 +1317,8 @@ var tns = function(options) {
 
       // slide styles
       if (horizontal || gutter) {
-        var str = getSlideStyles(fixedWidth, gutter, items);
+        var str = getSlideWidthStyle(fixedWidth, gutter, items) +
+                  getSlideGutterStyle(gutter);
         // append to the last line
         addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
       }
@@ -1329,21 +1339,27 @@ var tns = function(options) {
             edgePaddingBP = getOption('edgePadding', bp),
             gutterBP = getOption('gutter', bp);
 
+        // inner wrapper string
         if ('edgePadding' in opts || 'gutter' in opts) {
           innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(edgePaddingBP, gutterBP, fixedWidthBP) + '}';
         }
 
-        if ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts) {
-          if (carousel && horizontal) {
-            containerStr = '#' + slideId + '{' + 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + '}';
-          }
-
-          if (horizontal || 'gutter' in opts) {
-            slideStr = '#' + slideId + ' .tns-item{' + getSlideStyles(fixedWidthBP, gutterBP, itemsBP) + '}';
-          }
+        // container string
+        if (carousel && horizontal && ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts)) {
+          containerStr = '#' + slideId + '{' + 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + '}';
         }
 
+        // slide string
+        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts) {
+          slideStr += getSlideWidthStyle(fixedWidthBP, gutterBP, itemsBP);
+        }
+        if ('gutter' in opts) {
+          slideStr += getSlideGutterStyle(gutterBP);
+        }
+        if (slideStr.length > 0) { slideStr = '#' + slideId + ' .tns-item{' + slideStr + '}'; }
+
         str = innerWrapperStr + containerStr + slideStr;
+
         if (str.length > 0) {
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
         }
@@ -1705,25 +1721,28 @@ var tns = function(options) {
       // set inline styles for inner wrapper & container
       // insert stylesheet (one line) for slides only (since slides are many)
       if (!CSSMQ) {
+        // inner wrapper styles
         if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
-          // inner wrapper styles
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
         }
 
-        if (fixedWidth !== fixedWidthTem || gutter !== gutterTem || items !== itemsTem) {
-          if (carousel && horizontal) {
-            // container styles
-            container.style.width = getContainerWidth(fixedWidth, gutter, items);
-          }
+        // container styles
+        if (carousel && horizontal && (fixedWidth !== fixedWidthTem || gutter !== gutterTem || items !== itemsTem)) {
+          container.style.width = getContainerWidth(fixedWidth, gutter, items);
+        }
 
-          // slide styles
-          if (horizontal || gutter !== gutterTem) {
-            str = getSlideStyles(fixedWidth, gutter, items);
-            // remove the last line and
-            // add it again
-            sheet.removeRule(getCssRulesLength(sheet) - 1);
-            addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
-          }
+        // slide styles
+        // always need to get width property
+        var str = getSlideWidthStyle(fixedWidth, gutter, items);
+        if (gutter !== gutterTem) {
+          str += getSlideGutterStyle(gutter);
+        }
+
+        // remove the last line and
+        // add it again
+        if (str.length > 0) {
+          sheet.removeRule(getCssRulesLength(sheet) - 1);
+          addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
         }
 
         if (!fixedWidth) { doTransform(0); }
@@ -1766,7 +1785,6 @@ var tns = function(options) {
     }
     // auto height
     runAutoHeight();
-    
   }
 
 
@@ -1968,11 +1986,9 @@ var tns = function(options) {
     if (index%slideCount === indexMin) {
       if (!prevButton.disabled) { prevButton.disabled = true; }
       if (nextButton.disabled) { nextButton.disabled = false; }
-      changeFocus(prevButton, nextButton);
     } else if (!rewind && index%slideCount === indexMax) {
       if (prevButton.disabled) { prevButton.disabled = false; }
       if (!nextButton.disabled) { nextButton.disabled = true; }
-      changeFocus(nextButton, prevButton);
     } else {
       if (prevButton.disabled) { prevButton.disabled = false; }
       if (nextButton.disabled) { nextButton.disabled = false; }
@@ -2309,16 +2325,6 @@ var tns = function(options) {
     }
   }
 
-  // change focus
-  function changeFocus(blur, focus) {
-    if (typeof blur === 'object' && 
-        typeof focus === 'object' && 
-        blur === doc.activeElement) {
-      blur.blur();
-      focus.focus();
-    }
-  }
-
   // on key control
   function onControlKeydown(e) {
     e = e || win.event;
@@ -2349,6 +2355,11 @@ var tns = function(options) {
     }
   }
 
+  // set focus
+  function setFocus(focus) {
+    focus.focus();
+  }
+
   // on key nav
   function onNavKeydown(e) {
     e = e || win.event;
@@ -2371,30 +2382,22 @@ var tns = function(options) {
     switch(code) {
       case KEYS.LEFT:
       case KEYS.PAGEUP:
-        if (current > 0) { 
-          changeFocus(curElement, navItems[getNavIndex(current - 1)]); 
-        }
+        if (current > 0) { setFocus(navItems[getNavIndex(current - 1)]); }
         break;
 
       case KEYS.UP:
       case KEYS.HOME:
-        if (current > 0) { 
-          changeFocus(curElement, navItems[getNavIndex(0)]); 
-        }
+        if (current > 0) { setFocus(navItems[getNavIndex(0)]); }
         break;
 
       case KEYS.RIGHT:
       case KEYS.PAGEDOWN:
-        if (current < len - 1) { 
-          changeFocus(curElement, navItems[getNavIndex(current + 1)]); 
-        }
+        if (current < len - 1) { setFocus(navItems[getNavIndex(current + 1)]); }
         break;
 
       case KEYS.DOWN:
       case KEYS.END:
-        if (current < len - 1) { 
-          changeFocus(curElement, navItems[getNavIndex(len - 1)]); 
-        }
+        if (current < len - 1) { setFocus(navItems[getNavIndex(len - 1)]); }
         break;
 
       case KEYS.ENTER:

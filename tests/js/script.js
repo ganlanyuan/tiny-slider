@@ -9,6 +9,29 @@ var doc = document,
     edgepadding = 50,
     gutter = 10,
     options= {
+      'test': {
+        container: '',
+        arrowKeys: true,
+        loop: true,
+        items: 1,
+        lazyload: true,
+        gutter: 0,
+        // controlsText: [' ', ' '],
+        responsive: {
+          700: {
+            items: 2,
+            gutter: 27
+          },
+          768: {
+            items: 3,
+            gutter: 30
+          },
+          1024: {
+            items: 4,
+            gutter: 50
+          }
+        }
+      },
       'base': {
         container: '',
         items: 3,
@@ -79,6 +102,20 @@ var doc = document,
         edgePadding: edgepadding,
         fixedWidth: 300,
       }, 
+      'responsive': {
+        items: 2,
+        controls: false,
+        responsive: {
+          600: {
+            items: 3,
+            controls: true,
+            edgePadding: 30,
+          },
+          900: {
+            items: 4
+          }
+        }
+      },
       'responsive1': {
         container: '',
         gutter: 10,

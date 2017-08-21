@@ -2,10 +2,9 @@
 ![version](https://img.shields.io/badge/Version-2.1.0-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
-
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
 Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
-Note: some features may need manual tests.  
+Note: some features may need a manual test.  
 
 *Previous versions*  
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
@@ -29,9 +28,9 @@ Note: some features may need manual tests.
 - Using `%` instead of `px` (No more recalculation of each slide width on window resize)
 - Using CSS Mediaqueries if supported
 - Save browser capbility values to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), so they will not be recheck again until browser get upgraded or user clear the localStorage manuelly.
-- More options available for `responsive`. (from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0), [issue 53](https://github.com/ganlanyuan/tiny-slider/issues/53))
+- More options available for `responsive`. (Start from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0), [issue 53](https://github.com/ganlanyuan/tiny-slider/issues/53))
 - Insert `controls` and `nav` _before_ slider instead of after ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
-- Move `autoplay` button out of `nav` container. (from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0))
+- Move `autoplay` button out of `nav` container. (Start from [v2.1.0](https://github.com/ganlanyuan/tiny-slider/releases/tag/v2.1.0))
 - Some selector changes in [`tiny-slider.scss`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss)
 
 *Migrating to v2*
@@ -56,7 +55,7 @@ Note: some features may need manual tests.
 - touch support
 - mouse drag ([pull 32](https://github.com/ganlanyuan/tiny-slider/pull/32))
 - arrow keys
-- accessibility for people using keyboard navigation or screen readers ([issue4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- accessibility for people using keyboard navigation or screen readers ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 - response to visibility changing ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
 - custom events
 - nested slider
