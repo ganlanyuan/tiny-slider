@@ -450,7 +450,6 @@ export var tns = function(options) {
   function getSlideWidthStyle(fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
     var str = '';
-
     if (horizontal) {
       str = 'width:';
       if (fixedWidthTem) {
