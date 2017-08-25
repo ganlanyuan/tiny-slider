@@ -1516,7 +1516,7 @@ export var tns = function(options) {
     // prev slideBy
     if (targetIndex === 'prev') {
       onPrevClick();
-      
+
     // next slideBy
     } else if (targetIndex === 'next') {
       onNextClick();
@@ -1530,12 +1530,15 @@ export var tns = function(options) {
       if (targetIndex === 'first') {
         indexGap = - absIndex;
       } else if (targetIndex === 'last') {
-        indexGap = slideCount - 1 - absIndex;
-      } else if (typeof targetIndex === 'number') {
-        var absTargetIndex = targetIndex%slideCount;
-        if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-        if (!loop && edgePadding) { absTargetIndex += 1; }
-        indexGap = absTargetIndex - absIndex;
+        indexGap = slideCount - items - absIndex;
+      } else {
+        if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
+        if (!isNaN(targetIndex)) {
+          var absTargetIndex = targetIndex%slideCount;
+          if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+          if (!loop && edgePadding) { absTargetIndex += 1; }
+          indexGap = absTargetIndex - absIndex;
+        }
       }
 
       index += indexGap;
