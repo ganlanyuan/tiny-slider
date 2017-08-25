@@ -1422,13 +1422,10 @@ var tns = function(options) {
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
 
       // add events
-      // for (var y = 0; y < slideCount; y++) {
-        // addEvents(navItems[y],{
-        addEvents(navContainer,{
-          'click': onNavClick,
-          'keydown': onNavKeydown
-        });
-      // }
+      addEvents(navContainer,{
+        'click': onNavClick,
+        'keydown': onNavKeydown
+      });
 
       if (!nav) { hideElement(navContainer); }
     }
@@ -1485,9 +1482,10 @@ var tns = function(options) {
       if (!loop) { prevButton.disabled = true; }
 
       // add events
-      addEvents(controlsContainer, {'keydown': onControlKeydown});
-      addEvents(prevButton,{'click': onPrevClick});
-      addEvents(nextButton,{'click': onNextClick});
+      addEvents(controlsContainer, {
+        'keydown': onControlKeydown,
+        'click': onControlsClick
+      });
 
       if (!controls) { hideElement(controlsContainer); }
     }
@@ -2197,11 +2195,11 @@ var tns = function(options) {
   function goTo (targetIndex) {
     // prev slideBy
     if (targetIndex === 'prev') {
-      onPrevClick();
+      onControlsClick(null, -1);
 
     // next slideBy
     } else if (targetIndex === 'next') {
-      onNextClick();
+      onControlsClick(null, 1);
 
     // go to exact slide
     } else if (!running) {
@@ -2236,25 +2234,31 @@ var tns = function(options) {
   }
 
   // on controls click
-  function onControlClick(dir) {
+  function onControlsClick(e, dir) {
     if (!running) {
-      index = index + dir * slideBy;
+      var shouldRender;
 
-      render();
-    }
-  }
+      if (!dir) {
+        e = e || win.event;
+        var target = e.target || e.srcElement;
+        while (target !== controlsContainer && !hasAttr(target, 'data-controls')) { target = target.parentNode; }
+      }
 
-  function onPrevClick() {
-    onControlClick(-1);
-  }
+      if (dir === -1 || target === prevButton) {
+        index -= slideBy;
+        shouldRender = true;
+      } else if (dir === 1 || target === nextButton) {
+        // Go to the first if reach the end in rewind mode
+        // Otherwise go to the next
+        if(rewind && index === indexMax){
+          goTo(0);
+        }else{
+          index += slideBy;
+          shouldRender = true;
+        }
+      }
 
-  function onNextClick() {
-    // goes to the first if reach the end in rewind mode
-    // other wise go to the next
-    if(rewind && index === indexMax){
-      goTo(0);
-    }else{
-      onControlClick(1);
+      if (shouldRender) { render(); }
     }
   }
 
@@ -2302,7 +2306,7 @@ var tns = function(options) {
     if (animating === true) { return; }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
-      onControlClick(autoplayDirection);
+      onControlsClick(null, autoplayDirection);
     }, autoplayTimeout);
   }
 
@@ -2326,32 +2330,31 @@ var tns = function(options) {
     e = e || win.event;
     switch(e.keyCode) {
       case KEYS.LEFT:
-        onPrevClick();
+        onControlsClick(null, -1);
         break;
       case KEYS.RIGHT:
-        onNextClick();
+        onControlsClick(null, 1);
     }
   }
 
   // on key control
   function onControlKeydown(e) {
     e = e || win.event;
-    var code = e.keyCode,
-        curElement = doc.activeElement;
+    var code = e.keyCode;
 
     switch (code) {
       case KEYS.LEFT:
       case KEYS.UP:
       case KEYS.PAGEUP:
           if (!prevButton.disabled) {
-            onPrevClick();
+            onControlsClick(null, -1);
           }
           break;
       case KEYS.RIGHT:
       case KEYS.DOWN:
       case KEYS.PAGEDOWN:
           if (!nextButton.disabled) {
-            onNextClick();
+            onControlsClick(null, 1);
           }
           break;
       case KEYS.HOME:

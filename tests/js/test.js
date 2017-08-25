@@ -588,7 +588,7 @@ function testFixedWidthEdgePaddingGutter () {
         cloneCount = info.cloneCount,
         items = info.items;
 
-    alert(items);
+    // alert(items);
     // alert(slideItems[cloneCount].getBoundingClientRect().left);
     // alert(windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
     return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
