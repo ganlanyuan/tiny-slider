@@ -216,7 +216,7 @@ export var tns = function(options) {
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
-      .map(function (x) { return Number(x); })
+      .map(function (x) { return parseInt(x); })
       .sort(function (a, b) { return a - b; });
     if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
 
@@ -437,7 +437,7 @@ export var tns = function(options) {
     var str;
 
     if (fixedWidthTem) {
-      str = (fixedWidthTem + Number(gutterTem)) * slideCountNew + 'px';
+      str = (fixedWidthTem + parseInt(gutterTem)) * slideCountNew + 'px';
     } else {
       str = CALC ? 
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
@@ -454,7 +454,7 @@ export var tns = function(options) {
     if (horizontal) {
       str = 'width:';
       if (fixedWidthTem) {
-        str += (fixedWidthTem + Number(gutterTem)) + 'px';
+        str += (fixedWidthTem + parseInt(gutterTem)) + 'px';
       } else {
         var dividend = carousel ? slideCountNew : Math.min(slideCount, itemsTem);
         str += CALC ? 
@@ -589,8 +589,8 @@ export var tns = function(options) {
       if (SUBPIXEL) {
         var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
         // em, rem to px (for IE8-)
-        if (cssFontSize.indexOf('em') !== -1) {
-          cssFontSize = Number(cssFontSize.replace(/r?em/, '')) * 16 + 'px';
+        if (cssFontSize.indexOf('em') > 0) {
+          cssFontSize = parseFloat(cssFontSize) * 16 + 'px';
         }
 
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
@@ -1337,7 +1337,7 @@ export var tns = function(options) {
     var val;
     if (horizontal) {
       if (fixedWidth) {
-        val = - (fixedWidth + Number(gutter)) * index + 'px';
+        val = - (fixedWidth + parseInt(gutter)) * index + 'px';
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
         val = - index * 100 / denominator + '%';
@@ -1384,7 +1384,7 @@ export var tns = function(options) {
           var containerRightEdge = TRANSFORM ? 
               - ((slideCountNew - items) / slideCountNew) * 100 : 
               - (slideCountNew / items - 1) * 100; 
-          distance = Math.max(Number(distance.replace('%', '')), containerRightEdge) + '%';
+          distance = Math.max(parseFloat(distance), containerRightEdge) + '%';
         }
 
         if (TRANSITIONDURATION || !duration) {
@@ -1586,7 +1586,7 @@ export var tns = function(options) {
       while (getAttr(clickTarget, 'data-nav') === null) {
         clickTarget = clickTarget.parentNode;
       }
-      navIndex = navClicked = Number(getAttr(clickTarget, 'data-nav'));
+      navIndex = navClicked = parseInt(getAttr(clickTarget, 'data-nav'));
 
       goTo(navIndex);
     }
@@ -1691,7 +1691,7 @@ export var tns = function(options) {
     e = e || win.event;
     var code = e.keyCode,
         curElement = doc.activeElement,
-        dataSlide = Number(getAttr(curElement, 'data-nav')),
+        dataSlide = parseInt(getAttr(curElement, 'data-nav')),
         len = visibleNavIndexes.length,
         current = visibleNavIndexes.indexOf(dataSlide),
         navIndex;
@@ -1762,7 +1762,7 @@ export var tns = function(options) {
     var ev = e.type === 'touchstart' ? e.changedTouches[0] : e;
     startX = parseInt(ev.clientX);
     startY = parseInt(ev.clientY);
-    translateInit = Number(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, '').replace(/(px|%)/g, ''));
+    translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
 
     if (e.type === 'touchstart') {
       events.emit('touchStart', info(e));
