@@ -204,6 +204,7 @@ function testBase () {
           assertion = undefined;
           var info = slider.getInfo(),
               slideCount = info.slideCount,
+              navContainer = info.navContainer,
               navItems = info.navItems,
               slideItems = info.slideItems,
               visibleNavIndexes = info.visibleNavIndexes,
@@ -214,7 +215,7 @@ function testBase () {
             navItems[visibleNavIndexes[0]].focus();
             // fire keydown event on right arrow
             // the 2nd nav item get focused
-            fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 39});
+            fire(navContainer, 'keydown', {'keyCode': 39});
             resolve();
           }).then(function() {
             return new Promise(function(resolve) {
@@ -224,7 +225,7 @@ function testBase () {
           }).then(function() {
             // press "Enter"
             return new Promise(function(resolve) {
-              fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 13});
+              fire(navContainer, 'keydown', {'keyCode': 13});
               resolve();
             });
           }).then(function() {
@@ -243,7 +244,7 @@ function testBase () {
             return new Promise(function (resolve) {
               // fire keydown event on left arrow
               // the 1st nav item get focused
-              fire(navItems[visibleNavIndexes[1]], 'keydown', {'keyCode': 37});
+              fire(navContainer, 'keydown', {'keyCode': 37});
               resolve();
             });
           }).then(function() {
@@ -257,7 +258,7 @@ function testBase () {
             return new Promise(function(resolve) {
               // fire keydown event on down arrow
               // the 3nd nav item get focused
-              fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 40});
+              fire(navContainer, 'keydown', {'keyCode': 40});
               resolve();
             })
           }).then(function() {
@@ -270,7 +271,7 @@ function testBase () {
           }).then(function(){
             return new Promise(function(resolve) {
               // press "Space"
-              fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 32});
+              fire(navContainer, 'keydown', {'keyCode': 32});
               resolve();
             });
           }).then(function() {
@@ -289,7 +290,7 @@ function testBase () {
             return new Promise(function(resolve) {
               // fire keydown event on up arrow
               // the 1st nav item get focused
-              fire(navItems[visibleNavIndexes[2]], 'keydown', {'keyCode': 38});
+              fire(navContainer, 'keydown', {'keyCode': 38});
               resolve();
             });
           }).then(function() {
@@ -302,7 +303,7 @@ function testBase () {
           }).then(function() {
             return new Promise(function(resolve) {
               // press "Enter"
-              fire(navItems[visibleNavIndexes[0]], 'keydown', {'keyCode': 13});
+              fire(navContainer, 'keydown', {'keyCode': 13});
               resolve();
             });
           }).then(function(){
@@ -587,6 +588,9 @@ function testFixedWidthEdgePaddingGutter () {
         cloneCount = info.cloneCount,
         items = info.items;
 
+    alert(items);
+    // alert(slideItems[cloneCount].getBoundingClientRect().left);
+    // alert(windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
     return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
   });
 }

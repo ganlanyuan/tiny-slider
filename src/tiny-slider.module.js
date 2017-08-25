@@ -379,7 +379,7 @@ export var tns = function(options) {
     var result;
 
     if (item === 'items' && getOption('fixedWidth')) {
-      result = Math.floor(view / getOption('fixedWidth'));
+      result = Math.floor(view / (getOption('fixedWidth') + getOption('gutter')));
     } else if (item === 'slideBy' && !carousel) {
       result = items;
     } else if (item === 'edgePadding' && !carousel) {
@@ -437,7 +437,7 @@ export var tns = function(options) {
     var str;
 
     if (fixedWidthTem) {
-      str = (fixedWidthTem + parseInt(gutterTem)) * slideCountNew + 'px';
+      str = (fixedWidthTem + gutterTem) * slideCountNew + 'px';
     } else {
       str = CALC ? 
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
@@ -454,7 +454,7 @@ export var tns = function(options) {
     if (horizontal) {
       str = 'width:';
       if (fixedWidthTem) {
-        str += (fixedWidthTem + parseInt(gutterTem)) + 'px';
+        str += (fixedWidthTem + gutterTem) + 'px';
       } else {
         var dividend = carousel ? slideCountNew : Math.min(slideCount, itemsTem);
         str += CALC ? 
@@ -743,12 +743,13 @@ export var tns = function(options) {
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
 
       // add events
-      for (var y = 0; y < slideCount; y++) {
-        addEvents(navItems[y],{
+      // for (var y = 0; y < slideCount; y++) {
+        // addEvents(navItems[y],{
+        addEvents(navContainer,{
           'click': onNavClick,
           'keydown': onNavKeydown
         });
-      }
+      // }
 
       if (!nav) { hideElement(navContainer); }
     }
@@ -848,6 +849,8 @@ export var tns = function(options) {
 
 // === ON RESIZE ===
   function onResize(e) {
+    e = e || win.event;
+
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
       if (vpOuter !== outerWrapper.clientWidth) {
@@ -1337,7 +1340,7 @@ export var tns = function(options) {
     var val;
     if (horizontal) {
       if (fixedWidth) {
-        val = - (fixedWidth + parseInt(gutter)) * index + 'px';
+        val = - (fixedWidth + gutter) * index + 'px';
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
         val = - index * 100 / denominator + '%';
@@ -1579,16 +1582,16 @@ export var tns = function(options) {
   // on nav click
   function onNavClick(e) {
     if (!running) {
-      var clickTarget = e.target || e.srcElement,
+      e = e || win.event;
+      var target = e.target || e.srcElement,
           navIndex;
 
       // find the clicked nav item
-      while (getAttr(clickTarget, 'data-nav') === null) {
-        clickTarget = clickTarget.parentNode;
+      while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
+      if (hasAttr(target, 'data-nav')) {
+        navIndex = navClicked = [].indexOf.call(navItems, target);
+        goTo(navIndex);
       }
-      navIndex = navClicked = parseInt(getAttr(clickTarget, 'data-nav'));
-
-      goTo(navIndex);
     }
   }
 
@@ -1688,17 +1691,18 @@ export var tns = function(options) {
 
   // on key nav
   function onNavKeydown(e) {
+    var curElement = doc.activeElement;
+    if (!hasAttr(curElement, 'data-nav')) { return; }
+
     e = e || win.event;
     var code = e.keyCode,
-        curElement = doc.activeElement,
-        dataSlide = parseInt(getAttr(curElement, 'data-nav')),
+        navIndex = [].indexOf.call(navItems, curElement),
         len = visibleNavIndexes.length,
-        current = visibleNavIndexes.indexOf(dataSlide),
-        navIndex;
+        current = visibleNavIndexes.indexOf(navIndex);
 
     if (options.navContainer) {
       len = slideCount;
-      current = dataSlide;
+      current = navIndex;
     }
 
     function getNavIndex(num) {
@@ -1726,9 +1730,12 @@ export var tns = function(options) {
         if (current < len - 1) { setFocus(navItems[getNavIndex(len - 1)]); }
         break;
 
+      // Can't use onNavClick here,
+      // Because onNavClick require event.target as nav items
       case KEYS.ENTER:
       case KEYS.SPACE:
-        onNavClick(e);
+        navClicked = navIndex;
+        goTo(navIndex);
         break;
     }
   }
