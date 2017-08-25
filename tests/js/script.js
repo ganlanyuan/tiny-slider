@@ -310,9 +310,7 @@ if (doc.querySelector('#base_wrapper')) {
       gotoInput = goto.querySelector('input');
 
   gotoBtn.onclick = function (event) {
-    var index = Number(gotoInput.value);
-    if (typeof index === 'number') {
-      sliders['base'].goTo(index);
-    }
+    var index = gotoInput.value;
+    sliders['base'].goTo(index);
   };
 }

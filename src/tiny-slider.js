@@ -1513,30 +1513,29 @@ export var tns = function(options) {
 
   // # ACTIONS
   function goTo (targetIndex) {
-    if (!running) {
-      var absIndex = index%slideCount, indexGap;
+    // prev slideBy
+    if (targetIndex === 'prev') {
+      onPrevClick();
+      
+    // next slideBy
+    } else if (targetIndex === 'next') {
+      onNextClick();
+
+    // go to exact slide
+    } else if (!running) {
+      var absIndex = index%slideCount, 
+          indexGap = 0;
       if (absIndex < 0) { absIndex += slideCount; }
 
-      switch(targetIndex) {
-        case 'next':
-          indexGap = 1;
-          break;
-        case 'prev':
-          indexGap = -1;
-          break;
-        case 'first':
-          indexGap = - absIndex;
-          break;
-        case 'last':
-          indexGap = (slideCount - 1) - absIndex;
-          break;
-        default:
-          if (typeof targetIndex === 'number') {
-            var absTargetIndex = targetIndex%slideCount;
-            if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-            if (!loop && edgePadding) { absTargetIndex += 1; }
-            indexGap = absTargetIndex - absIndex;
-          }
+      if (targetIndex === 'first') {
+        indexGap = - absIndex;
+      } else if (targetIndex === 'last') {
+        indexGap = slideCount - 1 - absIndex;
+      } else if (typeof targetIndex === 'number') {
+        var absTargetIndex = targetIndex%slideCount;
+        if (absTargetIndex < 0) { absTargetIndex += slideCount; }
+        if (!loop && edgePadding) { absTargetIndex += 1; }
+        indexGap = absTargetIndex - absIndex;
       }
 
       index += indexGap;
