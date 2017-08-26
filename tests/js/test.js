@@ -29,6 +29,7 @@ fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 window.onload = function () {
+  // simulateClick(document.querySelector('#customize_wrapper .prev'));
   testBase();
   testNonLoop();
   testRewind();
@@ -1562,9 +1563,6 @@ function testCustomize () {
   runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
     return checkSlidesAttrs(id);
   });
-  if (opt['autoplay']) {
-    autoplayButton.click();
-  }
 
   runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function () {
     return checkControlsAttrs(id);
@@ -1595,27 +1593,29 @@ function testCustomize () {
     return assertion;
   });
 
+  // simulateClick(info.prevButton);
   var controlsClick = addTest('Controls: click functions');
-  checkControlsClick(controlsClick, id, 11);
+  var autoplayT = addTest('Slide: autoplay');
+  var autoplayPauseT = addTest('Slide: autoplay pause');
+  checkControlsClick(controlsClick, id, 11).then(function () {
+    if (opt['autoplay']) {
+      // reset autoplay
+      autoplayButton.click();
 
-  if (opt['autoplay']) {
-    var timeout = 100;
-    if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
-    if (opt['speed']) { timeout += opt['speed']; }
+      var timeout = 100;
+      if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+      if (opt['speed']) { timeout += opt['speed']; }
 
-    var test1 = addTest('Slide: autoplay');
-    testAutoplayFn(id, test1, timeout, false);
-
-    var test2 = addTest('Slide: autoplay pause');
-    wait(timeout).then(function() {
-      return new Promise(function(resolve) {
-        autoplayButton.click();
-        resolve();
-      }).then(function() {
-        testAutoplayFn(id, test2, timeout, true);
+      testAutoplayFn(id, autoplayT, timeout, false).then(function() {
+        return new Promise(function(resolve) {
+          autoplayButton.click();
+          resolve();
+        }).then(function() {
+          testAutoplayFn(id, autoplayPauseT, timeout, true);
+        });
       });
-    });
-  }
+    }
+  });
 }
 
 function testAutoHeight () {
@@ -1870,6 +1870,9 @@ function checkControlsClick(test, id, count, vertical) {
         last = slideItems[index + items - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
         
+    // if (id === 'customize') {
+    //   console.log(absIndex, index%slideCount);
+    // }
     return absIndex === index%slideCount &&
       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&
