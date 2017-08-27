@@ -86,7 +86,7 @@ function simulateClick(target, options) {
     //Fire the event
     target.dispatchEvent(event);
   } else {
-    target.fireEvent('onclick');
+    target.click();
   }
 }
 
