@@ -33,32 +33,62 @@ if(!window.getComputedStyle){
   };
 } 
 
-function simulateClick(el) {
-  try {
-    // modern browsers, IE11+
-    var event = new MouseEvent('click', {
-      'view': window,
-      'bubbles': true,
-      'cancelable': true
-    });
-    el.dispatchEvent(event);
-    // alert('MouseEvent');
-  } catch (e) {
-    if ('createEvent' in document) {
-      // modern browsers, IE9+
-      var event = document.createEvent('HTMLEvents');
-      event.initEvent('click', false, true);
-      el.dispatchEvent(event);
-      // alert('createEvent');
-    } else {
-      // IE8
-      var event = document.createEventObject();
-      el.fireEvent('onclick', event);
-      // alert('None');
+// simulateClick(clickHandler)
+// https://stackoverflow.com/questions/6157929/how-to-simulate-a-mouse-click-using-javascript#answer-6158160
+function simulateClick(target, options) {
+  if (target.dispatchEvent) {
+    var event = target.ownerDocument.createEvent('MouseEvents'),
+        options = options || {},
+        opts = { // These are the default values, set up for un-modified left clicks
+          type: 'click',
+          canBubble: true,
+          cancelable: true,
+          view: target.ownerDocument.defaultView,
+          detail: 1,
+          screenX: 0, //The coordinates within the entire page
+          screenY: 0,
+          clientX: 0, //The coordinates within the viewport
+          clientY: 0,
+          ctrlKey: false,
+          altKey: false,
+          shiftKey: false,
+          metaKey: false, //I *think* 'meta' is 'Cmd/Apple' on Mac, and 'Windows key' on Win. Not sure, though!
+          button: 0, //0 = left, 1 = middle, 2 = right
+          relatedTarget: null,
+        };
+
+    //Merge the options with the defaults
+    for (var key in options) {
+      if (options.hasOwnProperty(key)) {
+        opts[key] = options[key];
+      }
     }
+
+    //Pass in the options
+    event.initMouseEvent(
+        opts.type,
+        opts.canBubble,
+        opts.cancelable,
+        opts.view,
+        opts.detail,
+        opts.screenX,
+        opts.screenY,
+        opts.clientX,
+        opts.clientY,
+        opts.ctrlKey,
+        opts.altKey,
+        opts.shiftKey,
+        opts.metaKey,
+        opts.button,
+        opts.relatedTarget
+    );
+
+    //Fire the event
+    target.dispatchEvent(event);
+  } else {
+    target.fireEvent('onclick');
   }
 }
-// simulateClick(clickHandler)
 
 // IE9+, firefox8+, chrome19+, opera12.1+, safari6+
 function CustomEvent (event, params) {

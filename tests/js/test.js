@@ -29,7 +29,12 @@ fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 window.onload = function () {
-  // simulateClick(document.querySelector('#customize_wrapper .prev'));
+  // var prev = document.querySelector('#customize_wrapper .prev');
+  // prev.onclick = function () {
+  //   alert('clicked!');
+  // };
+  // simulateClick(prev);
+  
   testBase();
   testNonLoop();
   testRewind();

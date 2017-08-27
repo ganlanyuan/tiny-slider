@@ -1483,7 +1483,7 @@ var tns = function(options) {
 
       // add events
       addEvents(controlsContainer, {
-        'keydown': onControlKeydown,
+        'keydown': onControlsKeydown,
         'click': onControlsClick
       });
 
@@ -2338,7 +2338,7 @@ var tns = function(options) {
   }
 
   // on key control
-  function onControlKeydown(e) {
+  function onControlsKeydown(e) {
     e = e || win.event;
     var code = e.keyCode;
 
