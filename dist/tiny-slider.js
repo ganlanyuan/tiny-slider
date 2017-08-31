@@ -1077,9 +1077,10 @@ var tns = function(options) {
         }
       }
 
-      if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
       if (item === 'slideBy' && result === 'page') { result = items; }
     }
+
+    if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
 
     return result;
   }
@@ -1245,6 +1246,7 @@ var tns = function(options) {
       container.appendChild(fragmentAfter);
       slideItems = container.children;
     }
+    console.log(items);
 
     // activate visible slides
     // add aria attrs
@@ -2194,7 +2196,7 @@ var tns = function(options) {
   // # ACTIONS
   function goTo (targetIndex) {
     if (freeze) { return; }
-    
+
     // prev slideBy
     if (targetIndex === 'prev') {
       onControlsClick(null, -1);

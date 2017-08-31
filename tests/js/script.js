@@ -102,6 +102,7 @@ window.options = {
     edgePadding: edgepadding,
     fixedWidth: 300,
     slideBy: 2,
+    loop: false,
   }, 
   'responsive': {
     items: 2,
