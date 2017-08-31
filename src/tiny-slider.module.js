@@ -1514,6 +1514,8 @@ export var tns = function(options) {
 
   // # ACTIONS
   function goTo (targetIndex) {
+    if (freeze) { return; }
+    
     // prev slideBy
     if (targetIndex === 'prev') {
       onControlsClick(null, -1);

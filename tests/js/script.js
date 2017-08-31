@@ -291,16 +291,16 @@ for (var i in options) {
     // sliders[i].destroy();
 
     // insert code
-    if (isDemoPage) {
-      doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
-        if (typeof value === 'object') {
-          if (value.id) {
-            return "document.querySelector('#" + value.id + "')";
-          }
-        }
-        return value;
-      }, '  ') + '</code></pre>');
-    }
+    // if (isDemoPage) {
+    //   doc.querySelector('#' + i + '_wrapper').insertAdjacentHTML('beforeend', '<pre><code class="language-javascript">' + JSON.stringify(item, function (key, value) {
+    //     if (typeof value === 'object') {
+    //       if (value.id) {
+    //         return "document.querySelector('#" + value.id + "')";
+    //       }
+    //     }
+    //     return value;
+    //   }, '  ') + '</code></pre>');
+    // }
   }
 }
 
@@ -315,3 +315,6 @@ if (doc.querySelector('#base_wrapper')) {
     sliders['base'].goTo(index);
   };
 }
+
+var sl = sliders['fixedWidth-edgePadding-gutter'];
+sl.goTo('next');
