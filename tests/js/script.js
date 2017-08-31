@@ -101,6 +101,7 @@ window.options = {
     gutter: gutter,
     edgePadding: edgepadding,
     fixedWidth: 300,
+    slideBy: 2,
   }, 
   'responsive': {
     items: 2,
