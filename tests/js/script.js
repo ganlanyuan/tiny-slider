@@ -318,4 +318,4 @@ if (doc.querySelector('#base_wrapper')) {
 }
 
 var sl = sliders['fixedWidth-edgePadding-gutter'];
-sl.goTo('next');
+// sl.goTo('next');
