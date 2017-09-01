@@ -17,7 +17,6 @@ Note: some features may need a manual test.
 \+ [Usage](#usage)  
 \+ [Options](#options)  
 \+ [Responsive options](#responsive-options)  
-\+ [Get slider information](#get-slider-information)  
 \+ [Methods](#methods)  
 \+ [Custom Events](#custom-events)  
 \+ [Fallback](#fallback)  
@@ -38,6 +37,7 @@ Note: some features may need a manual test.
 - Update `controls` and / or `nav` styles based on their position changes. 
 - Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
 - Update styles related to `autoplay` button.
+*[top↑](#tiny-slider-20)*  
 
 ## Features
 - carousel / gallery
@@ -60,6 +60,7 @@ Note: some features may need a manual test.
 - response to visibility changing ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
 - custom events
 - nested slider
+*[top↑](#tiny-slider-20)*  
 
 ## Install
 `bower install tiny-slider` or `npm install tiny-slider`
@@ -114,6 +115,7 @@ Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
   // e.g. container: document.querySelector('.my-slider'),
 </script>
 ```
+*[top↑](#tiny-slider-20)*  
 
 ## Options
 
@@ -154,6 +156,8 @@ Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
 | `mouseDrag` | Boolean | Default: `false`. <br> Changing slides by dragging them. |
 | `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
+
+*[top↑](#tiny-slider-20)*  
 
 ## Responsive options
 The following options can be redefined in `responsive` field:  
@@ -197,12 +201,14 @@ NOTE: `fixedWidth` can only be changed from positive integer to positive integer
   });
 </script>
 ```
+*[top↑](#tiny-slider-20)*  
 
-## Get slider information
+## Methods
 There are 2 ways to get slider information, both return `info` Object:   
 1. `getInfo` method.   
 2. Subscribe to an event.   
 ```javascript
+// info Object
 info = {
   container: container, // slider container
   slideItems: slideItems, // slides list
@@ -226,7 +232,6 @@ info = {
 };
 ```
 
-## Methods
 ##### getInfo
 ```javascript
 // get info object
@@ -281,6 +286,8 @@ slider.events.on('transitionEnd', customizedFunction);
 // remove function binding
 slider.events.off('transitionEnd', customizedFunction);
 ```
+*[top↑](#tiny-slider-20)*  
+
 #### Fallback
 ```css
 .no-js .your-slider { overflow-x: auto; }
