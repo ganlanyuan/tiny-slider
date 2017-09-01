@@ -69,8 +69,16 @@ window.options = {
   },
   'non-loop': {
     container: '',
-    items: 3,
+    // items: 3,
     loop: false,
+    responsive: {
+      500: {
+        items: 2
+      },
+      900: {
+        items: 3
+      }
+    }
   }, 
   'rewind': {
     container: '',
@@ -103,6 +111,7 @@ window.options = {
     fixedWidth: 300,
     slideBy: 2,
     loop: false,
+    arrowKeys: true,
   }, 
   'responsive': {
     items: 2,
@@ -316,3 +325,6 @@ if (doc.querySelector('#base_wrapper')) {
     sliders['base'].goTo(index);
   };
 }
+
+var slider = sliders['non-loop'];
+slider.goTo('last');

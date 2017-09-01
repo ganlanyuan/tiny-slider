@@ -47,7 +47,8 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = [''] %} #}
+  {% set sliders = ['fixedWidth-edgePadding-gutter'] %}
+  {% set sliders = ['non-loop'] %}
 {% else %}
   {% set sliders = [
     'base',
@@ -193,6 +194,7 @@
           
         {# default #}
         {% else %}
+          {# {% for i in range(1, 8) %} #}
           {% for i in range(1, 8) %}
           <div class="item">
             <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>

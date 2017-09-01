@@ -1556,7 +1556,6 @@ var tns = function(options) {
     if (breakpointZoneTem !== breakpointZone || fixedWidth) {
       var slideByTem = slideBy,
           arrowKeysTem = arrowKeys,
-          // speedTem = speed,
           autoHeightTem = autoHeight,
           fixedWidthTem = fixedWidth,
           edgePaddingTem = edgePadding,
@@ -1567,57 +1566,44 @@ var tns = function(options) {
 
       // update variables
       items = getOption('items');
-      slideBy = getOption('slideBy'); // slideBy may have value 'page'
-      arrowKeys = freeze ? false : opts.arrowKeys || getOption('arrowKeys');
-      speed = opts.speed || getOption('speed');
-      autoHeight = getOption('autoHeight');
-      fixedWidth = opts.fixedWidth || getOption('fixedWidth');
-      edgePadding = opts.edgePadding || getOption('edgePadding');
-      gutter = opts.gutter || getOption('gutter');
+      slideBy = getOption('slideBy');
       freeze = slideCount <= items;
 
+      if (items !== itemsTem) {
+        indexMax = slideCountNew - items - indexAdjust;
+        // check index before transform in case
+        // slider reach the right edge then items become bigger
+        checkIndex();
+      }
+      
       if (freeze !== freezeTem && freeze) {
         // reset index to initial status
         index = !carousel ? 0 : cloneCount;
       }
+      
+      if (breakpointZoneTem !== breakpointZone) {
+        speed = opts.speed || getOption('speed');
+        edgePadding = opts.edgePadding || getOption('edgePadding');
+        gutter = opts.gutter || getOption('gutter');
 
+        fixedWidth = opts.fixedWidth || getOption('fixedWidth');
+        if (fixedWidth !== fixedWidthTem) {
+          doContainerTransform();
+        }
+
+        autoHeight = getOption('autoHeight');
+        if (autoHeight !== autoHeightTem) {
+          if (!autoHeight) { innerWrapper.style.height = ''; }
+        }
+      }
+
+      arrowKeys = freeze ? false : opts.arrowKeys || getOption('arrowKeys');
       if (arrowKeys !== arrowKeysTem) {
         arrowKeys ?
           addEvents(doc, docmentKeydownEvent) :
           removeEvents(doc, docmentKeydownEvent);
       }
 
-      // if (slideBy !== slideByTem) {
-      // }
-      // if (speed !== speedTem) {
-      // }
-      if (fixedWidth !== fixedWidthTem) {
-        doContainerTransform();
-      }
-      if (autoHeight !== autoHeightTem) {
-        if (!autoHeight) { innerWrapper.style.height = ''; }
-      }
-
-      // if (!carousel) {
-      //   var animateInTem = animateIn,
-      //       animateOutTem = animateOut,
-      //       animateNormalTem = animateNormal,
-      //       animateDelayTem = animateDelay;
-
-      //   animateIn = opts.animateIn || getOption('animateIn');
-      //   animateOut = opts.animateOut || getOption('animateOut');
-      //   animateNormal = opts.animateNormal || getOption('animateNormal');
-      //   animateDelay = opts.animateDelay || getOption('animateDelay');
-
-      //   if (animateIn !== animateInTem) {
-      //   }
-      //   if (animateOut !== animateOutTem) {
-      //   }
-      //   if (animateNormal !== animateNormalTem) {
-      //   }
-      //   if (animateDelay !== animateDelayTem) {
-      //   }
-      // }
       if (hasControls) {
         var controlsTem = controls,
             controlsTextTem = controlsText;
@@ -1672,7 +1658,6 @@ var tns = function(options) {
             autoplayHoverPauseTem = autoplayHoverPause,
             autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
             autoplayTextTem = autoplayText;
-            // autoplayTimeoutTem = autoplayTimeout;
 
         if (freeze) {
           autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
@@ -1716,12 +1701,7 @@ var tns = function(options) {
             autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
           }
         }
-        // if (autoplayTimeout !== autoplayTimeoutTem) {
-        // }
       }
-
-
-      checkIndex();
 
       // IE8
       // ## update inner wrapper, container, slides if needed
@@ -1755,9 +1735,13 @@ var tns = function(options) {
         if (!fixedWidth) { doTransform(0); }
       }
 
-      if (items !== itemsTem) {
-        indexMax = slideCountNew - items - indexAdjust;
+      if (index !== indexTem) { 
+        events.emit('indexChanged', info());
+        doTransform(0); 
+        indexCached = index;
+      }
 
+      if (items !== itemsTem || index !== indexTem) { 
         lazyLoad(); 
         updateSlideStatus();
         updateControlsStatus();
@@ -1765,12 +1749,6 @@ var tns = function(options) {
         updateNavStatus();
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
-      }
-
-      if (index !== indexTem) { 
-        events.emit('indexChanged', info());
-        doTransform(0); 
-        indexCached = index;
       }
     }
 
@@ -2277,8 +2255,6 @@ var tns = function(options) {
       }
 
       index += indexGap;
-      // check index before compare with indexCached
-      if (checkIndexBeforeTransform) { checkIndex(); }
 
       // if index is changed, start rendering
       if (index%slideCount !== indexCached%slideCount) {
