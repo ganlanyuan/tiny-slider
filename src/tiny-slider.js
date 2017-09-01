@@ -2079,7 +2079,7 @@ export var tns = function(options) {
       // outerWrapper
       containerParent.insertBefore(container, outerWrapper);
       outerWrapper.remove();
-      outerWrapper = innerWrapper = null;
+      outerWrapper = innerWrapper = container = null;
 
       // remove arrowKeys eventlistener
       removeEvents(doc, docmentKeydownEvent);
