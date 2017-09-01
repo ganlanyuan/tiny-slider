@@ -6,7 +6,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
 Note: some features may need a manual test.  
 
-*Previous versions*  
+*Previous versions*:
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)  
 
