@@ -69,20 +69,7 @@ Note: some features may need a manual test.
 
 ## Usage
 ##### 1. Include tiny-slider
-```html
-<!-- inside <head> -->
-<link rel="stylesheet" href="path/to/tiny-slider.css">
-
-<!-- inside <body> -->
-<!--[if (lt IE 9)]><script src="path/to/tiny-slider.ie8.js"></script><![endif]-->
-<script src="path/to/tiny-slider.js"></script>
-```
-Or import it via `webpack` or `rollup`:
-```javascript
-// yourScript.js
-import { tns } from "path/to/src/tiny-slider.module"
-```
-Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
+via [cdnjs](https://cdnjs.com/libraries/tiny-slider):  
 ```html
 <!-- inside <head> -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/tiny-slider.css">
@@ -90,6 +77,11 @@ Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
 <!-- inside <body> -->
 <!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/min/tiny-slider.js"></script>
+```
+Or import it via `webpack` or `rollup`:
+```javascript
+// yourScript.js
+import { tns } from "path/to/src/tiny-slider.module"
 ```
 
 ##### 2. Add markup
@@ -102,7 +94,7 @@ Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
 <!-- or ul.my-slider > li -->
 ```
 
-##### 3. Call tiny-slider on DOM ready
+##### 3. Call tiny-slider
 ```html
 <script>
   var slider = tns({
