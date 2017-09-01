@@ -69,8 +69,16 @@ window.options = {
   },
   'non-loop': {
     container: '',
-    items: 3,
+    // items: 3,
     loop: false,
+    responsive: {
+      500: {
+        items: 2
+      },
+      900: {
+        items: 3
+      }
+    }
   }, 
   'rewind': {
     container: '',
@@ -101,6 +109,9 @@ window.options = {
     gutter: gutter,
     edgePadding: edgepadding,
     fixedWidth: 300,
+    slideBy: 2,
+    loop: false,
+    arrowKeys: true,
   }, 
   'responsive': {
     items: 2,
@@ -188,6 +199,12 @@ window.options = {
         fixedWidth: 500,
       }
     }
+  },
+  'responsive6': {
+    fixedWidth: 300,
+    edgePadding: edgepadding,
+    gutter: gutter,
+    loop: false,
   },
   'arrowKeys': {
     container: '',

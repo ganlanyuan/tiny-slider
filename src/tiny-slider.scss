@@ -83,6 +83,7 @@
 .tns-hdx { overflow-x: hidden; }
 .tns-hdy { overflow-y: hidden; }
 .tns-visually-hidden { position: absolute; left: -10000em; }
+.tns-transparent { opacity: 0; visibility: hidden; }
 
 .tns-fadeIn {
   opacity: 1;
