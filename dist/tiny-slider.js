@@ -1837,7 +1837,13 @@ var tns = function(options) {
       }
     } else {
       // restore edge padding for inner wrapper
-      if (edgePadding) { innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth); }
+      if (edgePadding) {
+        if (vpOuter <= (fixedWidth + gutter)) {
+          if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0'; }
+        } else {
+          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+        }
+      }
 
       if (slideItems[0].classList.contains('tns-transparent')) {
         // remove class tns-transparent to cloned slides
@@ -1848,6 +1854,7 @@ var tns = function(options) {
       }
     }
   }
+
   function mouseoverPause() {
     if (animating) { 
       stopAction(); 
