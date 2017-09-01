@@ -21,6 +21,7 @@ Note: some features may need a manual test.
 \+ [Methods](#methods)  
 \+ [Custom Events](#custom-events)  
 \+ [Fallback](#fallback)  
+\+ [Support](#support)  
 \+ [Browser Support](#browser-support)  
 \+ [License](#license)  
 
@@ -77,6 +78,15 @@ Or import it via `webpack` or `rollup`:
 ```javascript
 // yourScript.js
 import { tns } from "path/to/src/tiny-slider.module"
+```
+Or use [cdnjs](https://cdnjs.com/libraries/tiny-slider):
+```html
+<!-- inside <head> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/tiny-slider.css">
+
+<!-- inside <body> -->
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.4/min/tiny-slider.js"></script>
 ```
 
 ##### 2. Add markup
@@ -284,6 +294,10 @@ Safari 4+ ✓
 Opera 12.1+ ✓   
 IE 8+ ✓  
 Should be working on _Chrome 4-14_ as well, but I couldn't test it.  
+
+## Support
+[Browserstack](https://www.browserstack.com/)  
+[Cdnjs](https://cdnjs.com/)  
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
