@@ -374,7 +374,6 @@ function testNonLoop() {
   addTitle(id);
 
   runTest('Slide: count && Controls: disabled', function () {
-    console.log(info.prevButton.hasAttribute('disabled'));
     return info.slideItems.length === info.slideCount &&
       info.prevButton.hasAttribute('disabled');
   });

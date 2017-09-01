@@ -576,13 +576,6 @@ function removeAttrs(els, attrs) {
   }
 }
 
-function removeEventsByClone(el) {
-  var elClone = el.cloneNode(true), parent = el.parentNode;
-  parent.insertBefore(elClone, el);
-  el.remove();
-  el = null;
-}
-
 function hideElement(el) {
   if (!hasAttr(el, 'hidden')) {
     setAttrs(el, {'hidden': ''});
@@ -953,6 +946,14 @@ var tns = function(options) {
       slideId = container.id || getSlideId(),
       freeze = slideCount <= items,
       importantStr = nested === 'inner' ? ' !important' : '',
+      controlsEvents = {
+        'click': onControlsClick,
+        'keydown': onControlsKeydown
+      },
+      navEvents = {
+        'click': onNavClick,
+        'keydown': onNavKeydown
+      },
       hoverEvents = {
         'mouseover': mouseoverPause,
         'mouseout': mouseoutRestart
@@ -1425,10 +1426,7 @@ var tns = function(options) {
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
 
       // add events
-      addEvents(navContainer,{
-        'click': onNavClick,
-        'keydown': onNavKeydown
-      });
+      addEvents(navContainer, navEvents);
 
       if (!nav) { hideElement(navContainer); }
     }
@@ -1488,10 +1486,7 @@ var tns = function(options) {
       if (!loop) { disEnableElement(prevIsButton, prevButton, true); }
 
       // add events
-      addEvents(controlsContainer, {
-        'keydown': onControlsKeydown,
-        'click': onControlsClick
-      });
+      addEvents(controlsContainer, controlsEvents);
 
       if (!controls) { hideElement(controlsContainer); }
     }
@@ -2695,16 +2690,6 @@ var tns = function(options) {
       // sheet
       sheet.disabled = true;
 
-      // outerWrapper
-      containerParent.insertBefore(container, outerWrapper);
-      outerWrapper.remove();
-      outerWrapper = innerWrapper = null;
-
-      // container
-      container.id = containerIdCached || '';
-      container.className = containerClassCached || '';
-      removeAttrs(container, ['style']);
-
       // cloned items
       if (loop) {
         for (var j = cloneCount; j--;) {
@@ -2719,49 +2704,57 @@ var tns = function(options) {
         slideItems[i].className = slideItemClassCached || '';
       }
       removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
-      slideId = slideCount = null;
+      slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
 
       // controls
       if (controls) {
+        removeEvents(controlsContainer, controlsEvents);
         if (options.controlsContainer) {
           removeAttrs(controlsContainer, ['aria-label', 'tabindex']);
-          removeAttrs(controlsContainer.children, ['aria-controls', 'tabindex']);
-          removeEventsByClone(controlsContainer);
-        } else {
-          controlsContainer = prevButton = nextButton = null;
+          removeAttrs(controlsContainer.children, ['aria-controls', 'aria-disabled', 'tabindex']);
         }
+        controlsContainer = prevButton = nextButton = null;
       }
 
       // nav
       if (nav) {
+        removeEvents(navContainer, navEvents);
         if (options.navContainer) {
           removeAttrs(navContainer, ['aria-label']);
           removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
-          removeEventsByClone(navContainer);
-        } else {
-          navContainer = null;
         }
-        navItems = null;
+        navContainer = navItems = null;
       }
 
       // auto
       if (autoplay) {
-        if (options.navContainer) {
-          removeEventsByClone(autoplayButton);
-        } else {
-          navContainer = null;
+        removeEvents(autoplayButton, {'click': toggleAnimation});
+        removeEvents(container, hoverEvents);
+        removeEvents(container, visibilityEvent);
+        if (options.autoplayButton) {
+          removeAttrs(autoplayButton, ['data-action']);
         }
-        removeEvents(doc, {'visibilitychange': onVisibilityChange});
       }
 
-      // remove slider container events at the end
-      // because this will make container = null
-      removeEventsByClone(container);
+      // container
+      container.id = containerIdCached || '';
+      container.className = containerClassCached || '';
+      container.style = '';
+      if (carousel && TRANSITIONEND) {
+        var eve = {};
+        eve[TRANSITIONEND] = onTransitionEnd;
+        removeEvents(container, eve);
+      }
+      removeEvents(container, touchEvents);
+      removeEvents(container, dragEvents);
+
+      // outerWrapper
+      containerParent.insertBefore(container, outerWrapper);
+      outerWrapper.remove();
+      outerWrapper = innerWrapper = null;
 
       // remove arrowKeys eventlistener
-      if (arrowKeys) {
-        removeEvents(doc, {'keydown': onDocumentKeydown});
-      }
+      removeEvents(doc, docmentKeydownEvent);
 
       // remove win event listeners
       removeEvents(win, {'resize': onResize});
