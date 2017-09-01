@@ -303,7 +303,9 @@ export var tns = function(options) {
         controlsText = getOption('controlsText'),
         controlsContainer = options.controlsContainer,
         prevButton,
-        nextButton;
+        nextButton,
+        prevIsButton,
+        nextIsButton;
   }
 
   // nav
@@ -801,7 +803,10 @@ export var tns = function(options) {
         nextButton = controlsContainer.children[1];
       }
 
-      if (!loop) { prevButton.disabled = true; }
+      prevIsButton = isButton(prevButton);
+      nextIsButton = isButton(nextButton);
+
+      if (!loop) { disEnableElement(prevIsButton, prevButton, true); }
 
       // add events
       addEvents(controlsContainer, {
@@ -893,9 +898,8 @@ export var tns = function(options) {
       freeze = slideCount <= items;
 
       if (freeze !== freezeTem && freeze) {
-        var t = !carousel ? 0 : cloneCount;
         // reset index to initial status
-        if (index !== t) { index = indexCached = t; }
+        index = !carousel ? 0 : cloneCount;
       }
 
       if (arrowKeys !== arrowKeysTem) {
@@ -1087,8 +1091,8 @@ export var tns = function(options) {
       if (index !== indexTem) { 
         events.emit('indexChanged', info());
         doTransform(0); 
+        indexCached = index;
       }
-      console.log(index, indexCached);
     }
 
     // things always do regardless of breakpoint zone changing
@@ -1320,19 +1324,42 @@ export var tns = function(options) {
     }
   }
 
+  function isButton(el) {
+    return el.nodeName.toLowerCase() === 'button';
+  }
+
+  function isAriaDisabled(el) {
+    return el.getAttribute('aria-disabled') === 'true';
+  }
+
+  function disEnableElement(isButton, el, val) {
+    if (isButton) {
+      el.disabled = val;
+    } else {
+      el.setAttribute('aria-disabled', val.toString());
+    }
+  }
+
   // set 'disabled' to true on controls when reach the edges
   function updateControlsStatus() {
     if (!controls || loop) { return; }
 
-    if (index === indexMin) {
-      if (!prevButton.disabled) { prevButton.disabled = true; }
-      if (nextButton.disabled) { nextButton.disabled = false; }
-    } else if (!rewind && index === indexMax) {
-      if (prevButton.disabled) { prevButton.disabled = false; }
-      if (!nextButton.disabled) { nextButton.disabled = true; }
-    } else {
-      if (prevButton.disabled) { prevButton.disabled = false; }
-      if (nextButton.disabled) { nextButton.disabled = false; }
+    var prevDisabled = (prevIsButton) ? prevButton.disabled : isAriaDisabled(prevButton),
+        nextDisabled = (nextIsButton) ? nextButton.disabled : isAriaDisabled(nextButton),
+        disablePrev = (index === indexMin) ? true : false,
+        disableNext = (!rewind && index === indexMax) ? true : false;
+
+    if (disablePrev && !prevDisabled) {
+      disEnableElement(prevIsButton, prevButton, true);
+    }
+    if (!disablePrev && prevDisabled) {
+      disEnableElement(prevIsButton, prevButton, false);
+    }
+    if (disableNext && !nextDisabled) {
+      disEnableElement(nextIsButton, nextButton, true);
+    }
+    if (!disableNext && nextDisabled) {
+      disEnableElement(nextIsButton, nextButton, false);
     }
   }
 
@@ -1500,7 +1527,6 @@ export var tns = function(options) {
     if (!event || 
         !carousel && event.target.parentNode === container || 
         event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
-      console.log('end');
 
       if (!checkIndexBeforeTransform) { 
         var indexTem = index;
@@ -1586,15 +1612,15 @@ export var tns = function(options) {
         while (target !== controlsContainer && !hasAttr(target, 'data-controls')) { target = target.parentNode; }
       }
 
-      if (dir === -1 || target === prevButton) {
+      if ((dir === -1 || target === prevButton) && index > indexMin) {
         index -= slideBy;
         shouldRender = true;
       } else if (dir === 1 || target === nextButton) {
         // Go to the first if reach the end in rewind mode
         // Otherwise go to the next
-        if(rewind && index === indexMax){
+        if (rewind && index === indexMax){
           goTo(0);
-        }else{
+        } else if (index < indexMax) {
           index += slideBy;
           shouldRender = true;
         }
