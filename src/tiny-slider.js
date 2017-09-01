@@ -1561,6 +1561,7 @@ export var tns = function(options) {
     } else if (!running) {
       var absIndex = index%slideCount, 
           indexGap = 0;
+      if (!loop && checkOption('edgePadding')) { absIndex--; }
       if (absIndex < 0) { absIndex += slideCount; }
 
       if (targetIndex === 'first') {

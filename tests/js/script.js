@@ -200,6 +200,12 @@ window.options = {
       }
     }
   },
+  'responsive6': {
+    fixedWidth: 300,
+    edgePadding: edgepadding,
+    gutter: gutter,
+    loop: false,
+  },
   'arrowKeys': {
     container: '',
     items: 3,
@@ -325,6 +331,3 @@ if (doc.querySelector('#base_wrapper')) {
     sliders['base'].goTo(index);
   };
 }
-
-// var slider = sliders['non-loop'];
-// slider.goTo('last');

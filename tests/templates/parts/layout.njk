@@ -191,6 +191,15 @@
           </div>
           {% endfor %}
           
+        {# responsive6 #}
+        {% elif slide === 'responsive6' %}
+          {% for i in range(1, 3) %}
+          <div class="item">
+            <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+            <p>{{ titles[i] }}</p>
+          </div>
+          {% endfor %}
+
         {# default #}
         {% else %}
           {% for i in range(1, 8) %}
