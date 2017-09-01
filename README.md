@@ -36,7 +36,8 @@ Note: some features may need a manual test.
 *Migrating to v2*
 - Update `controls` and / or `nav` styles based on their position changes. 
 - Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
-- Update styles related to `autoplay` button.
+- Update styles related to `autoplay` button.  
+
 *[top↑](#tiny-slider-20)*  
 
 ## Features
@@ -59,7 +60,8 @@ Note: some features may need a manual test.
 - accessibility for people using keyboard navigation or screen readers ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
 - response to visibility changing ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
 - custom events
-- nested slider
+- nested slider  
+
 *[top↑](#tiny-slider-20)*  
 
 ## Install
