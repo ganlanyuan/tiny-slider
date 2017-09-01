@@ -1145,32 +1145,33 @@ export var tns = function(options) {
   })();
 
   function checkFixedWidthSlideCount() {
-    if (!fixedWidth && !cloneCount) { return; }
-    if (freeze) {
-      if (!slideItems[0].classList.contains('tns-transparent')) {
-        // remove edge padding from inner wrapper
-        if (edgePadding) { innerWrapper.style.margin = '0'; }
-        // add class tns-transparent to cloned slides
-        for (var i = cloneCount; i--;) {
-          slideItems[i].classList.add('tns-transparent');
-          slideItems[slideCountNew - i - 1].classList.add('tns-transparent');
+    if (fixedWidth && cloneCount) {
+      if (freeze) {
+        if (!slideItems[0].classList.contains('tns-transparent')) {
+          // remove edge padding from inner wrapper
+          if (edgePadding) { innerWrapper.style.margin = '0'; }
+          // add class tns-transparent to cloned slides
+          for (var i = cloneCount; i--;) {
+            slideItems[i].classList.add('tns-transparent');
+            slideItems[slideCountNew - i - 1].classList.add('tns-transparent');
+          }
         }
-      }
-    } else {
-      // restore edge padding for inner wrapper
-      if (edgePadding) {
-        if (vpOuter <= (fixedWidth + gutter)) {
-          if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0'; }
-        } else {
-          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+      } else {
+        // restore edge padding for inner wrapper
+        if (edgePadding) {
+          if (vpOuter <= (fixedWidth + gutter)) {
+            if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0'; }
+          } else {
+            innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+          }
         }
-      }
 
-      if (slideItems[0].classList.contains('tns-transparent')) {
-        // remove class tns-transparent to cloned slides
-        for (var i = cloneCount; i--;) {
-          slideItems[i].classList.remove('tns-transparent');
-          slideItems[slideCountNew - i - 1].classList.remove('tns-transparent');
+        if (slideItems[0].classList.contains('tns-transparent')) {
+          // remove class tns-transparent to cloned slides
+          for (var i = cloneCount; i--;) {
+            slideItems[i].classList.remove('tns-transparent');
+            slideItems[slideCountNew - i - 1].classList.remove('tns-transparent');
+          }
         }
       }
     }
