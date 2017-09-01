@@ -326,5 +326,5 @@ if (doc.querySelector('#base_wrapper')) {
   };
 }
 
-var slider = sliders['non-loop'];
-slider.goTo('last');
+// var slider = sliders['non-loop'];
+// slider.goTo('last');

@@ -1732,7 +1732,9 @@ var tns = function(options) {
           addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
         }
 
-        if (!fixedWidth) { doTransform(0); }
+        // will do transform later if index !== indexTem
+        // make sure doTransform will only run once
+        if (!fixedWidth && index === indexTem) { doTransform(0); }
       }
 
       if (index !== indexTem) { 
@@ -1741,7 +1743,7 @@ var tns = function(options) {
         indexCached = index;
       }
 
-      if (items !== itemsTem || index !== indexTem) { 
+      if (items !== itemsTem) { 
         lazyLoad(); 
         updateSlideStatus();
         updateControlsStatus();
@@ -2197,17 +2199,16 @@ var tns = function(options) {
         var indexTem = index;
         checkIndex();
         if (index !== indexTem) { 
-          doTransform(0); 
+          if (TRANSITIONDURATION) { setDurations(0); }
+          doContainerTransform();
           events.emit('indexChanged', info());
         }
       } 
 
       updateSlideStatus();
 
-      // non-loop: always update nav visibility
       // loop: update nav visibility when visibleNavIndexes doesn't contain current index
-      if (nav && !loop || 
-          nav && loop && visibleNavIndexes.indexOf(index%slideCount) === -1) { 
+      if (nav && visibleNavIndexes.indexOf(index%slideCount) === -1) {
         updateNavVisibility(); 
       }
       updateNavStatus();
