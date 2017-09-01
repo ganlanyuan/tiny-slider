@@ -21,8 +21,8 @@ Note: some features may need a manual test.
 \+ [Methods](#methods)  
 \+ [Custom Events](#custom-events)  
 \+ [Fallback](#fallback)  
-\+ [Support](#support)  
 \+ [Browser Support](#browser-support)  
+\+ [Support](#support)  
 \+ [License](#license)  
 
 ## What's new
