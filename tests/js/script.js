@@ -9,6 +9,24 @@ window.speed = Number(document.body.getAttribute('data-speed'));
 window.edgepadding = 50;
 window.gutter = 10;
 window.options = {
+  'demo': {
+    // container: '.xt-slide',
+    items: 1,
+    mouseDrag: true,
+    responsive: {
+      640: {
+        edgePadding: 20,
+        gutter: 20,
+        items: 2
+      },
+      700: {
+        gutter: 30
+      },
+      900: {
+        items: 3
+      }
+    }
+  },
   'test': {
     container: '',
     arrowKeys: true,

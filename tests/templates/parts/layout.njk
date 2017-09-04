@@ -47,7 +47,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = [''] %} #}
+  {% set sliders = ['demo'] %}
 {% else %}
   {% set sliders = [
     'base',
@@ -199,6 +199,20 @@
             <p>{{ titles[i] }}</p>
           </div>
           {% endfor %}
+
+        {% elif slide === 'demo' %}
+        <div class="xt-image">
+          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
+        </div>
+        <div class="xt-image">
+          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
+        </div>
+        <div class="xt-image">
+          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
+        </div>
+        <div class="xt-image">
+          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
+        </div>
 
         {# default #}
         {% else %}
