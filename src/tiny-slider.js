@@ -1,4 +1,5 @@
-// PRODUCTION
+// Format: IIFE
+// Version: 2.1.4
 
 // from go-native
 import '../bower_components/go-native/src/es5/object/keys.js';

@@ -92,7 +92,7 @@ gulp.task('makeDevCopy', function() {
   return gulp.src(pathSrc + script)
     .pipe($.change(function (content) {
       return content
-        .replace('PRODUCTION', 'DEVELOPMENT')
+        .replace('IIFE', 'ES MODULE')
         .replace(/bower_components/g, '..');
     }))
     .pipe($.rename({ basename: libName + modulePostfix }))
