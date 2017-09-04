@@ -702,7 +702,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.1.4
+// Version: 2.1.5
 
 // from go-native
 // helper functions
