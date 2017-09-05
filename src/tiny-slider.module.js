@@ -357,7 +357,6 @@ export var tns = function(options) {
   // mouse drag
   if (hasMouseDrag) {
     var mouseDrag = getOption('mouseDrag'),
-        mousePressed = false,
         isDragEvent = false;
   }
 
@@ -1790,8 +1789,8 @@ export var tns = function(options) {
     return e.target || e.srcElement;
   }
 
-  function isLinkElement(el) {
-    return el.tagName.toLowerCase() === 'a';
+  function isTouchEvent(e) {
+    return e.type.indexOf('touch') >= 0;
   }
 
   function preventDefaultBehavior(e) {
@@ -1804,46 +1803,47 @@ export var tns = function(options) {
 
   function onTouchOrMouseStart(e) {
     e = e || win.event;
-    if (isLinkElement(getTarget(e)) && e.type !== 'touchstart') { preventDefaultBehavior(e); }
+    var ev;
 
-    var ev = e.type === 'touchstart' ? e.changedTouches[0] : e;
+    if (isTouchEvent(e)) {
+      ev = e.changedTouches[0];
+      events.emit('touchStart', info(e));
+    } else {
+      ev = e;
+      preventDefaultBehavior(e);
+      events.emit('dragStart', info(e));
+    }
+
     startX = parseInt(ev.clientX);
     startY = parseInt(ev.clientY);
     translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
-
-    if (e.type === 'touchstart') {
-      events.emit('touchStart', info(e));
-    } else {
-      events.emit('dragStart', info(e));
-      mousePressed = true;
-    }
   }
 
   function onTouchOrMouseMove(e) {
     e = e || win.event;
-
-    // "mousemove" event after "mousedown" indecate it's "drag", not "click"
-    // set isDragEvent to true
-    if (mousePressed && e.type === 'mousemove' && !isDragEvent) {
-      isDragEvent = true;
-    }
-    
     // make sure touch started or mouse draged
     if (startX !== null) {
-      if (isLinkElement(getTarget(e)) && e.type !== 'touchmove') { preventDefaultBehavior(e); }
+      var ev;
+      if (isTouchEvent(e)) {
+        ev = e.changedTouches[0];
+      } else {
+        ev = e;
+        preventDefaultBehavior(e);
+      }
 
-      var ev = e.type === 'touchmove' ? e.changedTouches[0] : e;
       disX = parseInt(ev.clientX) - startX;
       disY = parseInt(ev.clientY) - startY;
 
-      if (getTouchDirection(toDegree(disY, disX), 15) === options.axis) { 
-        touchedOrDraged = true;
-
-        if (e.type === 'touchmove') {
+      if (getTouchDirection(toDegree(disY, disX), 15) === options.axis && disX) {
+        if (isTouchEvent(e)) {
           events.emit('touchMove', info(e));
         } else {
+          // "mousemove" event after "mousedown" indecate 
+          // it is "drag", not "click"
+          if (!isDragEvent) { isDragEvent = true; }
           events.emit('dragMove', info(e));
         }
+        if (!touchedOrDraged) { touchedOrDraged = true; }
 
         var x = translateInit;
         if (horizontal) {
@@ -1869,13 +1869,18 @@ export var tns = function(options) {
   function onTouchOrMouseEnd(e) {
     e = e || win.event;
 
-    // reset mousePressed
-    if (mousePressed) { mousePressed = false; }
-
     if (touchedOrDraged) {
       touchedOrDraged = false;
+      var ev;
 
-      var ev = e.type.indexOf('touch') === 0 ? e.changedTouches[0] : e;
+      if (isTouchEvent(e)) {
+        ev = e.changedTouches[0];
+        events.emit('touchEnd', info(e));
+      } else {
+        ev = e;
+        events.emit('dragEnd', info(e));
+      }
+
       disX = parseInt(ev.clientX) - startX;
       disY = parseInt(ev.clientY) - startY;
 
@@ -1901,29 +1906,21 @@ export var tns = function(options) {
         }
       }
       
-      if (e.type.indexOf('touch') === 0) {
-        events.emit('touchEnd', info(e));
-      } else {
-        events.emit('dragEnd', info(e));
-      }
-
       render();
-    }
 
-    // drag vs click
-    if (isDragEvent) { 
-      // reset isDragEvent
-      isDragEvent = false;
+      // drag vs click
+      if (isDragEvent) { 
+        // reset isDragEvent
+        isDragEvent = false;
 
-      // prevent "click"
-      var target = getTarget(e);
-      if (isLinkElement(target)) {
+        // prevent "click"
+        var target = getTarget(e);
         addEvents(target, {'click': function preventClick(e) {
           preventDefaultBehavior(e);
           removeEvents(target, {'click': preventClick});
         }}); 
-      }
-    } 
+      } 
+    }
   }
 
   // === RESIZE FUNCTIONS === //

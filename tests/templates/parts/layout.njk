@@ -37,6 +37,7 @@
     'vertical', 
     'responsive', 
     'mouse-drag',
+    'mouse-drag2',
     'gutter', 
     'edgePadding', 
     'arrowKeys', 
@@ -47,7 +48,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {% set sliders = ['demo'] %}
+  {# {% set sliders = [''] %} #}
 {% else %}
   {% set sliders = [
     'base',
@@ -62,6 +63,7 @@
     'vertical-edgePadding', 
     'vertical-edgePadding-gutter', 
     'mouse-drag',
+    'mouse-drag2',
     'gutter', 
     'edgePadding', 
     'edgePadding-gutter', 
@@ -200,19 +202,17 @@
           </div>
           {% endfor %}
 
-        {% elif slide === 'demo' %}
-        <div class="xt-image">
-          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
-        </div>
-        <div class="xt-image">
-          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
-        </div>
-        <div class="xt-image">
-          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
-        </div>
-        <div class="xt-image">
-          <a href><img src="https://source.unsplash.com/random/1500x500" /></a>
-        </div>
+        {% elif slide.indexOf('mouse-drag') >= 0 %}
+          {% for i in range(1, 8) %}
+          <div class="item">
+            {% if slide === 'mouse-drag' %}
+              <div><a href=""><img src="images/{{ i }}.jpg" alt=""></a></div>
+            {% else %}
+              <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+            {% endif %}
+            <p>{{ titles[i] }}</p>
+          </div>
+          {% endfor %}
 
         {# default #}
         {% else %}
