@@ -1,10 +1,7 @@
-**Asking a question or submit a bug?**  
-- [ ] Question
-- [ ] Bug
+__Issue description__:  
 
-**How can others reproduce the issue?**  
-Live link or Code example:
+__Demo link/slider setting__:   
 
-Tiny-slider version:   
-OS version:   
-Browser version:
+_Tiny-slider version_:   
+_Browser name && version_:  
+_OS name && version_:   
