@@ -29,6 +29,11 @@ var doc = document,
         mouseDrag: true,
         slideBy: 'page',
       },
+      'mouseDrag2': {
+        items: 3,
+        mouseDrag: true,
+        slideBy: 'page',
+      },
       'gutter': {
         items: 3,
         gutter: gutter,
