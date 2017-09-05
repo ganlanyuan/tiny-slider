@@ -116,7 +116,7 @@ img {
 .thumbnails li { display: inline-block; cursor: pointer; }
 .thumbnails li[aria-selected="true"] { background: none; }
 .thumbnails li img { border: 5px solid #fff; }
-.thumbnails li[aria-selected="true"] img { border-color: #E75FCB; }
+.thumbnails li[aria-selected="true"] img { border-color: #000; }
 .controls { text-align: center; }
 .controls li {
   display: block;

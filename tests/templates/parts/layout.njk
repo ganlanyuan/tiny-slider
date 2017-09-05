@@ -94,12 +94,16 @@
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
 ] %}
 
-{% set imgs = [
-  "http://www.trbimg.com/img-57e03d90/turbine/la-1474313761-snap-photo/900/900x400", 
-  "http://www.trbimg.com/img-579b906c/turbine/la-fo-gold-cannibal-20160718-snap/900/900x500", 
-  "http://www.trbimg.com/img-57a4c798/turbine/la-fo-gold-daw-yee-myanmar-silver-lake-20160728-snap/900/900x450", 
-  "http://www.trbimg.com/img-57c9f699/turbine/la-fo-orange-county-food-halls-20160814-snap/900/900x540",
-  "http://www.trbimg.com/img-57c4c52c/turbine/la-1472513416-snap-photo/900/900x500"
+{% set imageIds = [
+  "TY_cMZgN3l8",
+  "IBEXUZBmlXg",
+  "Ori_JWlqVpc",
+  "gr7ZkoZnHXU",
+  "fZ8uf_L52wg",
+  "qMWgy4LpaIs",
+  "2TnhZ1YOWwg",
+  "iVTGkBM0mP0",
+  "xGrhOUPDthk"
 ] %}
 
 {% block main %}
@@ -148,7 +152,7 @@
         {% if slide === 'lazyload' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x600" alt="" width="600" height="600"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -157,7 +161,7 @@
         {% elif slide === 'customize' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="images/{{ i }}.jpg" alt="" width="300" height="300"></div>
+              <div><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x400" alt="" width="600" height="400"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -166,7 +170,7 @@
         {% elif slide === 'autoHeight' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="{{ imgs[i - 1] }}" alt=""></div>
+              <div><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/1000x{{ [500, 600, 700, 800, 900] | random }}" alt=""></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -206,7 +210,7 @@
           {% for i in range(1, 8) %}
           <div class="item">
             {% if slide === 'mouse-drag' %}
-              <div><a href=""><img src="images/{{ i }}.jpg" alt=""></a></div>
+              <div><a href=""><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x400" alt=""></a></div>
             {% else %}
               <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
             {% endif %}
@@ -230,7 +234,7 @@
         <div class="customize-tools">
           <ul class="thumbnails" id="customize-thumbnails">
             {% for i in range(1, 6) %}
-              <li><img src="images/sm/{{ i }}.jpg" alt=""></li>
+              <li><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/50x50" alt="" width="50" height="50"></li>
             {% endfor %}
           </ul>
           <ul class="controls" id="customize-controls">
