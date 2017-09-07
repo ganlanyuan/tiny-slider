@@ -1,8 +1,6 @@
 export function getSlideId() {
-  if (window.tnsId === undefined) {
-    window.tnsId = 1;
-  } else {
-    window.tnsId++;
-  }
+  var id = window.tnsId;
+  window.tnsId = !id ? 1 : id + 1;
+  
   return 'tns' + window.tnsId;
 }

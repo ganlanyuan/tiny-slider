@@ -402,7 +402,7 @@ function extend() {
 }
 
 function checkStorageValue (value) {
-  return (['true', 'false', 'null'].indexOf(value) >= 0) ? JSON.parse(value) : value;
+  return ['true', 'false', 'null'].indexOf(value) >= 0 ? JSON.parse(value) : value;
 }
 
 function setLocalStorage(key, value) {
@@ -411,11 +411,9 @@ function setLocalStorage(key, value) {
 }
 
 function getSlideId() {
-  if (window.tnsId === undefined) {
-    window.tnsId = 1;
-  } else {
-    window.tnsId++;
-  }
+  var id = window.tnsId;
+  window.tnsId = !id ? 1 : id + 1;
+  
   return 'tns' + window.tnsId;
 }
 
