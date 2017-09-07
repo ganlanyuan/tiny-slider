@@ -2,7 +2,7 @@ import { passiveOption } from './passiveOption';
 
 export function removeEvents(el, obj) {
   for (var prop in obj) {
-    var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
+    var option = ['touchstart', 'touchmove'].indexOf(prop) >= 0 ? passiveOption : false;
     el.removeEventListener(prop, obj[prop], option);
   }
 }

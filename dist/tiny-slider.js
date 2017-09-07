@@ -526,13 +526,16 @@ function toDegree (y, x) {
 }
 
 function getTouchDirection(angle, range) {
-  if ( Math.abs(90 - Math.abs(angle)) >= (90 - range) ) {
-    return 'horizontal';
-  } else if ( Math.abs(90 - Math.abs(angle)) <= range ) {
-    return 'vertical';
-  } else {
-    return false;
+  var direction = false,
+      gap = Math.abs(90 - Math.abs(angle));
+      
+  if (gap >= 90 - range) {
+    direction = 'horizontal';
+  } else if (gap <= range) {
+    direction = 'vertical';
   }
+
+  return direction;
 }
 
 function hasAttr(el, attr) {
@@ -643,7 +646,7 @@ function addEvents(el, obj) {
 
 function removeEvents(el, obj) {
   for (var prop in obj) {
-    var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
+    var option = ['touchstart', 'touchmove'].indexOf(prop) >= 0 ? passiveOption : false;
     el.removeEventListener(prop, obj[prop], option);
   }
 }
