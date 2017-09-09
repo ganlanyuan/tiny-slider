@@ -747,9 +747,7 @@ export var tns = function(options) {
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
 
-        [].forEach.call(outerWrapper.children, function (el) {
-          if (el.classList.contains('tns-nav')) { navContainer = el; }
-        });
+        navContainer = outerWrapper.querySelector('tns-nav');
         navItems = navContainer.children;
 
         updateNavVisibility();
@@ -821,9 +819,7 @@ export var tns = function(options) {
       } else {
         outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
-        [].forEach.call(outerWrapper.children, function (el) {
-          if (el.classList.contains('tns-controls')) { controlsContainer = el; }
-        });
+        controlsContainer = outerWrapper.querySelector('tns-controls');
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
       }
