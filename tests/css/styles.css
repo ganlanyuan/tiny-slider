@@ -113,10 +113,16 @@ img {
   margin: 20px 0;
   text-align: center;
 }
-.thumbnails li { display: inline-block; cursor: pointer; }
-.thumbnails li[aria-selected="true"] { background: none; }
-.thumbnails li img { border: 5px solid #fff; }
-.thumbnails li[aria-selected="true"] img { border-color: #000; }
+.thumbnails li {
+  display: inline-block;
+  cursor: pointer;
+  border: 5px solid #fff;
+}
+.thumbnails [aria-selected="true"] {
+  background: none;
+  border-color: #000;
+}
+.thumbnails img { vertical-align: bottom; }
 .controls { text-align: center; }
 .controls li {
   display: block;
