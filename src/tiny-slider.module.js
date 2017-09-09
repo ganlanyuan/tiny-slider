@@ -121,6 +121,8 @@ export var tns = function(options) {
     controlsContainer: false,
     nav: true,
     navContainer: false,
+    navAnimationIn: false,
+    navAnimationOut: false,
     arrowKeys: false,
     speed: 300,
     autoplay: false,
@@ -321,12 +323,14 @@ export var tns = function(options) {
   if (hasNav) {
     var nav = getOption('nav'),
         navContainer = options.navContainer,
+        navAnimationIn = options.navAnimationIn,
+        navAnimationOut = options.navAnimationOut,
         navItems,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
-        navCurrent = 0,
-        navCurrentCached = 0;
+        navCurrentIndex = 0,
+        navCurrentIndexCached = 0;
   }
 
   // autoplay
@@ -749,6 +753,18 @@ export var tns = function(options) {
         navItems = navContainer.children;
 
         updateNavVisibility();
+      }
+
+      // add transition
+      if (TRANSITIONDURATION) {
+        var prefix = TRANSITIONDURATION.substring(0, TRANSITIONDURATION.length - 18).toLowerCase(),
+            str = 'transition: all ' + speed / 1000 + 's';
+
+        if (prefix) {
+          str = '-' + prefix + '-' + str;
+        }
+
+        addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
@@ -1300,20 +1316,30 @@ export var tns = function(options) {
   function updateNavStatus() {
     // get current nav
     if (nav) {
-      navCurrent = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
+      navCurrentIndex = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
       navClicked = -1;
 
-      if (navCurrent !== navCurrentCached) {
-        setAttrs(navItems[navCurrentCached], {
+      if (navCurrentIndex !== navCurrentIndexCached) {
+        var navPrev = navItems[navCurrentIndexCached],
+            navCurrent = navItems[navCurrentIndex];
+
+        setAttrs(navPrev, {
           'tabindex': '-1',
           'aria-selected': 'false'
         });
+        if (navAnimationIn) {
+          navPrev.classList.add(navAnimationIn);
+        }
 
-        setAttrs(navItems[navCurrent], {
+        setAttrs(navCurrent, {
           'tabindex': '0',
           'aria-selected': 'true'
         });
-        navCurrentCached = navCurrent;
+        if (navAnimationOut) {
+          navCurrent.classList.add(navAnimationOut);
+        }
+
+        navCurrentIndexCached = navCurrentIndex;
       }
     }
   }
@@ -2006,8 +2032,8 @@ export var tns = function(options) {
       slideCountNew: slideCountNew,
       index: index,
       indexCached: indexCached,
-      navCurrent: navCurrent,
-      navCurrentCached: navCurrentCached,
+      navCurrentIndex: navCurrentIndex,
+      navCurrentIndexCached: navCurrentIndexCached,
       visibleNavIndexes: visibleNavIndexes,
       visibleNavIndexesCached: visibleNavIndexesCached,
       event: e || {},

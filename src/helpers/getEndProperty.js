@@ -1,7 +1,7 @@
 // get transitionend, animationend based on transitionDuration
 // @propin: string
 // @propOut: string, first-letter uppercase
-// Usage: getEndProperty('webkitTransitionDuration', 'Transition') => webkitTransitionEnd
+// Usage: getEndProperty('WebkitTransitionDuration', 'Transition') => webkitTransitionEnd
 export function getEndProperty(propIn, propOut) {
   var endProp = false;
   if (/^Webkit/.test(propIn)) {
