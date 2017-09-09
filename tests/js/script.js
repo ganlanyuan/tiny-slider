@@ -35,8 +35,8 @@ window.options = {
   'base': {
     container: '',
     items: 3,
-    navAnimationIn: classIn,
-    navAnimationOut: classOut,
+    // navAnimationIn: classIn,
+    // navAnimationOut: classOut,
     slideBy: 'page',
   },
   'few-items': {
