@@ -1415,6 +1415,7 @@ var tns = function(options) {
             // classStr = navAnimationOut ? 'class="' + navAnimationOut + '"' : '';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
+          // navHtml += '<button ' + classStr + ' data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
@@ -2161,7 +2162,7 @@ var tns = function(options) {
 
     updateSlideStatus();
     // loop: update nav visibility when visibleNavIndexes doesn't contain current index
-    if (nav && visibleNavIndexes.indexOf(index%slideCount) === -1) {
+    if (nav && visibleNavIndexes.indexOf(index%slideCount) < 0) {
       updateNavVisibility(); 
     }
     updateNavStatus();
@@ -2242,23 +2243,7 @@ var tns = function(options) {
         }
       } 
 
-      // updateSlideStatus();
-
-      // loop: update nav visibility when visibleNavIndexes doesn't contain current index
-      // if (nav && visibleNavIndexes.indexOf(index%slideCount) === -1) {
-      //   updateNavVisibility(); 
-      // }
-      // updateNavStatus();
-      // updateControlsStatus();
-      // lazyLoad();
       runAutoHeight();
-
-      // if (navAnimationIn) {
-      //   navItems[navCurrentIndexCached].classList.remove(navAnimationIn);
-      // }
-      // if (navAnimationOut) {
-      //   navItems[navCurrentIndex].classList.remove(navAnimationOut);
-      // }
 
       if (nested === 'inner') { events.emit('innerLoaded', info()); }
       running = false;

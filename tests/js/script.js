@@ -9,35 +9,12 @@ window.speed = Number(document.body.getAttribute('data-speed'));
 window.edgepadding = 50;
 window.gutter = 10;
 window.options = {
-  'test': {
-    container: '',
-    arrowKeys: true,
-    loop: true,
-    items: 1,
-    lazyload: true,
-    gutter: 0,
-    // controlsText: [' ', ' '],
-    responsive: {
-      700: {
-        items: 2,
-        gutter: 27
-      },
-      768: {
-        items: 3,
-        gutter: 30
-      },
-      1024: {
-        items: 4,
-        gutter: 50
-      }
-    }
-  },
   'base': {
     container: '',
     items: 3,
-    // navAnimationIn: classIn,
-    // navAnimationOut: classOut,
-    slideBy: 'page',
+    // navAnimationIn: 'active',
+    // navAnimationOut: 'normal',
+    // slideBy: 'page',
   },
   'few-items': {
     container: '',
