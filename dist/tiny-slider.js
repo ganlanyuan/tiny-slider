@@ -790,8 +790,8 @@ var tns = function(options) {
     controlsContainer: false,
     nav: true,
     navContainer: false,
-    navAnimationIn: false,
-    navAnimationOut: false,
+    // navAnimationIn: false,
+    // navAnimationOut: false,
     arrowKeys: false,
     speed: 300,
     autoplay: false,
@@ -992,8 +992,8 @@ var tns = function(options) {
   if (hasNav) {
     var nav = getOption('nav'),
         navContainer = options.navContainer,
-        navAnimationIn = options.navAnimationIn,
-        navAnimationOut = options.navAnimationOut,
+        // navAnimationIn = options.navAnimationIn,
+        // navAnimationOut = options.navAnimationOut,
         navItems,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
@@ -1404,18 +1404,18 @@ var tns = function(options) {
             'aria-selected': 'false',
             'aria-controls': slideId + '-item' + index,
           });
-          if (navAnimationOut) {
-            item.classList.add(navAnimationOut);
-          }
+          // if (navAnimationOut) {
+          //   item.classList.add(navAnimationOut);
+          // }
         });
 
       // generated nav 
       } else {
-        var navHtml = '',
-            classStr = navAnimationOut ? 'class="' + navAnimationOut + '"' : '';
+        var navHtml = '';
+            // classStr = navAnimationOut ? 'class="' + navAnimationOut + '"' : '';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          navHtml += '<button ' + classStr + 'data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
@@ -1439,12 +1439,12 @@ var tns = function(options) {
       }
 
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
-      if (navAnimationOut) {
-        navItems[0].classList.remove(navAnimationOut);
-      }
-      if (navAnimationIn) {
-        navItems[0].classList.add(navAnimationIn);
-      }
+      // if (navAnimationOut) {
+      //   navItems[0].classList.remove(navAnimationOut);
+      // }
+      // if (navAnimationIn) {
+      //   navItems[0].classList.add(navAnimationIn);
+      // }
 
       // add events
       addEvents(navContainer, navEvents);
@@ -2007,14 +2007,14 @@ var tns = function(options) {
           'aria-selected': 'true'
         });
 
-        if (navAnimationOut) {
-          navPrev.classList.remove(navAnimationIn);
-          navPrev.classList.add(navAnimationOut);
-        }
-        if (navAnimationIn) {
-          navCurrent.classList.remove(navAnimationOut);
-          navCurrent.classList.add(navAnimationIn);
-        }
+        // if (navAnimationOut) {
+        //   navPrev.classList.remove(navAnimationIn);
+        //   navPrev.classList.add(navAnimationOut);
+        // }
+        // if (navAnimationIn) {
+        //   navCurrent.classList.remove(navAnimationOut);
+        //   navCurrent.classList.add(navAnimationIn);
+        // }
       }
     }
   }
