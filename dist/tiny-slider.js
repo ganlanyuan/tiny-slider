@@ -798,6 +798,7 @@ var tns = function(options) {
     autoplayText: ['start', 'stop'],
     autoplayHoverPause: false,
     autoplayButton: false,
+    autoplayButtonOutput: true,
     autoplayResetOnVisibility: true,
     // animateIn: 'tns-fadeIn',
     // animateOut: 'tns-fadeOut',
@@ -1433,16 +1434,20 @@ var tns = function(options) {
       var txt = autoplay ? 'stop' : 'start';
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': txt});
-      } else {
+      } else if (options.autoplayButtonOutput) {
         innerWrapper.insertAdjacentHTML('beforebegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
         autoplayButton = outerWrapper.querySelector('[data-action]');
       }
 
       // add event
-      addEvents(autoplayButton, {'click': toggleAnimation});
+      if (autoplayButton) {
+        addEvents(autoplayButton, {'click': toggleAnimation});
+      }
 
       if (!autoplay) {
-        hideElement(autoplayButton);
+        if (autoplayButton) {
+          hideElement(autoplayButton);
+        }
       } else {
         startAction();
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
@@ -1667,10 +1672,10 @@ var tns = function(options) {
 
         if (autoplay !== autoplayTem) {
           if (autoplay) {
-            showElement(autoplayButton);
+            if (autoplayButton) { showElement(autoplayButton); }
             if (!animating) { startAction(); }
           } else {
-            hideElement(autoplayButton); 
+            if (autoplayButton) { hideElement(autoplayButton); }
             if (animating) { stopAction(); }
           }
         }
@@ -1684,7 +1689,7 @@ var tns = function(options) {
             addEvents(doc, visibilityEvent) :
             removeEvents(doc, visibilityEvent);
         }
-        if (autoplayText !== autoplayTextTem) {
+        if (autoplayButton && autoplayText !== autoplayTextTem) {
           var i = autoplay ? 1 : 0,
               html = autoplayButton.innerHTML,
               len = html.length - autoplayTextTem[i].length;
@@ -2311,14 +2316,14 @@ var tns = function(options) {
 
   function startAction() {
     resetActionTimer();
-    updateAutoplayButton('stop', autoplayText[1]);
+    if (autoplayButton) { updateAutoplayButton('stop', autoplayText[1]); }
 
     animating = true;
   }
 
   function stopAction() {
     pauseActionTimer();
-    updateAutoplayButton('start', autoplayText[0]);
+    if (autoplayButton) { updateAutoplayButton('start', autoplayText[0]); }
 
     animating = false;
   }
@@ -2725,7 +2730,9 @@ var tns = function(options) {
 
       // auto
       if (autoplay) {
-        removeEvents(autoplayButton, {'click': toggleAnimation});
+        if (autoplayButton) {
+          removeEvents(autoplayButton, {'click': toggleAnimation});
+        }
         removeEvents(container, hoverEvents);
         removeEvents(container, visibilityEvent);
         if (options.autoplayButton) {

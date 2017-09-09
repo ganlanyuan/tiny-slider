@@ -225,6 +225,7 @@ window.options = {
     autoplayHoverPause: true,
     autoplayTimeout: 1500,
     autoplayText: ['▶', '❚❚'],
+    autoplayButtonOutput: false,
   }, 
   'vertical': {
     container: '',
