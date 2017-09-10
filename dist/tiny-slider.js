@@ -402,11 +402,11 @@ function extend() {
 }
 
 function checkStorageValue (value) {
-  return ['true', 'false', 'null'].indexOf(value) >= 0 ? JSON.parse(value) : value;
+  return ['true', 'false'].indexOf(value) >= 0 ? JSON.parse(value) : value;
 }
 
-function setLocalStorage(key, value) {
-  localStorage.setItem(key, value);
+function setLocalStorage(key, value, access) {
+  if (access) { localStorage.setItem(key, value); }
   return value;
 }
 
@@ -707,15 +707,32 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 // 1. delete browser ralated data from local storage and 
 // 2. recheck these options and save them to local storage
 var browserInfo = navigator.userAgent;
+var localStorageAccess = true;
 var tnsStorage = localStorage;
-if (!tnsStorage['tnsApp']) {
-  tnsStorage['tnsApp'] = browserInfo;
-} else if (tnsStorage['tnsApp'] !== browserInfo) {
-  tnsStorage['tnsApp'] = browserInfo;
 
-  ['tnsCalc', 'tnsSubpixel', 'tnsCSSMQ', 'tnsTf', 'tnsTsDu', 'tnsTsDe', 'tnsAnDu', 'tnsAnDe', 'tnsTsEn', 'tnsAnEn'].forEach(function (item) {
-    tnsStorage.removeItem(item);
-  })
+try {
+  if (!tnsStorage['tnsApp']) {
+    tnsStorage['tnsApp'] = browserInfo;
+  } else if (tnsStorage['tnsApp'] !== browserInfo) {
+    tnsStorage['tnsApp'] = browserInfo;
+
+    // tC => calc
+    // tSP => subpixel
+    // tMQ => mediaquery
+    // tTf => transform
+    // tTDu => transitionDuration
+    // tTDe => transitionDelay
+    // tADu => animationDuration
+    // tADe => animationDelay
+    // tTE => transitionEnd
+    // tAE => animationEnd
+
+    ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
+      tnsStorage.removeItem(item);
+    })
+  }
+} catch(e) {
+  localStorageAccess = false;
 }
 
 // get browser related data from local storage if they exist
@@ -735,42 +752,42 @@ var KEYS = {
       RIGHT: 39,
       DOWN: 40
     };
-var CALC = checkStorageValue(tnsStorage['tnsCalc'] || setLocalStorage('tnsCalc', calc()));
-var SUBPIXEL = checkStorageValue(tnsStorage['tnsSubpixel'] || setLocalStorage('tnsSubpixel', subpixelLayout()));
-var CSSMQ = checkStorageValue(tnsStorage['tnsCSSMQ'] || setLocalStorage('tnsCSSMQ', mediaquerySupport()));
-var TRANSFORM = checkStorageValue(tnsStorage['tnsTf'] || setLocalStorage('tnsTf', whichProperty([
+var CALC = checkStorageValue(tnsStorage['tC']) || setLocalStorage('tC', calc(), localStorageAccess);
+var SUBPIXEL = checkStorageValue(tnsStorage['tSP']) || setLocalStorage('tSP', subpixelLayout(), localStorageAccess);
+var CSSMQ = checkStorageValue(tnsStorage['tMQ']) || setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess);
+var TRANSFORM = checkStorageValue(tnsStorage['tTf']) || setLocalStorage('tTf', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
-    ])));
-var TRANSITIONDURATION = checkStorageValue(tnsStorage['tnsTsDu'] || setLocalStorage('tnsTsDu', whichProperty([
+    ]), localStorageAccess);
+var TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
-    ])));
-var TRANSITIONDELAY = checkStorageValue(tnsStorage['tnsTsDe'] || setLocalStorage('tnsTsDe', whichProperty([
+    ]), localStorageAccess);
+var TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']) || setLocalStorage('tTDe', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
-    ])));
-var ANIMATIONDURATION = checkStorageValue(tnsStorage['tnsAnDu'] || setLocalStorage('tnsAnDu', whichProperty([
+    ]), localStorageAccess);
+var ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']) || setLocalStorage('tADu', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
-    ])));
-var ANIMATIONDELAY = checkStorageValue(tnsStorage['tnsAnDe'] || setLocalStorage('tnsAnDe', whichProperty([
+    ]), localStorageAccess);
+var ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']) || setLocalStorage('tADe', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
-    ])));
-var TRANSITIONEND = checkStorageValue(tnsStorage['tnsTsEn'] || setLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition')));
-var ANIMATIONEND = checkStorageValue(tnsStorage['tnsAnEn'] || setLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation')));
+    ]), localStorageAccess);
+var TRANSITIONEND = checkStorageValue(tnsStorage['tTE']) || setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess);
+var ANIMATIONEND = checkStorageValue(tnsStorage['tAE']) || setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
 
 // reset SUBPIXEL for IE8
 if (!CSSMQ) { SUBPIXEL = false; }

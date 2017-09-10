@@ -38,15 +38,32 @@ import { jsTransform } from './helpers/jsTransform';
 // 1. delete browser ralated data from local storage and 
 // 2. recheck these options and save them to local storage
 var browserInfo = navigator.userAgent,
+    localStorageAccess = true,
     tnsStorage = localStorage;
-if (!tnsStorage['tnsApp']) {
-  tnsStorage['tnsApp'] = browserInfo;
-} else if (tnsStorage['tnsApp'] !== browserInfo) {
-  tnsStorage['tnsApp'] = browserInfo;
 
-  ['tnsCalc', 'tnsSubpixel', 'tnsCSSMQ', 'tnsTf', 'tnsTsDu', 'tnsTsDe', 'tnsAnDu', 'tnsAnDe', 'tnsTsEn', 'tnsAnEn'].forEach(function (item) {
-    tnsStorage.removeItem(item);
-  })
+try {
+  if (!tnsStorage['tnsApp']) {
+    tnsStorage['tnsApp'] = browserInfo;
+  } else if (tnsStorage['tnsApp'] !== browserInfo) {
+    tnsStorage['tnsApp'] = browserInfo;
+
+    // tC => calc
+    // tSP => subpixel
+    // tMQ => mediaquery
+    // tTf => transform
+    // tTDu => transitionDuration
+    // tTDe => transitionDelay
+    // tADu => animationDuration
+    // tADe => animationDelay
+    // tTE => transitionEnd
+    // tAE => animationEnd
+
+    ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
+      tnsStorage.removeItem(item);
+    })
+  }
+} catch(e) {
+  localStorageAccess = false;
 }
 
 // get browser related data from local storage if they exist
@@ -66,42 +83,42 @@ var doc = document,
       RIGHT: 39,
       DOWN: 40
     },
-    CALC = checkStorageValue(tnsStorage['tnsCalc'] || setLocalStorage('tnsCalc', calc())),
-    SUBPIXEL = checkStorageValue(tnsStorage['tnsSubpixel'] || setLocalStorage('tnsSubpixel', subpixelLayout())),
-    CSSMQ = checkStorageValue(tnsStorage['tnsCSSMQ'] || setLocalStorage('tnsCSSMQ', mediaquerySupport())),
-    TRANSFORM = checkStorageValue(tnsStorage['tnsTf'] || setLocalStorage('tnsTf', whichProperty([
+    CALC = checkStorageValue(tnsStorage['tC']) || setLocalStorage('tC', calc(), localStorageAccess),
+    SUBPIXEL = checkStorageValue(tnsStorage['tSP']) || setLocalStorage('tSP', subpixelLayout(), localStorageAccess),
+    CSSMQ = checkStorageValue(tnsStorage['tMQ']) || setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess),
+    TRANSFORM = checkStorageValue(tnsStorage['tTf']) || setLocalStorage('tTf', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
-    ]))),
-    TRANSITIONDURATION = checkStorageValue(tnsStorage['tnsTsDu'] || setLocalStorage('tnsTsDu', whichProperty([
+    ]), localStorageAccess),
+    TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
-    ]))),
-    TRANSITIONDELAY = checkStorageValue(tnsStorage['tnsTsDe'] || setLocalStorage('tnsTsDe', whichProperty([
+    ]), localStorageAccess),
+    TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']) || setLocalStorage('tTDe', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
-    ]))),
-    ANIMATIONDURATION = checkStorageValue(tnsStorage['tnsAnDu'] || setLocalStorage('tnsAnDu', whichProperty([
+    ]), localStorageAccess),
+    ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']) || setLocalStorage('tADu', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
-    ]))),
-    ANIMATIONDELAY = checkStorageValue(tnsStorage['tnsAnDe'] || setLocalStorage('tnsAnDe', whichProperty([
+    ]), localStorageAccess),
+    ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']) || setLocalStorage('tADe', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
-    ]))),
-    TRANSITIONEND = checkStorageValue(tnsStorage['tnsTsEn'] || setLocalStorage('tnsTsEn', getEndProperty(TRANSITIONDURATION, 'Transition'))),
-    ANIMATIONEND = checkStorageValue(tnsStorage['tnsAnEn'] || setLocalStorage('tnsAnEn', getEndProperty(ANIMATIONDURATION, 'Animation')));
+    ]), localStorageAccess),
+    TRANSITIONEND = checkStorageValue(tnsStorage['tTE']) || setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
+    ANIMATIONEND = checkStorageValue(tnsStorage['tAE']) || setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
 
 // reset SUBPIXEL for IE8
 if (!CSSMQ) { SUBPIXEL = false; }

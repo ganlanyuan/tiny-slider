@@ -14,7 +14,7 @@ window.options = {
     items: 3,
     // navAnimationIn: 'active',
     // navAnimationOut: 'normal',
-    // slideBy: 'page',
+    slideBy: 'page',
   },
   'few-items': {
     container: '',
@@ -204,7 +204,7 @@ window.options = {
     autoplayHoverPause: true,
     autoplayTimeout: 1500,
     autoplayText: ['▶', '❚❚'],
-    autoplayButtonOutput: false,
+    // autoplayButtonOutput: false,
   }, 
   'vertical': {
     container: '',
