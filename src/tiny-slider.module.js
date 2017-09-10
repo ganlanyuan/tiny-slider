@@ -1,5 +1,5 @@
 // Format: IIFE
-// Version: 2.1.6
+// Version: 2.1.7
 
 // from go-native
 import '../../go-native/src/es5/object/keys.js';
