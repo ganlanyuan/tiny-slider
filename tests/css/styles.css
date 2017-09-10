@@ -139,9 +139,10 @@ img {
 .controls .prev { left: 0; }
 .controls .next { right: 0; }
 .controls li:hover { background: #f2f2f2; }
-.tns-controls { text-align: center; margin-bottom: 10px; }
+
 .tns-slider img { width: 100%; }
-button[data-controls] {
+.tns-controls { text-align: center; margin-bottom: 10px; }
+.tns-controls > [aria-controls] {
   font-size: 15px;
   margin: 0 5px;
   padding: 0 1em;
@@ -149,19 +150,21 @@ button[data-controls] {
   color: #000;
   background: #66CCFF;
   border-radius: 3px;
+  border: 0;
 }
-.lt-ie9 [data-controls] {
+.lt-ie9 .tns-controls > [aria-controls] {
   line-height: 2.5em;
 }
 [data-action] {
   display: block;
   margin: 10px auto;
   font-size: 17px;
-  width: 3em;
+  min-width: 3em;
   text-align: center;
   background: transparent;
+  border: 0;
 }
-button[disabled] { 
+[disabled] { 
   color: #999999;
   background: #B3B3B3; 
   cursor: not-allowed !important;
@@ -170,14 +173,16 @@ button[disabled] {
   text-align: center;
   margin: 10px 0;
 }
-button[data-nav] {
+.tns-nav > [aria-controls] {
   width: 9px;
   height: 9px;
+  padding: 0;
   margin: 0 5px;
   border-radius: 50%;
   background: #ddd;
+  border: 0;
 }
-button[aria-selected="true"] { background: #999; }
+.tns-nav > [aria-selected="true"] { background: #999; }
 .playbutton-wrapper { text-align: center; }
 .playbutton-wrapper button { height: 34px; padding: 0 10px; font-size: 14px; background: #fff; border-radius: 3px; border: 1px solid  #ccc; cursor: pointer; }
 .wrapper { padding: 0 5em; }

@@ -1,4 +1,4 @@
-// Format: ES MODULE
+// Format: IIFE
 // Version: 2.1.6
 
 // from go-native
@@ -1652,7 +1652,7 @@ export var tns = function(options) {
       if (!dir) {
         e = e || win.event;
         var target = e.target || e.srcElement;
-        while (target !== controlsContainer && !hasAttr(target, 'data-controls')) { target = target.parentNode; }
+        while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
       }
 
       if (target && target === prevButton || dir === -1) {

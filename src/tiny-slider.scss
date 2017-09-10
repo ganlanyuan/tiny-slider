@@ -60,9 +60,6 @@
     transition: transform 0s, opacity 0s;
   }
 }
-.tns-nav {
-  button { vertical-align: middle; }
-}
 .tns-lazy-img {
   -webkit-transition: opacity 0.6s;
   -moz-transition: opacity 0.6s;
@@ -71,11 +68,7 @@
   &.loaded { opacity: 1; }
 }
 [hidden] { display: none !important; }
-[data-controls], [data-action], [data-nav]  {
-  cursor: pointer;
-  border-width: 0;
-  padding: 0;
-}
+.tns-outer [aria-controls], [data-action] { cursor: pointer; }
 .tns-ah {
   -webkit-transition: height 0s;
   -moz-transition: height 0s;
