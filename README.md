@@ -1,5 +1,5 @@
 # tiny-slider 2.0
-![version](https://img.shields.io/badge/Version-2.1.7-green.svg)  
+![version](https://img.shields.io/badge/Version-2.1.8-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
@@ -72,11 +72,11 @@ Note: some features may need a manual test.
 via [cdnjs](https://cdnjs.com/libraries/tiny-slider):  
 ```html
 <!-- inside <head> -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.7/tiny-slider.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.8/tiny-slider.css">
 
 <!-- inside <body> -->
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.7/min/tiny-slider.helper.ie8.js"></script><![endif]-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.7/min/tiny-slider.js"></script>
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.8/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.1.8/min/tiny-slider.js"></script>
 ```
 Or import it via `webpack` or `rollup`:
 ```javascript
