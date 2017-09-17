@@ -206,6 +206,7 @@ export var tns = function(options) {
     options.axis = 'horizontal';
     options.rewind = false;
     options.loop = true;
+    options.edgePadding = false;
 
     var animateIn = 'tns-fadeIn',
         animateOut = 'tns-fadeOut',
@@ -626,7 +627,7 @@ export var tns = function(options) {
         }
 
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-        addCSSRule(sheet, '#' + slideId + ' .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
 
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
@@ -645,14 +646,14 @@ export var tns = function(options) {
       // container styles
       if (carousel && horizontal) {
         str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items);
-        addCSSRule(sheet, '#' + slideId + '', str, getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
       // slide styles
       if (horizontal || options.gutter) {
         str = getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) + 
               getSlideGutterStyle(options.gutter);
-        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
       }
 
     // non CSS mediaqueries: IE8
@@ -673,7 +674,7 @@ export var tns = function(options) {
         var str = getSlideWidthStyle(fixedWidth, gutter, items) +
                   getSlideGutterStyle(gutter);
         // append to the last line
-        addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
       }
     }
 
@@ -712,7 +713,7 @@ export var tns = function(options) {
         if ('gutter' in opts) {
           slideStr += getSlideGutterStyle(gutterBP);
         }
-        if (slideStr.length > 0) { slideStr = '#' + slideId + ' .tns-item{' + slideStr + '}'; }
+        if (slideStr.length > 0) { slideStr = '#' + slideId + ' > .tns-item{' + slideStr + '}'; }
 
         str = innerWrapperStr + containerStr + slideStr;
 
@@ -1096,7 +1097,7 @@ export var tns = function(options) {
         // add it again
         if (str.length > 0) {
           sheet.removeRule(getCssRulesLength(sheet) - 1);
-          addCSSRule(sheet, '#' + slideId + ' .tns-item', str, getCssRulesLength(sheet));
+          addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
         }
 
         // will do transform later if index !== indexTem
