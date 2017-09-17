@@ -125,9 +125,9 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `slideBy` | Integer \| `'page'` | Default: `1`. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: `true`. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: `['prev', 'next']`. <br> Text or markup in the prev/next buttons. |
-| `controlsContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the prev/next buttons. |
+| `controlsContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the prev/next buttons. <br> `controlsContainer` must have at least 2 child elements. |
 | `nav` | Boolean | Default: `true`. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
-| `navContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the dots and the autoplay start/stop button. |
+| `navContainer` | Node \| String \| `false` | Default: `false`. <br> The container element/selector around the dots. <br> `navContainer` must have at least same number of children as the slides. |
 | `arrowKeys` | Boolean | Default: `false`. <br> Allows using arrow keys to switch slides. |
 | `speed` | Integer | Default: `300`. <br> Speed of the slide animation (in "ms"). |
 | `autoplay` | Boolean | Default: `false`. <br> Toggles the automatic change of slides. |
@@ -135,7 +135,8 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `autoplayDirection` | `'forward'` \| `'backward'` | Default: `'forward'`. <br> Direction of slide movement (ascending/descending the slide index). |
 | `autoplayText` | Array (Text \| Markup) | Default: `['start', 'stop']`. <br> Text or markup in the autoplay start/stop button. |
 | `autoplayHoverPause` | Boolean | Default: `false`. <br> Stops sliding on mouseover. |
-| `autoplayButton` | Node \| String \| `false` | Default: `false`. <br> The autoplay start/stop button or selector. |
+| `autoplayButton` | Node \| String \| `false` | Default: `false`. <br> The customized autoplay start/stop button or selector. |
+| `autoplayButtonOutput` | Boolean | Default: `true`. <br> Output `autoplayButton` markup when `autoplay` is true but a customized `autoplayButton` is not provided. |
 | `autoplayResetOnVisibility` | Boolean | Default: `true`. <br> Pauses the sliding when the page is invisiable and resumes it when the page become visiable again. ([Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)) |
 | `animateIn` | String | Default: `'tns-fadeIn'`. <br> Name of intro animation `class`. |
 | `animateOut` | String | Default: `'tns-fadeOut'`. <br> Name of outro animation `class`. |
