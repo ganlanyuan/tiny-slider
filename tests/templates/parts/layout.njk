@@ -48,7 +48,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = [''] %} #}
+  {# {% set sliders = ['mouse-drag'] %} #}
 {% else %}
   {% set sliders = [
     'base',
@@ -92,18 +92,6 @@
   "Omnis dolorum eum blanditiis, ratione voluptates quod.", 
   "Animi quis iste ex ullam, similique laboriosam.", "D
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
-] %}
-
-{% set imageIds = [
-  "TY_cMZgN3l8",
-  "IBEXUZBmlXg",
-  "Ori_JWlqVpc",
-  "gr7ZkoZnHXU",
-  "fZ8uf_L52wg",
-  "qMWgy4LpaIs",
-  "2TnhZ1YOWwg",
-  "iVTGkBM0mP0",
-  "xGrhOUPDthk"
 ] %}
 
 {% block main %}
@@ -152,7 +140,7 @@
         {% if slide === 'lazyload' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x600" alt="" width="600" height="600"></div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/600x600/{{ i }}.png" alt="" width="600" height="600"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -161,7 +149,7 @@
         {% elif slide === 'customize' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x400" alt="" width="600" height="400"></div>
+              <div><img src="images/600x400/{{ i }}.png" alt="" width="600" height="400"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -170,7 +158,7 @@
         {% elif slide === 'autoHeight' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/1000x{{ [500, 600, 700, 800, 900] | random }}" alt=""></div>
+              <div><img src="images/1000x{{ [600, 700, 800, 900] | random }}/{{ i }}.png" alt=""></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -210,7 +198,7 @@
           {% for i in range(1, 8) %}
           <div class="item">
             {% if slide === 'mouse-drag' %}
-              <div><a href=""><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/600x400" alt=""></a></div>
+              <div><a href=""><img src="images/600x400/{{ i }}.png" width="600" height="400" alt=""></a></div>
             {% else %}
               <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
             {% endif %}
@@ -234,7 +222,7 @@
         <div class="customize-tools">
           <ul class="thumbnails" id="customize-thumbnails">
             {% for i in range(1, 6) %}
-              <li><img src="https://source.unsplash.com/{{ imageIds[i - 1] }}/50x50" alt="" width="50" height="50"></li>
+              <li><img src="images/50x50/{{ i }}.png" alt="" width="50" height="50"></li>
             {% endfor %}
           </ul>
           <ul class="controls" id="customize-controls">
