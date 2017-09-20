@@ -9,6 +9,22 @@ window.speed = Number(document.body.getAttribute('data-speed'));
 window.edgepadding = 50;
 window.gutter = 10;
 window.options = {
+  'test': {
+    items: 2,
+    disable: true,
+    responsive: {
+      600: {
+        items: 3,
+        controls: true,
+        edgePadding: 30,
+        disable: false,
+      },
+      900: {
+        items: 4,
+        disable: true,
+      }
+    }
+  },
   'base': {
     container: '',
     items: 3,
