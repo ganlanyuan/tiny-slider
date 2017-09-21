@@ -10,13 +10,16 @@ window.edgepadding = 50;
 window.gutter = 10;
 window.options = {
   'test': {
+    // axis: 'vertical',
+    mode: 'gallery',
+    gutter: 20,
+    edgePadding: 50,
     items: 2,
     disable: true,
     responsive: {
       600: {
         items: 3,
         controls: true,
-        edgePadding: 30,
         disable: false,
       },
       900: {

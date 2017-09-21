@@ -534,8 +534,8 @@ export var tns = function(options) {
       } else {
         classInner += ' tns-ovh';
       }
-    // } else {
-    //   classOuter += ' tns-hdx';
+    } else if (checkOption('gutter')) {
+      classOuter += ' tns-ovh';
     }
 
     outerWrapper.className = classOuter;
@@ -676,7 +676,7 @@ export var tns = function(options) {
       }
     }
 
-    if (!horizontal) {
+    if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
     }
@@ -705,7 +705,7 @@ export var tns = function(options) {
         }
 
         // slide string
-        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts) {
+        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts || !carousel && 'items' in opts) {
           slideStr += getSlideWidthStyle(fixedWidthBP, gutterBP, itemsBP);
         }
         if ('gutter' in opts) {
@@ -723,7 +723,7 @@ export var tns = function(options) {
 
 
     // set container transform property
-    if (carousel) {
+    if (carousel && !disable) {
       doContainerTransform();
     }
 
@@ -962,7 +962,7 @@ export var tns = function(options) {
         gutter = opts.gutter || getOption('gutter');
 
         fixedWidth = opts.fixedWidth || getOption('fixedWidth');
-        if (fixedWidth !== fixedWidthTem) {
+        if (!disable && fixedWidth !== fixedWidthTem) {
           doContainerTransform();
         }
 
@@ -1130,7 +1130,7 @@ export var tns = function(options) {
     }
 
     // things always do regardless of breakpoint zone changing
-    if (!horizontal) {
+    if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
       doContainerTransform();
@@ -1220,16 +1220,45 @@ export var tns = function(options) {
       container.style = '';
       if (loop) {
         for (var j = cloneCount; j--;) {
-          setAttrs([slideItems[j], slideItems[len - j - 1]], {'hidden': ''});
+          if (carousel) { hideElement(slideItems[j]); }
+          hideElement(slideItems[len - j - 1]);
+        }
+      }
+
+      // vertical slider
+      if (!horizontal || !carousel) { innerWrapper.style = ''; }
+
+      // gallery
+      if (!carousel) { 
+        for (var i = index; i < index + slideCount; i++) {
+          var item = slideItems[i];
+          item.style = '';
+          item.classList.remove(animateIn);
+          item.classList.remove(animateNormal);
         }
       }
     } else {
       sheet.disabled = false;
       container.className += classContainer;
+
+      // vertical slider: get offsetTops before container transform
+      if (!horizontal) { getSlideOffsetTops(); }
+
       doContainerTransform();
       if (loop) {
         for (var j = cloneCount; j--;) {
-          removeAttrs([slideItems[j], slideItems[len - j - 1]], ['hidden']);
+          if (carousel) { showElement(slideItems[j]); }
+          showElement(slideItems[len - j - 1]);
+        }
+      }
+
+      // gallery
+      if (!carousel) { 
+        for (var i = index; i < index + slideCount; i++) {
+          var item = slideItems[i],
+              classN = i < index + items ? animateIn : animateNormal;
+          item.style.left = (i - index) * 100 / items + '%';
+          item.classList.add(classN);
         }
       }
     }
@@ -1251,7 +1280,7 @@ export var tns = function(options) {
 
   // lazyload
   function lazyLoad() {
-    if (lazyload) {
+    if (lazyload && !disable) {
       var i = index, 
           len = index + items;
           
@@ -1279,21 +1308,21 @@ export var tns = function(options) {
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight() {
-    if (!autoHeight) { return; }
+    if (autoHeight && !disable) {
+      // get all images inside visible slide items
+      var images = [];
 
-    // get all images inside visible slide items
-    var images = [];
+      for (var i = index; i < index + items; i++) {
+        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+          images.push(img);
+        });
+      }
 
-    for (var i = index; i < index + items; i++) {
-      [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
-        images.push(img);
-      });
-    }
-
-    if (images.length === 0) {
-      updateInnerWrapperHeight(); 
-    } else {
-      checkImagesLoaded(images);
+      if (images.length === 0) {
+        updateInnerWrapperHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
     }
   }
 
@@ -2057,14 +2086,14 @@ export var tns = function(options) {
       // add 'hidden' attribute to previous visible navs
       if (visibleNavIndexesCached.length > 0) {
         visibleNavIndexesCached.forEach(function (ind) {
-          setAttrs(navItems[ind], {'hidden': ''});
+          hideElement(navItems[ind]);
         });
       }
 
       // remove 'hidden' attribute from visible navs
       if (visibleNavIndexes.length > 0) {
         visibleNavIndexes.forEach(function (ind) {
-          removeAttrs(navItems[ind], 'hidden');
+          showElement(navItems[ind]);
         });
       }
 
