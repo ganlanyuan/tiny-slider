@@ -397,7 +397,7 @@ export var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
-  function checkOption(item) {
+  function checkOption (item) {
     var result = options[item];
     if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
       breakpoints.forEach(function (bp) {
@@ -407,7 +407,7 @@ export var tns = function(options) {
     return result;
   }
 
-  function getOption(item, view) {
+  function getOption (item, view) {
     view = view ? view : vpOuter;
     var result;
 
@@ -439,14 +439,14 @@ export var tns = function(options) {
     return result;
   }
 
-  function getSlideMarginLeft(i) {
+  function getSlideMarginLeft (i) {
     var str = CALC ? 
       CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
       i * 100 / slideCountNew + '%';
     return str;
   }
 
-  function getInnerWrapperStyles(edgePaddingTem, gutterTem, fixedWidthTem) {
+  function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem) {
     var str = '';
     if (edgePaddingTem) {
       var gap = edgePaddingTem;
@@ -466,7 +466,7 @@ export var tns = function(options) {
     return str;
   }
 
-  function getContainerWidth(fixedWidthTem, gutterTem, itemsTem) {
+  function getContainerWidth (fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
     var str;
 
@@ -481,7 +481,7 @@ export var tns = function(options) {
     return str;
   }
 
-  function getSlideWidthStyle(fixedWidthTem, gutterTem, itemsTem) {
+  function getSlideWidthStyle (fixedWidthTem, gutterTem, itemsTem) {
     itemsTem = Math.min(slideCount, itemsTem);
     var str = '';
 
@@ -501,7 +501,7 @@ export var tns = function(options) {
     return str;
   }
 
-  function getSlideGutterStyle(gutterTem) {
+  function getSlideGutterStyle (gutterTem) {
     var str = '';
 
     // gutter maybe interger || 0
@@ -900,7 +900,7 @@ export var tns = function(options) {
 
 
 // === ON RESIZE ===
-  function onResize(e) {
+  function onResize (e) {
     e = e || win.event;
 
     clearTimeout(resizeTimer);
@@ -914,7 +914,7 @@ export var tns = function(options) {
     }, 100); // update after stop resizing for 100 ms
   }
 
-  function resizeTasks() {
+  function resizeTasks () {
     var breakpointZoneTem = breakpointZone,
         indexTem = index, 
         itemsTem = items,
@@ -1150,7 +1150,7 @@ export var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
-  function getBreakpointZone() {
+  function getBreakpointZone () {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
       if (vpOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
@@ -1182,7 +1182,7 @@ export var tns = function(options) {
     }
   })();
 
-  function checkFixedWidthSlideCount() {
+  function checkFixedWidthSlideCount () {
     if (fixedWidth && cloneCount) {
       if (freeze) {
         if (!slideItems[0].classList.contains('tns-transparent')) {
@@ -1215,7 +1215,7 @@ export var tns = function(options) {
     }
   }
 
-  function disableSlider(disable) {
+  function disableSlider (disable) {
     var len = slideItems.length;
     
     if (disable) {
@@ -1268,14 +1268,14 @@ export var tns = function(options) {
     }
   }
 
-  function mouseoverPause() {
+  function mouseoverPause () {
     if (animating) { 
       stopAction(); 
       autoplayHoverStopped = true;
     }
   }
 
-  function mouseoutRestart() {
+  function mouseoutRestart () {
     if (!animating && autoplayHoverStopped) { 
       startAction(); 
       autoplayHoverStopped = false;
@@ -1283,7 +1283,7 @@ export var tns = function(options) {
   }
 
   // lazyload
-  function lazyLoad() {
+  function lazyLoad () {
     if (lazyload && !disable) {
       var i = index, 
           len = index + items;
@@ -1311,7 +1311,7 @@ export var tns = function(options) {
 
   // check if all visible images are loaded
   // and update container height if it's done
-  function runAutoHeight() {
+  function runAutoHeight () {
     if (autoHeight && !disable) {
       // get all images inside visible slide items
       var images = [];
@@ -1330,7 +1330,7 @@ export var tns = function(options) {
     }
   }
 
-  function checkImagesLoaded(images) {
+  function checkImagesLoaded (images) {
     images.forEach(function (img, index) {
       if (imageLoaded(img)) { images.splice(index, 1); }
     });
@@ -1350,7 +1350,7 @@ export var tns = function(options) {
   // 2. set transitionDuration to speed
   // 3. update inner wrapper height to max-height
   // 4. set transitionDuration to 0s after transition done
-  function updateInnerWrapperHeight() {
+  function updateInnerWrapperHeight () {
     var heights = [], maxHeight;
     for (var i = index; i < index + items; i++) {
       heights.push(slideItems[i].offsetHeight);
@@ -1365,7 +1365,7 @@ export var tns = function(options) {
 
   // get the distance from the top edge of the first slide to each slide
   // (init) => slideOffsetTops
-  function getSlideOffsetTops() {
+  function getSlideOffsetTops () {
     slideOffsetTops = [0];
     var topFirst = slideItems[0].getBoundingClientRect().top, attr;
     for (var i = 1; i < slideCountNew; i++) {
@@ -1375,7 +1375,7 @@ export var tns = function(options) {
   }
 
   // set snapInterval (for IE10)
-  function setSnapInterval() {
+  function setSnapInterval () {
     outerWrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + (100 / items) + '%)';
   }
 
@@ -1439,15 +1439,15 @@ export var tns = function(options) {
     }
   }
 
-  function isButton(el) {
+  function isButton (el) {
     return el.nodeName.toLowerCase() === 'button';
   }
 
-  function isAriaDisabled(el) {
+  function isAriaDisabled (el) {
     return el.getAttribute('aria-disabled') === 'true';
   }
 
-  function disEnableElement(isButton, el, val) {
+  function disEnableElement (isButton, el, val) {
     if (isButton) {
       el.disabled = val;
     } else {
@@ -1456,7 +1456,7 @@ export var tns = function(options) {
   }
 
   // set 'disabled' to true on controls when reach the edges
-  function updateControlsStatus() {
+  function updateControlsStatus () {
     if (!controls || loop) { return; }
 
     var prevDisabled = (prevIsButton) ? prevButton.disabled : isAriaDisabled(prevButton),
@@ -1492,7 +1492,7 @@ export var tns = function(options) {
     }
   }
 
-  function getContainerTransformValue() {
+  function getContainerTransformValue () {
     var val;
     if (horizontal) {
       if (fixedWidth) {
@@ -1507,12 +1507,12 @@ export var tns = function(options) {
     return val;
   }
 
-  function doContainerTransform(val) {
+  function doContainerTransform (val) {
     if (!val) { val = getContainerTransformValue(); }
     container.style[transformAttr] = transformPrefix + val + transformPostfix;
   }
 
-  function animateSlide(number, classOut, classIn, isOut) {
+  function animateSlide (number, classOut, classIn, isOut) {
     for (var i = number, l = number + items; i < l; i++) {
       var item = slideItems[i];
 
@@ -1589,7 +1589,7 @@ export var tns = function(options) {
     lazyLoad();
   }
 
-  function render() {
+  function render () {
     if (checkIndexBeforeTransform) { checkIndex(); }
     if (index !== indexCached) {
       // events
@@ -1610,7 +1610,7 @@ export var tns = function(options) {
   // 4. update nav status
   // 5. lazyload images
   // 6. update container height
-  function onTransitionEnd(event) {
+  function onTransitionEnd (event) {
     events.emit('transitionEnd', info(event));
 
     if (!carousel && slideItemsOut.length > 0) {
@@ -1635,7 +1635,7 @@ export var tns = function(options) {
      * @param {string} str - property
      *
      */
-    function strTrans(str) {
+    function strTrans (str) {
       return str.toLowerCase().replace(/-/g, '');
     }
 
@@ -1716,7 +1716,7 @@ export var tns = function(options) {
   }
 
   // on controls click
-  function onControlsClick(e, dir) {
+  function onControlsClick (e, dir) {
     if (!running) {
       var shouldRender;
 
@@ -1747,7 +1747,7 @@ export var tns = function(options) {
   }
 
   // on nav click
-  function onNavClick(e) {
+  function onNavClick (e) {
     if (!running) {
       e = e || win.event;
       var target = e.target || e.srcElement,
@@ -1762,31 +1762,31 @@ export var tns = function(options) {
     }
   }
 
-  function updateAutoplayButton(action, txt) {
+  function updateAutoplayButton (action, txt) {
     setAttrs(autoplayButton, {'data-action': action});
     autoplayButton.innerHTML = autoplayHtmlStrings[0] + action + autoplayHtmlStrings[1] + txt;
   }
 
-  function startAction() {
+  function startAction () {
     resetActionTimer();
     if (autoplayButton) { updateAutoplayButton('stop', autoplayText[1]); }
 
     animating = true;
   }
 
-  function stopAction() {
+  function stopAction () {
     pauseActionTimer();
     if (autoplayButton) { updateAutoplayButton('start', autoplayText[0]); }
 
     animating = false;
   }
 
-  function pauseActionTimer() {
+  function pauseActionTimer () {
     animating = 'paused';
     clearInterval(autoplayTimer);
   }
 
-  function resetActionTimer() {
+  function resetActionTimer () {
     if (animating === true) { return; }
     clearInterval(autoplayTimer);
     autoplayTimer = setInterval(function () {
@@ -1794,7 +1794,7 @@ export var tns = function(options) {
     }, autoplayTimeout);
   }
 
-  function toggleAnimation() {
+  function toggleAnimation () {
     if (animating) {
       stopAction();
     } else {
@@ -1802,7 +1802,7 @@ export var tns = function(options) {
     }
   }
 
-  function onVisibilityChange() {
+  function onVisibilityChange () {
     if (autoplayResetVisibilityState != doc.hidden && animating !== false) {
       doc.hidden ? pauseActionTimer() : resetActionTimer();
     }
@@ -1810,7 +1810,7 @@ export var tns = function(options) {
   }
 
   // keydown events on document 
-  function onDocumentKeydown(e) {
+  function onDocumentKeydown (e) {
     e = e || win.event;
     switch(e.keyCode) {
       case KEYS.LEFT:
@@ -1822,7 +1822,7 @@ export var tns = function(options) {
   }
 
   // on key control
-  function onControlsKeydown(e) {
+  function onControlsKeydown (e) {
     e = e || win.event;
     var code = e.keyCode;
 
@@ -1851,12 +1851,12 @@ export var tns = function(options) {
   }
 
   // set focus
-  function setFocus(focus) {
+  function setFocus (focus) {
     focus.focus();
   }
 
   // on key nav
-  function onNavKeydown(e) {
+  function onNavKeydown (e) {
     var curElement = doc.activeElement;
     if (!hasAttr(curElement, 'data-nav')) { return; }
 
@@ -1871,7 +1871,7 @@ export var tns = function(options) {
       current = navIndex;
     }
 
-    function getNavIndex(num) {
+    function getNavIndex (num) {
       return options.navContainer ? num : visibleNavIndexes[num];
     }
 
@@ -1907,20 +1907,20 @@ export var tns = function(options) {
   }
 
   // IE10 scroll function
-  function ie10Scroll() {
+  function ie10Scroll () {
     doTransform(0, container.scrollLeft());
     indexCached = index;
   }
 
-  function getTarget(e) {
+  function getTarget (e) {
     return e.target || e.srcElement;
   }
 
-  function isTouchEvent(e) {
+  function isTouchEvent (e) {
     return e.type.indexOf('touch') >= 0;
   }
 
-  function preventDefaultBehavior(e) {
+  function preventDefaultBehavior (e) {
       if (e.preventDefault) {
         e.preventDefault();
       } else {
@@ -1928,7 +1928,7 @@ export var tns = function(options) {
       }
   }
 
-  function onTouchOrMouseStart(e) {
+  function onTouchOrMouseStart (e) {
     e = e || win.event;
     var ev;
 
@@ -1946,7 +1946,7 @@ export var tns = function(options) {
     translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
   }
 
-  function onTouchOrMouseMove(e) {
+  function onTouchOrMouseMove (e) {
     e = e || win.event;
     // make sure touch started or mouse draged
     if (startX !== null) {
@@ -1993,7 +1993,7 @@ export var tns = function(options) {
     }
   }
 
-  function onTouchOrMouseEnd(e) {
+  function onTouchOrMouseEnd (e) {
     e = e || win.event;
 
     if (touchedOrDraged) {
@@ -2042,7 +2042,7 @@ export var tns = function(options) {
 
         // prevent "click"
         var target = getTarget(e);
-        addEvents(target, {'click': function preventClick(e) {
+        addEvents(target, {'click': function preventClick (e) {
           preventDefaultBehavior(e);
           removeEvents(target, {'click': preventClick});
         }}); 
@@ -2052,7 +2052,7 @@ export var tns = function(options) {
 
   // === RESIZE FUNCTIONS === //
   // (slideOffsetTops, index, items) => vertical_conentWrapper.height
-  function updateContentWrapperHeight() {
+  function updateContentWrapperHeight () {
     innerWrapper.style.height = slideOffsetTops[index + items] - slideOffsetTops[index] + 'px';
   }
 
@@ -2061,7 +2061,7 @@ export var tns = function(options) {
    * add 1 more if the nav items cann't cover all slides
    * [0, 1, 2, 3, 4] / 3 => [0, 3]
    */
-  function getVisibleNavIndex() {
+  function getVisibleNavIndex () {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
@@ -2086,7 +2086,7 @@ export var tns = function(options) {
    * 2. add "hidden" attributes to previous visible nav items
    * 3. remove "hidden" attrubutes to new visible nav items
    */
-  function updateNavVisibility() {
+  function updateNavVisibility () {
     if (!nav || options.navContainer) { return; }
 
     // update visible nav indexes
@@ -2112,7 +2112,7 @@ export var tns = function(options) {
     }
   }
 
-  function info(e) {
+  function info (e) {
     return {
       container: container,
       slideItems: slideItems,
