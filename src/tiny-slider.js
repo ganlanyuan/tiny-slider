@@ -289,11 +289,10 @@ export var tns = function(options) {
       events = new Events(),
       // id, class
       containerIdCached = container.id,
-      containerClassCached = container.className,
-      slideItemIdCached = slideItems[0].id,
-      slideItemClassCached = slideItems[0].className,
+      classContainer = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
-      freeze = slideCount <= items,
+      disable = getOption('disable'),
+      freeze = disable ? true : slideCount <= items,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
         'click': onControlsClick,
@@ -522,26 +521,25 @@ export var tns = function(options) {
     innerWrapper.appendChild(container);
     vpInner = innerWrapper.clientWidth;
 
-    var dataOuter = 'tns-outer',
-        dataInner = 'tns-inner',
-        dataContainer = ' tns-slider tns-' + options.mode;
+    var classOuter = 'tns-outer',
+        classInner = 'tns-inner';
 
     if (carousel) {
       if (horizontal) {
         if (checkOption('edgePadding') || checkOption('gutter') && !options.fixedWidth) {
-          dataOuter += ' tns-ovh';
+          classOuter += ' tns-ovh';
         } else {
-          dataInner += ' tns-ovh';
+          classInner += ' tns-ovh';
         }
       } else {
-        dataInner += ' tns-ovh';
+        classInner += ' tns-ovh';
       }
-    // } else {
-    //   dataOuter += ' tns-hdx';
+    } else if (checkOption('gutter')) {
+      classOuter += ' tns-ovh';
     }
 
-    outerWrapper.className = dataOuter;
-    innerWrapper.className = dataInner;
+    outerWrapper.className = classOuter;
+    innerWrapper.className = classInner;
     innerWrapper.id = slideId + '-iw';
     if (autoHeight) {
       innerWrapper.className += ' tns-ah';
@@ -550,10 +548,10 @@ export var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    dataContainer += SUBPIXEL ? ' tns-subpixel' : ' tns-no-subpixel';
-    dataContainer += CALC ? ' tns-calc' : ' tns-no-calc';
-    if (carousel) { dataContainer += ' tns-' + options.axis; }
-    container.className += dataContainer;
+    classContainer += SUBPIXEL ? ' tns-subpixel' : ' tns-no-subpixel';
+    classContainer += CALC ? ' tns-calc' : ' tns-no-calc';
+    if (carousel) { classContainer += ' tns-' + options.axis; }
+    container.className += classContainer;
     // add event
     if (carousel && TRANSITIONEND) {
       var eve = {};
@@ -562,13 +560,13 @@ export var tns = function(options) {
     }
 
     // delete datas after init
-    dataOuter = dataInner = dataContainer = null;
+    classOuter = classInner = null;
 
     // add id, class, aria attributes 
     // before clone slides
     for (var x = 0; x < slideCount; x++) {
       var item = slideItems[x];
-      item.id = slideId + '-item' + x;
+      if (!item.id) { item.id = slideId + '-item' + x; }
       item.classList.add('tns-item');
       if (!carousel && animateNormal) { item.classList.add(animateNormal); }
       setAttrs(item, {
@@ -678,7 +676,7 @@ export var tns = function(options) {
       }
     }
 
-    if (!horizontal) {
+    if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
     }
@@ -707,7 +705,7 @@ export var tns = function(options) {
         }
 
         // slide string
-        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts) {
+        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts || !carousel && 'items' in opts) {
           slideStr += getSlideWidthStyle(fixedWidthBP, gutterBP, itemsBP);
         }
         if ('gutter' in opts) {
@@ -725,7 +723,7 @@ export var tns = function(options) {
 
 
     // set container transform property
-    if (carousel) {
+    if (carousel && !disable) {
       doContainerTransform();
     }
 
@@ -741,6 +739,7 @@ export var tns = function(options) {
  
     // == navInit ==
     if (hasNav) {
+      var initIndex = !carousel ? 0 : cloneCount;
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
@@ -751,7 +750,7 @@ export var tns = function(options) {
             'data-nav': index,
             'tabindex': '-1',
             'aria-selected': 'false',
-            'aria-controls': slideId + '-item' + index,
+            'aria-controls': slideItems[initIndex + index].id,
           });
           // if (navAnimationOut) {
           //   item.classList.add(navAnimationOut);
@@ -765,7 +764,7 @@ export var tns = function(options) {
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
           // navHtml += '<button ' + classStr + ' data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideItems[initIndex + i].id +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
@@ -888,6 +887,8 @@ export var tns = function(options) {
 
     if (typeof onInit === 'function') { onInit(info()); }
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
+
+    if (disable) { disableSlider(true); }
   })();
 
 
@@ -927,7 +928,8 @@ export var tns = function(options) {
           autoHeightTem = autoHeight,
           fixedWidthTem = fixedWidth,
           edgePaddingTem = edgePadding,
-          gutterTem = gutter;
+          gutterTem = gutter,
+          disableTem = disable;
 
       // get options for current breakpoint zone
       var opts = breakpointZone > 0 ? responsive[breakpoints[breakpointZone - 1]] : options;
@@ -935,13 +937,18 @@ export var tns = function(options) {
       // update variables
       items = getOption('items');
       slideBy = getOption('slideBy');
-      freeze = slideCount <= items;
+      disable = getOption('disable');
+      freeze = disable ? true : slideCount <= items;
 
       if (items !== itemsTem) {
         indexMax = slideCountNew - items - indexAdjust;
         // check index before transform in case
         // slider reach the right edge then items become bigger
         checkIndex();
+      }
+
+      if (disable !== disableTem) {
+        disableSlider(disable);
       }
       
       if (freeze !== freezeTem && freeze) {
@@ -955,7 +962,7 @@ export var tns = function(options) {
         gutter = opts.gutter || getOption('gutter');
 
         fixedWidth = opts.fixedWidth || getOption('fixedWidth');
-        if (fixedWidth !== fixedWidthTem) {
+        if (!disable && fixedWidth !== fixedWidthTem) {
           doContainerTransform();
         }
 
@@ -1123,7 +1130,7 @@ export var tns = function(options) {
     }
 
     // things always do regardless of breakpoint zone changing
-    if (!horizontal) {
+    if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
       doContainerTransform();
@@ -1204,6 +1211,59 @@ export var tns = function(options) {
     }
   }
 
+  function disableSlider(disable) {
+    var len = slideItems.length;
+    
+    if (disable) {
+      sheet.disabled = true;
+      container.className = container.className.replace(classContainer.substring(1), '');
+      container.style = '';
+      if (loop) {
+        for (var j = cloneCount; j--;) {
+          if (carousel) { hideElement(slideItems[j]); }
+          hideElement(slideItems[len - j - 1]);
+        }
+      }
+
+      // vertical slider
+      if (!horizontal || !carousel) { innerWrapper.style = ''; }
+
+      // gallery
+      if (!carousel) { 
+        for (var i = index; i < index + slideCount; i++) {
+          var item = slideItems[i];
+          item.style = '';
+          item.classList.remove(animateIn);
+          item.classList.remove(animateNormal);
+        }
+      }
+    } else {
+      sheet.disabled = false;
+      container.className += classContainer;
+
+      // vertical slider: get offsetTops before container transform
+      if (!horizontal) { getSlideOffsetTops(); }
+
+      doContainerTransform();
+      if (loop) {
+        for (var j = cloneCount; j--;) {
+          if (carousel) { showElement(slideItems[j]); }
+          showElement(slideItems[len - j - 1]);
+        }
+      }
+
+      // gallery
+      if (!carousel) { 
+        for (var i = index; i < index + slideCount; i++) {
+          var item = slideItems[i],
+              classN = i < index + items ? animateIn : animateNormal;
+          item.style.left = (i - index) * 100 / items + '%';
+          item.classList.add(classN);
+        }
+      }
+    }
+  }
+
   function mouseoverPause() {
     if (animating) { 
       stopAction(); 
@@ -1220,7 +1280,7 @@ export var tns = function(options) {
 
   // lazyload
   function lazyLoad() {
-    if (lazyload) {
+    if (lazyload && !disable) {
       var i = index, 
           len = index + items;
           
@@ -1248,21 +1308,21 @@ export var tns = function(options) {
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight() {
-    if (!autoHeight) { return; }
+    if (autoHeight && !disable) {
+      // get all images inside visible slide items
+      var images = [];
 
-    // get all images inside visible slide items
-    var images = [];
+      for (var i = index; i < index + items; i++) {
+        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+          images.push(img);
+        });
+      }
 
-    for (var i = index; i < index + items; i++) {
-      [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
-        images.push(img);
-      });
-    }
-
-    if (images.length === 0) {
-      updateInnerWrapperHeight(); 
-    } else {
-      checkImagesLoaded(images);
+      if (images.length === 0) {
+        updateInnerWrapperHeight(); 
+      } else {
+        checkImagesLoaded(images);
+      }
     }
   }
 
@@ -2026,14 +2086,14 @@ export var tns = function(options) {
       // add 'hidden' attribute to previous visible navs
       if (visibleNavIndexesCached.length > 0) {
         visibleNavIndexesCached.forEach(function (ind) {
-          setAttrs(navItems[ind], {'hidden': ''});
+          hideElement(navItems[ind]);
         });
       }
 
       // remove 'hidden' attribute from visible navs
       if (visibleNavIndexes.length > 0) {
         visibleNavIndexes.forEach(function (ind) {
-          removeAttrs(navItems[ind], 'hidden');
+          showElement(navItems[ind]);
         });
       }
 
@@ -2085,8 +2145,9 @@ export var tns = function(options) {
 
       // Slide Items
       for (var i = slideCount; i--;) {
-        slideItems[i].id = slideItemIdCached || '';
-        slideItems[i].className = slideItemClassCached || '';
+        var slide = slideItems[i];
+        if (slide.id.indexOf(slideId + '-item') >= 0) { slide.id = ''; }
+        slide.classList.remove('tns-item');
       }
       removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
       slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
@@ -2125,7 +2186,7 @@ export var tns = function(options) {
 
       // container
       container.id = containerIdCached || '';
-      container.className = containerClassCached || '';
+      container.className = container.className.replace(classContainer, '');
       container.style = '';
       if (carousel && TRANSITIONEND) {
         var eve = {};
