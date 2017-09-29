@@ -1,5 +1,5 @@
 // Format: ES MODULE
-// Version: 2.1.8
+// Version: 2.2.0
 
 // from go-native
 import '../../go-native/src/es5/object/keys.js';
