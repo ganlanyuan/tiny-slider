@@ -323,7 +323,8 @@ export var tns = function(options) {
       hasNav = checkOption('nav'),
       hasAutoplay = checkOption('autoplay'),
       hasTouch = checkOption('touch'),
-      hasMouseDrag = checkOption('mouseDrag');
+      hasMouseDrag = checkOption('mouseDrag'),
+      slideActiveClass = 'tns-slide-active';
 
   // controls
   if (hasControls) {
@@ -347,7 +348,8 @@ export var tns = function(options) {
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
         navCurrentIndex = 0,
-        navCurrentIndexCached = 0;
+        navCurrentIndexCached = 0,
+        navActiveClass = 'tns-nav-active';
   }
 
   // autoplay
@@ -513,7 +515,7 @@ export var tns = function(options) {
     return str;
   }
 
-  (function sliderInit() {
+  (function sliderInit () {
     // First thing first, wrap container with 'outerWrapper > innerWrapper',
     // to get the correct view width
     outerWrapper.appendChild(innerWrapper);
@@ -605,6 +607,7 @@ export var tns = function(options) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
+      item.classList.add(slideActiveClass);
 
       if (!carousel) { 
         item.style.left = (i - index) * 100 / items + '%';
@@ -788,6 +791,7 @@ export var tns = function(options) {
       }
 
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
+      navItems[0].classList.add(navActiveClass);
       // if (navAnimationOut) {
       //   navItems[0].classList.remove(navAnimationOut);
       // }
@@ -1376,7 +1380,7 @@ export var tns = function(options) {
   }
 
   // update slide
-  function updateSlideStatus() {
+  function updateSlideStatus () {
     for (var i = slideCountNew; i--;) {
       var item = slideItems[i];
       // visible slides
@@ -1384,6 +1388,7 @@ export var tns = function(options) {
         if (hasAttr(item, 'tabindex')) {
           setAttrs(item, {'aria-hidden': 'false'});
           removeAttrs(item, ['tabindex']);
+          item.classList.add(slideActiveClass);
         }
       // hidden slides
       } else {
@@ -1393,12 +1398,15 @@ export var tns = function(options) {
             'tabindex': '-1'
           });
         }
+        if (item.classList.contains(slideActiveClass)) {
+          item.classList.remove(slideActiveClass);
+        }
       }
     }
   }
 
   // set tabindex & aria-selected on Nav
-  function updateNavStatus() {
+  function updateNavStatus () {
     // get current nav
     if (nav) {
       navCurrentIndex = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
@@ -1416,6 +1424,8 @@ export var tns = function(options) {
           'tabindex': '0',
           'aria-selected': 'true'
         });
+        navPrev.classList.remove(navActiveClass);
+        navCurrent.classList.add(navActiveClass);
 
         // if (navAnimationOut) {
         //   navPrev.classList.remove(navAnimationIn);
