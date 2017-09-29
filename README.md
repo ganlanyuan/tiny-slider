@@ -150,6 +150,7 @@ import { tns } from "path/to/src/tiny-slider.module"
 | `touch` | Boolean | Default: `true`. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: `false`. <br> Changing slides by dragging them. |
 | `nested` | `"inner"` \| `"outer"` \| `false` | Default: `false`. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
+| `disable` | Boolean | Default: `false`. <br> Disable slider. |
 | `onInit` | Function \| `false` | Default: `false`. <br> Callback to be run on initialization. |
 
 *[top↑](#tiny-slider-20)*  
@@ -173,8 +174,9 @@ The following options can be redefined in `responsive` field:
 `autoplayTimeout`,   
 `touch`,   
 `mouseDrag`,   
-`arrowKeys`.   
-NOTE: `fixedWidth` can only be changed from positive integer to positive integer, not from integer to false/0 (or in reverse).
+`arrowKeys`,
+`disable`.   
+NOTE: `fixedWidth` can only be changed to different positive integers. It can't be changed to different data type, 0 or negtive integer.
 ```javascript
 <script>
   var slider = tns({
