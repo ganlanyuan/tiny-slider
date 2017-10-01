@@ -1510,14 +1510,16 @@ var tns = function(options) {
 
   function checkFixedWidthSlideCount () {
     if (fixedWidth && cloneCount) {
+      var str = 'tns-transparent';
+
       if (freeze) {
-        if (!hasClass(slideItems[0], 'tns-transparent')) {
+        if (!hasClass(slideItems[0], str)) {
           // remove edge padding from inner wrapper
           if (edgePadding) { innerWrapper.style.margin = '0'; }
           // add class tns-transparent to cloned slides
           for (var i = cloneCount; i--;) {
-            addClass(slideItems[i], 'tns-transparent');
-            addClass(slideItems[slideCountNew - i - 1], 'tns-transparent');
+            addClass(slideItems[i], str);
+            addClass(slideItems[slideCountNew - i - 1], str);
           }
         }
       } else {
@@ -1530,11 +1532,11 @@ var tns = function(options) {
           }
         }
 
-        if (hasClass(slideItems[0], 'tns-transparent')) {
+        if (hasClass(slideItems[0], str)) {
           // remove class tns-transparent to cloned slides
           for (var i = cloneCount; i--;) {
-            removeClass(slideItems[i], 'tns-transparent');
-            removeClass(slideItems[slideCountNew - i - 1], 'tns-transparent');
+            removeClass(slideItems[i], str);
+            removeClass(slideItems[slideCountNew - i - 1], str);
           }
         }
       }
@@ -1937,66 +1939,67 @@ var tns = function(options) {
   // 5. lazyload images
   // 6. update container height
   function onTransitionEnd (event) {
-    events.emit('transitionEnd', info(event));
+    // check running on gallery mode
+    // make sure trantionend/animationend events run only once
+    if (carousel || running) {
+      events.emit('transitionEnd', info(event));
 
-    if (!carousel && slideItemsOut.length > 0) {
-      for (var i = 0; i < items; i++) {
-        var item = slideItemsOut[i];
-        // set item positions
-        item.style.left = '';
+      if (!carousel && slideItemsOut.length > 0) {
+        for (var i = 0; i < items; i++) {
+          var item = slideItemsOut[i];
+          // set item positions
+          item.style.left = '';
 
-        if (TRANSITIONDURATION) { setDurations(0, item); }
-        if (animateDelay && TRANSITIONDELAY) { 
-          item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = '';
+          if (TRANSITIONDURATION) { setDurations(0, item); }
+          if (animateDelay && TRANSITIONDELAY) { 
+            item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = '';
+          }
+          removeClass(item, animateOut);
+          addClass(item, animateNormal);
         }
-        // console.log('before: ' + item.className);
-        // console.log(i);
-        removeClass(item, animateOut);
-        addClass(item, animateNormal);
-        // console.log('after: ' + item.className);
       }
-    }
 
-    /*
-     * Transfer prefixed properties to the same format
-     * CSS: -Webkit-Transform => webkittransform
-     * JS: WebkitTransform => webkittransform
-     * @param {string} str - property
-     *
-     */
-    function strTrans (str) {
-      return str.toLowerCase().replace(/-/g, '');
-    }
+      /*
+       * Transfer prefixed properties to the same format
+       * CSS: -Webkit-Transform => webkittransform
+       * JS: WebkitTransform => webkittransform
+       * @param {string} str - property
+       *
+       */
+      function strTrans (str) {
+        return str.toLowerCase().replace(/-/g, '');
+      }
 
-    /* update slides, nav, controls after checking ...
-     * => legacy browsers who don't support 'event' 
-     *    have to check event first, otherwise event.target will cause an error 
-     * => or 'gallery' mode: 
-     *   + event target is slide item
-     * => or 'carousel' mode: 
-     *   + event target is container, 
-     *   + event.property is the same with transform attribute
-     */
-    if (!event || 
-        !carousel && event.target.parentNode === container || 
-        event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
+      /* update slides, nav, controls after checking ...
+       * => legacy browsers who don't support 'event' 
+       *    have to check event first, otherwise event.target will cause an error 
+       * => or 'gallery' mode: 
+       *   + event target is slide item
+       * => or 'carousel' mode: 
+       *   + event target is container, 
+       *   + event.property is the same with transform attribute
+       */
+      if (!event || 
+          !carousel && event.target.parentNode === container || 
+          event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
 
-      if (!checkIndexBeforeTransform) { 
-        var indexTem = index;
-        checkIndex();
-        if (index !== indexTem) { 
-          if (TRANSITIONDURATION) { setDurations(0); }
-          doContainerTransform();
-          events.emit('indexChanged', info());
-        }
-      } 
+        if (!checkIndexBeforeTransform) { 
+          var indexTem = index;
+          checkIndex();
+          if (index !== indexTem) { 
+            if (TRANSITIONDURATION) { setDurations(0); }
+            doContainerTransform();
+            events.emit('indexChanged', info());
+          }
+        } 
 
-      runAutoHeight();
+        runAutoHeight();
 
-      if (nested === 'inner') { events.emit('innerLoaded', info()); }
-      running = false;
-      navCurrentIndexCached = navCurrentIndex;
-      indexCached = index;
+        if (nested === 'inner') { events.emit('innerLoaded', info()); }
+        running = false;
+        navCurrentIndexCached = navCurrentIndex;
+        indexCached = index;
+      }
     }
 
   }
