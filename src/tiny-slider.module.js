@@ -1,13 +1,10 @@
 // Format: ES MODULE
 // Version: 2.2.0
 
-// from go-native
-import '../../go-native/src/es5/object/keys.js';
-import '../../go-native/src/utilities/childNode.remove';
-import '../../go-native/src/vendors/token-list';
-import { extend } from '../../go-native/src/gn/extend';
-
 // helper functions
+import './helpers/keys';
+import './helpers/childNode.remove';
+import { extend } from './helpers/extend';
 import { checkStorageValue } from './helpers/checkStorageValue';
 import { setLocalStorage } from './helpers/setLocalStorage';
 import { getSlideId } from './helpers/getSlideId';
@@ -19,6 +16,9 @@ import { addCSSRule } from './helpers/addCSSRule';
 import { getCssRulesLength } from './helpers/getCssRulesLength';
 import { toDegree } from './helpers/toDegree';
 import { getTouchDirection } from './helpers/getTouchDirection';
+import { hasClass } from './helpers/hasClass';
+import { addClass } from './helpers/addClass';
+import { removeClass } from './helpers/removeClass';
 import { hasAttr } from './helpers/hasAttr';
 import { getAttr } from './helpers/getAttr';
 import { setAttrs } from './helpers/setAttrs';
@@ -569,8 +569,8 @@ export var tns = function(options) {
     for (var x = 0; x < slideCount; x++) {
       var item = slideItems[x];
       if (!item.id) { item.id = slideId + '-item' + x; }
-      item.classList.add('tns-item');
-      if (!carousel && animateNormal) { item.classList.add(animateNormal); }
+      addClass(item, 'tns-item');
+      if (!carousel && animateNormal) { addClass(item, animateNormal); }
       setAttrs(item, {
         'aria-hidden': 'true',
         'tabindex': '-1'
@@ -607,12 +607,12 @@ export var tns = function(options) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
-      item.classList.add(slideActiveClass);
+      addClass(item, slideActiveClass);
 
       if (!carousel) { 
         item.style.left = (i - index) * 100 / items + '%';
-        item.classList.remove(animateNormal);
-        item.classList.add(animateIn);
+        addClass(item, animateIn);
+        removeClass(item, animateNormal);
       }
     }
 
@@ -734,7 +734,7 @@ export var tns = function(options) {
     // == msInit ==
     // for IE10
     if (navigator.msMaxTouchPoints) {
-      outerWrapper.classList.add('ms-touch');
+      addClass(outerWrapper, 'ms-touch');
       addEvents(outerWrapper, {'scroll': ie10Scroll});
       setSnapInterval();
     }
@@ -756,7 +756,7 @@ export var tns = function(options) {
             'aria-controls': slideItems[initIndex + index].id,
           });
           // if (navAnimationOut) {
-          //   item.classList.add(navAnimationOut);
+          //   addClass(item, navAnimationOut);
           // }
         });
 
@@ -791,12 +791,12 @@ export var tns = function(options) {
       }
 
       setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
-      navItems[0].classList.add(navActiveClass);
+      addClass(navItems[0], navActiveClass);
       // if (navAnimationOut) {
-      //   navItems[0].classList.remove(navAnimationOut);
+      //   removeClass(navItems[0], navAnimationOut);
       // }
       // if (navAnimationIn) {
-      //   navItems[0].classList.add(navAnimationIn);
+      //   addClass(navItems[0], navAnimationIn);
       // }
 
       // add events
@@ -1185,13 +1185,13 @@ export var tns = function(options) {
   function checkFixedWidthSlideCount () {
     if (fixedWidth && cloneCount) {
       if (freeze) {
-        if (!slideItems[0].classList.contains('tns-transparent')) {
+        if (!hasClass(slideItems[0], 'tns-transparent')) {
           // remove edge padding from inner wrapper
           if (edgePadding) { innerWrapper.style.margin = '0'; }
           // add class tns-transparent to cloned slides
           for (var i = cloneCount; i--;) {
-            slideItems[i].classList.add('tns-transparent');
-            slideItems[slideCountNew - i - 1].classList.add('tns-transparent');
+            addClass(slideItems[i], 'tns-transparent');
+            addClass(slideItems[slideCountNew - i - 1], 'tns-transparent');
           }
         }
       } else {
@@ -1204,11 +1204,11 @@ export var tns = function(options) {
           }
         }
 
-        if (slideItems[0].classList.contains('tns-transparent')) {
+        if (hasClass(slideItems[0], 'tns-transparent')) {
           // remove class tns-transparent to cloned slides
           for (var i = cloneCount; i--;) {
-            slideItems[i].classList.remove('tns-transparent');
-            slideItems[slideCountNew - i - 1].classList.remove('tns-transparent');
+            removeClass(slideItems[i], 'tns-transparent');
+            removeClass(slideItems[slideCountNew - i - 1], 'tns-transparent');
           }
         }
       }
@@ -1237,8 +1237,8 @@ export var tns = function(options) {
         for (var i = index; i < index + slideCount; i++) {
           var item = slideItems[i];
           item.style = '';
-          item.classList.remove(animateIn);
-          item.classList.remove(animateNormal);
+          removeClass(item, animateIn);
+          removeClass(item, animateNormal);
         }
       }
     } else {
@@ -1262,7 +1262,7 @@ export var tns = function(options) {
           var item = slideItems[i],
               classN = i < index + items ? animateIn : animateNormal;
           item.style.left = (i - index) * 100 / items + '%';
-          item.classList.add(classN);
+          addClass(item, classN);
         }
       }
     }
@@ -1300,9 +1300,9 @@ export var tns = function(options) {
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
           addEvents(img, eve);
 
-          if (!img.classList.contains('loaded')) {
+          if (!hasClass(img, 'loaded')) {
             img.src = getAttr(img, 'data-src');
-            img.classList.add('loaded');
+            addClass(img, 'loaded');
           }
         });
       }
@@ -1388,7 +1388,7 @@ export var tns = function(options) {
         if (hasAttr(item, 'tabindex')) {
           setAttrs(item, {'aria-hidden': 'false'});
           removeAttrs(item, ['tabindex']);
-          item.classList.add(slideActiveClass);
+          addClass(item, slideActiveClass);
         }
       // hidden slides
       } else {
@@ -1398,8 +1398,8 @@ export var tns = function(options) {
             'tabindex': '-1'
           });
         }
-        if (item.classList.contains(slideActiveClass)) {
-          item.classList.remove(slideActiveClass);
+        if (hasClass(item, slideActiveClass)) {
+          removeClass(item, slideActiveClass);
         }
       }
     }
@@ -1424,16 +1424,16 @@ export var tns = function(options) {
           'tabindex': '0',
           'aria-selected': 'true'
         });
-        navPrev.classList.remove(navActiveClass);
-        navCurrent.classList.add(navActiveClass);
+        removeClass(navPrev, navActiveClass);
+        addClass(navCurrent, navActiveClass);
 
         // if (navAnimationOut) {
-        //   navPrev.classList.remove(navAnimationIn);
-        //   navPrev.classList.add(navAnimationOut);
+        //   removeClass(navPrev, navAnimationIn);
+        //   addClass(navPrev, navAnimationOut);
         // }
         // if (navAnimationIn) {
-        //   navCurrent.classList.remove(navAnimationOut);
-        //   navCurrent.classList.add(navAnimationIn);
+        //   removeClass(navCurrent, navAnimationOut);
+        //   addClass(navCurrent, navAnimationIn);
         // }
       }
     }
@@ -1523,8 +1523,8 @@ export var tns = function(options) {
       if (animateDelay && TRANSITIONDELAY) {
         item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = animateDelay * (i - number) / 1000 + 's';
       }
-      item.classList.remove(classOut);
-      item.classList.add(classIn);
+      removeClass(item, classOut);
+      addClass(item, classIn);
       
       if (isOut) { slideItemsOut.push(item); }
     }
@@ -1623,8 +1623,11 @@ export var tns = function(options) {
         if (animateDelay && TRANSITIONDELAY) { 
           item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = '';
         }
-        item.classList.remove(animateOut);
-        item.classList.add(animateNormal);
+        // console.log('before: ' + item.className);
+        // console.log(i);
+        removeClass(item, animateOut);
+        addClass(item, animateNormal);
+        // console.log('after: ' + item.className);
       }
     }
 

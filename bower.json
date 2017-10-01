@@ -25,8 +25,5 @@
     ".env",
     "docker-compose.yml",
     "gulpfile.js"
-  ],
-  "dependencies": {
-    "go-native": "^1.0.0"
-  }
+  ]
 }
