@@ -1604,6 +1604,17 @@ export var tns = function(options) {
 
   }
 
+  /*
+   * Transfer prefixed properties to the same format
+   * CSS: -Webkit-Transform => webkittransform
+   * JS: WebkitTransform => webkittransform
+   * @param {string} str - property
+   *
+   */
+  function strTrans (str) {
+    return str.toLowerCase().replace(/-/g, '');
+  }
+
   // AFTER TRANSFORM
   // Things need to be done after a transfer:
   // 1. check index
@@ -1631,17 +1642,6 @@ export var tns = function(options) {
           removeClass(item, animateOut);
           addClass(item, animateNormal);
         }
-      }
-
-      /*
-       * Transfer prefixed properties to the same format
-       * CSS: -Webkit-Transform => webkittransform
-       * JS: WebkitTransform => webkittransform
-       * @param {string} str - property
-       *
-       */
-      function strTrans (str) {
-        return str.toLowerCase().replace(/-/g, '');
       }
 
       /* update slides, nav, controls after checking ...
