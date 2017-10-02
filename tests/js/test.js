@@ -803,7 +803,7 @@ function testResponsive1() {
   }
 }
 
-function testResponsive2() {
+function testResponsive2 () {
   var id = 'responsive2',
       responsive = options[id]['responsive'],
       bps = Object.keys(responsive).sort(function (a, b) { return a - b; });
