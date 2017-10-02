@@ -1,24 +1,32 @@
 // get css-calc 
 // @return - false | calc | -webkit-calc | -moz-calc
 // @usage - var calc = getCalc(); 
+import './childNode.remove';
+import { getBody } from './getBody';
+import { setFakeBody } from './setFakeBody';
+import { resetFakeBody } from './resetFakeBody';
+
 export function calc() {
   var doc = document, 
-      body = doc.body,
-      el = doc.createElement('div'), 
+      body = getBody(),
+      docOverflow = setFakeBody(body);
+      div = doc.createElement('div'), 
       result = false;
-  body.appendChild(el);
+
+  body.appendChild(div);
   try {
     var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
     for (var i = 0; i < 3; i++) {
       val = vals[i];
-      el.style.width = val;
-      if (el.offsetWidth === 10) { 
+      div.style.width = val;
+      if (div.offsetWidth === 10) { 
         result = val.replace('(10px)', ''); 
         break;
       }
     }
   } catch (e) {}
-  body.removeChild(el);
+  
+  body.fake ? resetFakeBody(body, docOverflow) : div.remove();
 
   return result;
 }

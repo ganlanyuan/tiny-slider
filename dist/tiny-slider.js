@@ -63,27 +63,68 @@ function getSlideId() {
   return 'tns' + window.tnsId;
 }
 
+function getBody () {
+  var doc = document,
+      body = doc.body;
+
+  if (!body) {
+    body = doc.createElement('body');
+    body.fake = true;
+  }
+
+  return body;
+}
+
+var docElement = document.documentElement;
+
+function setFakeBody (body) {
+  var docOverflow = '';
+  if (body.fake) {
+    docOverflow = docElement.style.overflow;
+    //avoid crashing IE8, if background image is used
+    body.style.background = '';
+    //Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
+    body.style.overflow = docElement.style.overflow = 'hidden';
+    docElement.appendChild(body);
+  }
+
+  return docOverflow;
+}
+
+function resetFakeBody (body, docOverflow) {
+  if (body.fake) {
+    body.remove();
+    docElement.style.overflow = docOverflow;
+    // Trigger layout so kinetic scrolling isn't disabled in iOS6+
+    // eslint-disable-next-line
+    docElement.offsetHeight;
+  }
+}
+
 // get css-calc 
 // @return - false | calc | -webkit-calc | -moz-calc
 // @usage - var calc = getCalc(); 
 function calc() {
   var doc = document, 
-      body = doc.body,
-      el = doc.createElement('div'), 
+      body = getBody(),
+      docOverflow = setFakeBody(body);
+      div = doc.createElement('div'), 
       result = false;
-  body.appendChild(el);
+
+  body.appendChild(div);
   try {
     var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
     for (var i = 0; i < 3; i++) {
       val = vals[i];
-      el.style.width = val;
-      if (el.offsetWidth === 10) { 
+      div.style.width = val;
+      if (div.offsetWidth === 10) { 
         result = val.replace('(10px)', ''); 
         break;
       }
     }
   } catch (e) {}
-  body.removeChild(el);
+  
+  body.fake ? resetFakeBody(body, docOverflow) : div.remove();
 
   return result;
 }
@@ -92,10 +133,13 @@ function calc() {
 // @return - boolean
 function subpixelLayout() {
   var doc = document,
-      body = doc.body,
+      body = getBody(),
+      docOverflow = setFakeBody(body),
       parent = doc.createElement('div'),
       child1 = doc.createElement('div'),
-      child2;
+      child2,
+      supported;
+
   parent.style.cssText = 'width: 10px';
   child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
   child2 = child1.cloneNode(true);
@@ -104,22 +148,37 @@ function subpixelLayout() {
   parent.appendChild(child2);
   body.appendChild(parent);
 
-  var supported = child1.offsetTop !== child2.offsetTop;
-  body.removeChild(parent);
+  supported = child1.offsetTop !== child2.offsetTop;
+
+  body.fake ? resetFakeBody(body, docOverflow) : parent.remove();
 
   return supported;
 }
 
 function mediaquerySupport () {
   var doc = document,
-      body = doc.body,
-      div = doc.createElement('div');
+      body = getBody(),
+      docOverflow = setFakeBody(body),
+      div = doc.createElement('div'),
+      style = doc.createElement('style'),
+      rule = '@media all and (min-width:1px){.tns-mq-test{position:absolute}}',
+      position;
 
+  style.type = 'text/css';
   div.className = 'tns-mq-test';
+
+  body.appendChild(style);
   body.appendChild(div);
 
-  var position = (window.getComputedStyle) ? window.getComputedStyle(div).position : div.currentStyle['position'];
-  body.removeChild(div);
+  if (style.styleSheet) {
+    style.styleSheet.cssText = rule;
+  } else {
+    style.appendChild(doc.createTextNode(rule));
+  }
+
+  position = window.getComputedStyle ? window.getComputedStyle(div).position : div.currentStyle['position'];
+
+  body.fake ? resetFakeBody(body, docOverflow) : div.remove();
 
   return position === "absolute";
 }
@@ -141,24 +200,15 @@ function createStyleSheet (media) {
   // Add the <style> element to the page
   document.querySelector('head').appendChild(style);
 
-  return (style.sheet) ? style.sheet : style.styleSheet;
+  return style.sheet ? style.sheet : style.styleSheet;
 }
 
 // cross browsers addRule method
-var addCSSRule = (function () {
-  var styleSheet = document.styleSheets[0];
-  if('insertRule' in styleSheet) {
-
-    return function (sheet, selector, rules, index) {
-      sheet.insertRule(selector + '{' + rules + '}', index);
-    };
-  } else if('addRule' in styleSheet) {
-
-    return function (sheet, selector, rules, index) {
-      sheet.addRule(selector, rules, index);
-    };
-  }
-})();
+function addCSSRule(sheet, selector, rules, index) {
+  'insertRule' in sheet ?
+    sheet.insertRule(selector + '{' + rules + '}', index) :
+    sheet.addRule(selector, rules, index);
+}
 
 function getCssRulesLength(sheet) {
   var rule = ('insertRule' in sheet) ? sheet.cssRules : sheet.rules;

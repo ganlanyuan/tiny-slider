@@ -15,5 +15,5 @@ export function createStyleSheet (media) {
   // Add the <style> element to the page
   document.querySelector('head').appendChild(style);
 
-  return (style.sheet) ? style.sheet : style.styleSheet;
+  return style.sheet ? style.sheet : style.styleSheet;
 };

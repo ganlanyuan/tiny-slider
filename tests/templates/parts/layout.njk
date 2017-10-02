@@ -14,6 +14,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   
+<!--[if (IE 8)&!(IEMobile)]>
+<script src="../dist/tiny-slider.helper.ie8.js"></script>
+<![endif]-->
+<script src="../dist/tiny-slider.js"></script>
   {% if page === 'demos' %}
   <link rel="stylesheet" href="css/prism.css">
   {% endif %}
@@ -290,10 +294,6 @@
 {% if page === 'demos' %}
 <script src="js/prism.js"></script>
 {% endif %}
-<!--[if (IE 8)&!(IEMobile)]>
-<script src="../dist/tiny-slider.helper.ie8.js"></script>
-<![endif]-->
-<script src="../dist/tiny-slider.js"></script>
 <script src="js/script.min.js"></script>
 
 {% block footerScripts %}

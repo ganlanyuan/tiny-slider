@@ -1,13 +1,32 @@
+import './childNode.remove';
+import { getBody } from './getBody';
+import { setFakeBody } from './setFakeBody';
+import { resetFakeBody } from './resetFakeBody';
+
 export function mediaquerySupport () {
   var doc = document,
-      body = doc.body,
-      div = doc.createElement('div');
+      body = getBody(),
+      docOverflow = setFakeBody(body),
+      div = doc.createElement('div'),
+      style = doc.createElement('style'),
+      rule = '@media all and (min-width:1px){.tns-mq-test{position:absolute}}',
+      position;
 
+  style.type = 'text/css';
   div.className = 'tns-mq-test';
+
+  body.appendChild(style);
   body.appendChild(div);
 
-  var position = (window.getComputedStyle) ? window.getComputedStyle(div).position : div.currentStyle['position'];
-  body.removeChild(div);
+  if (style.styleSheet) {
+    style.styleSheet.cssText = rule;
+  } else {
+    style.appendChild(doc.createTextNode(rule));
+  }
+
+  position = window.getComputedStyle ? window.getComputedStyle(div).position : div.currentStyle['position'];
+
+  body.fake ? resetFakeBody(body, docOverflow) : div.remove();
 
   return position === "absolute";
 }

@@ -1,4 +1,4 @@
-import { tns } from '../../src/tiny-slider';
+// import { tns } from '../../src/tiny-slider';
 
 var doc = document;
 window.isDemoPage = doc.body.getAttribute('data-page') === 'demos';

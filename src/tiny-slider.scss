@@ -90,8 +90,3 @@
   filter: alpha(opacity=0);
   z-index: -1;
 }
-
-// style for testing CSS3 mediaquery support
-@media all and (min-width: 1px) {
-  .tns-mq-test { position: absolute; }
-}
