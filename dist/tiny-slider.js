@@ -107,7 +107,7 @@ function resetFakeBody (body, docOverflow) {
 function calc() {
   var doc = document, 
       body = getBody(),
-      docOverflow = setFakeBody(body);
+      docOverflow = setFakeBody(body),
       div = doc.createElement('div'), 
       result = false;
 
@@ -406,7 +406,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.2.1
+// Version: 2.2.2
 
 // helper functions
 // check browser version and local storage

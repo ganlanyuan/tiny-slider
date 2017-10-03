@@ -9,7 +9,7 @@ import { resetFakeBody } from './resetFakeBody';
 export function calc() {
   var doc = document, 
       body = getBody(),
-      docOverflow = setFakeBody(body);
+      docOverflow = setFakeBody(body),
       div = doc.createElement('div'), 
       result = false;
 
