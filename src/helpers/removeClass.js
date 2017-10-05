@@ -1,3 +1,6 @@
+import { hasClass } from './hasClass';
 export function removeClass(el, str) {
-  el.className = el.className.replace(str, '');
+  if (hasClass(el, str)) {
+    el.className = el.className.replace(str, '');
+  }
 }

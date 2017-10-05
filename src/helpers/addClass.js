@@ -1,3 +1,6 @@
+import { hasClass } from './hasClass';
 export function addClass(el, str) {
-  el.className += ' ' + str;
+  if (!hasClass(el,  str)) {
+    el.className += ' ' + str;
+  }
 }

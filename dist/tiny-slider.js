@@ -237,11 +237,15 @@ function hasClass(el, str) {
 }
 
 function addClass(el, str) {
-  el.className += ' ' + str;
+  if (!hasClass(el,  str)) {
+    el.className += ' ' + str;
+  }
 }
 
 function removeClass(el, str) {
-  el.className = el.className.replace(str, '');
+  if (hasClass(el, str)) {
+    el.className = el.className.replace(str, '');
+  }
 }
 
 function hasAttr(el, attr) {
@@ -2311,124 +2315,130 @@ var tns = function(options) {
   }
 
   function onTouchOrMouseStart (e) {
-    e = e || win.event;
-    var ev;
-
-    if (isTouchEvent(e)) {
-      ev = e.changedTouches[0];
-      events.emit('touchStart', info(e));
-    } else {
-      ev = e;
-      preventDefaultBehavior(e);
-      events.emit('dragStart', info(e));
-    }
-
-    startX = parseInt(ev.clientX);
-    startY = parseInt(ev.clientY);
-    translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
-  }
-
-  function onTouchOrMouseMove (e) {
-    e = e || win.event;
-    // make sure touch started or mouse draged
-    if (startX !== null) {
+    if (!running) {
+      e = e || win.event;
       var ev;
+
       if (isTouchEvent(e)) {
         ev = e.changedTouches[0];
+        events.emit('touchStart', info(e));
       } else {
         ev = e;
         preventDefaultBehavior(e);
+        events.emit('dragStart', info(e));
       }
 
-      disX = parseInt(ev.clientX) - startX;
-      disY = parseInt(ev.clientY) - startY;
+      startX = parseInt(ev.clientX);
+      startY = parseInt(ev.clientY);
+      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+    }
+  }
 
-      if (getTouchDirection(toDegree(disY, disX), 15) === options.axis && disX) {
+  function onTouchOrMouseMove (e) {
+    if (!running) {
+      e = e || win.event;
+      // make sure touch started or mouse draged
+      if (startX !== null) {
+        var ev;
         if (isTouchEvent(e)) {
-          events.emit('touchMove', info(e));
+          ev = e.changedTouches[0];
         } else {
-          // "mousemove" event after "mousedown" indecate 
-          // it is "drag", not "click"
-          if (!isDragEvent) { isDragEvent = true; }
-          events.emit('dragMove', info(e));
+          ev = e;
+          preventDefaultBehavior(e);
         }
-        if (!touchedOrDraged) { touchedOrDraged = true; }
 
-        var x = translateInit;
-        if (horizontal) {
-          if (fixedWidth) {
-            x += disX;
-            x += 'px';
+        disX = parseInt(ev.clientX) - startX;
+        disY = parseInt(ev.clientY) - startY;
+
+        if (getTouchDirection(toDegree(disY, disX), 15) === options.axis && disX) {
+          if (isTouchEvent(e)) {
+            events.emit('touchMove', info(e));
           } else {
-            var percentageX = TRANSFORM ? disX * items * 100 / (vpInner * slideCountNew): disX * 100 / vpInner;
-            x += percentageX;
-            x += '%';
+            // "mousemove" event after "mousedown" indecate 
+            // it is "drag", not "click"
+            if (!isDragEvent) { isDragEvent = true; }
+            events.emit('dragMove', info(e));
           }
-        } else {
-          x += disY;
-          x += 'px';
-        }
+          if (!touchedOrDraged) { touchedOrDraged = true; }
 
-        if (TRANSFORM) { setDurations(0); }
-        container.style[transformAttr] = transformPrefix + x + transformPostfix;
+          var x = translateInit;
+          if (horizontal) {
+            if (fixedWidth) {
+              x += disX;
+              x += 'px';
+            } else {
+              var percentageX = TRANSFORM ? disX * items * 100 / (vpInner * slideCountNew): disX * 100 / vpInner;
+              x += percentageX;
+              x += '%';
+            }
+          } else {
+            x += disY;
+            x += 'px';
+          }
+
+          if (TRANSFORM) { setDurations(0); }
+          container.style[transformAttr] = transformPrefix + x + transformPostfix;
+        }
       }
     }
   }
 
   function onTouchOrMouseEnd (e) {
-    e = e || win.event;
+    if (!running) {
+      e = e || win.event;
 
-    if (touchedOrDraged) {
-      touchedOrDraged = false;
-      var ev;
+      if (touchedOrDraged) {
+        touchedOrDraged = false;
+        var ev;
 
-      if (isTouchEvent(e)) {
-        ev = e.changedTouches[0];
-        events.emit('touchEnd', info(e));
-      } else {
-        ev = e;
-        events.emit('dragEnd', info(e));
-      }
-
-      disX = parseInt(ev.clientX) - startX;
-      disY = parseInt(ev.clientY) - startY;
-
-      // reset startX, startY
-      startX = startY = null;
-
-      if (horizontal) {
-        var indexMoved = - disX * items / vpInner;
-        indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-        index += indexMoved;
-      } else {
-        var moved = - (translateInit + disY);
-        if (moved <= 0) {
-          index = indexMin;
-        } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
-          index = indexMax;
+        if (isTouchEvent(e)) {
+          ev = e.changedTouches[0];
+          events.emit('touchEnd', info(e));
         } else {
-          var i = 0;
-          do {
-            i++;
-            index = disY < 0 ? i + 1 : i;
-          } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+          ev = e;
+          events.emit('dragEnd', info(e));
         }
+
+        disX = parseInt(ev.clientX) - startX;
+        disY = parseInt(ev.clientY) - startY;
+
+        // reset startX, startY
+        startX = startY = null;
+
+        if (horizontal) {
+          var indexMoved = - disX * items / vpInner;
+          indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+          index += indexMoved;
+        } else {
+          var moved = - (translateInit + disY);
+          if (moved <= 0) {
+            index = indexMin;
+          } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+            index = indexMax;
+          } else {
+            var i = 0;
+            do {
+              i++;
+              index = disY < 0 ? i + 1 : i;
+            } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+          }
+        }
+        
+        render();
+
+        // drag vs click
+        if (isDragEvent) { 
+          // reset isDragEvent
+          isDragEvent = false;
+
+          // prevent "click"
+          var target = getTarget(e);
+          addEvents(target, {'click': function preventClick (e) {
+            preventDefaultBehavior(e);
+            removeEvents(target, {'click': preventClick});
+          }}); 
+        } 
       }
-      
-      render();
-
-      // drag vs click
-      if (isDragEvent) { 
-        // reset isDragEvent
-        isDragEvent = false;
-
-        // prevent "click"
-        var target = getTarget(e);
-        addEvents(target, {'click': function preventClick (e) {
-          preventDefaultBehavior(e);
-          removeEvents(target, {'click': preventClick});
-        }}); 
-      } 
     }
   }
 
