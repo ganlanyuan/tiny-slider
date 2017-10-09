@@ -585,7 +585,8 @@ var tns = function(options) {
   if (!carousel) {
     options.axis = 'horizontal';
     options.rewind = false;
-    options.loop = true;
+    // options.loop = true;
+    options.loop = false;
     options.edgePadding = false;
 
     var animateIn = 'tns-fadeIn',
@@ -648,9 +649,11 @@ var tns = function(options) {
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
       cloneCount = loop ? slideCount * 2 : checkOption('edgePadding') ? 1 : 0,
-      slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
+      slideCountNew = !carousel ? slideCount : slideCount + cloneCount * 2,
+      // slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
-      checkIndexBeforeTransform = !carousel || !loop ? true : false,
+      checkIndexBeforeTransform = carousel && !loop ? true : false,
+      // checkIndexBeforeTransform = !carousel || !loop ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
       transformPrefix = '',
@@ -1699,7 +1702,8 @@ var tns = function(options) {
       var images = [];
 
       for (var i = index; i < index + items; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        var a = carousel ? i : i%slideCount;
+        [].forEach.call(slideItems[a].querySelectorAll('img'), function (img) {
           images.push(img);
         });
       }
@@ -1735,7 +1739,8 @@ var tns = function(options) {
   function updateInnerWrapperHeight () {
     var heights = [], maxHeight;
     for (var i = index; i < index + items; i++) {
-      heights.push(slideItems[i].offsetHeight);
+      var a = carousel ? i : i%slideCount;
+      heights.push(slideItems[a].offsetHeight);
     }
     maxHeight = Math.max.apply(null, heights);
 
@@ -1764,6 +1769,7 @@ var tns = function(options) {
   // update slide
   function updateSlideStatus () {
     for (var i = slideCountNew; i--;) {
+      if (!carousel) { i = i%slideCount; }
       var item = slideItems[i];
       // visible slides
       if (i >= index && i < index + items) {
@@ -1794,6 +1800,7 @@ var tns = function(options) {
       navCurrentIndex = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
       navClicked = -1;
 
+      console.log(navCurrentIndex, navCurrentIndexCached);
       if (navCurrentIndex !== navCurrentIndexCached) {
         var navPrev = navItems[navCurrentIndexCached],
             navCurrent = navItems[navCurrentIndex];
@@ -1896,7 +1903,7 @@ var tns = function(options) {
 
   function animateSlide (number, classOut, classIn, isOut) {
     for (var i = number, l = number + items; i < l; i++) {
-      var item = slideItems[i];
+      var item = slideItems[i%slideCount];
 
       // set item positions
       if (!isOut) { item.style.left = (i - index) * 100 / items + '%'; }
@@ -2037,7 +2044,8 @@ var tns = function(options) {
           !carousel && event.target.parentNode === container || 
           event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
 
-        if (!checkIndexBeforeTransform) { 
+        if (!checkIndexBeforeTransform && carousel) { 
+        // if (!checkIndexBeforeTransform) { 
           var indexTem = index;
           checkIndex();
           if (index !== indexTem) { 
