@@ -1242,7 +1242,7 @@ var tns = function(options) {
       prevIsButton = isButton(prevButton);
       nextIsButton = isButton(nextButton);
 
-      if (!loop) { disEnableElement(prevIsButton, prevButton, true); }
+      if (carousel && !loop) { disEnableElement(prevIsButton, prevButton, true); }
 
       // add events
       addEvents(controlsContainer, controlsEvents);
@@ -1850,7 +1850,7 @@ var tns = function(options) {
 
   // set 'disabled' to true on controls when reach the edges
   function updateControlsStatus () {
-    if (!controls || loop) { return; }
+    if (!controls || !carousel || loop) { return; }
 
     var prevDisabled = (prevIsButton) ? prevButton.disabled : isAriaDisabled(prevButton),
         nextDisabled = (nextIsButton) ? nextButton.disabled : isAriaDisabled(nextButton),
@@ -2125,7 +2125,7 @@ var tns = function(options) {
       }
 
       if (target && target === prevButton || dir === -1) {
-        if (index > indexMin) {
+        if (!carousel || index > indexMin) {
           index -= slideBy;
           shouldRender = true;
         }
@@ -2470,9 +2470,7 @@ var tns = function(options) {
     visibleNavIndexes = [];
 
     var temIndex = !loop && edgePadding ? (index - 1) : index;
-    console.log(index, temIndex);
-    var absIndexMin = temIndex%slideCount;
-    // var absIndexMin = temIndex%slideCount%items;
+    var absIndexMin = temIndex%slideCount%items;
     while (absIndexMin < slideCount) {
       if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
@@ -2497,7 +2495,6 @@ var tns = function(options) {
 
     // update visible nav indexes
     getVisibleNavIndex();
-    console.log(visibleNavIndexes);
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
       // add 'hidden' attribute to previous visible navs
