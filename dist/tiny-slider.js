@@ -1774,10 +1774,17 @@ var tns = function(options) {
   // update slide
   function updateSlideStatus () {
     for (var i = slideCountNew; i--;) {
-      if (!carousel) { i = i%slideCount; }
-      var item = slideItems[i];
+      var item = slideItems[i],
+          isVisible;
+
+      if (carousel) {
+        isVisible = i >= index && i < index + items;
+      } else {
+        isVisible = (index + items) < slideCount ? i >= index && i < index + items : i >= index || i < (index + items)%slideCount;
+      }
+
       // visible slides
-      if (i >= index && i < index + items) {
+      if (isVisible) {
         if (hasAttr(item, 'tabindex')) {
           setAttrs(item, {'aria-hidden': 'false'});
           removeAttrs(item, ['tabindex']);
