@@ -652,8 +652,8 @@ var tns = function(options) {
       slideCountNew = !carousel ? slideCount : slideCount + cloneCount * 2,
       // slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
-      checkIndexBeforeTransform = carousel && !loop ? true : false,
-      // checkIndexBeforeTransform = !carousel || !loop ? true : false,
+      // checkIndexBeforeTransform = carousel && !loop ? true : false,
+      checkIndexBeforeTransform = !carousel || !loop ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
       transformPrefix = '',
@@ -663,7 +663,7 @@ var tns = function(options) {
       indexCached = index,
       indexAdjust = !loop && checkOption('edgePadding') ? 1 : 0,
       indexMin = indexAdjust,
-      indexMax = slideCountNew - items - indexAdjust,
+      indexMax = carousel ? slideCountNew - items - indexAdjust : slideCount - 1,
       // resize
       resizeTimer,
       touchedOrDraged,
@@ -1560,8 +1560,13 @@ var tns = function(options) {
           while(index <= rightEdge - slideCount) { index += slideCount; }
         }
       };
-    } else {
+    } else if (carousel) {
       return function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
+    } else {
+      return function () {
+        while (index < 0) { index += slideCount; }
+        index = index%slideCount;
+      }
     }
   })();
 
@@ -1800,7 +1805,6 @@ var tns = function(options) {
       navCurrentIndex = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
       navClicked = -1;
 
-      console.log(navCurrentIndex, navCurrentIndexCached);
       if (navCurrentIndex !== navCurrentIndexCached) {
         var navPrev = navItems[navCurrentIndexCached],
             navCurrent = navItems[navCurrentIndex];
@@ -2130,7 +2134,7 @@ var tns = function(options) {
         // Otherwise go to the next
         if (rewind && index === indexMax){
           goTo(0);
-        } else if (index < indexMax) {
+        } else if (!carousel || index < indexMax) {
           index += slideBy;
           shouldRender = true;
         }
@@ -2466,9 +2470,11 @@ var tns = function(options) {
     visibleNavIndexes = [];
 
     var temIndex = !loop && edgePadding ? (index - 1) : index;
-    var absIndexMin = temIndex%slideCount%items;
+    console.log(index, temIndex);
+    var absIndexMin = temIndex%slideCount;
+    // var absIndexMin = temIndex%slideCount%items;
     while (absIndexMin < slideCount) {
-      if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
+      if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
       absIndexMin += items;
     }
@@ -2491,6 +2497,7 @@ var tns = function(options) {
 
     // update visible nav indexes
     getVisibleNavIndex();
+    console.log(visibleNavIndexes);
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
       // add 'hidden' attribute to previous visible navs
