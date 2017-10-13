@@ -1,5 +1,5 @@
 // Format: IIFE
-// Version: 2.2.3
+// Version: 2.2.4
 
 // helper functions
 import './helpers/keys';
@@ -2196,6 +2196,7 @@ export var tns = function(options) {
 
       // auto
       if (autoplay) {
+        clearInterval(autoplayTimer);
         if (autoplayButton) {
           removeEvents(autoplayButton, {'click': toggleAnimation});
         }

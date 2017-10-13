@@ -410,7 +410,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.2.3
+// Version: 2.2.4
 
 // helper functions
 // check browser version and local storage
@@ -2576,6 +2576,7 @@ var tns = function(options) {
 
       // auto
       if (autoplay) {
+        clearInterval(autoplayTimer);
         if (autoplayButton) {
           removeEvents(autoplayButton, {'click': toggleAnimation});
         }
