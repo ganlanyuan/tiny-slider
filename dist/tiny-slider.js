@@ -1542,11 +1542,7 @@ var tns = function(options) {
   var checkIndex = (function () {
     if (loop) {
       return function () {
-        var leftEdge = indexMin, rightEdge = indexMax;
-        if (carousel) {
-          leftEdge += slideBy;
-          rightEdge -= slideBy;
-        }
+        var leftEdge = indexMin + slideBy, rightEdge = indexMax - slideBy;
 
         var gt = gutter ? gutter : 0;
         if (fixedWidth && vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
@@ -2113,6 +2109,7 @@ var tns = function(options) {
       }
 
       if (target && target === prevButton || dir === -1) {
+        if (!carousel && index === 0) { checkIndex(); }
         if (index > indexMin) {
           index -= slideBy;
           shouldRender = true;
