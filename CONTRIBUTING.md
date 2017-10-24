@@ -15,7 +15,7 @@ Tiny-slider was strongly inspired by [Owl Carousel](https://owlcarousel2.github.
 ### Fire an issue
 We can't test Tiny-slider on every browser and device. There are always some edge cases in which tiny-slider may not run properly. Fire an issue when it doesn't work for you. This not only helps you,  also prevent others from facing the same issue.  
 **Notes for firing issues:**   
-- Before you fire an issue, make sure you update to the latest version of each main version. (e.g. v2.2.4 for version 2)   
+- Before you fire an issue, make sure you update to the latest version of each main version. (e.g. v2.2.5 for version 2)   
 - Provide the OS and browser version.
 - Provide a link or your plugin options.
 
