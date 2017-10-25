@@ -270,7 +270,7 @@ export var tns = function(options) {
       cloneCount = loop ? slideCount * 2 : checkOption('edgePadding') ? 1 : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
-      checkIndexBeforeTransform = !carousel || !loop ? true : false,
+      updateIndexBeforeTransform = !carousel || !loop ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
       transformPrefix = '',
@@ -948,7 +948,7 @@ export var tns = function(options) {
         indexMax = slideCountNew - items - indexAdjust;
         // check index before transform in case
         // slider reach the right edge then items become bigger
-        checkIndex();
+        updateIndex();
       }
 
       if (disable !== disableTem) {
@@ -1159,9 +1159,9 @@ export var tns = function(options) {
   }
 
   // (slideBy, indexMin, indexMax) => index
-  var checkIndex = (function () {
-    if (loop) {
-      return function () {
+  var updateIndex = (function () {
+    return loop ? 
+      function () {
         var leftEdge = indexMin + slideBy, rightEdge = indexMax - slideBy;
 
         var gt = gutter ? gutter : 0;
@@ -1172,10 +1172,8 @@ export var tns = function(options) {
         } else if(index < leftEdge) {
           while(index <= rightEdge - slideCount) { index += slideCount; }
         }
-      };
-    } else {
-      return function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
-    }
+      } :
+      function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
   })();
 
   function checkFixedWidthSlideCount () {
@@ -1588,7 +1586,7 @@ export var tns = function(options) {
   }
 
   function render () {
-    if (checkIndexBeforeTransform) { checkIndex(); }
+    if (updateIndexBeforeTransform) { updateIndex(); }
     if (index !== indexCached) {
       // events
       events.emit('indexChanged', info());
@@ -1653,9 +1651,9 @@ export var tns = function(options) {
           !carousel && event.target.parentNode === container || 
           event.target === container && strTrans(event.propertyName) === strTrans(transformAttr)) {
 
-        if (!checkIndexBeforeTransform) { 
+        if (!updateIndexBeforeTransform) { 
           var indexTem = index;
-          checkIndex();
+          updateIndex();
           if (index !== indexTem) { 
             if (TRANSITIONDURATION) { setDurations(0); }
             doContainerTransform();
@@ -1720,32 +1718,34 @@ export var tns = function(options) {
   // on controls click
   function onControlsClick (e, dir) {
     if (!running) {
-      var shouldRender;
+      // var shouldRender;
 
       if (!dir) {
         e = e || win.event;
         var target = e.target || e.srcElement;
+
         while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
+
+        if (target === prevButton) {
+          dir = -1; 
+        } else if (target === nextButton) {
+          dir = 1;
+        }
       }
 
-      if (target && target === prevButton || dir === -1) {
-        if (!carousel && index === 0) { checkIndex(); }
-        if (index > indexMin) {
-          index -= slideBy;
-          shouldRender = true;
-        }
-      } else if (target && target === nextButton || dir === 1) {
+      if (dir === -1) {
+        index -= slideBy;
+      } else if (dir === 1) {
         // Go to the first if reach the end in rewind mode
         // Otherwise go to the next
         if (rewind && index === indexMax){
           goTo(0);
-        } else if (index < indexMax) {
+        } else {
           index += slideBy;
-          shouldRender = true;
         }
       }
 
-      if (shouldRender) { render(); }
+      render();
     }
   }
 
