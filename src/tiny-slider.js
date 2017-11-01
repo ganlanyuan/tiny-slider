@@ -752,7 +752,7 @@ export var tns = function(options) {
           setAttrs(item, {
             'data-nav': index,
             'tabindex': '-1',
-            'aria-pressed': 'false',
+            'aria-selected': 'false',
             'aria-controls': slideItems[initIndex + index].id,
           });
           // if (navAnimationOut) {
@@ -766,8 +766,8 @@ export var tns = function(options) {
             // classStr = navAnimationOut ? 'class="' + navAnimationOut + '"' : '';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          // navHtml += '<button ' + classStr + ' data-nav="' + i +'" tabindex="-1" aria-pressed="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-pressed="false" aria-controls="' + slideItems[initIndex + i].id +'" hidden type="button"></button>';
+          // navHtml += '<button ' + classStr + ' data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideItems[initIndex + i].id +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
@@ -790,7 +790,7 @@ export var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
-      setAttrs(navItems[0], {'tabindex': '0', 'aria-pressed': 'true'});
+      setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
       addClass(navItems[0], navActiveClass);
       // if (navAnimationOut) {
       //   removeClass(navItems[0], navAnimationOut);
@@ -1401,7 +1401,7 @@ export var tns = function(options) {
     }
   }
 
-  // set tabindex & aria-pressed on Nav
+  // set tabindex & aria-selected on Nav
   function updateNavStatus () {
     // get current nav
     if (nav) {
@@ -1414,11 +1414,11 @@ export var tns = function(options) {
 
         setAttrs(navPrev, {
           'tabindex': '-1',
-          'aria-pressed': 'false'
+          'aria-selected': 'false'
         });
         setAttrs(navCurrent, {
           'tabindex': '0',
-          'aria-pressed': 'true'
+          'aria-selected': 'true'
         });
         removeClass(navPrev, navActiveClass);
         addClass(navCurrent, navActiveClass);
@@ -2186,7 +2186,7 @@ export var tns = function(options) {
         removeEvents(navContainer, navEvents);
         if (options.navContainer) {
           removeAttrs(navContainer, ['aria-label']);
-          removeAttrs(navItems, ['aria-pressed', 'aria-controls', 'tabindex']);
+          removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
         }
         navContainer = navItems = null;
       }
