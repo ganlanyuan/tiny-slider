@@ -889,6 +889,8 @@ export var tns = function(options) {
     runAutoHeight();
     checkFixedWidthSlideCount();
 
+    events.on('indexChanged', additionalUpdates);
+
     if (typeof onInit === 'function') { onInit(info()); }
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
 
@@ -1123,11 +1125,8 @@ export var tns = function(options) {
       }
 
       if (items !== itemsTem) { 
-        lazyLoad(); 
-        updateSlideStatus();
-        updateControlsStatus();
-        updateNavVisibility();
-        updateNavStatus();
+        additionalUpdates();
+        runAutoHeight();
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
@@ -1340,6 +1339,14 @@ export var tns = function(options) {
     }
   } 
 
+  function additionalUpdates () {
+    lazyLoad(); 
+    updateSlideStatus();
+    updateControlsStatus();
+    updateNavVisibility();
+    updateNavStatus();
+  }
+
 
   // update inner wrapper height
   // 1. get the max-height of the visible slides
@@ -1530,9 +1537,8 @@ export var tns = function(options) {
   // 1. change 'transform' property for mordern browsers
   // 2. change 'left' property for legacy browsers
   var transformCore = (function () {
-    // carousel
-    if (carousel) {
-      return function (duration, distance) {
+    return carousel ?
+      function (duration, distance) {
         if (!distance) { distance = getContainerTransformValue(); }
         // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
         if (hasRightDeadZone && index === indexMax) {
@@ -1550,11 +1556,8 @@ export var tns = function(options) {
         }
 
         if (!horizontal) { updateContentWrapperHeight(); }
-      };
-
-    // gallery
-    } else {
-      return function () {
+      } :
+      function () {
         slideItemsOut = [];
 
         var eve = {};
@@ -1567,22 +1570,12 @@ export var tns = function(options) {
 
         if (!TRANSITIONEND || !ANIMATIONEND || speed === 0) { setTimeout(onTransitionEnd, 0); }
       };
-    }
   })();
 
   function doTransform (duration, distance) {
     if (duration === undefined) { duration = speed; }
     if (TRANSITIONDURATION) { setDurations(duration); }
     transformCore(duration, distance);
-
-    updateSlideStatus();
-    // loop: update nav visibility when visibleNavIndexes doesn't contain current index
-    if (nav && visibleNavIndexes.indexOf(index%slideCount) < 0) {
-      updateNavVisibility(); 
-    }
-    updateNavStatus();
-    updateControlsStatus();
-    lazyLoad();
   }
 
   function render () {
@@ -1655,9 +1648,10 @@ export var tns = function(options) {
           var indexTem = index;
           updateIndex();
           if (index !== indexTem) { 
+            events.emit('indexChanged', info());
+
             if (TRANSITIONDURATION) { setDurations(0); }
             doContainerTransform();
-            events.emit('indexChanged', info());
           }
         } 
 
@@ -2098,26 +2092,29 @@ export var tns = function(options) {
   function updateNavVisibility () {
     if (!nav || options.navContainer) { return; }
 
-    // update visible nav indexes
-    getVisibleNavIndex();
+    // update nav visibility when visibleNavIndexes doesn't contain current index
+    if (visibleNavIndexes.indexOf(index%slideCount) < 0) {
+      // update visible nav indexes
+      getVisibleNavIndex();
 
-    if (visibleNavIndexes !== visibleNavIndexesCached) {
-      // add 'hidden' attribute to previous visible navs
-      if (visibleNavIndexesCached.length > 0) {
-        visibleNavIndexesCached.forEach(function (ind) {
-          hideElement(navItems[ind]);
-        });
+      if (visibleNavIndexes !== visibleNavIndexesCached) {
+        // add 'hidden' attribute to previous visible navs
+        if (visibleNavIndexesCached.length > 0) {
+          visibleNavIndexesCached.forEach(function (ind) {
+            hideElement(navItems[ind]);
+          });
+        }
+
+        // remove 'hidden' attribute from visible navs
+        if (visibleNavIndexes.length > 0) {
+          visibleNavIndexes.forEach(function (ind) {
+            showElement(navItems[ind]);
+          });
+        }
+
+        // cache visible nav indexes
+        visibleNavIndexesCached = visibleNavIndexes;
       }
-
-      // remove 'hidden' attribute from visible navs
-      if (visibleNavIndexes.length > 0) {
-        visibleNavIndexes.forEach(function (ind) {
-          showElement(navItems[ind]);
-        });
-      }
-
-      // cache visible nav indexes
-      visibleNavIndexesCached = visibleNavIndexes;
     }
   }
 
