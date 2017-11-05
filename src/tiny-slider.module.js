@@ -1,5 +1,5 @@
 // Format: ES MODULE
-// Version: 2.2.6
+// Version: 2.3.0
 
 // helper functions
 import './helpers/keys';
@@ -162,6 +162,7 @@ export var tns = function(options) {
     touch: true,
     mouseDrag: false,
     nested: false,
+    freezable: true,
     onInit: false
   }, options || {});
   
@@ -292,7 +293,8 @@ export var tns = function(options) {
       classContainer = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
-      freeze = disable ? true : slideCount <= items,
+      freezable = options.freezable,
+      freeze = disable ? true : freezable ? slideCount <= items : false,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
         'click': onControlsClick,
@@ -944,7 +946,7 @@ export var tns = function(options) {
       items = getOption('items');
       slideBy = getOption('slideBy');
       disable = getOption('disable');
-      freeze = disable ? true : slideCount <= items;
+      freeze = disable ? true : freezable ? slideCount <= items : false;
 
       if (items !== itemsTem) {
         indexMax = slideCountNew - items - indexAdjust;

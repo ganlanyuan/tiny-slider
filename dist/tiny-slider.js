@@ -410,7 +410,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.2.6
+// Version: 2.3.0
 
 // helper functions
 // check browser version and local storage
@@ -542,6 +542,7 @@ var tns = function(options) {
     touch: true,
     mouseDrag: false,
     nested: false,
+    freezable: true,
     onInit: false
   }, options || {});
   
@@ -672,7 +673,8 @@ var tns = function(options) {
       classContainer = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
-      freeze = disable ? true : slideCount <= items,
+      freezable = options.freezable,
+      freeze = disable ? true : freezable ? slideCount <= items : false,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
         'click': onControlsClick,
@@ -1324,7 +1326,7 @@ var tns = function(options) {
       items = getOption('items');
       slideBy = getOption('slideBy');
       disable = getOption('disable');
-      freeze = disable ? true : slideCount <= items;
+      freeze = disable ? true : freezable ? slideCount <= items : false;
 
       if (items !== itemsTem) {
         indexMax = slideCountNew - items - indexAdjust;
