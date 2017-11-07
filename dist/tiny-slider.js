@@ -580,6 +580,12 @@ var tns = function(options) {
     resTem = null;
   }
 
+  // apply responsive[0] to options and remove it
+  if (0 in options.responsive) {
+    options = extend(options, options.responsive[0]);
+    delete options.responsive[0];
+  }
+
   // === define and set variables ===
   var carousel = options.mode === 'carousel' ? true : false;
 
@@ -613,24 +619,24 @@ var tns = function(options) {
       responsive = options.responsive,
       responsiveItems = [],
       breakpoints = false,
-      breakpointZone = 0,
-      breakpointZoneAdjust = 0;
+      breakpointZone = 0;
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
       .map(function (x) { return parseInt(x); })
       .sort(function (a, b) { return a - b; });
-    if (breakpoints.indexOf(0) < 0) { breakpointZoneAdjust = 1; }
 
+    // get all responsive items
     breakpoints.forEach(function(bp) {
       responsiveItems = responsiveItems.concat(Object.keys(responsive[bp]));
     });
+
+    // remove duplicated items
     var arr = [];
     responsiveItems.forEach(function (item) { if (arr.indexOf(item) < 0) { arr.push(item); } });
     responsiveItems = arr;
-    // alert(responsiveItems);
 
-    breakpointZone = getBreakpointZone();
+    setBreakpointZone();
   } 
 
   var items = getOption('items'),
@@ -791,29 +797,35 @@ var tns = function(options) {
 
   function getOption (item, view) {
     view = view ? view : vpOuter;
-    var result;
+    
+    var obj = {
+          slideBy: 'page',
+          edgePadding: false,
+          autoHeight: true
+        },
+        result;
 
-    if (item === 'items' && getOption('fixedWidth')) {
-      result = Math.floor(view / (getOption('fixedWidth') + getOption('gutter')));
-    } else if (item === 'slideBy' && !carousel) {
-      result = 'page';
-    } else if (item === 'edgePadding' && !carousel) {
-      result = false;
-    } else if (item === 'autoHeight' && (!carousel || nested === 'outer')) {
-      result = true;
+    if (!carousel && item in Obj) {
+      result = obj[item];
     } else {
-      result = options[item];
+      if (item === 'items' && getOption('fixedWidth')) {
+        result = Math.floor(view / (getOption('fixedWidth') + getOption('gutter')));
+      } else if (item === 'autoHeight' && nested === 'outer') {
+        result = true;
+      } else {
+        result = options[item];
 
-      if (breakpoints && responsiveItems.indexOf(item) >= 0) {
-        for (var i = 0, len = breakpoints.length; i < len; i++) {
-          var bp = breakpoints[i];
-          if (view >= bp) {
-            if (item in responsive[bp]) { result = responsive[bp][item]; }
-          } else { break; }
+        if (breakpoints && responsiveItems.indexOf(item) >= 0) {
+          for (var i = 0, len = breakpoints.length; i < len; i++) {
+            var bp = breakpoints[i];
+            if (view >= bp) {
+              if (item in responsive[bp]) { result = responsive[bp][item]; }
+            } else { break; }
+          }
         }
       }
-
     }
+
 
     if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
     if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
@@ -1306,7 +1318,7 @@ var tns = function(options) {
 
     vpOuter = outerWrapper.clientWidth;
     vpInner = innerWrapper.clientWidth;
-    if (breakpoints) { breakpointZone = getBreakpointZone(); }
+    if (breakpoints) { setBreakpointZone(); }
 
 
     // things do when breakpoint zone change
@@ -1318,9 +1330,6 @@ var tns = function(options) {
           edgePaddingTem = edgePadding,
           gutterTem = gutter,
           disableTem = disable;
-
-      // get options for current breakpoint zone
-      var opts = breakpointZone > 0 ? responsive[breakpoints[breakpointZone - 1]] : options;
 
       // update variables
       items = getOption('items');
@@ -1345,11 +1354,11 @@ var tns = function(options) {
       }
       
       if (breakpointZoneTem !== breakpointZone) {
-        speed = opts.speed || getOption('speed');
-        edgePadding = opts.edgePadding || getOption('edgePadding');
-        gutter = opts.gutter || getOption('gutter');
+        speed = getOption('speed');
+        edgePadding = getOption('edgePadding');
+        gutter = getOption('gutter');
 
-        fixedWidth = opts.fixedWidth || getOption('fixedWidth');
+        fixedWidth = getOption('fixedWidth');
         if (!disable && fixedWidth !== fixedWidthTem) {
           doContainerTransform();
         }
@@ -1360,7 +1369,7 @@ var tns = function(options) {
         }
       }
 
-      arrowKeys = freeze ? false : opts.arrowKeys || getOption('arrowKeys');
+      arrowKeys = freeze ? false : getOption('arrowKeys');
       if (arrowKeys !== arrowKeysTem) {
         arrowKeys ?
           addEvents(doc, docmentKeydownEvent) :
@@ -1370,8 +1379,8 @@ var tns = function(options) {
       if (hasControls) {
         var controlsTem = controls,
             controlsTextTem = controlsText;
-        controls = freeze ? false : opts.controls || getOption('controls');
-        controlsText = opts.controlsText || getOption('controlsText');
+        controls = freeze ? false : getOption('controls');
+        controlsText = getOption('controlsText');
 
         if (controls !== controlsTem) {
           controls ?
@@ -1385,7 +1394,7 @@ var tns = function(options) {
       }
       if (hasNav) {
         var navTem = nav;
-        nav = freeze ? false : opts.nav || getOption('nav');
+        nav = freeze ? false : getOption('nav');
 
         if (nav !== navTem) {
           if (nav) {
@@ -1398,7 +1407,7 @@ var tns = function(options) {
       }
       if (hasTouch) {
         var touchTem = touch;
-        touch = freeze ? false : opts.touch || getOption('touch');
+        touch = freeze ? false : getOption('touch');
 
         if (touch !== touchTem && carousel) {
           touch ?
@@ -1408,7 +1417,7 @@ var tns = function(options) {
       }
       if (hasMouseDrag) {
         var mouseDragTem = mouseDrag;
-        mouseDrag = freeze ? false : opts.mouseDrag || getOption('mouseDrag');
+        mouseDrag = freeze ? false : getOption('mouseDrag');
 
         if (mouseDrag !== mouseDragTem && carousel) {
           mouseDrag ?
@@ -1425,17 +1434,17 @@ var tns = function(options) {
         if (freeze) {
           autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
         } else {
-          autoplay = opts.autoplay || getOption('autoplay');
+          autoplay = getOption('autoplay');
           
           if (autoplay) {
-            autoplayHoverPause = opts.autoplayHoverPause || getOption('autoplayHoverPause');
-            autoplayResetOnVisibility = opts.autoplayResetOnVisibility || getOption('autoplayResetOnVisibility');
+            autoplayHoverPause = getOption('autoplayHoverPause');
+            autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
           } else {
             autoplayHoverPause = autoplayResetOnVisibility = false;
           }
         }
-        autoplayText = opts.autoplayText || getOption('autoplayText');
-        autoplayTimeout = opts.autoplayTimeout || getOption('autoplayTimeout');
+        autoplayText = getOption('autoplayText');
+        autoplayTimeout = getOption('autoplayTimeout');
 
         if (autoplay !== autoplayTem) {
           if (autoplay) {
@@ -1531,12 +1540,11 @@ var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
-  function getBreakpointZone () {
+  function setBreakpointZone () {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
-      if (vpOuter >= bp) { breakpointZone = i + breakpointZoneAdjust; }
+      if (vpOuter >= bp) { breakpointZone = i + 1; }
     });
-    return breakpointZone;
   }
 
   // (slideBy, indexMin, indexMax) => index
