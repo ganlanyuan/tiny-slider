@@ -410,7 +410,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.3.1
+// Version: 2.3.2
 
 // helper functions
 // check browser version and local storage
@@ -578,12 +578,12 @@ var tns = function(options) {
 
     options.responsive = resTem;
     resTem = null;
-  }
 
-  // apply responsive[0] to options and remove it
-  if (0 in options.responsive) {
-    options = extend(options, options.responsive[0]);
-    delete options.responsive[0];
+    // apply responsive[0] to options and remove it
+    if (0 in options.responsive) {
+      options = extend(options, options.responsive[0]);
+      delete options.responsive[0];
+    }
   }
 
   // === define and set variables ===
@@ -805,7 +805,7 @@ var tns = function(options) {
         },
         result;
 
-    if (!carousel && item in Obj) {
+    if (!carousel && item in obj) {
       result = obj[item];
     } else {
       if (item === 'items' && getOption('fixedWidth')) {
