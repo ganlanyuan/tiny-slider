@@ -762,6 +762,7 @@ var tns = function(options) {
         startX = null,
         startY = null,
         translateInit,
+        moveDirectionExpected = 0,
         disX,
         disY;
   }
@@ -2318,7 +2319,7 @@ var tns = function(options) {
   function onTouchOrMouseStart (e) {
     if (!running) {
       e = e || win.event;
-      var ev;
+      var ev; 
 
       if (isTouchEvent(e)) {
         ev = e.changedTouches[0];
@@ -2341,6 +2342,7 @@ var tns = function(options) {
       // make sure touch started or mouse draged
       if (startX !== null) {
         var ev;
+
         if (isTouchEvent(e)) {
           ev = e.changedTouches[0];
         } else {
@@ -2351,7 +2353,11 @@ var tns = function(options) {
         disX = parseInt(ev.clientX) - startX;
         disY = parseInt(ev.clientY) - startY;
 
-        if (getTouchDirection(toDegree(disY, disX), 15) === options.axis && disX) {
+        if (moveDirectionExpected === 0) {
+          moveDirectionExpected = getTouchDirection(toDegree(disY, disX), 15) === options.axis;
+        }
+
+        if (moveDirectionExpected) {
           if (isTouchEvent(e)) {
             events.emit('touchMove', info(e));
           } else {
@@ -2390,6 +2396,7 @@ var tns = function(options) {
 
       if (touchedOrDraged) {
         touchedOrDraged = false;
+        moveDirectionExpected = 0;
         var ev;
 
         if (isTouchEvent(e)) {
