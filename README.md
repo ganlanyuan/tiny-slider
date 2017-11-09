@@ -199,7 +199,6 @@ The following options can be redefined in `responsive` field:
 </script>
 ```
 NOTE: 
-- `breakpoints` are based on **slider's view port** rather than window width.
 - `fixedWidth` can only be changed to different positive integers. It can't be changed to different data type, 0 or negtive integer.
 *[top↑](#tiny-slider-20)*  
 

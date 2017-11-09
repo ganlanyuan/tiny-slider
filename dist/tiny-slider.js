@@ -619,7 +619,8 @@ var tns = function(options) {
       responsive = options.responsive,
       responsiveItems = [],
       breakpoints = false,
-      breakpointZone = 0;
+      breakpointZone = 0,
+      windowWidth = getWindowWidth();
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
@@ -786,6 +787,10 @@ var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
+  function getWindowWidth () {
+    return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
+  }
+
   function checkOption (item) {
     var result = options[item];
     if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
@@ -796,8 +801,8 @@ var tns = function(options) {
     return result;
   }
 
-  function getOption (item, view) {
-    view = view ? view : vpOuter;
+  function getOption (item, viewport) {
+    viewport = viewport ? viewport : windowWidth;
     
     var obj = {
           slideBy: 'page',
@@ -810,7 +815,7 @@ var tns = function(options) {
       result = obj[item];
     } else {
       if (item === 'items' && getOption('fixedWidth')) {
-        result = Math.floor(view / (getOption('fixedWidth') + getOption('gutter')));
+        result = Math.floor(vpOuter / (getOption('fixedWidth') + getOption('gutter')));
       } else if (item === 'autoHeight' && nested === 'outer') {
         result = true;
       } else {
@@ -819,7 +824,7 @@ var tns = function(options) {
         if (breakpoints && responsiveItems.indexOf(item) >= 0) {
           for (var i = 0, len = breakpoints.length; i < len; i++) {
             var bp = breakpoints[i];
-            if (view >= bp) {
+            if (viewport >= bp) {
               if (item in responsive[bp]) { result = responsive[bp][item]; }
             } else { break; }
           }
@@ -1299,7 +1304,10 @@ var tns = function(options) {
 
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (vpOuter !== outerWrapper.clientWidth) {
+      var newWW = getWindowWidth();
+      if (windowWidth !== newWW) {
+        windowWidth = newWW;
+
         resizeTasks();
 
         if (nested === 'outer') { events.emit('outerResized', info(e)); }
@@ -1551,7 +1559,7 @@ var tns = function(options) {
   function setBreakpointZone () {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
-      if (vpOuter >= bp) { breakpointZone = i + 1; }
+      if (windowWidth >= bp) { breakpointZone = i + 1; }
     });
   }
 
