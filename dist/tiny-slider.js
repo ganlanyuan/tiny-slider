@@ -828,7 +828,6 @@ var tns = function(options) {
     }
 
 
-    if (item === 'items') { result = Math.max(1, Math.min(slideCount, result)); }
     if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
 
     return result;
@@ -862,7 +861,6 @@ var tns = function(options) {
   }
 
   function getContainerWidth (fixedWidthTem, gutterTem, itemsTem) {
-    itemsTem = Math.min(slideCount, itemsTem);
     var str;
 
     if (fixedWidthTem) {
@@ -877,7 +875,6 @@ var tns = function(options) {
   }
 
   function getSlideWidthStyle (fixedWidthTem, gutterTem, itemsTem) {
-    itemsTem = Math.min(slideCount, itemsTem);
     var str = '';
 
     if (horizontal) {
@@ -885,7 +882,7 @@ var tns = function(options) {
       if (fixedWidthTem) {
         str += (fixedWidthTem + gutterTem) + 'px';
       } else {
-        var dividend = carousel ? slideCountNew : Math.min(slideCount, itemsTem);
+        var dividend = carousel ? slideCountNew : itemsTem;
         str += CALC ? 
           CALC + '(100% / ' + dividend + ')' : 
           100 / dividend + '%';
@@ -1282,7 +1279,7 @@ var tns = function(options) {
 
     lazyLoad();
     runAutoHeight();
-    checkFixedWidthSlideCount();
+    toggleSlideDisplayAndEdgePadding();
 
     events.on('indexChanged', additionalUpdates);
 
@@ -1304,9 +1301,8 @@ var tns = function(options) {
     resizeTimer = setTimeout(function () {
       if (vpOuter !== outerWrapper.clientWidth) {
         resizeTasks();
-        if (nested === 'outer') { 
-          events.emit('outerResized', info(e)); 
-        }
+
+        if (nested === 'outer') { events.emit('outerResized', info(e)); }
       }
     }, 100); // update after stop resizing for 100 ms
   }
@@ -1349,9 +1345,11 @@ var tns = function(options) {
         disableSlider(disable);
       }
       
-      if (freeze !== freezeTem && freeze) {
+      if (freeze !== freezeTem) {
         // reset index to initial status
-        index = !carousel ? 0 : cloneCount;
+        if (freeze) { index = !carousel ? 0 : cloneCount; }
+
+        toggleSlideDisplayAndEdgePadding();
       }
       
       if (breakpointZoneTem !== breakpointZone) {
@@ -1482,7 +1480,7 @@ var tns = function(options) {
       // insert stylesheet (one line) for slides only (since slides are many)
       if (!CSSMQ) {
         // inner wrapper styles
-        if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
+        if (!freeze && (edgePadding !== edgePaddingTem || gutter !== gutterTem)) {
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
         }
 
@@ -1531,7 +1529,16 @@ var tns = function(options) {
       doContainerTransform();
     }
 
-    checkFixedWidthSlideCount();
+    if (fixedWidth && edgePadding) {
+      // remove edge padding when freeze or viewport narrower than one slide
+      if (freeze || vpOuter <= (fixedWidth + gutter)) {
+        if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0px'; }
+      // update edge padding on resize
+      } else {
+        innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+      }
+    }
+
     // auto height
     runAutoHeight();
   }
@@ -1566,14 +1573,16 @@ var tns = function(options) {
       function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
   })();
 
-  function checkFixedWidthSlideCount () {
-    if (fixedWidth && cloneCount) {
+  function toggleSlideDisplayAndEdgePadding () {
+    if (cloneCount) {
+    // if (fixedWidth && cloneCount) {
       var str = 'tns-transparent';
 
       if (freeze) {
         if (!hasClass(slideItems[0], str)) {
           // remove edge padding from inner wrapper
-          if (edgePadding) { innerWrapper.style.margin = '0'; }
+          if (edgePadding) { innerWrapper.style.margin = '0px'; }
+
           // add class tns-transparent to cloned slides
           for (var i = cloneCount; i--;) {
             addClass(slideItems[i], str);
@@ -1582,13 +1591,8 @@ var tns = function(options) {
         }
       } else {
         // restore edge padding for inner wrapper
-        if (edgePadding) {
-          if (vpOuter <= (fixedWidth + gutter)) {
-            if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0'; }
-          } else {
-            innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
-          }
-        }
+        // for mordern browsers
+        if (edgePadding && !fixedWidth && CSSMQ && innerWrapper.style.margin) { innerWrapper.style.margin = ''; }
 
         if (hasClass(slideItems[0], str)) {
           // remove class tns-transparent to cloned slides
