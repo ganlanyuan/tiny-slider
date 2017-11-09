@@ -1593,9 +1593,11 @@ export var tns = function(options) {
     transformCore(duration, distance);
   }
 
-  function render () {
+  function render (sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
-    if (index !== indexCached) {
+
+    // render when slider was moved (touch or drag) even though index may not change
+    if (index !== indexCached || sliderMoved) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
@@ -2034,6 +2036,8 @@ export var tns = function(options) {
         disX = parseInt(ev.clientX) - startX;
         disY = parseInt(ev.clientY) - startY;
 
+        var sliderMoved = Boolean(horizontal ? disX : disY);
+
         // reset startX, startY
         startX = startY = null;
 
@@ -2056,7 +2060,7 @@ export var tns = function(options) {
           }
         }
         
-        render();
+        render(sliderMoved);
 
         // drag vs click
         if (isDragEvent) { 
