@@ -305,6 +305,7 @@ Should be working on _Chrome 4-14_ as well, but I couldn't test it.
 ## Support
 [Browserstack](https://www.browserstack.com/)  
 [Cdnjs](https://cdnjs.com/)  
+Images used in the demos are from https://unsplash.com/.
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
