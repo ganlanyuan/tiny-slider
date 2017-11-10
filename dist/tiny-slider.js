@@ -1569,8 +1569,15 @@ var tns = function(options) {
       function () {
         var leftEdge = indexMin + slideBy, rightEdge = indexMax - slideBy;
 
-        var gt = gutter ? gutter : 0;
-        if (fixedWidth && vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
+        // adjust edges when edge padding is true
+        // or fixed-width slider with extra space on the right side
+        if (edgePadding) {
+          leftEdge += 1;
+          rightEdge -= 1;
+        } else if (fixedWidth) {
+          var gt = gutter ? gutter : 0;
+          if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
+        }
 
         if (index > rightEdge) {
           while(index >= leftEdge + slideCount) { index -= slideCount; }
