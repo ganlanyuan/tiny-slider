@@ -2165,6 +2165,7 @@ export var tns = function(options) {
       navContainer: navContainer,
       navItems: navItems,
       controlsContainer: controlsContainer,
+      hasControls: hasControls,
       prevButton: prevButton,
       nextButton: nextButton,
       items: items,
