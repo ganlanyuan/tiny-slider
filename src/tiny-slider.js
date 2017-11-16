@@ -1982,6 +1982,8 @@ export var tns = function(options) {
       e = e || win.event;
       // make sure touch started or mouse draged
       if (startX !== null) {
+        // reset moveDirectionExpected
+        moveDirectionExpected = 0;
         var ev;
 
         if (isTouchEvent(e)) {
@@ -2037,7 +2039,6 @@ export var tns = function(options) {
 
       if (touchedOrDraged) {
         touchedOrDraged = false;
-        moveDirectionExpected = 0;
         var ev;
 
         if (isTouchEvent(e)) {
