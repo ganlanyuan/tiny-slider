@@ -2339,6 +2339,10 @@ var tns = function(options) {
 
   function onTouchOrMouseStart (e) {
     if (!running) {
+      // reset moveDirectionExpected, touchedOrDraged
+      moveDirectionExpected = 0;
+      touchedOrDraged = false;
+
       e = e || win.event;
       var ev; 
 
@@ -2358,119 +2362,111 @@ var tns = function(options) {
   }
 
   function onTouchOrMouseMove (e) {
-    if (!running) {
+    // make sure touch started or mouse draged
+    if (!running && startX !== null) {
       e = e || win.event;
-      // make sure touch started or mouse draged
-      if (startX !== null) {
-        // reset moveDirectionExpected
-        moveDirectionExpected = 0;
-        var ev;
+      var ev;
 
+      if (isTouchEvent(e)) {
+        ev = e.changedTouches[0];
+      } else {
+        ev = e;
+        preventDefaultBehavior(e);
+      }
+
+      disX = parseInt(ev.clientX) - startX;
+      disY = parseInt(ev.clientY) - startY;
+
+      if (moveDirectionExpected === 0) {
+        moveDirectionExpected = getTouchDirection(toDegree(disY, disX), 15) === options.axis;
+      }
+
+      if (moveDirectionExpected) {
         if (isTouchEvent(e)) {
-          ev = e.changedTouches[0];
+          events.emit('touchMove', info(e));
         } else {
-          ev = e;
-          preventDefaultBehavior(e);
+          // "mousemove" event after "mousedown" indecate 
+          // it is "drag", not "click"
+          if (!isDragEvent) { isDragEvent = true; }
+          events.emit('dragMove', info(e));
         }
+        if (!touchedOrDraged) { touchedOrDraged = true; }
 
-        disX = parseInt(ev.clientX) - startX;
-        disY = parseInt(ev.clientY) - startY;
-
-        if (moveDirectionExpected === 0) {
-          moveDirectionExpected = getTouchDirection(toDegree(disY, disX), 15) === options.axis;
-        }
-
-        if (moveDirectionExpected) {
-          if (isTouchEvent(e)) {
-            events.emit('touchMove', info(e));
-          } else {
-            // "mousemove" event after "mousedown" indecate 
-            // it is "drag", not "click"
-            if (!isDragEvent) { isDragEvent = true; }
-            events.emit('dragMove', info(e));
-          }
-          if (!touchedOrDraged) { touchedOrDraged = true; }
-
-          var x = translateInit;
-          if (horizontal) {
-            if (fixedWidth) {
-              x += disX;
-              x += 'px';
-            } else {
-              var percentageX = TRANSFORM ? disX * items * 100 / (vpInner * slideCountNew): disX * 100 / vpInner;
-              x += percentageX;
-              x += '%';
-            }
-          } else {
-            x += disY;
+        var x = translateInit;
+        if (horizontal) {
+          if (fixedWidth) {
+            x += disX;
             x += 'px';
+          } else {
+            var percentageX = TRANSFORM ? disX * items * 100 / (vpInner * slideCountNew): disX * 100 / vpInner;
+            x += percentageX;
+            x += '%';
           }
-
-          if (TRANSFORM) { setDurations(0); }
-          container.style[transformAttr] = transformPrefix + x + transformPostfix;
+        } else {
+          x += disY;
+          x += 'px';
         }
+
+        if (TRANSFORM) { setDurations(0); }
+        container.style[transformAttr] = transformPrefix + x + transformPostfix;
       }
     }
   }
 
   function onTouchOrMouseEnd (e) {
-    if (!running) {
+    if (!running && touchedOrDraged) {
       e = e || win.event;
+      var ev;
 
-      if (touchedOrDraged) {
-        touchedOrDraged = false;
-        var ev;
-
-        if (isTouchEvent(e)) {
-          ev = e.changedTouches[0];
-          events.emit('touchEnd', info(e));
-        } else {
-          ev = e;
-          events.emit('dragEnd', info(e));
-        }
-
-        disX = parseInt(ev.clientX) - startX;
-        disY = parseInt(ev.clientY) - startY;
-
-        var sliderMoved = Boolean(horizontal ? disX : disY);
-
-        // reset startX, startY
-        startX = startY = null;
-
-        if (horizontal) {
-          var indexMoved = - disX * items / vpInner;
-          indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-          index += indexMoved;
-        } else {
-          var moved = - (translateInit + disY);
-          if (moved <= 0) {
-            index = indexMin;
-          } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
-            index = indexMax;
-          } else {
-            var i = 0;
-            do {
-              i++;
-              index = disY < 0 ? i + 1 : i;
-            } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
-          }
-        }
-        
-        render(sliderMoved);
-
-        // drag vs click
-        if (isDragEvent) { 
-          // reset isDragEvent
-          isDragEvent = false;
-
-          // prevent "click"
-          var target = getTarget(e);
-          addEvents(target, {'click': function preventClick (e) {
-            preventDefaultBehavior(e);
-            removeEvents(target, {'click': preventClick});
-          }}); 
-        } 
+      if (isTouchEvent(e)) {
+        ev = e.changedTouches[0];
+        events.emit('touchEnd', info(e));
+      } else {
+        ev = e;
+        events.emit('dragEnd', info(e));
       }
+
+      disX = parseInt(ev.clientX) - startX;
+      disY = parseInt(ev.clientY) - startY;
+
+      var sliderMoved = Boolean(horizontal ? disX : disY);
+
+      // reset startX, startY
+      startX = startY = null;
+
+      if (horizontal) {
+        var indexMoved = - disX * items / vpInner;
+        indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+        index += indexMoved;
+      } else {
+        var moved = - (translateInit + disY);
+        if (moved <= 0) {
+          index = indexMin;
+        } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+          index = indexMax;
+        } else {
+          var i = 0;
+          do {
+            i++;
+            index = disY < 0 ? i + 1 : i;
+          } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+        }
+      }
+      
+      render(sliderMoved);
+
+      // drag vs click
+      if (isDragEvent) { 
+        // reset isDragEvent
+        isDragEvent = false;
+
+        // prevent "click"
+        var target = getTarget(e);
+        addEvents(target, {'click': function preventClick (e) {
+          preventDefaultBehavior(e);
+          removeEvents(target, {'click': preventClick});
+        }}); 
+      } 
     }
   }
 
