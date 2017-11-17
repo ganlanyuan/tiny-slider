@@ -2338,11 +2338,12 @@ var tns = function(options) {
   }
 
   function onTouchOrMouseStart (e) {
-    if (!running) {
-      // reset moveDirectionExpected, touchedOrDraged
-      moveDirectionExpected = 0;
-      touchedOrDraged = false;
+    // reset 
+    moveDirectionExpected = 0;
+    touchedOrDraged = false;
+    startX = startY = null;
 
+    if (!running) {
       e = e || win.event;
       var ev; 
 
@@ -2428,10 +2429,11 @@ var tns = function(options) {
 
       disX = parseInt(ev.clientX) - startX;
       disY = parseInt(ev.clientY) - startY;
-
       var sliderMoved = Boolean(horizontal ? disX : disY);
 
-      // reset startX, startY
+      // reset 
+      moveDirectionExpected = 0;
+      touchedOrDraged = false;
       startX = startY = null;
 
       if (horizontal) {
