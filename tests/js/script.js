@@ -42,6 +42,7 @@ window.options = {
     mouseDrag: true,
     arrowKeys: true,
     autoplay: true,
+    loop: false,
   },
   'mouse-drag': {
     container: '',

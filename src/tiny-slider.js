@@ -620,7 +620,8 @@ export var tns = function(options) {
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
-    for (var i = index; i < index + items; i++) {
+    var itemsTem = loop ? items : Math.min(slideCount, items);
+    for (var i = index; i < index + itemsTem; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
