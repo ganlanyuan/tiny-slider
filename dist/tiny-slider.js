@@ -1000,8 +1000,8 @@ var tns = function(options) {
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
-    var itemsTem = loop ? items : Math.min(slideCount, items);
-    for (var i = index; i < index + itemsTem; i++) {
+    // use slide count when slides are fewer than items
+    for (var i = index; i < index + Math.min(slideCount, items); i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
