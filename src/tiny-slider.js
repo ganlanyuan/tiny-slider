@@ -1,5 +1,5 @@
 // Format: IIFE
-// Version: 2.3.5
+// Version: 2.3.6
 
 // helper functions
 import './helpers/keys';
@@ -1571,12 +1571,10 @@ export var tns = function(options) {
     return carousel ?
       function (duration, distance) {
         if (!distance) { distance = getContainerTransformValue(); }
+        
         // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
         if (hasRightDeadZone && index === indexMax) {
-          var containerRightEdge = TRANSFORM ? 
-              - ((slideCountNew - items) / slideCountNew) * 100 : 
-              - (slideCountNew / items - 1) * 100; 
-          distance = Math.max(parseFloat(distance), containerRightEdge) + '%';
+          distance = - ((fixedWidth + gutter) * slideCountNew - vpInner) + 'px';
         }
 
         if (TRANSITIONDURATION || !duration) {
