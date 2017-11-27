@@ -1,5 +1,5 @@
 // Format: ES MODULE
-// Version: 2.3.6
+// Version: 2.3.7
 
 // helper functions
 import './helpers/keys';
@@ -478,8 +478,9 @@ export var tns = function(options) {
           'padding: ' + gap + 'px 0 ' + edgePaddingTem + 'px 0;';
       }
     } else if (gutterTem && !fixedWidthTem) {
-      var dir = horizontal ? 'right' : 'bottom';
-      str = 'margin-' + dir + ': -' + gutterTem + 'px;'
+      var gutterTemUnit = '-' + gutterTem + 'px',
+          dir = horizontal ? gutterTemUnit + ' 0 0' : '0 ' + gutterTemUnit + ' 0';
+      str = 'margin: 0 ' + dir + ';'
     }
 
     return str;
@@ -1119,15 +1120,12 @@ export var tns = function(options) {
         }
 
         // slide styles
-        // always need to get width property
-        var str = getSlideWidthStyle(fixedWidth, gutter, items);
-        if (gutter !== gutterTem) {
-          str += getSlideGutterStyle(gutter);
-        }
+        if (horizontal && (items !== itemsTem || gutter !== gutterTem)) {
+          var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
+                    getSlideGutterStyle(gutter);
 
-        // remove the last line and
-        // add it again
-        if (str.length > 0) {
+          // remove the last line and
+          // add new styles
           sheet.removeRule(getCssRulesLength(sheet) - 1);
           addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
         }
