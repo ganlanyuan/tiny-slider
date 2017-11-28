@@ -2191,16 +2191,20 @@ export var tns = function(options) {
       // cloned items
       if (loop) {
         for (var j = cloneCount; j--;) {
-          slideItems[0].remove();
+          if (carousel) { slideItems[0].remove(); }
           slideItems[slideItems.length - 1].remove();
         }
       }
 
       // Slide Items
+      var slideClasses = ['tns-item', slideActiveClass];
+      if (!carousel) { slideClasses = slideClasses.concat('tns-normal', animateIn); }
+
       for (var i = slideCount; i--;) {
         var slide = slideItems[i];
         if (slide.id.indexOf(slideId + '-item') >= 0) { slide.id = ''; }
-        slide.classList.remove('tns-item');
+
+        slideClasses.forEach(function(cl) { removeClass(slide, cl); })
       }
       removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
       slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
