@@ -276,7 +276,7 @@ export var tns = function(options) {
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
-      cloneCount = loop ? slideCount * 2 : checkOption('edgePadding') ? 1 : 0,
+      cloneCount = loop ? slideCount * 2 : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
       updateIndexBeforeTransform = !carousel || !loop ? true : false,
@@ -287,9 +287,8 @@ export var tns = function(options) {
       // index
       index = !carousel ? 0 : cloneCount,
       indexCached = index,
-      indexAdjust = !loop && checkOption('edgePadding') ? 1 : 0,
-      indexMin = indexAdjust,
-      indexMax = slideCountNew - items - indexAdjust,
+      indexMin = 0,
+      indexMax = slideCountNew - items,
       // resize
       resizeTimer,
       touchedOrDraged,
@@ -966,7 +965,7 @@ export var tns = function(options) {
       freeze = disable ? true : freezable ? slideCount <= items : false;
 
       if (items !== itemsTem) {
-        indexMax = slideCountNew - items - indexAdjust;
+        indexMax = slideCountNew - items;
         // check index before transform in case
         // slider reach the right edge then items become bigger
         updateIndex();
@@ -1442,7 +1441,7 @@ export var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : (index - indexAdjust)%slideCount;
+      navCurrentIndex = navClicked !== -1 ? navClicked : index%slideCount;
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -2110,8 +2109,7 @@ export var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var temIndex = !loop && edgePadding ? (index - 1) : index;
-    var absIndexMin = temIndex%slideCount%items;
+    var absIndexMin = index%slideCount%items;
     while (absIndexMin < slideCount) {
       if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);

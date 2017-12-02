@@ -47,6 +47,7 @@ window.options = {
     container: '',
     items: 3,
     edgePadding: edgepadding,
+    loop: false,
   },
   'edgePadding-gutter': {
     container: '',
