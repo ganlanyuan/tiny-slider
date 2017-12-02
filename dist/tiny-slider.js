@@ -2122,7 +2122,6 @@ var tns = function(options) {
   // on controls click
   function onControlsClick (e, dir) {
     if (!running) {
-      // var shouldRender;
 
       if (!dir) {
         e = e || win.event;
@@ -2144,6 +2143,7 @@ var tns = function(options) {
         // Otherwise go to the next
         if (rewind && index === indexMax){
           goTo(0);
+          return;
         } else {
           index += slideBy;
         }
