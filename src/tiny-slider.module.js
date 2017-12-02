@@ -1606,7 +1606,7 @@ export var tns = function(options) {
     transformCore(duration, distance);
   }
 
-  function render (sliderMoved) {
+  function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
 
     // render when slider was moved (touch or drag) even though index may not change
@@ -1614,6 +1614,9 @@ export var tns = function(options) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
+
+      // pause autoplay when click or keydown from user
+      if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAction(); }
 
       running = true;
       doTransform();
@@ -1697,16 +1700,16 @@ export var tns = function(options) {
   }
 
   // # ACTIONS
-  function goTo (targetIndex) {
+  function goTo (targetIndex, e) {
     if (freeze) { return; }
 
     // prev slideBy
     if (targetIndex === 'prev') {
-      onControlsClick(null, -1);
+      onControlsClick(e, -1);
 
     // next slideBy
     } else if (targetIndex === 'next') {
-      onControlsClick(null, 1);
+      onControlsClick(e, 1);
 
     // go to exact slide
     } else if (!running) {
@@ -1733,7 +1736,7 @@ export var tns = function(options) {
 
       // if index is changed, start rendering
       if (index%slideCount !== indexCached%slideCount) {
-        render();
+        render(e);
       }
 
     }
@@ -1742,6 +1745,7 @@ export var tns = function(options) {
   // on controls click
   function onControlsClick (e, dir) {
     if (!running) {
+      var passEventObject;
 
       if (!dir) {
         e = e || win.event;
@@ -1749,10 +1753,10 @@ export var tns = function(options) {
 
         while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
 
-        if (target === prevButton) {
-          dir = -1; 
-        } else if (target === nextButton) {
-          dir = 1;
+        var targetIn = [prevButton, nextButton].indexOf(target);
+        if (targetIn >= 0) {
+          passEventObject = true;
+          dir = targetIn === 0 ? -1 : 1;
         }
       }
 
@@ -1762,14 +1766,15 @@ export var tns = function(options) {
         // Go to the first if reach the end in rewind mode
         // Otherwise go to the next
         if (rewind && index === indexMax){
-          goTo(0);
+          goTo(0, e);
           return;
         } else {
           index += slideBy;
         }
       }
 
-      render();
+      // pass e when click control buttons or keydown
+      render(passEventObject || e && e.type === 'keydown' ? e : null);
     }
   }
 
@@ -1784,7 +1789,7 @@ export var tns = function(options) {
       while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
       if (hasAttr(target, 'data-nav')) {
         navIndex = navClicked = [].indexOf.call(navItems, target);
-        goTo(navIndex);
+        goTo(navIndex, e);
       }
     }
   }
@@ -1841,10 +1846,10 @@ export var tns = function(options) {
     e = e || win.event;
     switch(e.keyCode) {
       case KEYS.LEFT:
-        onControlsClick(null, -1);
+        onControlsClick(e, -1);
         break;
       case KEYS.RIGHT:
-        onControlsClick(null, 1);
+        onControlsClick(e, 1);
     }
   }
 
@@ -1858,21 +1863,21 @@ export var tns = function(options) {
       case KEYS.UP:
       case KEYS.PAGEUP:
           if (!prevButton.disabled) {
-            onControlsClick(null, -1);
+            onControlsClick(e, -1);
           }
           break;
       case KEYS.RIGHT:
       case KEYS.DOWN:
       case KEYS.PAGEDOWN:
           if (!nextButton.disabled) {
-            onControlsClick(null, 1);
+            onControlsClick(e, 1);
           }
           break;
       case KEYS.HOME:
-        goTo(0);
+        goTo(0, e);
         break;
       case KEYS.END:
-        goTo(slideCount - 1);
+        goTo(slideCount - 1, e);
         break;
     }
   }
@@ -1928,7 +1933,7 @@ export var tns = function(options) {
       case KEYS.ENTER:
       case KEYS.SPACE:
         navClicked = navIndex;
-        goTo(navIndex);
+        goTo(navIndex, e);
         break;
     }
   }
@@ -2073,7 +2078,7 @@ export var tns = function(options) {
         }
       }
       
-      render(sliderMoved);
+      render(e, sliderMoved);
 
       // drag vs click
       if (isDragEvent) { 
