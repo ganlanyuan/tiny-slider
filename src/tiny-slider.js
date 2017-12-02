@@ -542,11 +542,12 @@ export var tns = function(options) {
     vpInner = innerWrapper.clientWidth;
 
     var classOuter = 'tns-outer',
-        classInner = 'tns-inner';
+        classInner = 'tns-inner',
+        hasGutter = checkOption('gutter');
 
     if (carousel) {
       if (horizontal) {
-        if (checkOption('edgePadding') || checkOption('gutter') && !options.fixedWidth) {
+        if (checkOption('edgePadding') || hasGutter && !options.fixedWidth) {
           classOuter += ' tns-ovh';
         } else {
           classInner += ' tns-ovh';
@@ -554,7 +555,7 @@ export var tns = function(options) {
       } else {
         classInner += ' tns-ovh';
       }
-    } else if (checkOption('gutter')) {
+    } else if (hasGutter) {
       classOuter += ' tns-ovh';
     }
 
