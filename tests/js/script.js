@@ -12,8 +12,6 @@ window.options = {
   'base': {
     container: '',
     items: 3,
-    edgePadding: edgepadding,
-    loop: false,
     // navAnimationIn: 'active',
     // navAnimationOut: 'normal',
     slideBy: 'page',
@@ -49,7 +47,6 @@ window.options = {
     container: '',
     items: 3,
     edgePadding: edgepadding,
-    loop: false,
   },
   'edgePadding-gutter': {
     container: '',
