@@ -2094,7 +2094,6 @@ var tns = function(options) {
     } else if (!running) {
       var absIndex = index%slideCount, 
           indexGap = 0;
-      if (!loop && checkOption('edgePadding')) { absIndex--; }
       if (absIndex < 0) { absIndex += slideCount; }
 
       if (targetIndex === 'first') {
@@ -2106,7 +2105,6 @@ var tns = function(options) {
         if (!isNaN(targetIndex)) {
           var absTargetIndex = targetIndex%slideCount;
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-          if (!loop && edgePadding) { absTargetIndex += 1; }
           indexGap = absTargetIndex - absIndex;
         }
       }
