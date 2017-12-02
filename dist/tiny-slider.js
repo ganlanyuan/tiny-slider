@@ -419,9 +419,10 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 // 2. recheck these options and save them to local storage
 var browserInfo = navigator.userAgent;
 var localStorageAccess = true;
-var tnsStorage = localStorage;
+var tnsStorage = {};
 
 try {
+  tnsStorage = localStorage;
   if (!tnsStorage['tnsApp']) {
     tnsStorage['tnsApp'] = browserInfo;
   } else if (tnsStorage['tnsApp'] !== browserInfo) {

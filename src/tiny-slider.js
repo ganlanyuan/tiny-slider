@@ -39,9 +39,10 @@ import { jsTransform } from './helpers/jsTransform';
 // 2. recheck these options and save them to local storage
 var browserInfo = navigator.userAgent,
     localStorageAccess = true,
-    tnsStorage = localStorage;
+    tnsStorage = {};
 
 try {
+  tnsStorage = localStorage;
   if (!tnsStorage['tnsApp']) {
     tnsStorage['tnsApp'] = browserInfo;
   } else if (tnsStorage['tnsApp'] !== browserInfo) {
