@@ -639,16 +639,9 @@ export var tns = function(options) {
     if (carousel && horizontal) {
       // set font-size rules
       // for modern browsers
-      // run once
       if (SUBPIXEL) {
-        var cssFontSize = win.getComputedStyle(slideItems[0]).fontSize;
-        // em, rem to px (for IE8-)
-        if (cssFontSize.indexOf('em') > 0) {
-          cssFontSize = parseFloat(cssFontSize) * 16 + 'px';
-        }
-
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-        addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + cssFontSize + ';', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
 
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
