@@ -302,6 +302,7 @@ export var tns = function(options) {
       disable = getOption('disable'),
       freezable = options.freezable,
       freeze = disable ? true : freezable ? slideCount <= items : false,
+      frozen,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
         'click': onControlsClick,
@@ -640,8 +641,9 @@ export var tns = function(options) {
       // set font-size rules
       // for modern browsers
       if (SUBPIXEL) {
-        addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
+        // set slides font-size first
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
 
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
@@ -901,6 +903,7 @@ export var tns = function(options) {
     lazyLoad();
     runAutoHeight();
     toggleSlideDisplayAndEdgePadding();
+    updateFixedWidthInnerWrapperStyle();
 
     events.on('indexChanged', additionalUpdates);
 
@@ -1114,7 +1117,7 @@ export var tns = function(options) {
         }
 
         // slide styles
-        if (horizontal && (items !== itemsTem || gutter !== gutterTem)) {
+        if (horizontal && (items !== itemsTem || gutter !== gutterTem || fixedWidth != fixedWidthTem)) {
           var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
                     getSlideGutterStyle(gutter);
 
@@ -1150,15 +1153,7 @@ export var tns = function(options) {
       doContainerTransform();
     }
 
-    if (fixedWidth && edgePadding) {
-      // remove edge padding when freeze or viewport narrower than one slide
-      if (freeze || vpOuter <= (fixedWidth + gutter)) {
-        if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0px'; }
-      // update edge padding on resize
-      } else {
-        innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
-      }
-    }
+    updateFixedWidthInnerWrapperStyle(true);
 
     // auto height
     runAutoHeight();
@@ -1202,33 +1197,48 @@ export var tns = function(options) {
   })();
 
   function toggleSlideDisplayAndEdgePadding () {
-    if (cloneCount) {
+    // if (cloneCount) {
     // if (fixedWidth && cloneCount) {
-      var str = 'tns-transparent';
+      var str = 'tns-transparent',
+          innerWrapperMarginZero = innerWrapper.style.margin === '0px';
 
       if (freeze) {
-        if (!hasClass(slideItems[0], str)) {
+        if (!innerWrapperMarginZero) {
           // remove edge padding from inner wrapper
           if (edgePadding) { innerWrapper.style.margin = '0px'; }
 
           // add class tns-transparent to cloned slides
-          for (var i = cloneCount; i--;) {
-            addClass(slideItems[i], str);
-            addClass(slideItems[slideCountNew - i - 1], str);
+          if (cloneCount) {
+            for (var i = cloneCount; i--;) {
+              addClass(slideItems[i], str);
+              addClass(slideItems[slideCountNew - i - 1], str);
+            }
           }
         }
-      } else {
+      } else if (innerWrapperMarginZero) {
         // restore edge padding for inner wrapper
         // for mordern browsers
-        if (edgePadding && !fixedWidth && CSSMQ && innerWrapper.style.margin) { innerWrapper.style.margin = ''; }
+        if (edgePadding && !fixedWidth && CSSMQ) { innerWrapper.style.margin = ''; }
 
-        if (hasClass(slideItems[0], str)) {
-          // remove class tns-transparent to cloned slides
+        // remove class tns-transparent to cloned slides
+        if (cloneCount) {
           for (var i = cloneCount; i--;) {
             removeClass(slideItems[i], str);
             removeClass(slideItems[slideCountNew - i - 1], str);
           }
         }
+      }
+    // }
+  }
+
+  function updateFixedWidthInnerWrapperStyle (resize) {
+    if (fixedWidth && edgePadding) {
+      // remove edge padding when freeze or viewport narrower than one slide
+      if (freeze || vpOuter <= (fixedWidth + gutter)) {
+        if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0px'; }
+      // update edge padding on resize
+      } else if (resize) {
+        innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
       }
     }
   }

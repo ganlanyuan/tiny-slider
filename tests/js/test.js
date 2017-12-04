@@ -1194,7 +1194,6 @@ function testResponsive6 () {
   addTitle(id + ': fixedWidth width few items');
 
   var testEdgePaddingT = addTest('edgePadding toggle');
-  var testClonedSlidesT = addTest('cloned slides toggle');
   var testControlsNavT = addTest('controls, nav toggle');
   var testControlsClickT = addTest('controls click after resizing');
   var newWindow = document.createElement('iframe');
@@ -1216,7 +1215,6 @@ function testResponsive6 () {
   function responsive6Tests () {
     try {
       var assertionEdgePadding,
-          assertionClonedSlides,
           assertionControlsNav,
           assertionControlsClick,
           doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
@@ -1226,7 +1224,7 @@ function testResponsive6 () {
           nav = wrapper.querySelector('.tns-nav'),
           child0 = container.children[0],
           child1 = container.children[1],
-          child2 = container.children[2],
+          // child2 = container.children[2],
           childL = container.children[container.children.length - 1],
           prevButton = controls.children[0],
           nextButton = controls.children[1];
@@ -1235,14 +1233,25 @@ function testResponsive6 () {
         var viewport = wrapper.clientWidth,
             edge = (viewport - fixedWidth)/2;
         assertionEdgePadding = 
-          child1.getBoundingClientRect().left === edge &&
-          child1.getBoundingClientRect().right === viewport - (edge - gutter);
+          child0.getBoundingClientRect().left === edge &&
+          child0.getBoundingClientRect().right === viewport - (edge - gutter);
         resolve();
       }).then(function() {
+        // go to the second slide
         return new Promise(function(resolve) {
-          // go to the second slide
           nextButton.click();
           resolve();
+        }).then(function() {
+          return wait(500).then(function() {
+            return new Promise(function(resolve) {
+              var viewport = wrapper.clientWidth,
+                  edge = (viewport - fixedWidth)/2;
+              assertionControlsClick = 
+                child1.getBoundingClientRect().left === edge &&
+                child1.getBoundingClientRect().right === viewport - (edge - gutter);
+              resolve();
+            });
+          });
         });
       }).then(function() {
         // resize window
@@ -1253,11 +1262,8 @@ function testResponsive6 () {
           return wait(500).then(function() {
             return new Promise(function(resolve) {
               if (assertionEdgePadding) {
-                assertionEdgePadding = child1.getBoundingClientRect().left === 0;
+                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
               }
-              assertionClonedSlides = 
-                child0.className.indexOf('tns-transparent') >= 0 &&
-                childL.className.indexOf('tns-transparent') >= 0;
               assertionControlsNav = 
                 getComputedStyle(controls, null).display === 'none' &&
                 getComputedStyle(nav, null).display === 'none';
@@ -1277,13 +1283,8 @@ function testResponsive6 () {
                 var viewport = wrapper.clientWidth,
                     edge = (viewport - fixedWidth)/2;
                 assertionEdgePadding = 
-                  child1.getBoundingClientRect().left === edge &&
-                  child1.getBoundingClientRect().right === viewport - (edge - gutter);
-              }
-              if (assertionClonedSlides) {
-                assertionClonedSlides = 
-                  child0.className.indexOf('tns-transparent') < 0 &&
-                  childL.className.indexOf('tns-transparent') < 0;
+                  child0.getBoundingClientRect().left === edge &&
+                  child0.getBoundingClientRect().right === viewport - (edge - gutter);
               }
               if (assertionControlsNav) {
                 assertionControlsNav = 
@@ -1291,22 +1292,6 @@ function testResponsive6 () {
                   getComputedStyle(nav, null).display !== 'none';
               }
               resolve();
-            });
-          });
-        }).then(function() {
-          return new Promise(function(resolve) {
-            nextButton.click();
-            resolve();
-          }).then(function() {
-            return wait(500).then(function() {
-              return new Promise(function(resolve) {
-                var viewport = wrapper.clientWidth,
-                    edge = (viewport - fixedWidth)/2;
-                assertionControlsClick = 
-                  child2.getBoundingClientRect().left === edge &&
-                  child2.getBoundingClientRect().right === viewport - (edge - gutter);
-                resolve();
-              });
             });
           });
         });
@@ -1319,7 +1304,7 @@ function testResponsive6 () {
           return wait(500).then(function() {
             return new Promise(function(resolve) {
               if (assertionEdgePadding) {
-                assertionEdgePadding = child2.getBoundingClientRect().left === 0;
+                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
               }
               resolve();
             });
@@ -1327,14 +1312,12 @@ function testResponsive6 () {
         });
       }).then(function() {
         updateTest(testEdgePaddingT, assertionEdgePadding);
-        updateTest(testClonedSlidesT, assertionClonedSlides);
         updateTest(testControlsNavT, assertionControlsNav);
         updateTest(testControlsClickT, assertionControlsClick);
         document.body.removeChild(newWindow);
       });
     } catch(e) {
       updateTest(testEdgePaddingT, assertionEdgePadding);
-      updateTest(testClonedSlidesT, assertionClonedSlides);
       updateTest(testControlsNavT, assertionControlsNav);
       updateTest(testControlsClickT, assertionControlsClick);
       document.body.removeChild(newWindow);
