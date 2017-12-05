@@ -25,6 +25,7 @@ import { setAttrs } from './helpers/setAttrs';
 import { removeAttrs } from './helpers/removeAttrs';
 import { hideElement } from './helpers/hideElement';
 import { showElement } from './helpers/showElement';
+import { isVisible } from './helpers/isVisible';
 import { imageLoaded } from './helpers/imageLoaded';
 import { whichProperty } from './helpers/whichProperty';
 import { getEndProperty } from './helpers/getEndProperty';
@@ -369,13 +370,13 @@ export var tns = function(options) {
         autoplayDirection = options.autoplayDirection === 'forward' ? 1 : -1,
         autoplayText = getOption('autoplayText'),
         autoplayHoverPause = getOption('autoplayHoverPause'),
-        autoplayTimer,
         autoplayButton = options.autoplayButton,
-        animating = false,
-        autoplayHoverStopped = false,
-        autoplayHtmlStrings = ['<span class=\'tns-visually-hidden\'>', ' animation</span>'],
         autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
-        autoplayResetVisibilityState = false;
+        autoplayHtmlStrings = ['<span class=\'tns-visually-hidden\'>', ' animation</span>'],
+        autoplayTimer,
+        animating,
+        autoplayHoverPaused,
+        autoplayVisibilityPaused;
   }
 
   // touch
@@ -841,7 +842,7 @@ export var tns = function(options) {
           hideElement(autoplayButton);
         }
       } else {
-        startAction();
+        startAutoplay();
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
         if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
       }
@@ -1075,10 +1076,10 @@ export var tns = function(options) {
         if (autoplay !== autoplayTem) {
           if (autoplay) {
             if (autoplayButton) { showElement(autoplayButton); }
-            if (!animating) { startAction(); }
+            if (!animating) { startAutoplay(); }
           } else {
             if (autoplayButton) { hideElement(autoplayButton); }
-            if (animating) { stopAction(); }
+            if (animating) { stopAutoplay(); }
           }
         }
         if (autoplayHoverPause !== autoplayHoverPauseTem) {
@@ -1293,20 +1294,6 @@ export var tns = function(options) {
           addClass(item, classN);
         }
       }
-    }
-  }
-
-  function mouseoverPause () {
-    if (animating) { 
-      stopAction(); 
-      autoplayHoverStopped = true;
-    }
-  }
-
-  function mouseoutRestart () {
-    if (!animating && autoplayHoverStopped) { 
-      startAction(); 
-      autoplayHoverStopped = false;
     }
   }
 
@@ -1580,15 +1567,21 @@ export var tns = function(options) {
         }
 
         if (TRANSITIONDURATION || !duration) {
+          // for morden browsers with non-zero duration or 
+          // zero duration for all browsers
           doContainerTransform(distance);
-          if (speed === 0) { onTransitionEnd(); }
+          // run fallback function manually 
+          // when duration is 0 / container is hidden
+          if (!duration || !isVisible(container)) { setTimeout(onTransitionEnd, duration); }
+
         } else {
+          // for old browser with non-zero duration
           jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
         }
 
         if (!horizontal) { updateContentWrapperHeight(); }
       } :
-      function () {
+      function (duration) {
         slideItemsOut = [];
 
         var eve = {};
@@ -1599,7 +1592,11 @@ export var tns = function(options) {
         animateSlide(indexCached, animateIn, animateOut, true);
         animateSlide(index, animateNormal, animateIn);
 
-        if (!TRANSITIONEND || !ANIMATIONEND || speed === 0) { setTimeout(onTransitionEnd, 0); }
+        // run fallback function manually 
+        // when transition or animation not supported / duration is 0 / container is hidden
+        if (!TRANSITIONEND || !ANIMATIONEND || !duration || !isVisible(container)) {
+          setTimeout(onTransitionEnd, TRANSITIONEND && ANIMATIONEND ? duration : 0);
+        }
       };
   })();
 
@@ -1619,7 +1616,7 @@ export var tns = function(options) {
       events.emit('transitionStart', info());
 
       // pause autoplay when click or keydown from user
-      if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAction(); }
+      if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
 
       running = true;
       doTransform();
@@ -1795,51 +1792,63 @@ export var tns = function(options) {
     }
   }
 
+  // autoplay functions
+  function setAutoplayTimer () {
+    autoplayTimer = setInterval(function () {
+      onControlsClick(null, autoplayDirection);
+    }, autoplayTimeout);
+
+    animating = true;
+  }
+
+  function stopAutoplayTimer () {
+    clearInterval(autoplayTimer);
+    animating = false;
+  }
+
   function updateAutoplayButton (action, txt) {
     setAttrs(autoplayButton, {'data-action': action});
     autoplayButton.innerHTML = autoplayHtmlStrings[0] + action + autoplayHtmlStrings[1] + txt;
   }
 
-  function startAction () {
-    resetActionTimer();
+  function startAutoplay () {
+    setAutoplayTimer();
     if (autoplayButton) { updateAutoplayButton('stop', autoplayText[1]); }
-
-    animating = true;
   }
 
-  function stopAction () {
-    pauseActionTimer();
+  function stopAutoplay () {
+    stopAutoplayTimer();
     if (autoplayButton) { updateAutoplayButton('start', autoplayText[0]); }
-
-    animating = false;
-  }
-
-  function pauseActionTimer () {
-    animating = 'paused';
-    clearInterval(autoplayTimer);
-  }
-
-  function resetActionTimer () {
-    if (animating === true) { return; }
-    clearInterval(autoplayTimer);
-    autoplayTimer = setInterval(function () {
-      onControlsClick(null, autoplayDirection);
-    }, autoplayTimeout);
   }
 
   function toggleAnimation () {
-    if (animating) {
-      stopAction();
-    } else {
-      startAction();
-    }
+    animating ? stopAutoplay() : startAutoplay();
   }
 
   function onVisibilityChange () {
-    if (autoplayResetVisibilityState != doc.hidden && animating !== false) {
-      doc.hidden ? pauseActionTimer() : resetActionTimer();
+    if (doc.hidden) {
+      if (animating) {
+        stopAutoplayTimer();
+        autoplayVisibilityPaused = true;
+      }
+    } else if (autoplayVisibilityPaused) {
+      setAutoplayTimer();
+      autoplayVisibilityPaused = false;
     }
-    autoplayResetVisibilityState = doc.hidden;
+  }
+
+  function mouseoverPause () {
+    if (animating) { 
+      stopAutoplayTimer();
+      autoplayHoverPaused = true;
+    }
+  }
+
+  function mouseoutRestart () {
+    if (autoplayHoverPaused) { 
+      setAutoplayTimer();
+      autoplayHoverPaused = false;
+    }
   }
 
   // keydown events on document 
