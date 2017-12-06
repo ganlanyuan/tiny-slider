@@ -1955,7 +1955,7 @@ var tns = function(options) {
           doContainerTransform(distance);
           // run fallback function manually 
           // when duration is 0 / container is hidden
-          if (!duration || !isVisible(container)) { setTimeout(onTransitionEnd, duration); }
+          if (!duration || !isVisible(container)) { onTransitionEnd(); }
 
         } else {
           // for old browser with non-zero duration
@@ -1976,15 +1976,17 @@ var tns = function(options) {
         animateSlide(index, animateNormal, animateIn);
 
         // run fallback function manually 
-        // when transition or animation not supported / duration is 0 / container is hidden
-        if (!TRANSITIONEND || !ANIMATIONEND || !duration || !isVisible(container)) {
-          setTimeout(onTransitionEnd, TRANSITIONEND && ANIMATIONEND ? duration : 0);
-        }
+        // when transition or animation not supported / duration is 0
+        if (!TRANSITIONEND || !ANIMATIONEND || !duration) { onTransitionEnd(); }
       };
   })();
 
   function doTransform (duration, distance) {
-    if (duration === undefined) { duration = speed; }
+    // check duration is defined and is a number
+    if (isNaN(duration)) { duration = speed; }
+    // if container is hidden, set duration to 0
+    if (!isVisible(container)) { duration = 0; }
+    
     if (TRANSITIONDURATION) { setDurations(duration); }
     transformCore(duration, distance);
   }
