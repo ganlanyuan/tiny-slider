@@ -557,7 +557,17 @@ var tns = function(options) {
   });
 
   // make sure slide container exists
-  if (!options.container || !options.container.nodeName || options.container.children.length < 2) { return; }
+  var supportConsoleWarn = win.console && typeof win.console.warn === "function";
+  if (!options.container || !options.container.nodeName) {
+    if (supportConsoleWarn) { console.warn('Can\'t find container element.'); }
+    return;
+  }
+
+  // make sure slides are more than 2
+  if (options.container.children.length < 2) {
+    if (supportConsoleWarn) { console.warn('Slides less than 2.'); }
+    return;
+   }
 
   // update responsive
   // from: { 
@@ -1984,8 +1994,9 @@ var tns = function(options) {
   function doTransform (duration, distance) {
     // check duration is defined and is a number
     if (isNaN(duration)) { duration = speed; }
+    
     // if container is hidden, set duration to 0
-    if (!isVisible(container)) { duration = 0; }
+    if (animating && !isVisible(container)) { duration = 0; }
     
     if (TRANSITIONDURATION) { setDurations(duration); }
     transformCore(duration, distance);
