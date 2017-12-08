@@ -774,12 +774,12 @@ export var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        [].forEach.call(navItems, function (item, index) {
+        [].forEach.call(navItems, function (item, i) {
           setAttrs(item, {
-            'data-nav': index,
+            'data-nav': i,
             'tabindex': '-1',
             'aria-selected': 'false',
-            'aria-controls': slideItems[initIndex + index].id,
+            'aria-controls': slideItems[initIndex + i].id,
           });
           // if (navAnimationOut) {
           //   addClass(item, navAnimationOut);
@@ -1611,7 +1611,7 @@ export var tns = function(options) {
   function doTransform (duration, distance) {
     // check duration is defined and is a number
     if (isNaN(duration)) { duration = speed; }
-    
+
     // if container is hidden, set duration to 0
     if (animating && !isVisible(container)) { duration = 0; }
     
@@ -2155,30 +2155,19 @@ export var tns = function(options) {
    */
   function updateNavVisibility () {
     if (!nav || options.navContainer) { return; }
+    getVisibleNavIndex();
 
-    // update nav visibility when visibleNavIndexes doesn't contain current index
-    if (visibleNavIndexes.indexOf(index%slideCount) < 0) {
-      // update visible nav indexes
-      getVisibleNavIndex();
-
-      if (visibleNavIndexes !== visibleNavIndexesCached) {
-        // add 'hidden' attribute to previous visible navs
-        if (visibleNavIndexesCached.length > 0) {
-          visibleNavIndexesCached.forEach(function (ind) {
-            hideElement(navItems[ind]);
-          });
+    if (visibleNavIndexes !== visibleNavIndexesCached) {
+      [].forEach.call(navItems, function(el, i) {
+        if (visibleNavIndexes.indexOf(i) < 0) {
+          hideElement(el);
+        } else {
+          showElement(el);
         }
+      });
 
-        // remove 'hidden' attribute from visible navs
-        if (visibleNavIndexes.length > 0) {
-          visibleNavIndexes.forEach(function (ind) {
-            showElement(navItems[ind]);
-          });
-        }
-
-        // cache visible nav indexes
-        visibleNavIndexesCached = visibleNavIndexes;
-      }
+      // cache visible nav indexes
+      visibleNavIndexesCached = visibleNavIndexes;
     }
   }
 
