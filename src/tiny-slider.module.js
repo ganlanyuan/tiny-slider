@@ -1,5 +1,5 @@
 // Format: ES MODULE
-// Version: 2.3.11
+// Version: 2.4.0
 
 // helper functions
 import './helpers/keys';
