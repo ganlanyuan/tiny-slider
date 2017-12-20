@@ -548,6 +548,7 @@ var tns = function(options) {
     mouseDrag: false,
     nested: false,
     freezable: true,
+    // startIndex: 0,
     onInit: false
   }, options || {});
   
@@ -679,7 +680,7 @@ var tns = function(options) {
       transformPrefix = '',
       transformPostfix = '',
       // index
-      index = !carousel ? 0 : cloneCount,
+      index = options.startIndex ? options.startIndex : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
       indexMax = slideCountNew - items,
@@ -729,6 +730,13 @@ var tns = function(options) {
       hasTouch = checkOption('touch'),
       hasMouseDrag = checkOption('mouseDrag'),
       slideActiveClass = 'tns-slide-active';
+
+  // check startIndex
+  if (options.startIndex) {
+    index = index%slideCount;
+    if (index < 0) { index += slideCount; }
+    if (index > indexMax) { index = indexMax; }
+  }
 
   // controls
   if (hasControls) {
