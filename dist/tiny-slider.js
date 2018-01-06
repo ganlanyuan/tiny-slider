@@ -523,8 +523,6 @@ var tns = function(options) {
     controlsContainer: false,
     nav: true,
     navContainer: false,
-    // navAnimationIn: false,
-    // navAnimationOut: false,
     arrowKeys: false,
     speed: 300,
     autoplay: false,
@@ -753,14 +751,12 @@ var tns = function(options) {
   if (hasNav) {
     var nav = getOption('nav'),
         navContainer = options.navContainer,
-        // navAnimationIn = options.navAnimationIn,
-        // navAnimationOut = options.navAnimationOut,
         navItems,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
-        navCurrentIndex = 0,
-        navCurrentIndexCached = 0,
+        navCurrentIndex = index,
+        navCurrentIndexCached = index,
         navActiveClass = 'tns-nav-active';
   }
 
@@ -1172,18 +1168,13 @@ var tns = function(options) {
             'aria-selected': 'false',
             'aria-controls': slideItems[initIndex + i].id,
           });
-          // if (navAnimationOut) {
-          //   addClass(item, navAnimationOut);
-          // }
         });
 
       // generated nav 
       } else {
         var navHtml = '';
-            // classStr = navAnimationOut ? 'class="' + navAnimationOut + '"' : '';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          // navHtml += '<button ' + classStr + ' data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideId + '-item' + i +'" hidden type="button"></button>';
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideItems[initIndex + i].id +'" hidden type="button"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
@@ -1207,14 +1198,8 @@ var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
-      setAttrs(navItems[0], {'tabindex': '0', 'aria-selected': 'true'});
-      addClass(navItems[0], navActiveClass);
-      // if (navAnimationOut) {
-      //   removeClass(navItems[0], navAnimationOut);
-      // }
-      // if (navAnimationIn) {
-      //   addClass(navItems[0], navAnimationIn);
-      // }
+      setAttrs(navItems[index], {'tabindex': '0', 'aria-selected': 'true'});
+      addClass(navItems[index], navActiveClass);
 
       // add events
       addEvents(navContainer, navEvents);
@@ -1276,7 +1261,7 @@ var tns = function(options) {
       prevIsButton = isButton(prevButton);
       nextIsButton = isButton(nextButton);
 
-      if (!loop) { disEnableElement(prevIsButton, prevButton, true); }
+      if (!loop && index === indexMin) { disEnableElement(prevIsButton, prevButton, true); }
 
       // add events
       addEvents(controlsContainer, controlsEvents);
@@ -1850,15 +1835,6 @@ var tns = function(options) {
         });
         removeClass(navPrev, navActiveClass);
         addClass(navCurrent, navActiveClass);
-
-        // if (navAnimationOut) {
-        //   removeClass(navPrev, navAnimationIn);
-        //   addClass(navPrev, navAnimationOut);
-        // }
-        // if (navAnimationIn) {
-        //   removeClass(navCurrent, navAnimationOut);
-        //   addClass(navCurrent, navAnimationIn);
-        // }
       }
     }
   }
