@@ -678,7 +678,7 @@ var tns = function(options) {
       transformPrefix = '',
       transformPostfix = '',
       // index
-      index = options.startIndex ? options.startIndex : !carousel ? 0 : cloneCount,
+      index = options.startIndex ? updateStartIndex(options.startIndex) : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
       indexMax = slideCountNew - items,
@@ -730,10 +730,11 @@ var tns = function(options) {
       slideActiveClass = 'tns-slide-active';
 
   // check startIndex
-  if (options.startIndex) {
-    index = index%slideCount;
-    if (index < 0) { index += slideCount; }
-    if (index > indexMax) { index = indexMax; }
+  function updateStartIndex (indexTem) {
+    indexTem = indexTem%slideCount;
+    if (indexTem < 0) { indexTem += slideCount; }
+    indexTem = Math.min(indexTem, slideCountNew - items);
+    return indexTem;
   }
 
   // controls
@@ -755,8 +756,8 @@ var tns = function(options) {
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
-        navCurrentIndex = index,
-        navCurrentIndexCached = index,
+        navCurrentIndex = index%slideCount,
+        navCurrentIndexCached = navCurrentIndex,
         navActiveClass = 'tns-nav-active';
   }
 
@@ -1198,8 +1199,8 @@ var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
-      setAttrs(navItems[index], {'tabindex': '0', 'aria-selected': 'true'});
-      addClass(navItems[index], navActiveClass);
+      setAttrs(navItems[navCurrentIndex], {'tabindex': '0', 'aria-selected': 'true'});
+      addClass(navItems[navCurrentIndex], navActiveClass);
 
       // add events
       addEvents(navContainer, navEvents);
@@ -1261,7 +1262,7 @@ var tns = function(options) {
       prevIsButton = isButton(prevButton);
       nextIsButton = isButton(nextButton);
 
-      if (!loop && index === indexMin) { disEnableElement(prevIsButton, prevButton, true); }
+      updateControlsStatus();
 
       // add events
       addEvents(controlsContainer, controlsEvents);

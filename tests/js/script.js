@@ -12,9 +12,14 @@ window.options = {
   'base': {
     container: '',
     items: 3,
-    // navAnimationIn: 'active',
-    // navAnimationOut: 'normal',
     slideBy: 'page',
+  },
+  'start-index': {
+    container: '',
+    items: 3,
+    slideBy: 'page',
+    loop: false,
+    startIndex: 6
   },
   'few-items': {
     container: '',
