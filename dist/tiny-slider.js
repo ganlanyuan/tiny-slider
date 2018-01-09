@@ -523,6 +523,7 @@ var tns = function(options) {
     controlsContainer: false,
     nav: true,
     navContainer: false,
+    navAsThumbnails: false,
     arrowKeys: false,
     speed: 300,
     autoplay: false,
@@ -724,6 +725,7 @@ var tns = function(options) {
       },
       hasControls = checkOption('controls'),
       hasNav = checkOption('nav'),
+      navAsThumbnails = options.navAsThumbnails,
       hasAutoplay = checkOption('autoplay'),
       hasTouch = checkOption('touch'),
       hasMouseDrag = checkOption('mouseDrag'),
@@ -1184,8 +1186,9 @@ var tns = function(options) {
         navContainer = outerWrapper.querySelector('.tns-nav');
         navItems = navContainer.children;
 
-        updateNavVisibility();
       }
+
+      updateNavVisibility();
 
       // add transition
       if (TRANSITIONDURATION) {
@@ -2522,7 +2525,7 @@ var tns = function(options) {
    * 3. remove "hidden" attrubutes to new visible nav items
    */
   function updateNavVisibility () {
-    if (!nav || options.navContainer) { return; }
+    if (!nav || navAsThumbnails) { return; }
     getVisibleNavIndex();
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {

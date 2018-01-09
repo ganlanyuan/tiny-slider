@@ -142,7 +142,7 @@ img {
 
 .tns-slider img { width: 100%; }
 .tns-controls { text-align: center; margin-bottom: 10px; }
-[aria-controls] {
+.tns-controls [aria-controls] {
   font-size: 15px;
   margin: 0 5px;
   padding: 0 1em;
@@ -164,7 +164,7 @@ img {
   background: transparent;
   border: 0;
 }
-[disabled] { 
+.tns-controls [disabled] { 
   color: #999999;
   background: #B3B3B3; 
   cursor: not-allowed !important;
@@ -277,3 +277,4 @@ pre[class*="language-"] { margin: 0; }
   content: url('../images/pinwheel.svg'); 
   vertical-align: middle; 
 }
+.customize-tools [hidden] { display: none; }

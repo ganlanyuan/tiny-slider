@@ -265,6 +265,7 @@ window.options = {
     items: 3,
     controlsContainer: '#customize-controls',
     navContainer: '#customize-thumbnails',
+    navAsThumbnails: true,
     autoplay: true,
     autoplayTimeout: 1000,
     autoplayButton: '#customize-toggle',
