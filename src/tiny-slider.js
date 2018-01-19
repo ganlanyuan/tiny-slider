@@ -1823,6 +1823,14 @@ export var tns = function(options) {
     if (autoplayButton) { updateAutoplayButton('start', autoplayText[0]); }
   }
 
+  // programaitcally play/pause the slider
+  function play () {
+    if (autoplay && !animating) { startAutoplay(); }
+  }
+  function pause () {
+    if (animating) { stopAutoplay(); }
+  }
+
   function toggleAnimation () {
     animating ? stopAutoplay() : startAutoplay();
   }
@@ -2189,6 +2197,8 @@ export var tns = function(options) {
     getInfo: info,
     events: events,
     goTo: goTo,
+    play: play,
+    pause: pause,
 
     destroy: function () {
       // sheet
