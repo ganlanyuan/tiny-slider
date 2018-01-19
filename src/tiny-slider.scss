@@ -51,6 +51,7 @@
 .tns-gallery {
   position: relative;
   left: 0;
+  min-height: 1px; // make sure slider container is visible
   // overflow: hidden;
   > .tns-item {
     position: absolute;

@@ -1601,6 +1601,7 @@ export var tns = function(options) {
     if (isNaN(duration)) { duration = speed; }
 
     // if container is hidden, set duration to 0
+    // to fix an issue where browser doesn't fire ontransitionend on hidden element
     if (animating && !isVisible(container)) { duration = 0; }
     
     if (TRANSITIONDURATION) { setDurations(duration); }
