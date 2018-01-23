@@ -160,6 +160,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module.js"
 
 ## Responsive options
 The following options can be redefined in `responsive` field:  
+`startIndex`,   
 `items`,   
 `slideBy`,   
 `speed`,   

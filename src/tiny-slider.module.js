@@ -296,7 +296,8 @@ export var tns = function(options) {
       transformPrefix = '',
       transformPostfix = '',
       // index
-      index = options.startIndex ? updateStartIndex(options.startIndex) : !carousel ? 0 : cloneCount,
+      startIndex = getOption('startIndex'),
+      index = startIndex ? updateStartIndex(startIndex) : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
       indexMax = slideCountNew - items,
