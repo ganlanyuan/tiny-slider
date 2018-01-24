@@ -1184,16 +1184,22 @@ export var tns = function(options) {
   var updateIndex = (function () {
     return loop ? 
       function () {
-        var leftEdge = indexMin + slideBy, rightEdge = indexMax - slideBy;
+        var leftEdge = indexMin,
+            rightEdge = indexMax;
 
-        // adjust edges when edge padding is true
-        // or fixed-width slider with extra space on the right side
-        if (edgePadding) {
-          leftEdge += 1;
-          rightEdge -= 1;
-        } else if (fixedWidth) {
-          var gt = gutter ? gutter : 0;
-          if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
+        if (carousel) {
+          leftEdge += slideBy;
+          rightEdge -= slideBy;
+
+          // adjust edges when edge padding is true
+          // or fixed-width slider with extra space on the right side
+          if (edgePadding) {
+            leftEdge += 1;
+            rightEdge -= 1;
+          } else if (fixedWidth) {
+            var gt = gutter ? gutter : 0;
+            if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
+          }
         }
 
         if (index > rightEdge) {
