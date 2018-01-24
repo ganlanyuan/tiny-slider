@@ -414,7 +414,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.5.0
+// Version: 2.5.1
 
 // helper functions
 // check browser version and local storage
