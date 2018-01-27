@@ -1149,6 +1149,7 @@ export var tns = function(options) {
 
       if (items !== itemsTem) { 
         additionalUpdates();
+        updateSlidePosition();
         runAutoHeight();
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
@@ -1214,23 +1215,24 @@ export var tns = function(options) {
   function toggleSlideDisplayAndEdgePadding () {
     // if (cloneCount) {
     // if (fixedWidth && cloneCount) {
-      var str = 'tns-transparent',
-          innerWrapperMarginZero = innerWrapper.style.margin === '0px';
+      var str = 'tns-transparent';
 
       if (freeze) {
-        if (!innerWrapperMarginZero) {
+        if (!frozen) {
           // remove edge padding from inner wrapper
           if (edgePadding) { innerWrapper.style.margin = '0px'; }
 
           // add class tns-transparent to cloned slides
           if (cloneCount) {
             for (var i = cloneCount; i--;) {
-              addClass(slideItems[i], str);
+              if (carousel) { addClass(slideItems[i], str); }
               addClass(slideItems[slideCountNew - i - 1], str);
             }
           }
+
+          frozen = true;
         }
-      } else if (innerWrapperMarginZero) {
+      } else if (frozen) {
         // restore edge padding for inner wrapper
         // for mordern browsers
         if (edgePadding && !fixedWidth && CSSMQ) { innerWrapper.style.margin = ''; }
@@ -1238,10 +1240,12 @@ export var tns = function(options) {
         // remove class tns-transparent to cloned slides
         if (cloneCount) {
           for (var i = cloneCount; i--;) {
-            removeClass(slideItems[i], str);
+            if (carousel) { removeClass(slideItems[i], str); }
             removeClass(slideItems[slideCountNew - i - 1], str);
           }
         }
+
+        frozen = false;
       }
     // }
   }
@@ -1418,10 +1422,12 @@ export var tns = function(options) {
 
   // update slide
   function updateSlideStatus () {
+    var l = index + Math.min(slideCount, items);
     for (var i = slideCountNew; i--;) {
       var item = slideItems[i];
+      
       // visible slides
-      if (i >= index && i < index + items) {
+      if (i >= index && i < l) {
         if (hasAttr(item, 'tabindex')) {
           setAttrs(item, {'aria-hidden': 'false'});
           removeAttrs(item, ['tabindex']);
@@ -1437,6 +1443,27 @@ export var tns = function(options) {
         }
         if (hasClass(item, slideActiveClass)) {
           removeClass(item, slideActiveClass);
+        }
+      }
+    }
+  }
+
+  // gallery: update slide position
+  function updateSlidePosition () {
+    if (!carousel) { 
+      var l = index + Math.min(slideCount, items);
+      for (var i = slideCountNew; i--;) {
+        var item = slideItems[i];
+
+        if (i >= index && i < l) {
+          var item = slideItems[i];
+          item.style.left = (i - index) * 100 / items + '%';
+          addClass(item, animateIn);
+          removeClass(item, animateNormal);
+        } else if (item.style.left) {
+          item.style.left = '';
+          addClass(item, animateNormal);
+          removeClass(item, animateIn);
         }
       }
     }
