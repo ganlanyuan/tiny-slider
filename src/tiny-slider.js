@@ -1456,7 +1456,9 @@ export var tns = function(options) {
         var item = slideItems[i];
 
         if (i >= index && i < l) {
-          var item = slideItems[i];
+          // add transitions to visible slides when adjusting their positions
+          addClass(item, 'tns-moving');
+
           item.style.left = (i - index) * 100 / items + '%';
           addClass(item, animateIn);
           removeClass(item, animateNormal);
@@ -1465,7 +1467,17 @@ export var tns = function(options) {
           addClass(item, animateNormal);
           removeClass(item, animateIn);
         }
+
+        // remove outlet animation
+        removeClass(item, animateOut);
       }
+
+      // removing '.tns-moving'
+      setTimeout(function() {
+        [].forEach.call(slideItems, function(el) {
+          removeClass(el, 'tns-moving');
+        });
+      }, 300);
     }
   }
 
