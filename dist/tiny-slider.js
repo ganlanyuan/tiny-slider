@@ -1907,7 +1907,7 @@ var tns = function(options) {
 
   // set 'disabled' to true on controls when reach the edges
   function updateControlsStatus () {
-    if (!controls || loop) { return; }
+    if (!controls || rewind || loop) { return; }
 
     var prevDisabled = (prevIsButton) ? prevButton.disabled : isAriaDisabled(prevButton),
         nextDisabled = (nextIsButton) ? nextButton.disabled : isAriaDisabled(nextButton),
@@ -2189,21 +2189,21 @@ var tns = function(options) {
         }
       }
 
-      if (dir === -1) {
-        index -= slideBy;
-      } else if (dir === 1) {
-        // Go to the first if reach the end in rewind mode
-        // Otherwise go to the next
-        if (rewind && index === indexMax){
+      if (rewind) {
+        if (index === indexMin && dir === -1) {
+          goTo('last', e);
+          return;
+        } else if (index === indexMax && dir === 1) {
           goTo(0, e);
           return;
-        } else {
-          index += slideBy;
         }
       }
 
-      // pass e when click control buttons or keydown
-      render(passEventObject || e && e.type === 'keydown' ? e : null);
+      if (dir) {
+        index += slideBy * dir;
+        // pass e when click control buttons or keydown
+        render(passEventObject || e && e.type === 'keydown' ? e : null);
+      }
     }
   }
 

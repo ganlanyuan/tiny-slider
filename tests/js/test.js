@@ -471,64 +471,41 @@ function testRewind () {
 
   runTest('Slide: count && Controls: disabled', function() {
     return info.slideItems.length === info.slideCount &&
-      info.prevButton.hasAttribute('disabled');
+      !info.prevButton.hasAttribute('disabled');
   });
 
   var test = addTest('Controls: click functions');
   // runTest('Controls: click functions', function() {
   // });
   var assertion,
+      container = info.container,
       prevButton = info.prevButton,
       nextButton = info.nextButton,
       navItems = info.navItems,
-      slideItems = info.slideItems;
+      slideItems = info.slideItems,
+      items = info.items,
+      count = info.slideCountNew;
 
   new Promise(function(resolve) {
-    // click next button once
-    nextButton.click();
+    prevButton.click();
     resolve();
   }).then(function() {
     return new Promise(function(resolve) {
-      assertion = !prevButton.hasAttribute('disabled');
+      assertion = compare2Nums(slideItems[count - 1].getBoundingClientRect().right, container.parentNode.getBoundingClientRect().right);
       resolve();
     });
   }).then(function() {
     if (assertion) {
-      // click next button (slideCount - items) times
-      return repeat(function() {
+      return new Promise(function(resolve) {
         nextButton.click();
-      }, (info.slideCount - info.items - 1)).then(function() {
-        var current = info.slideCount - info.items;
+        resolve();
+      }).then(function() {
         return new Promise(function(resolve) {
-          assertion = !nextButton.hasAttribute('disabled') &&
-            navItems[current].getAttribute('aria-selected') === 'true' &&
-            slideItems[current].getAttribute('aria-hidden') === 'false' &&
-            compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+          assertion = compare2Nums(slideItems[0].getBoundingClientRect().left, 0);
           resolve();
         });
-      }).then(function() {
-        if (assertion) {
-          // click next button once
-          return new Promise(function(resolve) {
-            nextButton.click();
-            resolve();
-          }).then(function() {
-            return new Promise(function(resolve) {
-              var current = 0;
-              assertion = prevButton.hasAttribute('disabled') &&
-                navItems[current].getAttribute('aria-selected') === 'true' &&
-                slideItems[current].getAttribute('aria-hidden') === 'false' &&
-                compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
-              resolve();
-            });
-          });
-        } else {
-          return Promise.resolve();
-        }
       });
-    } else {
-      return Promise.resolve();
-    }
+    } else { return Promise.resolve(); }
   }).then(function() {
     updateTest(test, assertion);
   });
