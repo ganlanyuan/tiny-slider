@@ -396,6 +396,7 @@ export var tns = function(options) {
         autoplayTimer,
         animating,
         autoplayHoverPaused,
+        autoplayUserPaused,
         autoplayVisibilityPaused;
   }
 
@@ -845,7 +846,7 @@ export var tns = function(options) {
 
       // add event
       if (autoplayButton) {
-        addEvents(autoplayButton, {'click': toggleAnimation});
+        addEvents(autoplayButton, {'click': toggleAutoplay});
       }
 
       if (!autoplay) {
@@ -1087,7 +1088,7 @@ export var tns = function(options) {
         if (autoplay !== autoplayTem) {
           if (autoplay) {
             if (autoplayButton) { showElement(autoplayButton); }
-            if (!animating) { startAutoplay(); }
+            if (!animating && !autoplayUserPaused) { startAutoplay(); }
           } else {
             if (autoplayButton) { hideElement(autoplayButton); }
             if (animating) { stopAutoplay(); }
@@ -1874,14 +1875,26 @@ export var tns = function(options) {
 
   // programaitcally play/pause the slider
   function play () {
-    if (autoplay && !animating) { startAutoplay(); }
+    if (autoplay && !animating) {
+      startAutoplay();
+      autoplayUserPaused = false;
+    }
   }
   function pause () {
-    if (animating) { stopAutoplay(); }
+    if (animating) {
+      stopAutoplay();
+      autoplayUserPaused = true;
+    }
   }
 
-  function toggleAnimation () {
-    animating ? stopAutoplay() : startAutoplay();
+  function toggleAutoplay () {
+    if (animating) {
+      stopAutoplay();
+      autoplayUserPaused = true;
+    } else {
+      startAutoplay();
+      autoplayUserPaused = false;
+    }
   }
 
   function onVisibilityChange () {
@@ -2298,7 +2311,7 @@ export var tns = function(options) {
       if (autoplay) {
         clearInterval(autoplayTimer);
         if (autoplayButton) {
-          removeEvents(autoplayButton, {'click': toggleAnimation});
+          removeEvents(autoplayButton, {'click': toggleAutoplay});
         }
         removeEvents(container, hoverEvents);
         removeEvents(container, visibilityEvent);
