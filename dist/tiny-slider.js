@@ -1026,7 +1026,7 @@ var tns = function(options) {
     // add aria attrs
     // set animation classes and left value for gallery slider
     // use slide count when slides are fewer than items
-    for (var i = index; i < index + Math.min(slideCount, items); i++) {
+    for (var i = index, l = index + Math.min(slideCount, items); i < l; i++) {
       var item = slideItems[i];
       setAttrs(item, {'aria-hidden': 'false'});
       removeAttrs(item, ['tabindex']);
@@ -1665,7 +1665,7 @@ var tns = function(options) {
 
       // gallery
       if (!carousel) { 
-        for (var i = index; i < index + slideCount; i++) {
+        for (var i = index, l = index + slideCount; i < l; i++) {
           var item = slideItems[i];
           item.style = '';
           removeClass(item, animateIn);
@@ -1689,7 +1689,7 @@ var tns = function(options) {
 
       // gallery
       if (!carousel) { 
-        for (var i = index; i < index + slideCount; i++) {
+        for (var i = index, l = index + slideCount; i < l; i++) {
           var item = slideItems[i],
               classN = i < index + items ? animateIn : animateNormal;
           item.style.left = (i - index) * 100 / items + '%';
@@ -1733,7 +1733,7 @@ var tns = function(options) {
       // get all images inside visible slide items
       var images = [];
 
-      for (var i = index; i < index + items; i++) {
+      for (var i = index, l = index + items; i < l; i++) {
         [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
           images.push(img);
         });
@@ -1777,7 +1777,7 @@ var tns = function(options) {
   // 4. set transitionDuration to 0s after transition done
   function updateInnerWrapperHeight () {
     var heights = [], maxHeight;
-    for (var i = index; i < index + items; i++) {
+    for (var i = index, l = index + items; i < l; i++) {
       heights.push(slideItems[i].offsetHeight);
     }
     maxHeight = Math.max.apply(null, heights);

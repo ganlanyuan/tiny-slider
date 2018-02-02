@@ -1531,7 +1531,7 @@ function testAutoplay () {
   });
 }
 
-function testAnimation1() {
+function testAnimation1 () {
   var id = 'animation1',
       slider = sliders[id],
       info = slider.getInfo(),
@@ -1573,7 +1573,7 @@ function testAnimation1() {
     info.nextButton.click();
     resolve();
   }).then(function() {
-    return wait(speed + 300).then(function() {
+    return wait(speed + 500).then(function() {
       updateTest(test, checkAnimationClasses());
     });
   });
