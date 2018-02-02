@@ -425,31 +425,33 @@ var browserInfo = navigator.userAgent;
 var localStorageAccess = true;
 var tnsStorage = {};
 
+// tC => calc
+// tSP => subpixel
+// tMQ => mediaquery
+// tTf => transform
+// tTDu => transitionDuration
+// tTDe => transitionDelay
+// tADu => animationDuration
+// tADe => animationDelay
+// tTE => transitionEnd
+// tAE => animationEnd
 try {
   tnsStorage = localStorage;
-  if (!tnsStorage['tnsApp']) {
-    tnsStorage['tnsApp'] = browserInfo;
-  } else if (tnsStorage['tnsApp'] !== browserInfo) {
-    tnsStorage['tnsApp'] = browserInfo;
-
-    // tC => calc
-    // tSP => subpixel
-    // tMQ => mediaquery
-    // tTf => transform
-    // tTDu => transitionDuration
-    // tTDe => transitionDelay
-    // tADu => animationDuration
-    // tADe => animationDelay
-    // tTE => transitionEnd
-    // tAE => animationEnd
-
+  // remove storage when browser version changes
+  if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
     ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
       tnsStorage.removeItem(item);
     })
   }
+  // update browserInfo
+  tnsStorage['tnsApp'] = browserInfo;
 } catch(e) {
   localStorageAccess = false;
 }
+
+// reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
+// https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
+if (!localStorage) { tnsStorage = {}; }
 
 // get browser related data from local storage if they exist
 // otherwise, run the functions again and save these data to local storage
