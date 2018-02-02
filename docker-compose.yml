@@ -2,7 +2,7 @@ version: '2'
 
 services:
   web:
-    image: cmcdev/web:2.5.0
+    image: cmcdev/web:2.5.1
     ports:
       - 3000:3000
       - 3001:3001
