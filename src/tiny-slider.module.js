@@ -2263,6 +2263,12 @@ export var tns = function(options) {
     pause: pause,
 
     destroy: function () {
+      // remove win event listeners
+      removeEvents(win, {'resize': onResize});
+
+      // remove arrowKeys eventlistener
+      removeEvents(doc, docmentKeydownEvent);
+
       // sheet
       sheet.disabled = true;
 
@@ -2336,12 +2342,6 @@ export var tns = function(options) {
       containerParent.insertBefore(container, outerWrapper);
       outerWrapper.remove();
       outerWrapper = innerWrapper = container = null;
-
-      // remove arrowKeys eventlistener
-      removeEvents(doc, docmentKeydownEvent);
-
-      // remove win event listeners
-      removeEvents(win, {'resize': onResize});
     }
   };
 };
