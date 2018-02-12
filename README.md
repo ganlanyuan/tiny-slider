@@ -1,4 +1,5 @@
 # tiny-slider 2.0
+[![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge)](https://www.jsdelivr.com/package/npm/tiny-slider)
 ![version](https://img.shields.io/badge/Version-2.5.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
