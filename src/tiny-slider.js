@@ -953,8 +953,8 @@ export var tns = function(options) {
         itemsTem = items,
         freezeTem = freeze;
 
-    vpOuter = outerWrapper.clientWidth;
-    vpInner = innerWrapper.clientWidth;
+    if (outerWrapper) vpOuter = outerWrapper.clientWidth;
+    if (innerWrapper) vpInner = innerWrapper.clientWidth;
     if (breakpoints) { setBreakpointZone(); }
 
 
