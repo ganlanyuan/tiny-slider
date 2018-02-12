@@ -254,7 +254,8 @@ export var tns = function(options) {
       responsiveItems = [],
       breakpoints = false,
       breakpointZone = 0,
-      windowWidth = getWindowWidth();
+      windowWidth = getWindowWidth(),
+      isOn;
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
@@ -924,6 +925,8 @@ export var tns = function(options) {
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
 
     if (disable) { disableSlider(true); }
+
+    isOn = true;
   })();
 
 
@@ -936,13 +939,15 @@ export var tns = function(options) {
 
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      var newWW = getWindowWidth();
-      if (windowWidth !== newWW) {
-        windowWidth = newWW;
+      if (isOn) {
+        var newWW = getWindowWidth();
+        if (windowWidth !== newWW) {
+          windowWidth = newWW;
 
-        resizeTasks();
+          resizeTasks();
 
-        if (nested === 'outer') { events.emit('outerResized', info(e)); }
+          if (nested === 'outer') { events.emit('outerResized', info(e)); }
+        }
       }
     }, 100); // update after stop resizing for 100 ms
   }
@@ -2261,6 +2266,7 @@ export var tns = function(options) {
     goTo: goTo,
     play: play,
     pause: pause,
+    isOn: isOn,
 
     destroy: function () {
       // remove win event listeners
@@ -2342,6 +2348,9 @@ export var tns = function(options) {
       containerParent.insertBefore(container, outerWrapper);
       outerWrapper.remove();
       outerWrapper = innerWrapper = container = null;
+
+      isOn = false;
+      this.destroy = null;
     }
   };
 };
