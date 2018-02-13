@@ -248,7 +248,7 @@ export var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
-      vpOuter = containerParent.clientWidth,
+      vpOuter = getViewportWidth(containerParent),
       vpInner,
       responsive = options.responsive,
       responsiveItems = [],
@@ -435,6 +435,17 @@ export var tns = function(options) {
     return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
   }
 
+  function getViewportWidth (el) {
+    var width;
+
+    do {
+      width = el.clientWidth;
+      el = el.parentNode;
+    } while (!width);
+
+    return width;
+  }
+
   function checkOption (item) {
     var result = options[item];
     if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
@@ -563,7 +574,7 @@ export var tns = function(options) {
     outerWrapper.appendChild(innerWrapper);
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
-    vpInner = innerWrapper.clientWidth;
+    vpInner = getViewportWidth(innerWrapper);
 
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
@@ -958,8 +969,8 @@ export var tns = function(options) {
         itemsTem = items,
         freezeTem = freeze;
 
-    vpOuter = outerWrapper.clientWidth;
-    vpInner = innerWrapper.clientWidth;
+    vpOuter = getViewportWidth(outerWrapper);
+    vpInner = getViewportWidth(innerWrapper);
     if (breakpoints) { setBreakpointZone(); }
 
 
