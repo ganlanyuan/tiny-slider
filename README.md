@@ -207,6 +207,18 @@ NOTE:
 *[top↑](#tiny-slider-20)*  
 
 ## Methods
+Once the slider is initialized, it returns a slider object which has some properties or methods:
+```javascript
+{
+  getInfo: info(),
+  events: events(),
+  goTo: goTo(),
+  play: play(),
+  pause: pause(),
+  isOn: isOn,
+  destroy: destroy()
+}
+```
 There are 2 ways to get slider information, both return `info` Object:   
 1. `getInfo` method.   
 2. Subscribe to an event.   

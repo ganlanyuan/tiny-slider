@@ -2741,10 +2741,10 @@ var tns = function(options) {
       // outerWrapper
       containerParent.insertBefore(container, outerWrapper);
       outerWrapper.remove();
-      outerWrapper = innerWrapper = container = null;
-
-      isOn = false;
-      this.destroy = null;
+      outerWrapper = innerWrapper = container =
+      index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = isOn =
+      this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
+      this.isOn = false;
     }
   };
 };
