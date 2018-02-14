@@ -251,7 +251,7 @@ info = {
 ##### getInfo
 ```javascript
 // get info object
-var slider = tns(...);
+var slider = tns(…);
 slider.getInfo();
 
 document.querySelector('.next-button').onclick = function () {
@@ -269,7 +269,7 @@ document.querySelector('.next-button').onclick = function () {
 ##### goTo
 ```javascript
 // go to slides by number or keywords
-var slider = tns(...);
+var slider = tns(…);
 slider.goTo(3);
 slider.goTo('prev');
 slider.goTo('next');
@@ -283,27 +283,29 @@ document.querySelector('.goto-button').onclick = function () {
 
 ##### play
 ```javascript
-var slider = tns(...);
+var slider = tns(…);
+
 // Programmatically start slider autoplay when `autoplay: true`
 slider.play();
 ```
 
 ##### pause
 ```javascript
-var slider = tns(...);
+var slider = tns(…);
+
 // Programmatically stop slider autoplay when `autoplay: true`
 slider.pause();
 ```
 
 ##### destroy
 ```javascript
-var slider = tns(...);
+var slider = tns(…);
 slider.destroy();
 ```
 ## Custom Events
 Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
-var slider = tns(...);
+var slider = tns(…);
 
 var customizedFunction = function (info) {
   // direct access to info object
