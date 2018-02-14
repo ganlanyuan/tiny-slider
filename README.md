@@ -245,7 +245,7 @@ To get the slider information, you can either use the `getInfo` method or subscr
 ```
 
 ##### getInfo
-Get the slider detailed informations.
+Get slider information.
 ```javascript
 var slider = tns(…);
 slider.getInfo();
