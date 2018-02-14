@@ -69,7 +69,7 @@ Note: some features may need a manual test.
 `bower install tiny-slider` or `npm install tiny-slider`
 
 ## Usage
-##### 1. Include tiny-slider
+#### 1. Include tiny-slider
 via [cdnjs](https://cdnjs.com/libraries/tiny-slider):  
 ```html
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.5.2/tiny-slider.css">
@@ -85,7 +85,7 @@ Or import it via `webpack` or `rollup`:
 import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 ```
 
-##### 2. Add markup
+#### 2. Add markup
 ```html
 <div class="my-slider">
   <div></div>
@@ -95,7 +95,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 <!-- or ul.my-slider > li -->
 ```
 
-##### 3. Call tns()
+#### 3. Call tns()
 ```html
 <script>
   var slider = tns({
@@ -244,10 +244,9 @@ To get the slider information, you can either use the `getInfo()` method or subs
 };
 ```
 
-##### getInfo
+#### getInfo
 Get slider information.
 ```javascript
-var slider = tns(…);
 slider.getInfo();
 
 document.querySelector('.next-button').onclick = function () {
@@ -262,10 +261,9 @@ document.querySelector('.next-button').onclick = function () {
 };
 ```
 
-##### goTo
+#### goTo
 Go to specific slide by number or keywords.
 ```javascript
-var slider = tns(…);
 slider.goTo(3);
 slider.goTo('prev');
 slider.goTo('next');
@@ -277,32 +275,27 @@ document.querySelector('.goto-button').onclick = function () {
 };
 ```
 
-##### play
+#### play
 Programmatically start slider autoplay when `autoplay: true`.
 ```javascript
-var slider = tns(…);
 slider.play();
 ```
 
-##### pause
+#### pause
 Programmatically stop slider autoplay when `autoplay: true`.
 ```javascript
-var slider = tns(…);
 slider.pause();
 ```
 
-##### destroy
+#### destroy
 Destroy the slider.
 ```javascript
-var slider = tns(…);
 slider.destroy();
 ```
 
 ## Custom Events
 Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
-var slider = tns(…);
-
 var customizedFunction = function (info) {
   // direct access to info object
   console.log(info.event.type, info.container.id);
