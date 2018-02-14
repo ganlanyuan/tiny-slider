@@ -3,8 +3,8 @@
 ![version](https://img.shields.io/badge/Version-2.5.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
-[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)  
-Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.  
+[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)
+Can be tested on Firefox 12+, Chrome 15+, Safari 4+, Opera 12.1+, IE8+.
 Note: some features may need a manual test.  
 
 *Previous versions*:
@@ -95,7 +95,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 <!-- or ul.my-slider > li -->
 ```
 
-##### 3. Call tiny-slider
+##### 3. Call tns()
 ```html
 <script>
   var slider = tns({
@@ -202,12 +202,11 @@ The following options can be redefined in `responsive` field:
   });
 </script>
 ```
-NOTE: 
-- `fixedWidth` can only be changed to different positive integers. It can't be changed to different data type, 0 or negtive integer.
+NOTE: `fixedWidth` can only be changed to different positive integers. It can't be changed to different data type, 0 or negtive integer.
 *[top↑](#tiny-slider-20)*  
 
 ## Methods
-Once the slider is initialized, it returns a slider object with some properties and methods:
+The slider returns a slider object with some properties and methods once it's initialized:
 ```javascript
 {
   getInfo: info(),
@@ -219,12 +218,9 @@ Once the slider is initialized, it returns a slider object with some properties 
   destroy: destroy()
 }
 ```
-There are 2 ways to get slider information, both return `info` Object:   
-1. `getInfo` method.   
-2. Subscribe to an event.   
+To get the slider information, you can either use the `getInfo` method or subscribe to an Event. Both return a Object:   
 ```javascript
-// info Object
-info = {
+{
                 container: container, // slider container
                slideItems: slideItems, // slides list
              navContainer: navContainer, // nav container
@@ -249,8 +245,8 @@ info = {
 ```
 
 ##### getInfo
+Get the slider detailed informations.
 ```javascript
-// get info object
 var slider = tns(…);
 slider.getInfo();
 
@@ -267,8 +263,8 @@ document.querySelector('.next-button').onclick = function () {
 ```
 
 ##### goTo
+Go to specific slide by number or keywords.
 ```javascript
-// go to slides by number or keywords
 var slider = tns(…);
 slider.goTo(3);
 slider.goTo('prev');
@@ -296,10 +292,12 @@ slider.pause();
 ```
 
 ##### destroy
+Destroy the slider.
 ```javascript
 var slider = tns(…);
 slider.destroy();
 ```
+
 ## Custom Events
 Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
 ```javascript
@@ -326,16 +324,15 @@ slider.events.off('transitionEnd', customizedFunction);
 
 ## Browser Support
 Firefox 8+ ✓  
-Chrome 15+ ✓  
+Chrome 15+ ✓  (Should works on _Chrome 4-14_ as well, but I couldn't test it.)  
 Safari 4+ ✓  
 Opera 12.1+ ✓   
 IE 8+ ✓  
-Should be working on _Chrome 4-14_ as well, but I couldn't test it.  
 
 ## Support
 [Browserstack](https://www.browserstack.com/)  
 [Cdnjs](https://cdnjs.com/)  
-Images used in the demos are from https://unsplash.com/.
+Images in demos from https://unsplash.com/.
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
