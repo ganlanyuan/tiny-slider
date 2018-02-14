@@ -23,6 +23,7 @@ import { hasAttr } from './helpers/hasAttr';
 import { getAttr } from './helpers/getAttr';
 import { setAttrs } from './helpers/setAttrs';
 import { removeAttrs } from './helpers/removeAttrs';
+import { removeElementStyles } from './helpers/removeElementStyles';
 import { hideElement } from './helpers/hideElement';
 import { showElement } from './helpers/showElement';
 import { isVisible } from './helpers/isVisible';
@@ -1288,7 +1289,7 @@ export var tns = function(options) {
     if (disable) {
       sheet.disabled = true;
       container.className = container.className.replace(classContainer.substring(1), '');
-      container.style = '';
+      removeElementStyles(container);
       if (loop) {
         for (var j = cloneCount; j--;) {
           if (carousel) { hideElement(slideItems[j]); }
@@ -1297,13 +1298,13 @@ export var tns = function(options) {
       }
 
       // vertical slider
-      if (!horizontal || !carousel) { innerWrapper.style = ''; }
+      if (!horizontal || !carousel) { removeElementStyles(innerWrapper); }
 
       // gallery
       if (!carousel) { 
         for (var i = index, l = index + slideCount; i < l; i++) {
           var item = slideItems[i];
-          item.style = '';
+          removeElementStyles(item);
           removeClass(item, animateIn);
           removeClass(item, animateNormal);
         }
@@ -2346,7 +2347,7 @@ export var tns = function(options) {
       // container
       container.id = containerIdCached || '';
       container.className = container.className.replace(classContainer, '');
-      container.style = '';
+      removeElementStyles(container);
       if (carousel && TRANSITIONEND) {
         var eve = {};
         eve[TRANSITIONEND] = onTransitionEnd;
@@ -2359,9 +2360,9 @@ export var tns = function(options) {
       containerParent.insertBefore(container, outerWrapper);
       outerWrapper.remove();
       outerWrapper = innerWrapper = container =
-      index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = isOn =
+      index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = 
       this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
-      this.isOn = false;
+      this.isOn = isOn = false;
     }
   };
 };

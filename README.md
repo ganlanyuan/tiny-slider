@@ -211,11 +211,11 @@ Once the slider is initialized, it returns a slider object which has some proper
 ```javascript
 {
   getInfo: info(),
-  events: events(),
+  events: events, // Object
   goTo: goTo(),
   play: play(),
   pause: pause(),
-  isOn: isOn,
+  isOn: isOn, // Boolean
   destroy: destroy()
 }
 ```
