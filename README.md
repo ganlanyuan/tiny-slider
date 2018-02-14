@@ -282,18 +282,16 @@ document.querySelector('.goto-button').onclick = function () {
 ```
 
 ##### play
+Programmatically start slider autoplay when `autoplay: true`.
 ```javascript
 var slider = tns(…);
-
-// Programmatically start slider autoplay when `autoplay: true`
 slider.play();
 ```
 
 ##### pause
+Programmatically stop slider autoplay when `autoplay: true`.
 ```javascript
 var slider = tns(…);
-
-// Programmatically stop slider autoplay when `autoplay: true`
 slider.pause();
 ```
 
