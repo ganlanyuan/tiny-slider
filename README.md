@@ -218,7 +218,7 @@ The slider returns a slider object with some properties and methods once it's in
   destroy: destroy()
 }
 ```
-To get the slider information, you can either use the `getInfo` method or subscribe to an Event. Both return a Object:   
+To get the slider information, you can either use the `getInfo()` method or subscribe to an Event. Both return an Object:   
 ```javascript
 {
                 container: container, // slider container
