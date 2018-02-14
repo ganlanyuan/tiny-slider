@@ -281,6 +281,20 @@ document.querySelector('.goto-button').onclick = function () {
 };
 ```
 
+##### play
+```javascript
+// Programmatically start slider autoplay when `autoplay: true`
+var slider = tns(...);
+slider.play();
+```
+
+##### pause
+```javascript
+// Programmatically stop slider autoplay when `autoplay: true`
+var slider = tns(...);
+slider.pause();
+```
+
 ##### destroy
 ```javascript
 var slider = tns(...);
