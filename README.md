@@ -207,7 +207,7 @@ NOTE:
 *[top↑](#tiny-slider-20)*  
 
 ## Methods
-Once the slider is initialized, it returns a slider object which has some properties or methods:
+Once the slider is initialized, it returns a slider object with some properties and methods:
 ```javascript
 {
   getInfo: info(),
@@ -283,15 +283,15 @@ document.querySelector('.goto-button').onclick = function () {
 
 ##### play
 ```javascript
-// Programmatically start slider autoplay when `autoplay: true`
 var slider = tns(...);
+// Programmatically start slider autoplay when `autoplay: true`
 slider.play();
 ```
 
 ##### pause
 ```javascript
-// Programmatically stop slider autoplay when `autoplay: true`
 var slider = tns(...);
+// Programmatically stop slider autoplay when `autoplay: true`
 slider.pause();
 ```
 
