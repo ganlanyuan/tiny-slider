@@ -144,8 +144,8 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `animateOut` | String | Default: `'tns-fadeOut'`. <br> Name of outro animation `class`. |
 | `animateNormal` | String | Default: `'tns-normal'`. <br> Name of default animation `class`. |
 | `animateDelay` | Integer \| `false` | Default: `false`. <br> Time between each `gallery` animation (in "ms"). |
-| `loop` | Boolean | Default: `true`. <br> Moves to the first slide with the same direction when reaching the last slide. |
-| `rewind` | Boolean | Default: `false`. <br> Moves to the first slide with the opposite direction when reaching the last slide. |
+| `loop` | Boolean | Default: `true`. <br> Moves throughout all the slides seamlessly. |
+| `rewind` | Boolean | Default: `false`. <br> Moves to the opposite edge when reaching the first or last slide. |
 | `autoHeight` | Boolean | Default: `false`. <br> Height of slider container changes according to each slide's height. |
 | `responsive` | Map: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| `false` | Default: `false`. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
 | `lazyload` | Boolean | Default: `false`. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). |
