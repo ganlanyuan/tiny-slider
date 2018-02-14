@@ -179,8 +179,8 @@ The following options can be redefined in `responsive` field:
 `autoplayTimeout`,   
 `touch`,   
 `mouseDrag`,   
-`arrowKeys`,
-`disable`.   
+`arrowKeys`,   
+`disable`   
 ```javascript
 <script>
   var slider = tns({
