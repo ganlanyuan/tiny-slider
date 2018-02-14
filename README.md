@@ -202,7 +202,7 @@ The following options can be redefined in `responsive` field:
   });
 </script>
 ```
-NOTE: `fixedWidth` can only be changed to different positive integers. It can't be changed to different data type, 0 or negtive integer.
+NOTE: `fixedWidth` can only be changed to other positive integers. It can't be changed to negtive integer, 0 or other data type.
 *[top↑](#tiny-slider-20)*  
 
 ## Methods
