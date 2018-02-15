@@ -215,6 +215,7 @@ The slider returns a slider object with some properties and methods once it's in
   play: play(),
   pause: pause(),
   isOn: isOn, // Boolean
+  rebuild: rebuild(),
   destroy: destroy()
 }
 ```
@@ -291,6 +292,13 @@ slider.pause();
 Destroy the slider.
 ```javascript
 slider.destroy();
+```
+
+#### rebuild
+Rebuild the slider after destroy.
+```javascript
+slider = slider.rebuild();
+// this method returns a new slider Object with the same options with the original slider
 ```
 
 ## Custom Events
