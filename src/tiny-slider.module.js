@@ -2279,6 +2279,9 @@ export var tns = function(options) {
     play: play,
     pause: pause,
     isOn: isOn,
+    rebuild: function() {
+      return tns(options);
+    },
 
     destroy: function () {
       // remove win event listeners
