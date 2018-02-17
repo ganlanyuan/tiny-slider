@@ -2268,6 +2268,7 @@ export var tns = function(options) {
       navCurrentIndexCached: navCurrentIndexCached,
       visibleNavIndexes: visibleNavIndexes,
       visibleNavIndexesCached: visibleNavIndexesCached,
+      sheet: sheet,
       event: e || {},
     };
   }
