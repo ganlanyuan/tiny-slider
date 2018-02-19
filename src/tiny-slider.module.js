@@ -16,6 +16,7 @@ import { addCSSRule } from './helpers/addCSSRule';
 import { getCssRulesLength } from './helpers/getCssRulesLength';
 import { toDegree } from './helpers/toDegree';
 import { getTouchDirection } from './helpers/getTouchDirection';
+import { forEachNodeList } from './helpers/forEachNodeList';
 import { hasClass } from './helpers/hasClass';
 import { addClass } from './helpers/addClass';
 import { removeClass } from './helpers/removeClass';
@@ -683,7 +684,7 @@ export var tns = function(options) {
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
       } else {
-        [].forEach.call(slideItems, function (slide, i) {
+        forEachNodeList(slideItems, function (slide, i) {
           slide.style.marginLeft = getSlideMarginLeft(i);
         });
       }
@@ -798,7 +799,7 @@ export var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        [].forEach.call(navItems, function (item, i) {
+        forEachNodeList(navItems, function (item, i) {
           setAttrs(item, {
             'data-nav': i,
             'tabindex': '-1',
@@ -1348,7 +1349,7 @@ export var tns = function(options) {
       }
 
       for(; i < len; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
           // stop propagationl transitionend event to container
           var eve = {};
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
@@ -1371,7 +1372,7 @@ export var tns = function(options) {
       var images = [];
 
       for (var i = index, l = index + items; i < l; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
           images.push(img);
         });
       }
@@ -1495,7 +1496,7 @@ export var tns = function(options) {
 
       // removing '.tns-moving'
       setTimeout(function() {
-        [].forEach.call(slideItems, function(el) {
+        forEachNodeList(slideItems, function(el) {
           removeClass(el, 'tns-moving');
         });
       }, 300);
@@ -2234,7 +2235,7 @@ export var tns = function(options) {
     getVisibleNavIndex();
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
-      [].forEach.call(navItems, function(el, i) {
+      forEachNodeList(navItems, function(el, i) {
         if (visibleNavIndexes.indexOf(i) < 0) {
           hideElement(el);
         } else {

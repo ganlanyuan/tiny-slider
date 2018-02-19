@@ -232,6 +232,13 @@ function getTouchDirection(angle, range) {
   return direction;
 }
 
+// https://toddmotto.com/ditch-the-array-foreach-call-nodelist-hack/
+function forEachNodeList (arr, callback, scope) {
+  for (var i = 0, l = arr.length; i < l; i++) {
+    callback.call(scope, arr[i], i);
+  }
+}
+
 function hasClass(el, str) {
   return el.className.indexOf(str) >= 0;
 }
@@ -1069,7 +1076,7 @@ var tns = function(options) {
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
       } else {
-        [].forEach.call(slideItems, function (slide, i) {
+        forEachNodeList(slideItems, function (slide, i) {
           slide.style.marginLeft = getSlideMarginLeft(i);
         });
       }
@@ -1184,7 +1191,7 @@ var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        [].forEach.call(navItems, function (item, i) {
+        forEachNodeList(navItems, function (item, i) {
           setAttrs(item, {
             'data-nav': i,
             'tabindex': '-1',
@@ -1734,7 +1741,7 @@ var tns = function(options) {
       }
 
       for(; i < len; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
           // stop propagationl transitionend event to container
           var eve = {};
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
@@ -1757,7 +1764,7 @@ var tns = function(options) {
       var images = [];
 
       for (var i = index, l = index + items; i < l; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
           images.push(img);
         });
       }
@@ -1881,7 +1888,7 @@ var tns = function(options) {
 
       // removing '.tns-moving'
       setTimeout(function() {
-        [].forEach.call(slideItems, function(el) {
+        forEachNodeList(slideItems, function(el) {
           removeClass(el, 'tns-moving');
         });
       }, 300);
@@ -2620,7 +2627,7 @@ var tns = function(options) {
     getVisibleNavIndex();
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
-      [].forEach.call(navItems, function(el, i) {
+      forEachNodeList(navItems, function(el, i) {
         if (visibleNavIndexes.indexOf(i) < 0) {
           hideElement(el);
         } else {
