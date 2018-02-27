@@ -70,7 +70,7 @@ try {
 
 // reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
 // https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
-if (!localStorage) { tnsStorage = {}; }
+if (localStorageAccess && !localStorage) { tnsStorage = {}; }
 
 // get browser related data from local storage if they exist
 // otherwise, run the functions again and save these data to local storage
