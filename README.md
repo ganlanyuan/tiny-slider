@@ -253,7 +253,7 @@ slider.getInfo();
 document.querySelector('.next-button').onclick = function () {
   // get slider info
   var info = slider.getInfo(),
-      indexPrev = info.indexCached;
+      indexPrev = info.indexCached,
       indexCurrent = info.index;
 
   // update style based on index
