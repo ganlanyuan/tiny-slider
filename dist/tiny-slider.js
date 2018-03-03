@@ -1920,12 +1920,12 @@ var tns = function(options) {
     }
   }
 
-  function isButton (el) {
-    return el.nodeName.toLowerCase() === 'button';
+  function getLowerCaseNodeName (el) {
+    return el.nodeName.toLowerCase();
   }
 
-  function isImgOrLink (el) {
-    return ['img', 'a'].indexOf(el.nodeName.toLowerCase()) >= 0;
+  function isButton (el) {
+    return getLowerCaseNodeName(el) === 'button';
   }
 
   function isAriaDisabled (el) {
@@ -2471,7 +2471,7 @@ var tns = function(options) {
         events.emit('touchStart', info(e));
       } else {
         ev = e;
-        if (isImgOrLink(getTarget(ev))) { preventDefaultBehavior(ev); }
+        if (['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(ev))) >= 0) { preventDefaultBehavior(ev); }
         // preventDefaultBehavior(e);
         events.emit('dragStart', info(e));
       }
