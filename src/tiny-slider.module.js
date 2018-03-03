@@ -1532,6 +1532,10 @@ export var tns = function(options) {
     return el.nodeName.toLowerCase() === 'button';
   }
 
+  function isImgOrLink (el) {
+    return ['img', 'a'].indexOf(el.nodeName.toLowerCase()) >= 0;
+  }
+
   function isAriaDisabled (el) {
     return el.getAttribute('aria-disabled') === 'true';
   }
@@ -2075,7 +2079,8 @@ export var tns = function(options) {
         events.emit('touchStart', info(e));
       } else {
         ev = e;
-        preventDefaultBehavior(e);
+        if (isImgOrLink(getTarget(ev))) { preventDefaultBehavior(ev); }
+        // preventDefaultBehavior(e);
         events.emit('dragStart', info(e));
       }
 
@@ -2095,7 +2100,7 @@ export var tns = function(options) {
         ev = e.changedTouches[0];
       } else {
         ev = e;
-        preventDefaultBehavior(e);
+        // preventDefaultBehavior(e);
       }
 
       disX = parseInt(ev.clientX) - startX;
@@ -2105,12 +2110,11 @@ export var tns = function(options) {
         moveDirectionExpected = getTouchDirection(toDegree(disY, disX), 15) === options.axis;
       }
 
-      if (moveDirectionExpected) {
+      // "mousemove" more than 5px after "mousedown" indecate it is "drag", not "click"
+      if (moveDirectionExpected && (Math.abs(disX) > 5 || Math.abs(disY) > 5)) {
         if (isTouchEvent(e)) {
           events.emit('touchMove', info(e));
         } else {
-          // "mousemove" event after "mousedown" indecate 
-          // it is "drag", not "click"
           if (!isDragEvent) { isDragEvent = true; }
           events.emit('dragMove', info(e));
         }
@@ -2138,60 +2142,65 @@ export var tns = function(options) {
   }
 
   function onTouchOrMouseEnd (e) {
-    if (!running && touchedOrDraged) {
-      e = e || win.event;
-      var ev;
+    if (!running) {
+      if (touchedOrDraged) {
+        e = e || win.event;
+        var ev;
 
-      if (isTouchEvent(e)) {
-        ev = e.changedTouches[0];
-        events.emit('touchEnd', info(e));
-      } else {
-        ev = e;
-        events.emit('dragEnd', info(e));
-      }
-
-      disX = parseInt(ev.clientX) - startX;
-      disY = parseInt(ev.clientY) - startY;
-      var sliderMoved = Boolean(horizontal ? disX : disY);
-
-      // reset 
-      moveDirectionExpected = 0;
-      touchedOrDraged = false;
-      startX = startY = null;
-
-      if (horizontal) {
-        var indexMoved = - disX * items / vpInner;
-        indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-        index += indexMoved;
-      } else {
-        var moved = - (translateInit + disY);
-        if (moved <= 0) {
-          index = indexMin;
-        } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
-          index = indexMax;
+        if (isTouchEvent(e)) {
+          ev = e.changedTouches[0];
+          events.emit('touchEnd', info(e));
         } else {
-          var i = 0;
-          do {
-            i++;
-            index = disY < 0 ? i + 1 : i;
-          } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+          ev = e;
+          events.emit('dragEnd', info(e));
         }
+
+        disX = parseInt(ev.clientX) - startX;
+        disY = parseInt(ev.clientY) - startY;
+        startX = startY = null; // reset startX, startY
+        var sliderMoved = Boolean(horizontal ? disX : disY);
+
+        // reset 
+        moveDirectionExpected = 0;
+        touchedOrDraged = false;
+        startX = startY = null;
+
+        if (horizontal) {
+          var indexMoved = - disX * items / vpInner;
+          indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+          index += indexMoved;
+        } else {
+          var moved = - (translateInit + disY);
+          if (moved <= 0) {
+            index = indexMin;
+          } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+            index = indexMax;
+          } else {
+            var i = 0;
+            do {
+              i++;
+              index = disY < 0 ? i + 1 : i;
+            } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+          }
+        }
+        
+        render(e, sliderMoved);
+
+        // drag vs click
+        if (isDragEvent) { 
+          // reset isDragEvent
+          isDragEvent = false;
+
+          // prevent "click"
+          var target = getTarget(e);
+          addEvents(target, {'click': function preventClick (e) {
+            preventDefaultBehavior(e);
+            removeEvents(target, {'click': preventClick});
+          }}); 
+        } 
+      } else {
+        startX = startY = null; // reset startX, startY
       }
-      
-      render(e, sliderMoved);
-
-      // drag vs click
-      if (isDragEvent) { 
-        // reset isDragEvent
-        isDragEvent = false;
-
-        // prevent "click"
-        var target = getTarget(e);
-        addEvents(target, {'click': function preventClick (e) {
-          preventDefaultBehavior(e);
-          removeEvents(target, {'click': preventClick});
-        }}); 
-      } 
     }
   }
 
