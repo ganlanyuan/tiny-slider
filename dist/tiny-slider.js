@@ -558,6 +558,7 @@ var tns = function(options) {
     lazyload: false,
     touch: true,
     mouseDrag: false,
+    swipeAngle: 15,
     nested: false,
     freezable: true,
     // startIndex: 0,
@@ -701,6 +702,8 @@ var tns = function(options) {
       // resize
       resizeTimer,
       touchedOrDraged,
+      swipeAngle = options.swipeAngle,
+      moveDirectionExpected = swipeAngle ? '?' : true,
       running = false,
       onInit = options.onInit,
       events = new Events(),
@@ -801,7 +804,6 @@ var tns = function(options) {
         startX = null,
         startY = null,
         translateInit,
-        moveDirectionExpected = 0,
         disX,
         disY;
   }
@@ -2457,11 +2459,6 @@ var tns = function(options) {
   }
 
   function onTouchOrMouseStart (e) {
-    // reset 
-    moveDirectionExpected = 0;
-    touchedOrDraged = false;
-    startX = startY = null;
-
     if (!running) {
       e = e || win.event;
       var ev; 
@@ -2472,7 +2469,6 @@ var tns = function(options) {
       } else {
         ev = e;
         if (['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(ev))) >= 0) { preventDefaultBehavior(ev); }
-        // preventDefaultBehavior(e);
         events.emit('dragStart', info(e));
       }
 
@@ -2486,20 +2482,13 @@ var tns = function(options) {
     // make sure touch started or mouse draged
     if (!running && startX !== null) {
       e = e || win.event;
-      var ev;
-
-      if (isTouchEvent(e)) {
-        ev = e.changedTouches[0];
-      } else {
-        ev = e;
-        // preventDefaultBehavior(e);
-      }
+      var ev = isTouchEvent(e) ? e.changedTouches[0] : e;
 
       disX = parseInt(ev.clientX) - startX;
       disY = parseInt(ev.clientY) - startY;
 
-      if (moveDirectionExpected === 0) {
-        moveDirectionExpected = getTouchDirection(toDegree(disY, disX), 15) === options.axis;
+      if (moveDirectionExpected === '?') {
+        moveDirectionExpected = getTouchDirection(toDegree(disY, disX), swipeAngle) === options.axis;
       }
 
       // "mousemove" more than 5px after "mousedown" indecate it is "drag", not "click"
@@ -2534,8 +2523,10 @@ var tns = function(options) {
   }
 
   function onTouchOrMouseEnd (e) {
+    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
     if (!running) {
       if (touchedOrDraged) {
+        touchedOrDraged = false; // reset
         e = e || win.event;
         var ev;
 
@@ -2551,11 +2542,6 @@ var tns = function(options) {
         disY = parseInt(ev.clientY) - startY;
         startX = startY = null; // reset startX, startY
         var sliderMoved = Boolean(horizontal ? disX : disY);
-
-        // reset 
-        moveDirectionExpected = 0;
-        touchedOrDraged = false;
-        startX = startY = null;
 
         if (horizontal) {
           var indexMoved = - disX * items / vpInner;

@@ -151,6 +151,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
+| `swipeAngle` | Integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
 | `nested` | "inner" \| "outer" \| false | Default: false. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `freezable` | Boolean | Default: true. <br> Indicate whether the slider will be frozen (`controls`, `nav`, `autoplay` and other functions will stop work) when all slides can be displayed in one page. |
 | `disable` | Boolean | Default: false. <br> Disable slider. |

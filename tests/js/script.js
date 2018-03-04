@@ -36,6 +36,7 @@ window.options = {
     items: 3,
     mouseDrag: true,
     slideBy: 'page',
+    swipeAngle: false,
   },
   'mouse-drag2': {
     container: '',
