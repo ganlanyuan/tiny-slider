@@ -289,6 +289,12 @@ Programmatically stop slider autoplay when `autoplay: true`.
 slider.pause();
 ```
 
+<!-- #### updateSliderHeight
+Manually adjust slider height when `autoHeight` is `true`.
+```javascript
+slider.updateSliderHeight();
+``` -->
+
 #### destroy
 Destroy the slider.
 ```javascript

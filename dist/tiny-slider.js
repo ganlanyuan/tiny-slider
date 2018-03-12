@@ -1808,15 +1808,17 @@ var tns = function(options) {
   // 3. update inner wrapper height to max-height
   // 4. set transitionDuration to 0s after transition done
   function updateInnerWrapperHeight () {
-    var heights = [], maxHeight;
-    for (var i = index, l = index + items; i < l; i++) {
-      heights.push(slideItems[i].offsetHeight);
-    }
-    maxHeight = Math.max.apply(null, heights);
+    if (autoHeight) {
+      var heights = [], maxHeight;
+      for (var i = index, l = index + items; i < l; i++) {
+        heights.push(slideItems[i].offsetHeight);
+      }
+      maxHeight = Math.max.apply(null, heights);
 
-    if (innerWrapper.style.height !== maxHeight) {
-      if (TRANSITIONDURATION) { setDurations(speed); }
-      innerWrapper.style.height = maxHeight + 'px';
+      if (innerWrapper.style.height !== maxHeight) {
+        if (TRANSITIONDURATION) { setDurations(speed); }
+        innerWrapper.style.height = maxHeight + 'px';
+      }
     }
   }
 
@@ -2668,6 +2670,7 @@ var tns = function(options) {
     play: play,
     pause: pause,
     isOn: isOn,
+    updateSliderHeight: updateInnerWrapperHeight,
     rebuild: function() {
       return tns(options);
     },
