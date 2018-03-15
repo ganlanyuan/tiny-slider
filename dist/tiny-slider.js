@@ -566,16 +566,27 @@ var tns = function(options) {
   }, options || {});
   
   // get element nodes from selectors
-  ['container', 'controlsContainer', 'navContainer', 'autoplayButton'].forEach(function(item) {
-    if (typeof options[item] === 'string') { options[item] = doc.querySelector(options[item]); }
-  });
-
-  // make sure slide container exists
   var supportConsoleWarn = win.console && typeof win.console.warn === "function";
-  if (!options.container || !options.container.nodeName) {
-    if (supportConsoleWarn) { console.warn('Can\'t find container element.'); }
-    return;
+  var list = ['container', 'controlsContainer', 'navContainer', 'autoplayButton'];
+  for (var i = list.length; i--;) {
+    var item = list[i];
+    if (typeof options[item] === 'string') {
+      var el = doc.querySelector(options[item]);
+
+      if (el && el.nodeName) {
+        options[item] = el;
+      } else {
+        if (supportConsoleWarn) { console.warn('Can\'t find', options[item]); }
+        return;
+      }
+    }
   }
+
+  // make sure at least 1 slide
+  if (options.container.children && options.container.children.length < 1) {
+    if (supportConsoleWarn) { console.warn('No slides found in', options.container); }
+    return;
+   }
 
   // update responsive
   // from: { 
