@@ -185,12 +185,6 @@ export var tns = function(options) {
     return;
   }
 
-  // make sure slides are more than 2
-  if (options.container.children.length < 2) {
-    if (supportConsoleWarn) { console.warn('Slides less than 2.'); }
-    return;
-   }
-
   // update responsive
   // from: { 
   //    300: 2, 
