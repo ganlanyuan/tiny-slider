@@ -28,7 +28,6 @@ import { removeElementStyles } from './helpers/removeElementStyles';
 import { hideElement } from './helpers/hideElement';
 import { showElement } from './helpers/showElement';
 import { isVisible } from './helpers/isVisible';
-import { imageLoaded } from './helpers/imageLoaded';
 import { whichProperty } from './helpers/whichProperty';
 import { getEndProperty } from './helpers/getEndProperty';
 import { addEvents } from './helpers/addEvents';
@@ -1376,10 +1375,24 @@ export var tns = function(options) {
   function runAutoHeight () {
     if (autoHeight && !disable) {
       // get all images inside visible slide items
-      var images = [];
+      var images = [],
+          imagesSuccess = [],
+          imagesFail = [];
 
       for (var i = index, l = index + items; i < l; i++) {
-        forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
+        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+          img.addEventListener('load', function loadcheck () {
+            imagesSuccess.push(img);
+            img.removeEventListener('load', loadcheck);
+          });
+          img.addEventListener('error', function errorcheck() {
+            imagesFail.push(img);
+            img.removeEventListener('error', errorcheck);
+          });
+
+          var src = img.src;
+          img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+          img.src = src;
           images.push(img);
         });
       }
@@ -1387,21 +1400,21 @@ export var tns = function(options) {
       if (images.length === 0) {
         updateInnerWrapperHeight(); 
       } else {
-        checkImagesLoaded(images);
+        checkImagesLoaded(images, imagesSuccess, imagesFail);
       }
     }
   }
 
-  function checkImagesLoaded (images) {
-    images.forEach(function (img, index) {
-      if (imageLoaded(img)) { images.splice(index, 1); }
+  function checkImagesLoaded (imgs, imgsSuccess, imgsFail) {
+    imgs.forEach(function (img, index) {
+      if (imgsSuccess.indexOf(img) >= 0 || imgsFail.indexOf(img) >= 0) { imgs.splice(index, 1); }
     });
 
-    if (images.length === 0) {
+    if (imgs.length === 0) {
       updateInnerWrapperHeight();
     } else {
       setTimeout(function () { 
-        checkImagesLoaded(images); 
+        checkImagesLoaded(imgs, imgsSuccess, imgsFail); 
       }, 16);
     }
   } 
