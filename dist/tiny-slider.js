@@ -511,7 +511,7 @@ if (!CSSMQ) { SUBPIXEL = false; }
 
 var tns = function(options) {
   options = extend({
-    container: doc.querySelector('.slider'),
+    container: '.slider',
     mode: 'carousel',
     axis: 'horizontal',
     items: 1,

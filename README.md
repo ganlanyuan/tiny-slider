@@ -116,7 +116,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 
 | Option | Type | Description |
 | --- | --- | --- |
-| `container` | Node \| String | Default: `document.querySelector('.slider')`. <br> The slider container element or selector. |
+| `container` | Node \| String | Default: `'.slider'`. <br> The slider container element or selector. |
 | `mode` | "carousel" \| "gallery" | Default: "carousel". <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | "horizontal" \| "vertical" | Default: "horizontal". <br> The axis of the slider. |
 | `items` | Integer | Default: 1. <br> Number of slides being displayed in the viewport. |
