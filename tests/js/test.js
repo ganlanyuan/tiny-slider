@@ -1763,12 +1763,25 @@ function testAutoHeight () {
     updateTest(test1, assertion);
 
     assertion = null;
-    repeat(function() {
+    new Promise(function(resolve) {
       nextButton.click();
-      if (assertion || assertion === null) {
+
+      setTimeout(function() {
         assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-      }
-    }, 2).then(function() {
+        resolve();
+      }, 500);
+    }).then(function() {
+      return new Promise(function(resolve) {
+        nextButton.click();
+
+        setTimeout(function() {
+          if (assertion || assertion === null) {
+            assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+          }
+          resolve();
+        }, 500);
+      });
+    }).then(function() {
       updateTest(test2, assertion);
     });
   });

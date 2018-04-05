@@ -255,7 +255,6 @@ export var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
-      vpOuter = getViewportWidth(containerParent),
       vpInner,
       responsive = options.responsive,
       responsiveItems = [],
@@ -263,6 +262,8 @@ export var tns = function(options) {
       breakpointZone = 0,
       windowWidth = getWindowWidth(),
       isOn;
+
+  if (options.fixedWidth) { var vpOuter = getViewportWidth(containerParent); }
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
@@ -444,14 +445,8 @@ export var tns = function(options) {
   }
 
   function getViewportWidth (el) {
-    var width;
-
-    do {
-      width = el.clientWidth;
-      el = el.parentNode;
-    } while (!width);
-
-    return width;
+    var width = el.clientWidth;
+    return width ? width : getViewportWidth(el.parentNode);
   }
 
   function checkOption (item) {
@@ -977,7 +972,7 @@ export var tns = function(options) {
         itemsTem = items,
         freezeTem = freeze;
 
-    vpOuter = getViewportWidth(outerWrapper);
+    if (fixedWidth) { vpOuter = getViewportWidth(outerWrapper); }
     vpInner = getViewportWidth(innerWrapper);
     if (breakpoints) { setBreakpointZone(); }
 
@@ -1380,7 +1375,7 @@ export var tns = function(options) {
           imagesFail = [];
 
       for (var i = index, l = index + items; i < l; i++) {
-        [].forEach.call(slideItems[i].querySelectorAll('img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
           img.addEventListener('load', function loadcheck () {
             imagesSuccess.push(img);
             img.removeEventListener('load', loadcheck);
@@ -1397,26 +1392,30 @@ export var tns = function(options) {
         });
       }
 
-      if (images.length === 0) {
+      if (!images.length) {
         updateInnerWrapperHeight(); 
-      } else {
-        checkImagesLoaded(images, imagesSuccess, imagesFail);
+        return;
       }
+
+      checkImagesLoaded(images, imagesSuccess, imagesFail);
     }
   }
 
   function checkImagesLoaded (imgs, imgsSuccess, imgsFail) {
     imgs.forEach(function (img, index) {
-      if (imgsSuccess.indexOf(img) >= 0 || imgsFail.indexOf(img) >= 0) { imgs.splice(index, 1); }
+      if (imgsSuccess.indexOf(img) >= 0 || imgsFail.indexOf(img) >= 0) {
+        imgs.splice(index, 1);
+      }
     });
 
-    if (imgs.length === 0) {
-      updateInnerWrapperHeight();
-    } else {
-      setTimeout(function () { 
-        checkImagesLoaded(imgs, imgsSuccess, imgsFail); 
-      }, 16);
+    if (!imgs.length) {
+      updateInnerWrapperHeight(); 
+      return;
     }
+
+    setTimeout(function () { 
+      checkImagesLoaded(imgs, imgsSuccess, imgsFail); 
+    }, 16);
   } 
 
   function additionalUpdates () {
