@@ -801,12 +801,14 @@ export var tns = function(options) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
         forEachNodeList(navItems, function (item, i) {
-          setAttrs(item, {
-            'data-nav': i,
-            'tabindex': '-1',
-            'aria-selected': 'false',
-            'aria-controls': slideItems[initIndex + i].id,
-          });
+          if (slideItems[initIndex + i]) {
+            setAttrs(item, {
+              'data-nav': i,
+              'tabindex': '-1',
+              'aria-selected': 'false',
+              'aria-controls': slideItems[initIndex + i].id,
+            });
+          }
         });
 
       // generated nav 
