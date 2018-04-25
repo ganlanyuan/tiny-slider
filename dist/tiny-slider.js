@@ -1334,14 +1334,10 @@ var tns = function(options) {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
       if (isOn) {
-        var newWW = getWindowWidth();
-        if (windowWidth !== newWW) {
-          windowWidth = newWW;
+        windowWidth = getWindowWidth();
+        resizeTasks();
 
-          resizeTasks();
-
-          if (nested === 'outer') { events.emit('outerResized', info(e)); }
-        }
+        if (nested === 'outer') { events.emit('outerResized', info(e)); }
       }
     }, 100); // update after stop resizing for 100 ms
   }
