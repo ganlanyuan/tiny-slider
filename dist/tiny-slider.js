@@ -845,8 +845,7 @@ var tns = function(options) {
     
     var obj = {
           slideBy: 'page',
-          edgePadding: false,
-          autoHeight: true
+          edgePadding: false
         },
         result;
 
@@ -1310,7 +1309,7 @@ var tns = function(options) {
     }
 
     lazyLoad();
-    runAutoHeight();
+    autoHeight ? runAutoHeight() : updateInnerWrapperHeight();
     toggleSlideDisplayAndEdgePadding();
     updateFixedWidthInnerWrapperStyle();
 
@@ -1554,7 +1553,7 @@ var tns = function(options) {
       if (items !== itemsTem) { 
         additionalUpdates();
         updateSlidePosition();
-        runAutoHeight();
+        // runAutoHeight();
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
@@ -1570,7 +1569,7 @@ var tns = function(options) {
     updateFixedWidthInnerWrapperStyle(true);
 
     // auto height
-    runAutoHeight();
+    autoHeight ? runAutoHeight() : updateInnerWrapperHeight();
   }
 
 
@@ -1814,17 +1813,27 @@ var tns = function(options) {
   // 3. update inner wrapper height to max-height
   // 4. set transitionDuration to 0s after transition done
   function updateInnerWrapperHeight () {
-    if (autoHeight) {
-      var heights = [], maxHeight;
-      for (var i = index, l = index + items; i < l; i++) {
-        heights.push(slideItems[i].offsetHeight);
-      }
-      maxHeight = Math.max.apply(null, heights);
+    var heights = [], 
+        maxHeight,
+        start,
+        range;
 
-      if (innerWrapper.style.height !== maxHeight) {
-        if (TRANSITIONDURATION) { setDurations(speed); }
-        innerWrapper.style.height = maxHeight + 'px';
-      }
+    if (autoHeight) {
+      start = index;
+      range = items;
+    } else if (!carousel) {
+      start = cloneCount;
+      range = slideCount;
+    }
+    
+    for (var i = start, l = start + range; i < l; i++) {
+      heights.push(slideItems[i].offsetHeight);
+    }
+    maxHeight = Math.max.apply(null, heights);
+
+    if (innerWrapper.style.height !== maxHeight) {
+      if (TRANSITIONDURATION) { setDurations(speed); }
+      innerWrapper.style.height = maxHeight + 'px';
     }
   }
 
