@@ -239,21 +239,27 @@ function forEachNodeList (arr, callback, scope) {
   }
 }
 
-function hasClass(el, str) {
-  return el.className.indexOf(str) >= 0;
-}
+var classListSupport = 'classList' in document.createElement('_');
 
-function addClass(el, str) {
-  if (!hasClass(el,  str)) {
-    el.className += ' ' + str;
-  }
-}
+var hasClass = classListSupport ?
+    function (el, str) { return el.classList.contains(str); } :
+    function (el, str) { return el.className.indexOf(str) >= 0; };
 
-function removeClass(el, str) {
-  if (hasClass(el, str)) {
-    el.className = el.className.replace(str, '');
-  }
-}
+var addClass = classListSupport ?
+    function (el, str) {
+      if (!hasClass(el,  str)) { el.classList.add(str); }
+    } :
+    function (el, str) {
+      if (!hasClass(el,  str)) { el.className += ' ' + str; }
+    };
+
+var removeClass = classListSupport ?
+    function (el, str) {
+      if (hasClass(el,  str)) { el.classList.remove(str); }
+    } :
+    function (el, str) {
+      if (hasClass(el, str)) { el.className = el.className.replace(str, ''); }
+    };
 
 function hasAttr(el, attr) {
   return el.hasAttribute(attr);
@@ -293,6 +299,14 @@ function removeAttrs(els, attrs) {
 
 function removeElementStyles(el) {
   el.style.cssText = '';
+}
+
+function arrayFromNodeList (nl) {
+  var arr = [];
+  for (var i = 0, l = nl.length; i < l; i++) {
+    arr.push(nl[i]);
+  }
+  return arr;
 }
 
 function hideElement(el) {
@@ -390,6 +404,14 @@ function Events() {
     }
   };
 }
+
+var win$1 = window;
+
+var raf = win$1.requestAnimationFrame
+  || win$1.webkitRequestAnimationFrame
+  || win$1.mozRequestAnimationFrame
+  || win$1.msRequestAnimationFrame
+  || function(cb) { return setTimeout(cb, 16); };
 
 function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   var tick = Math.min(duration, 10),
@@ -741,7 +763,13 @@ var tns = function(options) {
       hasAutoplay = checkOption('autoplay'),
       hasTouch = checkOption('touch'),
       hasMouseDrag = checkOption('mouseDrag'),
-      slideActiveClass = 'tns-slide-active';
+      slideActiveClass = 'tns-slide-active',
+      imgCompleteClass = 'tns-complete',
+      imgEvents = {
+        'load': imgLoadedOrError,
+        'error': imgLoadedOrError
+      },
+      imgsComplete;
 
   // check startIndex
   function updateStartIndex (indexTem) {
@@ -1037,6 +1065,27 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
+    // add image events
+    if (checkOption('autoHeight') || !carousel) {
+      var imgs = container.querySelectorAll('img');
+
+      // check all image complete status
+      // add complete class if true
+      forEachNodeList(imgs, function(img) {
+        addEvents(img, imgEvents);
+
+        var src = img.src;
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+        img.src = src;
+      });
+
+      // set imgsComplete to true 
+      // when all images are compulete (loaded or error)
+      raf(function(){ checkImagesLoaded(arrayFromNodeList(imgs), function() {
+        imgsComplete = true;
+      }); });
+    }
+
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
@@ -1303,13 +1352,15 @@ var tns = function(options) {
       });
     } else {
       addEvents(win, {'resize': onResize});
-      if (nested === 'outer') {
-        events.on('innerLoaded', runAutoHeight);
-      }
+    }
+
+    if (nested === 'outer') {
+      events.on('innerLoaded', runAutoHeight);
+    } else if ((autoHeight || !carousel) && !disable) {
+      runAutoHeight();
     }
 
     lazyLoad();
-    autoHeight ? runAutoHeight() : updateInnerWrapperHeight();
     toggleSlideDisplayAndEdgePadding();
     updateFixedWidthInnerWrapperStyle();
 
@@ -1329,20 +1380,15 @@ var tns = function(options) {
 
 // === ON RESIZE ===
   function onResize (e) {
-    e = e || win.event;
-
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      if (isOn) {
-        windowWidth = getWindowWidth();
-        resizeTasks();
-
-        if (nested === 'outer') { events.emit('outerResized', info(e)); }
-      }
-    }, 100); // update after stop resizing for 100 ms
+    raf(function(){ resizeTasks(e || win.event); });
   }
 
-  function resizeTasks () {
+  function resizeTasks (e) {
+    if (!isOn) { return; }
+    
+    windowWidth = getWindowWidth();
+    if (nested === 'outer') { events.emit('outerResized', info(e)); }
+
     var breakpointZoneTem = breakpointZone,
         indexTem = index, 
         itemsTem = items,
@@ -1549,7 +1595,6 @@ var tns = function(options) {
       if (items !== itemsTem) { 
         additionalUpdates();
         updateSlidePosition();
-        // runAutoHeight();
 
         if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
@@ -1565,7 +1610,7 @@ var tns = function(options) {
     updateFixedWidthInnerWrapperStyle(true);
 
     // auto height
-    autoHeight ? runAutoHeight() : updateInnerWrapperHeight();
+    if ((autoHeight || !carousel) && !disable) { runAutoHeight(); }
   }
 
 
@@ -1741,57 +1786,48 @@ var tns = function(options) {
     }
   }
 
+
+  function imgLoadedOrError (e) {
+    var img = getTarget(e);
+    addClass(img, imgCompleteClass);
+    removeEvents(img, imgEvents);
+  }
+
+  function getImageArray (slideStart, slideRange) {
+    var imgs = [];
+    for (var i = slideStart, l = slideStart + slideRange; i < l; i++) {
+      forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
+        imgs.push(img);
+      });
+    }
+
+    return imgs;
+  }
+
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight () {
-    if (autoHeight && !disable) {
-      // get all images inside visible slide items
-      var images = [],
-          imagesSuccess = [],
-          imagesFail = [];
+    var imgs = autoHeight ?
+        getImageArray(index, items) :
+        getImageArray(cloneCount, slideCount);
 
-      for (var i = index, l = index + items; i < l; i++) {
-        forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
-          img.addEventListener('load', function loadcheck () {
-            imagesSuccess.push(img);
-            img.removeEventListener('load', loadcheck);
-          });
-          img.addEventListener('error', function errorcheck() {
-            imagesFail.push(img);
-            img.removeEventListener('error', errorcheck);
-          });
-
-          var src = img.src;
-          img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-          img.src = src;
-          images.push(img);
-        });
-      }
-
-      if (!images.length) {
-        updateInnerWrapperHeight(); 
-        return;
-      }
-
-      checkImagesLoaded(images, imagesSuccess, imagesFail);
-    }
+    raf(function(){ checkImagesLoaded(imgs, updateInnerWrapperHeight); });
   }
 
-  function checkImagesLoaded (imgs, imgsSuccess, imgsFail) {
+  function checkImagesLoaded (imgs, cb) {
+    // directly execute callback function if all images are complete
+    if (imgsComplete) { return cb(); }
+
+    // check selected image classes otherwise
     imgs.forEach(function (img, index) {
-      if (imgsSuccess.indexOf(img) >= 0 || imgsFail.indexOf(img) >= 0) {
-        imgs.splice(index, 1);
-      }
+      if (hasClass(img, imgCompleteClass)) { imgs.splice(index, 1); }
     });
 
-    if (!imgs.length) {
-      updateInnerWrapperHeight(); 
-      return;
-    }
+    // execute callback function if selected images are all complete
+    if (!imgs.length) { return cb(); }
 
-    setTimeout(function () { 
-      checkImagesLoaded(imgs, imgsSuccess, imgsFail); 
-    }, 16);
+    // otherwise execute this functiona again
+    raf(function(){ checkImagesLoaded(imgs, cb); });
   } 
 
   function additionalUpdates () {
@@ -1803,29 +1839,24 @@ var tns = function(options) {
   }
 
 
+  function getMaxSlideHeight (slideStart, slideRange) {
+    var heights = [];
+    for (var i = slideStart, l = slideStart + slideRange; i < l; i++) {
+      heights.push(slideItems[i].offsetHeight);
+    }
+
+    return Math.max.apply(null, heights);
+  }
+
   // update inner wrapper height
   // 1. get the max-height of the visible slides
   // 2. set transitionDuration to speed
   // 3. update inner wrapper height to max-height
   // 4. set transitionDuration to 0s after transition done
   function updateInnerWrapperHeight () {
-    var heights = [], 
-        maxHeight,
-        start,
-        range;
-
-    if (autoHeight) {
-      start = index;
-      range = items;
-    } else if (!carousel) {
-      start = cloneCount;
-      range = slideCount;
-    }
-    
-    for (var i = start, l = start + range; i < l; i++) {
-      heights.push(slideItems[i].offsetHeight);
-    }
-    maxHeight = Math.max.apply(null, heights);
+    var maxHeight = autoHeight ? 
+        getMaxSlideHeight(index, items) :
+        getMaxSlideHeight(cloneCount, slideCount);
 
     if (innerWrapper.style.height !== maxHeight) {
       if (TRANSITIONDURATION) { setDurations(speed); }
@@ -2169,7 +2200,7 @@ var tns = function(options) {
           }
         } 
 
-        runAutoHeight();
+        if (autoHeight) { runAutoHeight(); }
 
         if (nested === 'inner') { events.emit('innerLoaded', info()); }
         running = false;
@@ -2456,7 +2487,7 @@ var tns = function(options) {
   }
 
   function getTarget (e) {
-    return e.target || e.srcElement;
+    return e.target || win.event.srcElement;
   }
 
   function isTouchEvent (e) {

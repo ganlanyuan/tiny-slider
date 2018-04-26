@@ -1,6 +1,10 @@
-import { hasClass } from './hasClass';
-export function addClass(el, str) {
-  if (!hasClass(el,  str)) {
-    el.className += ' ' + str;
-  }
-}
+import { classListSupport, hasClass } from './hasClass';
+var addClass = classListSupport ?
+    function (el, str) {
+      if (!hasClass(el,  str)) { el.classList.add(str); }
+    } :
+    function (el, str) {
+      if (!hasClass(el,  str)) { el.className += ' ' + str; }
+    };
+
+export { addClass };

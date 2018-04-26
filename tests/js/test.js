@@ -723,7 +723,7 @@ function testResponsive1 () {
           newWindow.style.width = (Number(bps[1]) + 20) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(2000).then(function() {
             items = responsive[bps[1]].items;
             gutter = responsive[bps[1]].gutter;
             edgePadding = responsive[bps[1]].edgePadding,
@@ -828,7 +828,7 @@ function testResponsive2 () {
 
         resolve();
       }).then(function() {
-        return wait(timeouts[1]).then(function() {
+        return wait(timeouts[1] + 1000).then(function() {
           return new Promise(function(resolve) {
             assertionControls = getComputedStyle(controlsContainer, null).display !== 'none';
             assertionNav = getComputedStyle(navContainer, null).display === 'none';
@@ -847,7 +847,7 @@ function testResponsive2 () {
           firstRect = slideItems[index].getBoundingClientRect();
           resolve();
         }).then(function() {
-          return wait(timeouts[1] + 500).then(function() {
+          return wait(timeouts[1] + 1000).then(function() {
             return new Promise(function(resolve) {
               if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display === 'none'; }
               if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
@@ -869,7 +869,7 @@ function testResponsive2 () {
           firstRect = slideItems[index].getBoundingClientRect();
           resolve();
         }).then(function() {
-          return wait(timeouts[0] + 500).then(function() {
+          return wait(timeouts[0] + 1000).then(function() {
             return new Promise(function(resolve) {
               if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display !== 'none'; }
               if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
@@ -949,7 +949,7 @@ function testResponsive3() {
           newWindow.style.width = (Number(bps[0]) + 20) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               var str = autoplayButton.innerHTML;
               if (assertionControls) {
@@ -970,7 +970,7 @@ function testResponsive3() {
           newWindow.style.width = (Number(bps[0]) - 20) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               var str = autoplayButton.innerHTML;
               if (assertionControls) {
@@ -1133,7 +1133,7 @@ function testResponsive5 () {
 
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(2000).then(function() {
             return new Promise(function(resolve) {
               if (assertionFixedWidth) {
                 assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth &&
@@ -1219,7 +1219,7 @@ function testResponsive6 () {
           nextButton.click();
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               var viewport = wrapper.clientWidth,
                   edge = (viewport - fixedWidth)/2;
@@ -1236,7 +1236,7 @@ function testResponsive6 () {
           newWindow.style.width = (slideWidth * 2 + 100) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               if (assertionEdgePadding) {
                 assertionEdgePadding = child0.getBoundingClientRect().left === 0;
@@ -1254,7 +1254,7 @@ function testResponsive6 () {
           newWindow.style.width = (slideWidth + 100) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               if (assertionEdgePadding) {
                 var viewport = wrapper.clientWidth,
@@ -1278,7 +1278,7 @@ function testResponsive6 () {
           newWindow.style.width = (fixedWidth - 20) + 'px';
           resolve();
         }).then(function() {
-          return wait(500).then(function() {
+          return wait(1000).then(function() {
             return new Promise(function(resolve) {
               if (assertionEdgePadding) {
                 assertionEdgePadding = child0.getBoundingClientRect().left === 0;
