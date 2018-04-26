@@ -119,7 +119,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `container` | Node \| String | Default: `'.slider'`. <br> The slider container element or selector. |
 | `mode` | "carousel" \| "gallery" | Default: "carousel". <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | "horizontal" \| "vertical" | Default: "horizontal". <br> The axis of the slider. |
-| `items` | Integer | Default: 1. <br> Number of slides being displayed in the viewport. |
+| `items` | Integer | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less than `items`, the slider won't be initialized. |
 | `gutter` | Integer | Default: 0. <br> Space between slides (in "px"). |
 | `edgePadding` | Integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | Integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
