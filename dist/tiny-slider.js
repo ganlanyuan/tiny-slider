@@ -854,8 +854,7 @@ var tns = function(options) {
   }
 
   function getViewportWidth (el) {
-    var width = el.clientWidth;
-    return width ? width : getViewportWidth(el.parentNode);
+    return el.clientWidth || getViewportWidth(el.parentNode);
   }
 
   function checkOption (item) {
