@@ -820,14 +820,17 @@ var tns = function(options) {
         autoplayVisibilityPaused;
   }
 
-  // touch
-  if (hasTouch) {
-    var touch = getOption('touch'),
-        startX = null,
+  if (hasTouch || hasMouseDrag) {
+    var startX = null,
         startY = null,
         translateInit,
         disX,
         disY;
+  }
+  
+  // touch
+  if (hasTouch) {
+    var touch = getOption('touch');
   }
 
   // mouse drag

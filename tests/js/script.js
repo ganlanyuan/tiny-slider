@@ -13,6 +13,7 @@ window.options = {
     container: '',
     items: 3,
     slideBy: 'page',
+    mouseDrag: true,
   },
   'start-index': {
     container: '',
