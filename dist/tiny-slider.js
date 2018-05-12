@@ -413,6 +413,12 @@ var raf = win$1.requestAnimationFrame
   || win$1.msRequestAnimationFrame
   || function(cb) { return setTimeout(cb, 16); };
 
+var win$2 = window;
+
+var caf = win$2.cancelAnimationFrame
+  || win$2.mozCancelAnimationFrame
+  || function(id){ clearTimeout(id); };
+
 function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   var tick = Math.min(duration, 10),
       unit = (to.indexOf('%') >= 0) ? '%' : 'px',
@@ -717,7 +723,6 @@ var tns = function(options) {
       indexMax = slideCountNew - items,
       // resize
       resizeTimer,
-      touchedOrDraged,
       swipeAngle = options.swipeAngle,
       moveDirectionExpected = swipeAngle ? '?' : true,
       running = false,
@@ -747,15 +752,15 @@ var tns = function(options) {
       visibilityEvent = {'visibilitychange': onVisibilityChange},
       docmentKeydownEvent = {'keydown': onDocumentKeydown},
       touchEvents = {
-        'touchstart': onTouchOrMouseStart,
-        'touchmove': onTouchOrMouseMove,
-        'touchend': onTouchOrMouseEnd,
-        'touchcancel': onTouchOrMouseEnd
+        'touchstart': onPanStart,
+        'touchmove': onPanMove,
+        'touchend': onPanEnd,
+        'touchcancel': onPanEnd
       }, dragEvents = {
-        'mousedown': onTouchOrMouseStart,
-        'mousemove': onTouchOrMouseMove,
-        'mouseup': onTouchOrMouseEnd,
-        'mouseleave': onTouchOrMouseEnd
+        'mousedown': onPanStart,
+        'mousemove': onPanMove,
+        'mouseup': onPanEnd,
+        'mouseleave': onPanEnd
       },
       hasControls = checkOption('controls'),
       hasNav = checkOption('nav'),
@@ -821,11 +826,16 @@ var tns = function(options) {
   }
 
   if (hasTouch || hasMouseDrag) {
-    var startX = null,
-        startY = null,
+    var initPosition = { x: 0, y: 0},
+        lastPosition = { x: 0, y: 0},
         translateInit,
         disX,
-        disY;
+        disY,
+        panStart = false,
+        rafIndex = 0,
+        getDist = horizontal ? 
+          function(a, b) { return a.x - b.x; } :
+          function(a, b) { return a.y - b.y; };
   }
   
   // touch
@@ -835,8 +845,7 @@ var tns = function(options) {
 
   // mouse drag
   if (hasMouseDrag) {
-    var mouseDrag = getOption('mouseDrag'),
-        isDragEvent = false;
+    var mouseDrag = getOption('mouseDrag');
   }
 
   // disable slider when slidecount <= items
@@ -976,6 +985,17 @@ var tns = function(options) {
       var prop = horizontal ? 'padding-' : 'margin-',
           dir = horizontal ? 'right' : 'bottom';
       str = prop +  dir + ': ' + gutterTem + 'px;';
+    }
+
+    return str;
+  }
+
+  function getTrsnsitionDurationStyle (speed) {
+    var prefix = TRANSITIONDURATION.substring(0, TRANSITIONDURATION.length - 18).toLowerCase(),
+        str = 'transition-duration: ' + speed / 1000 + 's';
+
+    if (prefix) {
+      str = '-' + prefix + '-' + str;
     }
 
     return str;
@@ -1129,7 +1149,8 @@ var tns = function(options) {
 
       // container styles
       if (carousel && horizontal) {
-        str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items);
+        var dur = TRANSITIONDURATION ? getTrsnsitionDurationStyle(speed) : '';
+        str = 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' + dur;
         addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
@@ -1187,7 +1208,8 @@ var tns = function(options) {
 
         // container string
         if (carousel && horizontal && ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts)) {
-          containerStr = '#' + slideId + '{' + 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + '}';
+          // var dur = TRANSITIONDURATION ? getTrsnsitionDurationStyle(speed) : '';
+          containerStr = '#' + slideId + '{' + 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + dur + '}';
         }
 
         // slide string
@@ -1382,7 +1404,7 @@ var tns = function(options) {
 
 // === ON RESIZE ===
   function onResize (e) {
-    raf(function(){ resizeTasks(e || win.event); });
+    raf(function(){ resizeTasks(getEvent(e)); });
   }
 
   function resizeTasks (e) {
@@ -2115,8 +2137,8 @@ var tns = function(options) {
     // if container is hidden, set duration to 0
     // to fix an issue where browser doesn't fire ontransitionend on hidden element
     if (animating && !isVisible(container)) { duration = 0; }
-    
     if (TRANSITIONDURATION) { setDurations(duration); }
+
     transformCore(duration, distance);
   }
 
@@ -2135,7 +2157,6 @@ var tns = function(options) {
       running = true;
       doTransform();
     }
-
   }
 
   /*
@@ -2260,7 +2281,7 @@ var tns = function(options) {
       var passEventObject;
 
       if (!dir) {
-        e = e || win.event;
+        e = getEvent(e);
         var target = e.target || e.srcElement;
 
         while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
@@ -2293,7 +2314,7 @@ var tns = function(options) {
   // on nav click
   function onNavClick (e) {
     if (!running) {
-      e = e || win.event;
+      e = getEvent(e);
       var target = e.target || e.srcElement,
           navIndex;
 
@@ -2387,7 +2408,7 @@ var tns = function(options) {
 
   // keydown events on document 
   function onDocumentKeydown (e) {
-    e = e || win.event;
+    e = getEvent(e);
     switch(e.keyCode) {
       case KEYS.LEFT:
         onControlsClick(e, -1);
@@ -2399,7 +2420,7 @@ var tns = function(options) {
 
   // on key control
   function onControlsKeydown (e) {
-    e = e || win.event;
+    e = getEvent(e);
     var code = e.keyCode;
 
     switch (code) {
@@ -2436,7 +2457,7 @@ var tns = function(options) {
     var curElement = doc.activeElement;
     if (!hasAttr(curElement, 'data-nav')) { return; }
 
-    e = e || win.event;
+    e = getEvent(e);
     var code = e.keyCode,
         navIndex = [].indexOf.call(navItems, curElement),
         len = visibleNavIndexes.length,
@@ -2488,6 +2509,10 @@ var tns = function(options) {
     indexCached = index;
   }
 
+  function getEvent (e) {
+    e = e || win.event;
+    return isTouchEvent(e) ? e.changedTouches[0] : e;
+  }
   function getTarget (e) {
     return e.target || win.event.srcElement;
   }
@@ -2497,123 +2522,74 @@ var tns = function(options) {
   }
 
   function preventDefaultBehavior (e) {
-      if (e.preventDefault) {
-        e.preventDefault();
-      } else {
-        e.returnValue = false;
-      }
+    e.preventDefault ? e.preventDefault() : e.returnValue = false;
   }
 
-  function onTouchOrMouseStart (e) {
-    if (!running) {
-      e = e || win.event;
-      var ev; 
+  function onPanStart (e) {
+    panStart = true;
+    caf(rafIndex);
+    rafIndex = raf(function(){ panUpdate(e); });
 
-      if (isTouchEvent(e)) {
-        ev = e.changedTouches[0];
-        events.emit('touchStart', info(e));
-      } else {
-        ev = e;
-        if (['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(ev))) >= 0) { preventDefaultBehavior(ev); }
-        events.emit('dragStart', info(e));
-      }
+    e = getEvent(e);
+    events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
 
-      startX = parseInt(ev.clientX);
-      startY = parseInt(ev.clientY);
-      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+    if (!isTouchEvent(e) && ['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(e))) >= 0) {
+      preventDefaultBehavior(e);
+    }
+
+    initPosition.x = parseInt(e.clientX);
+    initPosition.y = parseInt(e.clientY);
+    translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+  }
+
+  function onPanMove (e) {
+    if (panStart) {
+      e = getEvent(e);
+      lastPosition.x = parseInt(e.clientX);
+      lastPosition.y = parseInt(e.clientY);
     }
   }
 
-  function onTouchOrMouseMove (e) {
-    // make sure touch started or mouse draged
-    if (!running && startX !== null) {
-      e = e || win.event;
-      var ev = isTouchEvent(e) ? e.changedTouches[0] : e;
+  function panUpdate (e) {
+    if (!moveDirectionExpected) { return; }
+    caf(rafIndex);
 
-      disX = parseInt(ev.clientX) - startX;
-      disY = parseInt(ev.clientY) - startY;
-
-      if (moveDirectionExpected === '?') {
-        moveDirectionExpected = getTouchDirection(toDegree(disY, disX), swipeAngle) === options.axis;
-      }
-
-      // "mousemove" more than 5px after "mousedown" indecate it is "drag", not "click"
-      if (moveDirectionExpected && (Math.abs(disX) > 5 || Math.abs(disY) > 5)) {
-        if (isTouchEvent(e)) {
-          events.emit('touchMove', info(e));
-        } else {
-          if (!isDragEvent) { isDragEvent = true; }
-          events.emit('dragMove', info(e));
-        }
-        if (!touchedOrDraged) { touchedOrDraged = true; }
-
-        var x = translateInit;
-        if (horizontal) {
-          if (fixedWidth) {
-            x += disX;
-            x += 'px';
-          } else {
-            var percentageX = TRANSFORM ? disX * items * 100 / (vpInner * slideCountNew): disX * 100 / vpInner;
-            x += percentageX;
-            x += '%';
-          }
-        } else {
-          x += disY;
-          x += 'px';
-        }
-
-        if (TRANSFORM) { setDurations(0); }
-        container.style[transformAttr] = transformPrefix + x + transformPostfix;
-      }
+    if (panStart) { rafIndex = raf(function(){ panUpdate(e); }); }
+    if (moveDirectionExpected === '?') {
+      moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
     }
+    events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e));
+
+    var x = translateInit,
+        dist = getDist(lastPosition, initPosition);
+    if (!horizontal || fixedWidth) {
+      x += dist;
+      x += 'px';
+    } else {
+      var percentageX = TRANSFORM ? dist * items * 100 / (vpInner * slideCountNew): dist * 100 / vpInner;
+      x += percentageX;
+      x += '%';
+    }
+
+    if (TRANSFORM) { setDurations(0); }
+    container.style[transformAttr] = transformPrefix + x + transformPostfix;
   }
 
-  function onTouchOrMouseEnd (e) {
-    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
-    if (!running) {
-      if (touchedOrDraged) {
-        touchedOrDraged = false; // reset
-        e = e || win.event;
-        var ev;
+  function onPanEnd (e) {
+    if (panStart) {
+      caf(rafIndex);
+      if (swipeAngle) { moveDirectionExpected = '?'; } // reset
+      panStart = false;
+      lastPosition.x = parseInt(e.clientX);
+      lastPosition.y = parseInt(e.clientY);
+      var dist = getDist(lastPosition, initPosition);
 
-        if (isTouchEvent(e)) {
-          ev = e.changedTouches[0];
-          events.emit('touchEnd', info(e));
-        } else {
-          ev = e;
-          events.emit('dragEnd', info(e));
-        }
-
-        disX = parseInt(ev.clientX) - startX;
-        disY = parseInt(ev.clientY) - startY;
-        startX = startY = null; // reset startX, startY
-        var sliderMoved = Boolean(horizontal ? disX : disY);
-
-        if (horizontal) {
-          var indexMoved = - disX * items / vpInner;
-          indexMoved = disX > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-          index += indexMoved;
-        } else {
-          var moved = - (translateInit + disY);
-          if (moved <= 0) {
-            index = indexMin;
-          } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
-            index = indexMax;
-          } else {
-            var i = 0;
-            do {
-              i++;
-              index = disY < 0 ? i + 1 : i;
-            } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
-          }
-        }
-        
-        render(e, sliderMoved);
-
+      initPosition = {x:0, y:0}; // reset positions
+      lastPosition = {x:0, y:0}; // reset positions
+      
+      if (Math.abs(dist) >= 5) {
         // drag vs click
-        if (isDragEvent) { 
-          // reset isDragEvent
-          isDragEvent = false;
+        if (!isTouchEvent(e)) { 
 
           // prevent "click"
           var target = getTarget(e);
@@ -2621,10 +2597,35 @@ var tns = function(options) {
             preventDefaultBehavior(e);
             removeEvents(target, {'click': preventClick});
           }}); 
-        } 
-      } else {
-        startX = startY = null; // reset startX, startY
+        }
+
+        rafIndex = raf(function() {
+          e = getEvent(e);
+          events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
+
+          if (horizontal) {
+            var indexMoved = - dist * items / vpInner;
+            indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+            index += indexMoved;
+          } else {
+            var moved = - (translateInit + dist);
+            if (moved <= 0) {
+              index = indexMin;
+            } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+              index = indexMax;
+            } else {
+              var i = 0;
+              do {
+                i++;
+                index = dist < 0 ? i + 1 : i;
+              } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+            }
+          }
+          
+          render(e, dist);
+        });
       }
+
     }
   }
 
