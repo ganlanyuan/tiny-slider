@@ -11,7 +11,9 @@ window.gutter = 10;
 window.options = {
   'base': {
     container: '',
-    items: 3,
+    // items: 3,
+    fixedWidth: 300,
+    loop: false,
     slideBy: 'page',
     mouseDrag: true,
   },

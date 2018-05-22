@@ -420,8 +420,8 @@ export var tns = function(options) {
   }
 
   if (hasTouch || hasMouseDrag) {
-    var initPosition = { x: 0, y: 0},
-        lastPosition = { x: 0, y: 0},
+    var initPosition = {},
+        lastPosition = {},
         translateInit,
         disX,
         disY,
@@ -1678,7 +1678,7 @@ export var tns = function(options) {
     setTimeout(function() { resetDuration(container, ''); }, 0);
   }
 
-  function doContainerTransform (val) {
+  function doContainerTransform (val, test) {
     if (!val) { val = getContainerTransformValue(); }
     container.style[transformAttr] = transformPrefix + val + transformPostfix;
   }
@@ -2150,8 +2150,8 @@ export var tns = function(options) {
       preventDefaultBehavior(e);
     }
 
-    initPosition.x = parseInt(e.clientX);
-    initPosition.y = parseInt(e.clientY);
+    lastPosition.x = initPosition.x = parseInt(e.clientX);
+    lastPosition.y = initPosition.y = parseInt(e.clientY);
     translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
 
     resetDuration(container, '0s');
@@ -2168,8 +2168,8 @@ export var tns = function(options) {
   function panUpdate (e) {
     if (!moveDirectionExpected) { return; }
     caf(rafIndex);
-
     if (panStart) { rafIndex = raf(function(){ panUpdate(e); }); }
+
     if (moveDirectionExpected === '?') {
       moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
     }
@@ -2199,8 +2199,8 @@ export var tns = function(options) {
       lastPosition.y = parseInt(e.clientY);
       var dist = getDist(lastPosition, initPosition);
 
-      initPosition = {x:0, y:0}; // reset positions
-      lastPosition = {x:0, y:0}; // reset positions
+      // initPosition = {x:0, y:0}; // reset positions
+      // lastPosition = {x:0, y:0}; // reset positions
       
       if (Math.abs(dist) >= 5) {
         // drag vs click
@@ -2236,7 +2236,7 @@ export var tns = function(options) {
               } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
             }
           }
-          
+
           render(e, dist);
         });
       }
