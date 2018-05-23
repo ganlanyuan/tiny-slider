@@ -1,5 +1,6 @@
 const rollup = require('rollup').rollup;
 const resolve = require('rollup-plugin-node-resolve');
+const babel = require('rollup-plugin-babel');
 
 const gulp = require('gulp');
 const packages = require('/www/package.json');
@@ -12,7 +13,7 @@ const path = require('path');
 
 let sourcemapsDest = 'sourcemaps';
 let libName = 'tiny-slider',
-    testName = 'script',
+    testName = 'tests',
     modulePostfix = '.module',
     helperIEPostfix = '.helper.ie8',
     script = libName + '.js',
@@ -118,6 +119,7 @@ gulp.task('test', function () {
         main: true,
         browser: true,
       }),
+      babel(),
     ],
   }).then(function (bundle) {
     return bundle.write({
