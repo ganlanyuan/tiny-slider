@@ -1523,9 +1523,11 @@ function testAnimation1 () {
   });
 
   var test = addTest('Slides: classes after click');
-  new Promise(function(resolve) {
-    info.nextButton.click();
-    resolve();
+  wait(300).then(function() {
+    return new Promise(function (resolve) {
+      info.nextButton.click();
+      resolve();
+    });
   }).then(function() {
     return wait(speed + 500).then(function() {
       updateTest(test, checkAnimationClasses());
