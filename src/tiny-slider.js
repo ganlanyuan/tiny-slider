@@ -4,6 +4,8 @@
 // helper functions
 import './helpers/keys';
 import './helpers/childNode.remove';
+import { raf } from './helpers/raf';
+import { caf } from './helpers/caf';
 import { extend } from './helpers/extend';
 import { checkStorageValue } from './helpers/checkStorageValue';
 import { setLocalStorage } from './helpers/setLocalStorage';
@@ -34,8 +36,6 @@ import { getEndProperty } from './helpers/getEndProperty';
 import { addEvents } from './helpers/addEvents';
 import { removeEvents } from './helpers/removeEvents';
 import { Events } from './helpers/events';
-import { raf } from './helpers/raf';
-import { caf } from './helpers/caf';
 import { jsTransform } from './helpers/jsTransform';
 
 // check browser version and local storage

@@ -25,6 +25,20 @@ if (!Object.keys) {
   }
 })();
 
+var win$1 = window;
+
+var raf = win$1.requestAnimationFrame
+  || win$1.webkitRequestAnimationFrame
+  || win$1.mozRequestAnimationFrame
+  || win$1.msRequestAnimationFrame
+  || function(cb) { return setTimeout(cb, 16); };
+
+var win$2 = window;
+
+var caf = win$2.cancelAnimationFrame
+  || win$2.mozCancelAnimationFrame
+  || function(id){ clearTimeout(id); };
+
 function extend() {
   var obj, name, copy,
       target = arguments[0] || {},
@@ -205,9 +219,11 @@ function createStyleSheet (media) {
 
 // cross browsers addRule method
 function addCSSRule(sheet, selector, rules, index) {
-  'insertRule' in sheet ?
-    sheet.insertRule(selector + '{' + rules + '}', index) :
-    sheet.addRule(selector, rules, index);
+  // return raf(function() {
+    'insertRule' in sheet ?
+      sheet.insertRule(selector + '{' + rules + '}', index) :
+      sheet.addRule(selector, rules, index);
+  // });
 }
 
 function getCssRulesLength(sheet) {
@@ -404,20 +420,6 @@ function Events() {
     }
   };
 }
-
-var win$1 = window;
-
-var raf = win$1.requestAnimationFrame
-  || win$1.webkitRequestAnimationFrame
-  || win$1.mozRequestAnimationFrame
-  || win$1.msRequestAnimationFrame
-  || function(cb) { return setTimeout(cb, 16); };
-
-var win$2 = window;
-
-var caf = win$2.cancelAnimationFrame
-  || win$2.mozCancelAnimationFrame
-  || function(id){ clearTimeout(id); };
 
 function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   var tick = Math.min(duration, 10),

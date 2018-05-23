@@ -292,13 +292,27 @@
   {% endif %}
 {% endblock %}
 
+<script>
+  var isTestPage,
+      initFns = {},
+      doc = document,
+      isDemoPage = doc.body.getAttribute('data-page') === 'demos',
+      classIn = (doc.body.getAttribute('data-page') === 'demos') ? 'jello' : 'tns-fadeIn',
+      classOut = (doc.body.getAttribute('data-page') === 'demos') ? 'rollOut' : 'tns-fadeOut',
+      sliders = new Object(),
+      speed = Number(document.body.getAttribute('data-speed')),
+      edgepadding = 50,
+      gutter = 10;
+</script>
+<script src="js/options.js"></script>
+
+{% block footerScripts %}
+{% endblock %}
+
 {% if page === 'demos' %}
 <script src="js/prism.js"></script>
 {% endif %}
 <script src="js/script.min.js"></script>
-
-{% block footerScripts %}
-{% endblock %}
 
 </body>
 </html>

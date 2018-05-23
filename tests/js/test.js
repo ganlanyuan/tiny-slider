@@ -28,52 +28,6 @@ document.onkeydown = function(e) {
 fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
 canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
-window.onload = function() {
-  // var prev = document.querySelector('#customize_wrapper .prev');
-  // prev.onclick = function() {
-  //   alert('clicked!');
-  // };
-  // simulateClick(prev);
-  
-  testBase();
-  testNonLoop();
-  testRewind();
-  testFixedWidth();
-  testFixedWidthGutter();
-  testFixedWidthEdgePadding();
-  testFixedWidthEdgePaddingGutter();
-  testVertical();
-  testVerticalGutter();
-  testVerticalEdgePadding();
-  testVerticalEdgePaddingGutter();
-  testResponsive1();
-  testResponsive2();
-  testResponsive3();
-  testResponsive4();
-  testResponsive5();
-  testResponsive6();
-  testMouseDrag();
-  testGutter();
-  testEdgePadding();
-  testEdgePaddingGutter();
-  testFewitems();
-  testSlideByPage();
-  testArrowKeys();
-  testAutoplay();
-  testAnimation1();
-  testAnimation2();
-  testLazyload();
-  testCustomize();
-  testAutoHeight();
-  testNested();
-};
-
-
-// window.onresize = function() {
-//   resultsDiv.innerHTML = '';
-//   testBase();
-// };
-
 // ### base
 function testBase () {
   var id = 'base',
@@ -2093,3 +2047,36 @@ function testAutoplayFn (id, el, timeout, equal) {
   });
 }
 
+initFns = {
+  'base': testBase,
+  'few-items': testFewitems,
+  'mouse-drag': testMouseDrag,
+  'gutter': testGutter,
+  'edgePadding': testEdgePadding,
+  'edgePadding-gutter': testEdgePaddingGutter,
+  'non-loop': testNonLoop,
+  'rewind': testRewind,
+  'slide-by-page': testSlideByPage,
+  'fixedWidth': testFixedWidth,
+  'fixedWidth-gutter': testFixedWidthGutter,
+  'fixedWidth-edgePadding': testFixedWidthEdgePadding,
+  'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
+  'responsive1': testResponsive1,
+  'responsive2': testResponsive2,
+  'responsive3': testResponsive3,
+  'responsive4': testResponsive4,
+  'responsive5': testResponsive5,
+  'responsive6': testResponsive6,
+  'arrowKeys': testArrowKeys,
+  'autoplay': testAutoplay,
+  'vertical': testVertical,
+  'vertical-gutter': testVerticalGutter,
+  'vertical-edgePadding': testVerticalEdgePadding,
+  'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
+  'animation1': testAnimation1,
+  'animation2': testAnimation2,
+  'lazyload': testLazyload,
+  'customize': testCustomize,
+  'autoHeight': testAutoHeight,
+  'nested': testNested,
+};
