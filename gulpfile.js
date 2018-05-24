@@ -51,7 +51,7 @@ gulp.task('sass', function () {
 // Script Task
 gulp.task('script', function () {
   return rollup({
-    entry: pathSrc + script,
+    input: pathSrc + script,
     context: 'window',
     treeshake: false,
     plugins: [
@@ -63,7 +63,7 @@ gulp.task('script', function () {
     ],
   }).then(function (bundle) {
     return bundle.write({
-      dest: pathDest + libName + '.js',
+      file: pathDest + libName + '.js',
       format: 'es',
       // moduleName: 'tns',
     });
@@ -72,10 +72,10 @@ gulp.task('script', function () {
 
 gulp.task('helper-ie8', function () {
   return rollup({
-    entry: pathSrc + helperIEScript,
+    input: pathSrc + helperIEScript,
   }).then(function (bundle) {
     return bundle.write({
-      dest: pathDest + helperIEScript,
+      file: pathDest + helperIEScript,
       format: 'es',
     });
   });
@@ -109,8 +109,9 @@ gulp.task('min', ['editPro'], function () {
 })
 
 gulp.task('test', function () {
+  console.log(pathTest + testScript);
   return rollup({
-    entry: pathTest + testScript,
+    input: pathTest + testScript,
     context: 'window',
     // treeshake: false,
     plugins: [
@@ -123,7 +124,7 @@ gulp.task('test', function () {
     ],
   }).then(function (bundle) {
     return bundle.write({
-      dest: pathTest + testName + '.min.js',
+      file: pathTest + testName + '.min.js',
       format: 'iife',
       moduleName: 'tiny',
     });
