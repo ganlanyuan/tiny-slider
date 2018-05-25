@@ -31,24 +31,49 @@ canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ?
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ### base
 async function testBase () {
   var id = 'base',
       slider = sliders[id],
-      info = slider.getInfo();
+      info = slider.getInfo(),
+      container = info.container,
+      innerWrapper = container.parentNode,
+      slideItems = info.slideItems,
+      navItems = info.navItems,
+      visibleNavIndexes = info.visibleNavIndexes,
+      slideCount = info.slideCount,
+      assertion;
 
   addTitle(id);
 
   runTest('Outer wrapper: classes', function() {
-    return containsClasses(info.container.parentNode.parentNode, ['tns-outer']);
+    return containsClasses(innerWrapper.parentNode, ['tns-outer']);
   });
 
   runTest('Inner wrapper: classes', function() {
-    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-ovh']);
+    return containsClasses(innerWrapper, ['tns-inner', 'tns-ovh']);
   });
 
   runTest('Container: classes', function() {
-    return containsClasses(info.container, ['base','tns-slider','tns-carousel','tns-horizontal']);
+    return containsClasses(container, ['base','tns-slider','tns-carousel','tns-horizontal']);
   });
 
   runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
@@ -64,8 +89,7 @@ async function testBase () {
   });
 
   runTest('Nav items: data-nav, hidden', function() {
-    var navItems = info.navItems,
-        nav0 = navItems[0],
+    var nav0 = navItems[0],
         nav1 = navItems[1];
     return nav0.getAttribute('data-nav') === '0' &&
       !nav0.hasAttribute('hidden') &&
@@ -83,19 +107,15 @@ async function testBase () {
   await checkControlsClick(controlsClick, id, 11);
 
   // nav click
-  var assertion,
-      slideItems = info.slideItems,
-      visibleNavIndexes = info.visibleNavIndexes,
-      len = visibleNavIndexes.length;
-
-  for (var i = len; i--;) {
-    info.navItems[visibleNavIndexes[i]].click();
+  for (var i = visibleNavIndexes.length; i--;) {
+    navItems[visibleNavIndexes[i]].click();
     var current = slider.getInfo().index,
         currentSlide = slideItems[current];
+
     if (assertion !== false) {
       assertion = 
-        info.navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
-        current%info.slideCount === visibleNavIndexes[i] &&
+        navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
+        current%slideCount === visibleNavIndexes[i] &&
         compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
         currentSlide.getAttribute('aria-hidden') === 'false';
     }
@@ -115,13 +135,12 @@ async function testBase () {
     var prev = info.index,
         current = slider.getInfo().index,
         absIndex = getAbsIndex(prev, -3, info),
-        currentSlide = info.slideItems[current],
-        wrapper = info.container.parentNode;
+        currentSlide = slideItems[current];
         
     assertion = 
-      current%info.slideCount === absIndex &&
-      info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-      compare2Nums(currentSlide.getBoundingClientRect().left, wrapper.getBoundingClientRect().left);
+      current%slideCount === absIndex &&
+      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+      compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
     if (assertion) {
       // fire keydown events on right arrow
@@ -129,29 +148,21 @@ async function testBase () {
         fire(info.controlsContainer, 'keydown', {'keyCode': 39});
       }, 3);
 
-      var current = slider.getInfo().index,
-          absIndex = 0,
-          currentSlide = info.slideItems[current],
-          wrapper = info.container.parentNode;
+      current = slider.getInfo().index;
+      absIndex = 0;
+      currentSlide = slideItems[current];
           
       assertion = 
-        current%info.slideCount === absIndex &&
-        info.navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, wrapper.getBoundingClientRect().left);
+        current%slideCount === absIndex &&
+        navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+        compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
     }
 
     updateTest(controlsKeydown, assertion);
 
     // nav keydown
-    assertion = undefined;
-    var info = slider.getInfo(),
-        slideCount = info.slideCount,
-        navContainer = info.navContainer,
-        navItems = info.navItems,
-        slideItems = info.slideItems,
-        visibleNavIndexes = info.visibleNavIndexes,
-        wrapperLeft = info.container.parentNode.getBoundingClientRect().left;
-
+    var navContainer = info.navContainer,
+        wrapperLeft = innerWrapper.getBoundingClientRect().left;
     // focus on the 1st nav item
     navItems[visibleNavIndexes[0]].focus();
     // fire keydown event on right arrow
@@ -162,10 +173,9 @@ async function testBase () {
     fire(navContainer, 'keydown', {'keyCode': 13});
     var current = slider.getInfo().index,
         currentSlide = slideItems[current];
-
     if (assertion) {
       assertion = current%slideCount === visibleNavIndexes[1] &&
-        info.navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
+        navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     // fire keydown event on left arrow
@@ -187,7 +197,7 @@ async function testBase () {
 
     if (assertion) {
       assertion = current%slideCount === visibleNavIndexes[2] &&
-        info.navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
+        navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     // fire keydown event on up arrow
@@ -203,7 +213,7 @@ async function testBase () {
 
     if (assertion) {
       assertion = current%slideCount === visibleNavIndexes[0] &&
-        info.navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
+        navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     updateTest(navKeydown, assertion);
@@ -213,11 +223,9 @@ async function testBase () {
   }
 
   // go to
-  var slideCount = info.slideCount,
-      controls = document.querySelector('#base_wrapper .goto-controls'),
+  var controls = document.querySelector('#base_wrapper .goto-controls'),
       input = controls.querySelector('input'),
       button = controls.querySelector('.button'),
-      assertion,
       mul = 100;
 
   function checkGoto () {
@@ -237,98 +245,2020 @@ async function testBase () {
   updateTest(testGoto, assertion);
 }
 
-function testNonLoop () {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function testNonLoop () {
+  var id = 'non-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      slideCount = info.slideCount,
+      items = info.items;
+
+  addTitle(id);
+
+  runTest('Slide: count && Controls: disabled', function() {
+    return info.slideItems.length === info.slideCount &&
+      info.prevButton.hasAttribute('disabled');
+  });
+
+  var test = addTest('Controls: click functions');
+  var assertion,
+      prevButton = info.prevButton,
+      nextButton = info.nextButton,
+      navItems = info.navItems,
+      slideItems = info.slideItems,
+      current;
+
+  nextButton.click();
+  assertion = !prevButton.hasAttribute('disabled');
+
+  // click next button (slideCount - items) times
+  await repeat(function() { nextButton.click(); }, (slideCount - items - 1));
+  current = slideCount - items;
+  if (assertion) {
+    assertion = 
+      nextButton.hasAttribute('disabled') &&
+      navItems[current].getAttribute('aria-selected') === 'true' &&
+      slideItems[current].getAttribute('aria-hidden') === 'false' &&
+      compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+  }
+
+  // click next button once
+  nextButton.click();
+  if (assertion) {
+    current = slideCount - items;
+    assertion = 
+      navItems[current].getAttribute('aria-selected') === 'true' &&
+      slideItems[current].getAttribute('aria-hidden') === 'false';
+  }
+
+  // click prev button once
+  prevButton.click();
+  if (assertion) {
+    assertion = !nextButton.hasAttribute('disabled');
+  }
+
+  // click prev button (slideCount - items) times
+  await repeat(function() { prevButton.click(); }, (slideCount - items - 1) );
+  current = 0;
+  if (assertion) {
+    assertion = 
+      prevButton.hasAttribute('disabled') &&
+      navItems[current].getAttribute('aria-selected') === 'true' &&
+      slideItems[current].getAttribute('aria-hidden') === 'false' &&
+      compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+  }
+
+  updateTest(test, assertion);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testRewind () {
+  var id = 'rewind',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Slide: count && Controls: disabled', function() {
+    return info.slideItems.length === info.slideCount &&
+      !info.prevButton.hasAttribute('disabled');
+  });
+
+  var test = addTest('Controls: click functions');
+  var assertion,
+      container = info.container,
+      prevButton = info.prevButton,
+      nextButton = info.nextButton,
+      navItems = info.navItems,
+      slideItems = info.slideItems,
+      items = info.items,
+      count = info.slideCountNew;
+
+  prevButton.click();
+  assertion = compare2Nums(slideItems[count - 1].getBoundingClientRect().right, container.parentNode.getBoundingClientRect().right);
+
+  if (assertion) {
+    nextButton.click();
+    assertion = compare2Nums(slideItems[0].getBoundingClientRect().left, 0);
+  }
+
+  updateTest(test, assertion);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testFixedWidth () {
+  var id = 'fixedWidth',
+      fixedWidth = 300,
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Slides: position', function() {
+    var assertion,
+        slideItems = info.slideItems,
+        slideCount = info.slideCount,
+        items = info.items;
+    assertion = items === Math.floor(windowWidth / fixedWidth) &&
+      compare2Nums(slideItems[slideCount*2].getBoundingClientRect().left, 0);
+
+    return assertion;
+  });
+
+  var controlsClick = addTest('Controls: click functions');
+  checkControlsClick(controlsClick, id, (info.slideCount * 3 + 2));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testFixedWidthGutter () {
+  var id = 'fixedWidth-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Slides: gutter', function() {
+    var slideItems = info.slideItems;
+    return compare2Nums(slideItems[0].clientWidth, 310);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testFixedWidthEdgePadding () {
+  var id = 'fixedWidth-edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slides: edge padding', function() {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount,
+        items = info.items;
+
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testFixedWidthEdgePaddingGutter () {
+  var id = 'fixedWidth-edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slides: edge padding', function() {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount,
+        items = info.items;
+
+    // alert(items);
+    // alert(slideItems[cloneCount].getBoundingClientRect().left);
+    // alert(windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
+    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testVertical () {
+  var id = 'vertical',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  runTest('Inner wrapper: classes', function() {
+    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-ovh']);
+  });
+
+  runTest('Container: classes', function() {
+    return containsClasses(info.container, ['tns-slider', 'tns-carousel', 'tns-vertical']);
+  });
+
+  runTest('Slides: width', function() {
+    var slideItems = info.slideItems;
+
+    return compare2Nums(slideItems[0].getBoundingClientRect().left, 0) &&
+      compare2Nums(slideItems[0].getBoundingClientRect().right, windowWidth);
+  });
+
+  runTest('Slides: position', function() {
+    return checkPositionEdgePadding(id, true);
+  });
+
+  var controlsClick = addTest('slides: click functions');
+  checkControlsClick(controlsClick, id, 11, 'top');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testVerticalGutter () {
+  var id = 'vertical-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slides: position, gutter', function() {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount,
+        firstRect = slideItems[cloneCount].getBoundingClientRect(),
+        secondRect = slideItems[cloneCount + 1].getBoundingClientRect(),
+        lastRect = slideItems[cloneCount + info.items - 1].getBoundingClientRect(),
+        innerWrapperRect = info.container.parentNode.getBoundingClientRect();
+
+    return compare2Nums(firstRect.top, innerWrapperRect.top) &&
+      compare2Nums(firstRect.bottom, secondRect.top - gutter) &&
+      compare2Nums(lastRect.bottom, innerWrapperRect.bottom - gutter);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testVerticalEdgePadding () {
+  var id = 'vertical-edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slides: position, edge padding', function() {
+    return checkPositionEdgePadding(id, true);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testVerticalEdgePaddingGutter () {
+  var id = 'vertical-edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slides: position, edge padding', function() {
+    return checkPositionEdgePadding(id, true);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive1 () {
+  console.log('abc');
+  var id = 'responsive1',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
+
+  addTitle(id + ': items, slideBy, gutter, edgePadding update');
+
+  var testItems = addTest('items'),
+      testSlideBy = addTest('slideBy'),
+      testGutter = addTest('gutter'),
+      testEdgePadding = addTest('edgePadding'),
+      newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive1Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function() {
+      if (newWindow.readyState === 'complete') {
+        responsive1Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  async function responsive1Tests () {
+    try {
+      var doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          nextButton = doc.querySelector('[data-controls="next"]'),
+          assertionItems,
+          assertionSlideBy,
+          assertionGutter,
+          assertionEdgePadding,
+          container = doc.querySelector('#' + id),
+          slideItems = container.children,
+          wrapper = container.parentNode,
+          slideBy = options[id].slideBy,
+          items = responsive[bps[0]].items,
+          index = 14 + slideBy,
+          gutter = options[id].gutter,
+          edgePadding = responsive[bps[0]].edgePadding,
+          firstRect,
+          lastRect,
+          wrapperRect;
+
+      nextButton.click();
+      firstRect = slideItems[index].getBoundingClientRect();
+      lastRect = slideItems[index + items - 1].getBoundingClientRect();
+      wrapperRect = wrapper.getBoundingClientRect();
+
+      assertionItems = 
+        compare2Nums(firstRect.left, wrapperRect.left) &&
+        compare2Nums(lastRect.right, wrapperRect.right);
+      assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+      assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
+        compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
+      // alert(assertionEdgePadding);
+
+      // resize window
+      newWindow.style.width = (Number(bps[1]) + 20) + 'px';
+      await wait(2000);
+      items = responsive[bps[1]].items;
+      gutter = responsive[bps[1]].gutter;
+      edgePadding = responsive[bps[1]].edgePadding,
+
+      firstRect = slideItems[index].getBoundingClientRect();
+      secondRect = slideItems[index + 1].getBoundingClientRect();
+      lastRect = slideItems[index + items - 1].getBoundingClientRect();
+      wrapperRect = wrapper.getBoundingClientRect();
+
+      if (assertionItems) {
+        assertionItems = 
+          compare2Nums(firstRect.left, wrapperRect.left) &&
+          compare2Nums(lastRect.right, wrapperRect.right);
+      }
+
+      if (assertionGutter) {
+        assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+      }
+
+      if (assertionEdgePadding) {
+        assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
+          compare2Nums(wrapperRect.right + edgePadding, Number(bps[1]) + 20);
+      }
+      updateTest(testItems, assertionItems);
+      updateTest(testGutter, assertionGutter);
+      updateTest(testEdgePadding, assertionEdgePadding);
+
+      nextButton.click();
+      firstRect = slideItems[index + items].getBoundingClientRect();
+      lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
+      wrapperRect = wrapper.getBoundingClientRect();
+
+      if (assertionItems) {
+        assertionSlideBy = 
+          compare2Nums(firstRect.left, wrapperRect.left) &&
+          compare2Nums(lastRect.right, wrapperRect.right);
+      }
+
+      updateTest(testSlideBy, assertionSlideBy);
+      document.body.removeChild(newWindow);
+    } catch (e) {
+      testItems.className = 'item-notsure';
+      testSlideBy.className = 'item-notsure';
+      testGutter.className = 'item-notsure';
+      testEdgePadding.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive2 () {
+  var id = 'responsive2',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
+
+  addTitle(id + ': controls, nav, autoplay display toggle');
+
+  var testControlsT = addTest('controls');
+  var testNavT = addTest('nav');
+  var testAutoplayT = addTest('autoplay');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive2Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function() {
+      if (newWindow.readyState === 'complete') {
+        responsive2Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsive2Tests () {
+    try {
+      var assertionControls,
+          assertionNav,
+          assertionAutoplay,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          box = doc.querySelector('#' + id + '_wrapper'),
+          slideItems = box.querySelector('#' + id).children,
+          controlsContainer = box.querySelector('.tns-controls'),
+          navContainer = box.querySelector('.tns-nav'),
+          autoplayButton = box.querySelector('[data-action]'),
+          index = 14,
+          timeouts = [options[id].autoplayTimeout, responsive[bps[0]].autoplayTimeout],
+          firstRect;
+
+      return new Promise(function(resolve) {
+        firstRect = slideItems[index].getBoundingClientRect();
+
+        resolve();
+      }).then(function() {
+        return wait(timeouts[1] + 1000).then(function() {
+          return new Promise(function(resolve) {
+            assertionControls = getComputedStyle(controlsContainer, null).display !== 'none';
+            assertionNav = getComputedStyle(navContainer, null).display === 'none';
+            assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
+              autoplayButton.getAttribute('data-action') === 'start' &&
+              firstRect.left === slideItems[index].getBoundingClientRect().left;
+            // console.log(assertionControls, assertionNav, assertionAutoplay);
+            // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
+            resolve();
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          firstRect = slideItems[index].getBoundingClientRect();
+          resolve();
+        }).then(function() {
+          return wait(timeouts[1] + 1000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display === 'none'; }
+              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
+              if (assertionAutoplay) {
+                assertionAutoplay = getComputedStyle(autoplayButton, null).display !== 'none' &&
+                  autoplayButton.getAttribute('data-action') === 'stop' &&
+                  firstRect.left !== slideItems[index].getBoundingClientRect().left;
+              }
+              // console.log(assertionControls, assertionNav, assertionAutoplay);
+              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+          firstRect = slideItems[index].getBoundingClientRect();
+          resolve();
+        }).then(function() {
+          return wait(timeouts[0] + 1000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display !== 'none'; }
+              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
+              if (assertionAutoplay) {
+                assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
+                  autoplayButton.getAttribute('data-action') === 'start' 
+                  firstRect.left === slideItems[index].getBoundingClientRect().left;
+              }
+              // console.log(assertionControls, assertionNav, assertionAutoplay);
+              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testControlsT, assertionControls);
+        updateTest(testNavT, assertionNav);
+        updateTest(testAutoplayT, assertionAutoplay);
+        document.body.removeChild(newWindow);
+      });
+    } catch (e) {
+      testControlsT.className = 'item-notsure';
+      testNavT.className = 'item-notsure';
+      testAutoplayT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive3() {
+  var id = 'responsive3',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
+
+  addTitle(id + ': controls, autoplay text content update');
+
+  var testControlsT = addTest('controlsText');
+  var testAutoplayT = addTest('autoplayText');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive3Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function() {
+      if (newWindow.readyState === 'complete') {
+        responsive3Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsive3Tests () {
+    try {
+      var assertionControls,
+          assertionAutoplay,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          box = doc.querySelector('#' + id + '_wrapper'),
+          controlsContainer = box.querySelector('.tns-controls'),
+          prevButton = controlsContainer.children[0],
+          nextButton = controlsContainer.children[1],
+          autoplayButton = box.querySelector('[data-action]');
+
+      return new Promise(function(resolve) {
+        var str = autoplayButton.innerHTML;
+        assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+        assertionAutoplay = str.substring(str.length - 4) === 'stop';
+        // console.log(assertionControls, assertionAutoplay);
+
+        resolve();
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              var str = autoplayButton.innerHTML;
+              if (assertionControls) {
+                assertionControls = prevButton.innerHTML === '&lt;' && nextButton.innerHTML === '&gt;';
+              }
+              if (assertionAutoplay) {
+                assertionAutoplay = str.substring(str.length - 2) === '||';
+              }
+              // console.log(assertionControls, assertionAutoplay);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              var str = autoplayButton.innerHTML;
+              if (assertionControls) {
+                assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+              }
+              if (assertionAutoplay) {
+                assertionAutoplay = str.substring(str.length - 4) === 'stop';
+              }
+              // console.log(assertionControls, assertionAutoplay);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testControlsT, assertionControls);
+        updateTest(testAutoplayT, assertionAutoplay);
+        document.body.removeChild(newWindow);
+      });
+    } catch (e) {
+      testControlsT.className = 'item-notsure';
+      testAutoplayT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive4 () {
+  var id = 'responsive4',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
+
+  addTitle(id + ': touch, mouseDrag, arrowKeys toggle');
+
+  var testTouchT = addTest('touch');
+  var testMouseDragT = addTest('mouse drag');
+  var testArrowKeysT = addTest('arrow keys');
+  updateTest(testTouchT, '-notsure');
+  updateTest(testMouseDragT, '-notsure');
+  updateTest(testArrowKeysT, '-notsure');
+  // var newWindow = document.createElement('iframe');
+  // newWindow.setAttribute('frameBorder', '0');
+  // newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  // newWindow.src = id + '.html';
+
+  // if (newWindow.addEventListener) {
+  //   newWindow.addEventListener('load', responsive4Tests, false);
+  // } else if (newWindow.readyState) {
+  //   newWindow.onreadystatechange = function() {
+  //     if (newWindow.readyState === 'complete') {
+  //       responsive4Tests();
+  //     }
+  //   }
+  // }
+
+  // document.body.appendChild(newWindow);
+
+  function responsive4Tests () {
+    if (canFireKeydown) {
+      var assertionArrowKeys,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          container = doc.querySelector('#' + id),
+          left;
+
+      new Promise(function(resolve) {
+        left = container.getBoundingClientRect().left;
+        // fire keydown event on right arrow
+        fire(doc, 'keydown', { 'keyCode': 39 });
+
+        resolve();
+      }).then(function() {
+        return new Promise(function(resolve) {
+          assertionArrowKeys = container.getBoundingClientRect().left !== left;
+          // console.log(assertionArrowKeys);
+
+          resolve();
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+          left = container.getBoundingClientRect().left;
+
+          resolve();
+        }).then(function() {
+          return new Promise(function(resolve) {
+            // fire keydown event on right arrow
+            fire(doc, 'keydown', { 'keyCode': 39 });
+
+            resolve();
+          });
+        }).then(function() {
+          return wait(500).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionArrowKeys) {
+                assertionArrowKeys = container.getBoundingClientRect().left === left;
+              }
+              // console.log(assertionArrowKeys);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testArrowKeysT, assertionArrowKeys);
+        document.body.removeChild(newWindow);
+      });
+    } else {
+      testArrowKeysT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive5 () {
+  var id = 'responsive5',
+      responsive = options[id]['responsive'],
+      bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
+
+  addTitle(id + ': fixedWidth update, autoHeight toggle');
+
+  var testFixedWidthT = addTest('fixedWidth');
+  var testAutoHeightT = addTest('auto height');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (Number(bps[0]) - 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive5Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function() {
+      if (newWindow.readyState === 'complete') {
+        responsive5Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+
+  function responsive5Tests () {
+    try {
+      var assertionFixedWidth,
+          assertionAutoHeight,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          wrapper = doc.querySelector('#' + id + '-iw'),
+          first = doc.querySelector('#' + id).children[14];
+
+      new Promise(function(resolve) {
+        assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
+          wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+        assertionAutoHeight = wrapper.style.height === '';
+        // console.log(assertionFixedWidth, assertionAutoHeight);
+
+        resolve();
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+
+          resolve();
+        }).then(function() {
+          return wait(2000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionFixedWidth) {
+                assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth &&
+                  wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+              }
+              if (assertionAutoHeight) {
+                assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
+              }
+              // console.log(assertionFixedWidth, assertionAutoHeight);
+
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testFixedWidthT, assertionFixedWidth);
+        updateTest(testAutoHeightT, assertionAutoHeight);
+        document.body.removeChild(newWindow);
+      });
+    } catch(e) {
+      testFixedWidthT.className = 'item-notsure';
+      testAutoHeightT.className = 'item-notsure';
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testResponsive6 () {
+  var id = 'responsive6',
+      opt = options[id],
+      fixedWidth = opt.fixedWidth,
+      gutter = opt.gutter,
+      slideWidth = fixedWidth + gutter;
+
+  addTitle(id + ': fixedWidth width few items');
+
+  var testEdgePaddingT = addTest('edgePadding toggle');
+  var testControlsNavT = addTest('controls, nav toggle');
+  var testControlsClickT = addTest('controls click after resizing');
+  var newWindow = document.createElement('iframe');
+  newWindow.setAttribute('frameBorder', '0');
+  newWindow.style.cssText = 'width: ' + (slideWidth + 100) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.src = id + '.html';
+
+  if (newWindow.addEventListener) {
+    newWindow.addEventListener('load', responsive6Tests, false);
+  } else if (newWindow.readyState) {
+    newWindow.onreadystatechange = function() {
+      if (newWindow.readyState === 'complete') {
+        responsive6Tests();
+      }
+    }
+  }
+
+  document.body.appendChild(newWindow);
+  function responsive6Tests () {
+    try {
+      var assertionEdgePadding,
+          assertionControlsNav,
+          assertionControlsClick,
+          doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
+          wrapper = doc.querySelector('#' + id + '_wrapper'),
+          container = doc.querySelector('#' + id),
+          controls = wrapper.querySelector('.tns-controls'),
+          nav = wrapper.querySelector('.tns-nav'),
+          child0 = container.children[0],
+          child1 = container.children[1],
+          // child2 = container.children[2],
+          childL = container.children[container.children.length - 1],
+          prevButton = controls.children[0],
+          nextButton = controls.children[1];
+
+      new Promise(function(resolve) {
+        var viewport = wrapper.clientWidth,
+            edge = (viewport - fixedWidth)/2;
+        assertionEdgePadding = 
+          child0.getBoundingClientRect().left === edge &&
+          child0.getBoundingClientRect().right === viewport - (edge - gutter);
+        resolve();
+      }).then(function() {
+        // go to the second slide
+        return new Promise(function(resolve) {
+          nextButton.click();
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              var viewport = wrapper.clientWidth,
+                  edge = (viewport - fixedWidth)/2;
+              assertionControlsClick = 
+                child1.getBoundingClientRect().left === edge &&
+                child1.getBoundingClientRect().right === viewport - (edge - gutter);
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (slideWidth * 2 + 100) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionEdgePadding) {
+                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+              }
+              assertionControlsNav = 
+                getComputedStyle(controls, null).display === 'none' &&
+                getComputedStyle(nav, null).display === 'none';
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (slideWidth + 100) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionEdgePadding) {
+                var viewport = wrapper.clientWidth,
+                    edge = (viewport - fixedWidth)/2;
+                assertionEdgePadding = 
+                  child0.getBoundingClientRect().left === edge &&
+                  child0.getBoundingClientRect().right === viewport - (edge - gutter);
+              }
+              if (assertionControlsNav) {
+                assertionControlsNav = 
+                  getComputedStyle(controls, null).display !== 'none' &&
+                  getComputedStyle(nav, null).display !== 'none';
+              }
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        // resize window
+        return new Promise(function(resolve) {
+          newWindow.style.width = (fixedWidth - 20) + 'px';
+          resolve();
+        }).then(function() {
+          return wait(1000).then(function() {
+            return new Promise(function(resolve) {
+              if (assertionEdgePadding) {
+                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+              }
+              resolve();
+            });
+          });
+        });
+      }).then(function() {
+        updateTest(testEdgePaddingT, assertionEdgePadding);
+        updateTest(testControlsNavT, assertionControlsNav);
+        updateTest(testControlsClickT, assertionControlsClick);
+        document.body.removeChild(newWindow);
+      });
+    } catch(e) {
+      updateTest(testEdgePaddingT, assertionEdgePadding);
+      updateTest(testControlsNavT, assertionControlsNav);
+      updateTest(testControlsClickT, assertionControlsClick);
+      document.body.removeChild(newWindow);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testMouseDrag () {
+  var id = 'mouse-drag',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      container = info.container;
+
+  addTitle(id);
+  var test = addTest('Mouse drag');
+  updateTest(test, '-notsure');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testGutter () {
+  var id = 'gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slide: gutter', function() {
+    var slideItems = info.slideItems,
+        cloneCount = info.cloneCount,
+        firstRect = slideItems[cloneCount].getBoundingClientRect(),
+        secondRect = slideItems[cloneCount + 1].getBoundingClientRect();
+    // There is no "gap" between the two slides
+    // because the gap is made by padding
+    return compare2Nums(firstRect.right, secondRect.left);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testEdgePadding () {
+  var id = 'edgePadding',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slide: position', function() {
+    return checkPositionEdgePadding(id, 0);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testEdgePaddingGutter () {
+  var id = 'edgePadding-gutter',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slide: position', function() {
+    return checkPositionEdgePadding(id);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testFewitems () {
+  var id = 'few-items',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  runTest('Slide: count, controls: hidden, nav: hidden', function() {
+    return info.container.parentNode.style.margin === '0px' &&
+      info.controlsContainer.hasAttribute('hidden') &&
+      info.navContainer.hasAttribute('hidden');
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testSlideByPage () {
+  var id = 'slide-by-page',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+  var controlsClick = addTest('Controls: click');
+  checkControlsClick(controlsClick, id, 11);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testArrowKeys () {
+  var id = 'arrowKeys',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  var test = addTest('Slides: keydown');
+  // can fire keydown event
+  if (canFireKeydown) {
+    var assertion,
+        container = info.container,
+        slideBy = info.slideBy,
+        index = slider.getInfo().index;
+    
+    new Promise(function(resolve) {
+      // fire keydown event on right arrow
+      fire(document, 'keydown', { 'keyCode': 39 });
+      resolve();
+    }).then(function() {
+      return new Promise(function(resolve) {
+        assertion = slider.getInfo().index === index + slideBy;
+        resolve();
+      });
+    }).then(function() {
+      if (assertion) {
+        return new Promise(function(resolve) {
+          // fire keydown event on right arrow
+          fire(document, 'keydown', { 'keyCode': 39 });
+          resolve();
+        }).then(function() {
+          return new Promise(function(resolve) {
+            assertion = slider.getInfo().index === index + slideBy * 2;
+            resolve();
+          });
+        }).then(function() {
+          if (assertion) {
+            return new Promise(function(resolve) {
+              // fire keydown event on left arrow
+              fire(document, 'keydown', { 'keyCode': 37 });
+              resolve();
+            }).then(function() {
+              return new Promise(function(resolve) {
+                assertion = slider.getInfo().index === index + slideBy;
+                resolve();
+              });
+            }).then(function() {
+              if (assertion) {
+                return new Promise(function(resolve) {
+                  // fire keydown event on left arrow
+                  fire(document, 'keydown', { 'keyCode': 37 });
+                  resolve();
+                }).then(function() {
+                  return new Promise(function(resolve) {
+                    assertion = slider.getInfo().index === index;
+                    resolve();
+                  });
+                });
+              } else {
+                return Promise.resolve();
+              }
+            })
+          } else {
+            return Promise.resolve();
+          }
+        })
+      } else {
+        return Promise.resolve();
+      }
+    }).then(function() {
+      updateTest(test, assertion);
+    });
+
+  // can't fire keydown event
+  // manual test needed
+  } else {
+    updateTest(test, '-notsure');
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testAutoplay () {
+  var id = 'autoplay',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      opt = options[id],
+      buttons = info.navContainer.children,
+      autoplayButton = doc.querySelector('#' + id + '_wrapper [data-action]');
+
+  addTitle(id);
+  runTest('autoplayButton: attrs', function() {
+    return autoplayButton.getAttribute('data-action') === 'stop' && 
+      autoplayButton.textContent.indexOf('stop animation') > -1;
+  });
+
+  var timeout = 0;
+  if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+  if (opt['speed']) { timeout += opt['speed']; }
+
+  var testClick = addTest('autoplayButton: click');
+  var test1 = addTest('Slide: autoplay');
+  var test2 = addTest('Slide: autoplay pause');
+
+  var assertion;
+  new Promise(function(resolve) {
+    // click autoplay button once
+    // pause
+    autoplayButton.click();
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = 
+        autoplayButton.getAttribute('data-action') === 'start' &&
+        autoplayButton.textContent.indexOf('start animation') > -1;
+      resolve();
+    });
+  }).then(function() {
+    if (assertion) {
+      return new Promise(function(resolve) {
+        // click autoplay button the second time
+        // restart
+        autoplayButton.click();
+        resolve();
+      }).then(function() {
+        return new Promise(function(resolve) {
+          assertion = 
+              autoplayButton.getAttribute('data-action') === 'stop' &&
+              autoplayButton.textContent.indexOf('stop animation') > -1;
+          resolve();
+        });
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }).then(function() {
+    return new Promise(function(resolve) {
+      updateTest(testClick, assertion);
+      resolve();
+    });
+  }).then(function() {
+    /* ### test autoplay
+     *
+     */
+    return testAutoplayFn(id, test1, timeout, false);
+  }).then(function() {
+    /* ### test autoplay pause
+     *
+     */
+    return new Promise(function(resolve) {
+      autoplayButton.click();
+      resolve();
+    }).then(function() {
+      return testAutoplayFn(id, test2, timeout, true);
+    });
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testAnimation1 () {
+  var id = 'animation1',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      slideCountNew = info.slideCountNew,
+      items = info.items,
+      slideItems = info.slideItems,
+      opt = options[id],
+      animateIn = opt['animateIn'] ? opt['animateIn'] : 'tns-fadeIn',
+      animateOut = opt['animateOut'] ? opt['animateOut'] : 'tns-fadeOut',
+      animateNormal = 'tns-normal',
+      speed = opt['speed'] ? opt['speed'] : 0;
+
+  if (localStorage['tnsAnDu'] === 'false') {
+    animateIn = 'tns-fadeIn';
+    animateOut = 'tns-fadeOut';
+  }
+
+  addTitle(id);
+
+  function checkAnimationClasses () {
+    var assertion,
+        index = slider.getInfo().index;
+
+    for (var i = slideCountNew; i--;) {
+      if (assertion !== false) {
+        assertion = (i >= index && i < index + items) ? containsClasses(slideItems[i], animateIn) : containsClasses(slideItems[i], animateNormal);
+      }
+    }
+
+    return assertion;
+  }
+
+  runTest('Slides: classes on init', function() {
+    return checkAnimationClasses();
+  });
+
+  var test = addTest('Slides: classes after click');
+  wait(300).then(function() {
+    return new Promise(function (resolve) {
+      info.nextButton.click();
+      resolve();
+    });
+  }).then(function() {
+    return wait(speed + 500).then(function() {
+      updateTest(test, checkAnimationClasses());
+    });
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testAnimation2 () {
+  var id = 'animation2',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      container = info.container,
+      slideItems = info.slideItems,
+      items = info.items,
+      slideCount = info.slideCount,
+      nextButton = info.nextButton;
+
+  addTitle(id);
+
+  var test = addTest('Slides: position after click');
+  var count = info.slideCountNew + 1;
+  var assertion;
+
+  repeat(function() {
+    // click next button *count* times
+    nextButton.click();
+  }, count).then(function() {
+    return wait(300).then(function() {
+      return new Promise(function(resolve) {
+        var index = slider.getInfo().index,
+            rect = container.parentNode.getBoundingClientRect();
+            
+        assertion = 
+          index%slideCount === count*items%slideCount &&
+          compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
+          compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
+        resolve();
+      }).then(function() {
+        updateTest(test, assertion);
+      });
+    });
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testLazyload () {
+  var id = 'lazyload',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  var edgePadding = options[id]['edgePadding'],
+      slideBy = options[id]['slideBy'] || 1,
+      slideItems = info.slideItems,
+      items = info.items,
+      index = info.index,
+      first = index,
+      last = index + items - 1;
+
+  if (edgePadding) {
+    first -= 1;
+    last += 1;  
+  }
+
+  addTitle(id);
+
+  runTest('Slide: init', function() {
+    var imgFirst = slideItems[first].querySelector('img'),
+        imgLast = slideItems[last].querySelector('img'),
+        imgPrev = slideItems[first - 1].querySelector('img'),
+        imgNext = slideItems[last + 1].querySelector('img');
+
+    return imgFirst.getAttribute('src') === imgFirst.getAttribute('data-src') &&
+      imgLast.getAttribute('src') === imgLast.getAttribute('data-src') &&
+      imgPrev.getAttribute('src') !== imgPrev.getAttribute('data-src') && 
+      imgNext.getAttribute('src') !== imgNext.getAttribute('data-src') &&
+      containsClasses(imgFirst, 'loaded') &&
+      containsClasses(imgLast, 'loaded') &&
+      !containsClasses(imgPrev, 'loaded') &&
+      !containsClasses(imgNext, 'loaded'); 
+  });
+
+  var test = addTest('Controls: click'),
+      assertion;
+
+  new Promise(function(resolve) {
+    info.nextButton.click();
+    resolve();
+  }).then(function() {
+    for (var i = last + 1; i < last + 1 + slideBy; i++) {
+      if (assertion === undefined || assertion !== false) {
+        var img = slideItems[i].querySelector('img');
+        assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
+          containsClasses(img, 'loaded');
+      }
+    }
+    updateTest(test, assertion);
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testCustomize () {
+  var id = 'customize',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      opt = options[id],
+      autoplayButton = document.querySelector(opt['autoplayButton']);
+
+  addTitle(id);
+
+  // stop autoplay and go to the first slide
+  // before testing slide attrs
+  if (opt['autoplay']) {
+    autoplayButton.click();
+    slider.goTo(0);
+  }
+  runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
+    return checkSlidesAttrs(id);
+  });
+
+  runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function() {
+    return checkControlsAttrs(id);
+  });
+
+  runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function() {
+    var assertion,
+        info = slider.getInfo(),
+        slideCount = info.slideCount,
+        absIndex = info.index%slideCount,
+        navContainer = info.navContainer,
+        navItems = info.navItems;
+
+    assertion = navContainer.getAttribute('aria-label') === 'Carousel Pagination';
+
+    while (absIndex < 0) { absIndex += slideCount; }
+    for (var i = slideCount; i--;) {
+      var arr = (i === absIndex) ? ['0', 'true'] : ['-1', 'false'],
+          nav = navItems[i];
+      if (assertion) {
+        assertion = 
+          nav.getAttribute('data-nav') === i.toString() &&
+          nav.getAttribute('aria-controls') === id + '-item' + i &&
+          nav.getAttribute(tabindex) === arr[0] &&
+          nav.getAttribute('aria-selected') === arr[1];
+      }
+    }
+    return assertion;
+  });
+
+  // simulateClick(info.prevButton);
+  var controlsClick = addTest('Controls: click functions');
+  var autoplayT = addTest('Slide: autoplay');
+  var autoplayPauseT = addTest('Slide: autoplay pause');
+  checkControlsClick(controlsClick, id, 11).then(function() {
+    if (opt['autoplay']) {
+      // reset autoplay
+      autoplayButton.click();
+
+      var timeout = 100;
+      if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+      if (opt['speed']) { timeout += opt['speed']; }
+
+      testAutoplayFn(id, autoplayT, timeout, false).then(function() {
+        return new Promise(function(resolve) {
+          autoplayButton.click();
+          resolve();
+        }).then(function() {
+          testAutoplayFn(id, autoplayPauseT, timeout, true);
+        });
+      });
+    }
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testAutoHeight () {
+  var id = 'autoHeight',
+      slider = sliders[id],
+      info = slider.getInfo();
+
+  addTitle(id);
+
+  var test1 = addTest('Slide: init');
+  var test2 = addTest('Slide: click');
+  imagesLoaded(info.container, function() {
+    var assertion,
+        wrapper = info.container.parentNode,
+        slideItems = info.slideItems,
+        nextButton = info.nextButton;
+
+    assertion = containsClasses(wrapper, ['tns-ah']) &&
+      compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+    updateTest(test1, assertion);
+
+    assertion = null;
+    new Promise(function(resolve) {
+      nextButton.click();
+
+      setTimeout(function() {
+        assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+        resolve();
+      }, 500);
+    }).then(function() {
+      return new Promise(function(resolve) {
+        nextButton.click();
+
+        setTimeout(function() {
+          if (assertion || assertion === null) {
+            assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+          }
+          resolve();
+        }, 500);
+      });
+    }).then(function() {
+      updateTest(test2, assertion);
+    });
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function testNested () {
+  var id = 'nested',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      index = info.index,
+      slideBy = info.slideBy,
+      nextButton = info.nextButton,
+      prevButton = info.prevButton,
+      assertion,
+      _id = 'nested_inner',
+      _slider = sliders[_id],
+      _info = _slider.getInfo(),
+      _index = _info.index,
+      _slideBy = _info.slideBy,
+      _nextButton = _info.nextButton,
+      _edgePadding = _info.edgePadding ? _info.edgePadding : 0,
+      _assertion;
+
+  addTitle(id);
+  runTest('Slides: position', function() {
+    return checkPositionEdgePadding(id);
+  });
+  var test = addTest('Controls: click');
+
+  addTitle(_id);
+  runTest('Slides: position', function() {
+    return checkPositionEdgePadding(_id);
+  });
+  var _test = addTest('Controls: click');
+
+  new Promise(function(resolve) {
+    nextButton.click();
+    resolve();
+  }).then(function() {
+    return new Promise(function(resolve) {
+      assertion = slider.getInfo().index === index + slideBy &&
+        _slider.getInfo().index === _index;
+      updateTest(test, assertion);
+      resolve();
+    });
+  }).then(function() {
+    return new Promise(function(resolve) {
+      prevButton.click();
+      _nextButton.click();
+      resolve();
+    }).then(function() {
+      return new Promise(function(resolve) {
+        _assertion = _slider.getInfo().index === _index + _slideBy &&
+          slider.getInfo().index === index;    
+        updateTest(_test, _assertion);
+        resolve();
+      });
+    });
+  });
 }
 
-function testAutoplayFn (id, el, timeout, equal) {
-}
+
+
+
+
+
 
 
 
@@ -481,7 +2411,7 @@ function checkControlsAttrs (id) {
     nextButton.getAttribute('aria-controls') === id;
 }
 
-function checkControlsClick (test, id, count, vertical) {
+async function checkControlsClick (test, id, count, vertical) {
   var assertion,
       slider = sliders[id],
       info = slider.getInfo(),
@@ -519,48 +2449,31 @@ function checkControlsClick (test, id, count, vertical) {
   }
 
   // click prev button n times
-  var current = info.index;
-  var promise = (id === 'customize') ? 
-      repeat(function() { simulateClick(info.prevButton); }, count) : 
-      repeat(function() { info.prevButton.click(); }, count);
+  var current = info.index,
+      absIndex = getAbsIndex(current, -count, info);
+  await repeat(function() {
+    (id === 'customize') ? simulateClick(info.prevButton) : info.prevButton.click();
+  }, count);
+  assertion = getAssertion(absIndex);
 
-  return promise.then(function() {
-    return new Promise(function(resolve, reject) {
-      var absIndex = getAbsIndex(current, -count, info);
-      assertion = getAssertion(absIndex);
-      resolve();
-    });
-  }).then(function() {
-    if (assertion) {
-      var clickNext = (id === 'customize') ? 
-          repeat(function() { simulateClick(info.nextButton); }, count) : 
-          repeat(function() { info.nextButton.click(); }, count);
+  if (assertion) {
+    // click next button n times
+    await repeat(function() {
+      (id === 'customize') ? simulateClick(info.nextButton) : info.nextButton.click();
+    }, count);
+    assertion = getAssertion(0);
+  }
 
-      return clickNext.then(function() {
-        return new Promise(function(resolve, reject) {
-          assertion = getAssertion(0);
-          resolve();
-        });
-      });
-    } else {
-      return Promise.resolve();
-    }
-  }).then(function() {
-    return Promise.resolve().then(function() {
-      updateTest(test, assertion);
-    });
-  });
+  updateTest(test, assertion);
 }
 
 function checkPositionEdgePadding (id, vertical) {
   var opt = options[id],
-      info = sliders[id].getInfo();
-
-  var padding = opt.edgePadding ? opt.edgePadding : 0,
+      info = sliders[id].getInfo(),
+      padding = opt.edgePadding ? opt.edgePadding : 0,
       gap = opt.gutter ? opt.gutter : 0,
-      vertical = vertical || false;
-
-  var slideItems = info.slideItems,
+      vertical = vertical || false,
+      slideItems = info.slideItems,
       cloneCount = info.cloneCount,
       wrapper = info.container.parentNode,
       first = slideItems[cloneCount],
@@ -604,12 +2517,12 @@ initFns = {
   'fixedWidth-gutter': testFixedWidthGutter,
   'fixedWidth-edgePadding': testFixedWidthEdgePadding,
   'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
-  'responsive1': testResponsive1,
-  'responsive2': testResponsive2,
-  'responsive3': testResponsive3,
-  'responsive4': testResponsive4,
-  'responsive5': testResponsive5,
-  'responsive6': testResponsive6,
+  // 'responsive1': testResponsive1,
+  // 'responsive2': testResponsive2,
+  // 'responsive3': testResponsive3,
+  // 'responsive4': testResponsive4,
+  // 'responsive5': testResponsive5,
+  // 'responsive6': testResponsive6,
   'arrowKeys': testArrowKeys,
   'autoplay': testAutoplay,
   'vertical': testVertical,

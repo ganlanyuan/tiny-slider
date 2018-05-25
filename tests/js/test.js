@@ -602,7 +602,8 @@ function testVerticalEdgePaddingGutter () {
   addTitle(id);
   runTest('Slides: position, edge padding', function() {
     return checkPositionEdgePadding(id, true);
-  });}
+  });
+}
 
 function testResponsive1 () {
   var id = 'responsive1',
