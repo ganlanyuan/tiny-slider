@@ -109,7 +109,6 @@ gulp.task('min', ['editPro'], function () {
 })
 
 gulp.task('test', function () {
-  console.log(pathTest + testScript);
   return rollup({
     input: pathTest + testScript,
     context: 'window',
@@ -120,7 +119,9 @@ gulp.task('test', function () {
         main: true,
         browser: true,
       }),
-      babel(),
+      // babel({
+      //   exclude: 'node_modules/**' // only transpile our source code
+      // }),
     ],
   }).then(function (bundle) {
     return bundle.write({
@@ -187,7 +188,7 @@ gulp.task('server', function() {
   gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
   gulp.watch(pathSrc + helperIEScript, ['helper-ie8']);
-  gulp.watch([pathTest + testScript], ['test']);
+  // gulp.watch([pathTest + testScript], ['test']);
   gulp.watch(['**/*.html', pathTest + '*.js', pathDest + '*.css', pathDest + 'min/*.js']).on('change', browserSync.reload);
 });
 

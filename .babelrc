@@ -1,3 +1,6 @@
 {
-  "presets": [ "stage-3" ]
+  "presets": [
+    "es2015",
+    "es2017"
+  ]
 }
