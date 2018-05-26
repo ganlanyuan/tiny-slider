@@ -127,6 +127,8 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
 | `controlsContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the prev/next buttons. <br> `controlsContainer` must have at least 2 child elements. |
+| `prevButton` | Node \| String \| false | Default: false. <br> Customized previous buttons. <br> This option will be ignored if `controlsContainer` is a Node element or a CSS selector. |
+| `nextButton` | Node \| String \| false | Default: false. <br> Customized next buttons. <br> This option will be ignored if `controlsContainer` is a Node element or a CSS selector. |
 | `nav` | Boolean | Default: true. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
 | `navContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the dots. <br> `navContainer` must have at least same number of children as the slides. |
 | `navAsThumbnails` | Boolean | Default: false. <br> Indecate if the dots are thurbnails. If `true`, they will always be visible even when more than 1 slides displayed in the viewport. |
