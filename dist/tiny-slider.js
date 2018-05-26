@@ -708,7 +708,8 @@ var tns = function(options) {
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
-      cloneCount = loop ? slideCount * 2 : 0,
+      // cloneCount = loop ? slideCount * 2 : 0,
+      cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
       updateIndexBeforeTransform = !carousel || !loop ? true : false,
@@ -776,14 +777,6 @@ var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
-
-  // check startIndex
-  function updateStartIndex (indexTem) {
-    indexTem = indexTem%slideCount;
-    if (indexTem < 0) { indexTem += slideCount; }
-    indexTem = Math.min(indexTem, slideCountNew - items);
-    return indexTem;
-  }
 
   // controls
   if (hasControls) {
@@ -862,6 +855,32 @@ var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
+  function updateStartIndex (indexTem) {
+    indexTem = indexTem%slideCount;
+    if (indexTem < 0) { indexTem += slideCount; }
+    indexTem = Math.min(indexTem, slideCountNew - items);
+    return indexTem;
+  }
+
+  function getItemsMax () {
+    var arr = [0];
+    if (options.items < slideCount) { arr.push(options.items); }
+
+    if (breakpoints && responsiveItems.indexOf('items') >= 0) {
+      breakpoints.forEach(function (bp) {
+        var itemsTem = responsive[bp].items;
+        if (itemsTem && itemsTem < slideCount) { arr.push(itemsTem); }
+      });
+    }
+    return Math.max.apply(null, arr);
+  }
+
+  function getCloneCountForLoop () {
+    var itemsMax = getItemsMax(),
+        result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 3 - slideCount);
+    return Math.max(0, result);
+  }
+
   function getWindowWidth () {
     return win$2.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
   }
