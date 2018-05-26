@@ -1858,19 +1858,44 @@ function getAbsIndex(current, clicks, info) {
   return (current + info.slideBy * clicks + info.slideCount * multiplyer) % info.slideCount;
 }
 
+function getCloneCountForLoop(opt, sCount) {
+  var arr = [0],
+      responsive = opt.responsive,
+      itemsMax,
+      result;
+
+  if (opt.items < sCount) {
+    arr.push(opt.items);
+  }
+
+  if (responsive) {
+    for (var bp in responsive) {
+      var itemsTem = responsive[bp].items;
+      if (itemsTem && itemsTem < sCount) {
+        arr.push(itemsTem);
+      }
+    }
+  }
+  itemsMax = Math.max.apply(null, arr);
+  result = carousel ? Math.ceil((itemsMax * 5 - slideCount) / 2) : itemsMax * 3 - slideCount;
+  return Math.max(0, result);
+}
+
 function checkSlidesAttrs(id) {
   var info = sliders[id].getInfo(),
       slideItems = info.slideItems,
       index = info.index,
       items = info.items,
       slideCount = info.slideCount,
+      cloneCount = info.cloneCount,
       firstVisible = slideItems[index],
       lastVisible = slideItems[index + items - 1],
       firstVisiblePrev = slideItems[index - 1],
       lastVisibleNext = slideItems[index + items],
-      checkLastItem = options[id]['axis'] === 'vertical' ? true : compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top);
+      checkLastItem = options[id]['axis'] === 'vertical' ? true : compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top),
+      mul = options[id].loop !== false ? 2 : 1;
 
-  return slideItems.length === info.slideCount * 5 && containsClasses(firstVisible, ['tns-item']) && firstVisible.id === id + '-item' + 0 && firstVisible.getAttribute('aria-hidden') === 'false' && !firstVisible.hasAttribute('tabindex') && firstVisiblePrev.id === '' && firstVisiblePrev.getAttribute('aria-hidden') === 'true' && firstVisiblePrev.getAttribute('tabindex') === '-1' && lastVisible.id === id + '-item' + (items - 1) && lastVisible.getAttribute('aria-hidden') === 'false' && !lastVisible.hasAttribute('tabindex') && lastVisibleNext.getAttribute('aria-hidden') === 'true' && lastVisibleNext.getAttribute('tabindex') === '-1' && compare2Nums(firstVisible.clientWidth, windowWidth / items) && checkLastItem;
+  return slideItems.length === slideCount + cloneCount * mul && containsClasses(firstVisible, ['tns-item']) && firstVisible.id === id + '-item' + 0 && firstVisible.getAttribute('aria-hidden') === 'false' && !firstVisible.hasAttribute('tabindex') && firstVisiblePrev.id === '' && firstVisiblePrev.getAttribute('aria-hidden') === 'true' && firstVisiblePrev.getAttribute('tabindex') === '-1' && lastVisible.id === id + '-item' + (items - 1) && lastVisible.getAttribute('aria-hidden') === 'false' && !lastVisible.hasAttribute('tabindex') && lastVisibleNext.getAttribute('aria-hidden') === 'true' && lastVisibleNext.getAttribute('tabindex') === '-1' && compare2Nums(firstVisible.clientWidth, windowWidth / items) && checkLastItem;
 }
 
 function checkControlsAttrs(id) {
