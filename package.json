@@ -7,8 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "nodemon --watch tests/js/tests.js --exec npm test",
-    "test": "babel tests/js/tests.js -o tests/js/tests.min.js"
+    "start": "nodemon --watch tests/js/tests-async.js --exec npm test",
+    "test": "babel tests/js/tests-async.js -o tests/js/tests-async-es5.js"
   },
   "repository": {
     "type": "git",
