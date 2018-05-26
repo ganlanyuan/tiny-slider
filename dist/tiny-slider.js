@@ -25,18 +25,18 @@ if (!Object.keys) {
   }
 })();
 
-var win$1 = window;
+var win = window;
 
-var raf = win$1.requestAnimationFrame
-  || win$1.webkitRequestAnimationFrame
-  || win$1.mozRequestAnimationFrame
-  || win$1.msRequestAnimationFrame
+var raf = win.requestAnimationFrame
+  || win.webkitRequestAnimationFrame
+  || win.mozRequestAnimationFrame
+  || win.msRequestAnimationFrame
   || function(cb) { return setTimeout(cb, 16); };
 
-var win$2 = window;
+var win$1 = window;
 
-var caf = win$2.cancelAnimationFrame
-  || win$2.mozCancelAnimationFrame
+var caf = win$1.cancelAnimationFrame
+  || win$1.mozCancelAnimationFrame
   || function(id){ clearTimeout(id); };
 
 function extend() {
@@ -116,8 +116,7 @@ function resetFakeBody (body, docOverflow) {
 }
 
 // get css-calc 
-// @return - false | calc | -webkit-calc | -moz-calc
-// @usage - var calc = getCalc(); 
+
 function calc() {
   var doc = document, 
       body = getBody(),
@@ -144,7 +143,7 @@ function calc() {
 }
 
 // get subpixel support value
-// @return - boolean
+
 function subpixelLayout() {
   var doc = document,
       body = getBody(),
@@ -443,16 +442,14 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Format: IIFE
-// Version: 2.6.0
 
-// helper functions
 // check browser version and local storage
 // if browser upgraded, 
 // 1. delete browser ralated data from local storage and 
 // 2. recheck these options and save them to local storage
-var browserInfo = navigator.userAgent;
-var localStorageAccess = true;
-var tnsStorage = {};
+var browserInfo = navigator.userAgent,
+    localStorageAccess = true,
+    tnsStorage = {};
 
 // tC => calc
 // tSP => subpixel
@@ -470,7 +467,7 @@ try {
   if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
     ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
       tnsStorage.removeItem(item);
-    })
+    });
   }
   // update browserInfo
   tnsStorage['tnsApp'] = browserInfo;
@@ -485,9 +482,9 @@ if (localStorageAccess && !localStorage) { tnsStorage = {}; }
 // get browser related data from local storage if they exist
 // otherwise, run the functions again and save these data to local storage
 // checkStorageValue() convert non-string value to its original value: 'true' > true
-var doc = document;
-var win = window;
-var KEYS = {
+var doc = document,
+    win$2 = window,
+    KEYS = {
       ENTER: 13,
       SPACE: 32,
       PAGEUP: 33,
@@ -498,43 +495,43 @@ var KEYS = {
       UP: 38,
       RIGHT: 39,
       DOWN: 40
-    };
-var CALC = checkStorageValue(tnsStorage['tC']) || setLocalStorage('tC', calc(), localStorageAccess);
-var SUBPIXEL = checkStorageValue(tnsStorage['tSP']) || setLocalStorage('tSP', subpixelLayout(), localStorageAccess);
-var CSSMQ = checkStorageValue(tnsStorage['tMQ']) || setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess);
-var TRANSFORM = checkStorageValue(tnsStorage['tTf']) || setLocalStorage('tTf', whichProperty([
+    },
+    CALC = checkStorageValue(tnsStorage['tC']) || setLocalStorage('tC', calc(), localStorageAccess),
+    SUBPIXEL = checkStorageValue(tnsStorage['tSP']) || setLocalStorage('tSP', subpixelLayout(), localStorageAccess),
+    CSSMQ = checkStorageValue(tnsStorage['tMQ']) || setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess),
+    TRANSFORM = checkStorageValue(tnsStorage['tTf']) || setLocalStorage('tTf', whichProperty([
       'transform', 
       'WebkitTransform', 
       'MozTransform', 
       'msTransform', 
       'OTransform'
-    ]), localStorageAccess);
-var TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
+    ]), localStorageAccess),
+    TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
       'MozTransitionDuration', 
       'OTransitionDuration'
-    ]), localStorageAccess);
-var TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']) || setLocalStorage('tTDe', whichProperty([
+    ]), localStorageAccess),
+    TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']) || setLocalStorage('tTDe', whichProperty([
       'transitionDelay', 
       'WebkitTransitionDelay', 
       'MozTransitionDelay', 
       'OTransitionDelay'
-    ]), localStorageAccess);
-var ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']) || setLocalStorage('tADu', whichProperty([
+    ]), localStorageAccess),
+    ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']) || setLocalStorage('tADu', whichProperty([
       'animationDuration', 
       'WebkitAnimationDuration', 
       'MozAnimationDuration', 
       'OAnimationDuration'
-    ]), localStorageAccess);
-var ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']) || setLocalStorage('tADe', whichProperty([
+    ]), localStorageAccess),
+    ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']) || setLocalStorage('tADe', whichProperty([
       'animationDelay', 
       'WebkitAnimationDelay', 
       'MozAnimationDelay', 
       'OAnimationDelay'
-    ]), localStorageAccess);
-var TRANSITIONEND = checkStorageValue(tnsStorage['tTE']) || setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess);
-var ANIMATIONEND = checkStorageValue(tnsStorage['tAE']) || setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
+    ]), localStorageAccess),
+    TRANSITIONEND = checkStorageValue(tnsStorage['tTE']) || setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
+    ANIMATIONEND = checkStorageValue(tnsStorage['tAE']) || setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
 
 // reset SUBPIXEL for IE8
 if (!CSSMQ) { SUBPIXEL = false; }
@@ -552,6 +549,8 @@ var tns = function(options) {
     controls: true,
     controlsText: ['prev', 'next'],
     controlsContainer: false,
+    prevButton: false,
+    nextButton: false,
     nav: true,
     navContainer: false,
     navAsThumbnails: false,
@@ -584,8 +583,8 @@ var tns = function(options) {
   }, options || {});
   
   // get element nodes from selectors
-  var supportConsoleWarn = win.console && typeof win.console.warn === "function";
-  var list = ['container', 'controlsContainer', 'navContainer', 'autoplayButton'];
+  var supportConsoleWarn = win$2.console && typeof win$2.console.warn === "function";
+  var list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'];
   for (var i = list.length; i--;) {
     var item = list[i];
     if (typeof options[item] === 'string') {
@@ -791,8 +790,8 @@ var tns = function(options) {
     var controls = getOption('controls'),
         controlsText = getOption('controlsText'),
         controlsContainer = options.controlsContainer,
-        prevButton,
-        nextButton,
+        prevButton = options.prevButton,
+        nextButton = options.nextButton,
         prevIsButton,
         nextIsButton;
   }
@@ -864,7 +863,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getWindowWidth () {
-    return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
+    return win$2.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
   }
 
   function getViewportWidth (el) {
@@ -1139,7 +1138,7 @@ var tns = function(options) {
       // for modern browsers
       if (SUBPIXEL) {
         // set slides font-size first
-        addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win$2.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
 
       // slide left margin
@@ -1358,19 +1357,22 @@ var tns = function(options) {
 
     // == controlsInit ==
     if (hasControls) {
-      if (controlsContainer) {
-        prevButton = controlsContainer.children[0];
-        nextButton = controlsContainer.children[1];
-        setAttrs(controlsContainer, {
-          'aria-label': 'Carousel Navigation',
-          'tabindex': '0'
-        });
+      if (controlsContainer || (prevButton && nextButton)) {
+        if (controlsContainer) {
+          prevButton = controlsContainer.children[0];
+          nextButton = controlsContainer.children[1];
+          setAttrs(controlsContainer, {
+            'aria-label': 'Carousel Navigation',
+            'tabindex': '0'
+          });
+          setAttrs(controlsContainer.children, {
+            'aria-controls': slideId,
+            'tabindex': '-1',
+          });
+        }
+        
         setAttrs(prevButton, {'data-controls' : 'prev'});
         setAttrs(nextButton, {'data-controls' : 'next'});
-        setAttrs(controlsContainer.children, {
-          'aria-controls': slideId,
-          'tabindex': '-1',
-        });
       } else {
         outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
@@ -1385,7 +1387,12 @@ var tns = function(options) {
       updateControlsStatus();
 
       // add events
-      addEvents(controlsContainer, controlsEvents);
+      if (controlsContainer) {
+        addEvents(controlsContainer, controlsEvents);
+      } else {
+        addEvents(prevButton, controlsEvents);
+        addEvents(nextButton, controlsEvents);
+      }
 
       if (!controls) { hideElement(controlsContainer); }
     }
@@ -1402,7 +1409,7 @@ var tns = function(options) {
         events.emit('innerLoaded', info());
       });
     } else {
-      addEvents(win, {'resize': onResize});
+      addEvents(win$2, {'resize': onResize});
     }
 
     if (nested === 'outer') {
@@ -2531,11 +2538,11 @@ var tns = function(options) {
   }
 
   function getEvent (e) {
-    e = e || win.event;
+    e = e || win$2.event;
     return isTouchEvent(e) ? e.changedTouches[0] : e;
   }
   function getTarget (e) {
-    return e.target || win.event.srcElement;
+    return e.target || win$2.event.srcElement;
   }
 
   function isTouchEvent (e) {
@@ -2745,7 +2752,7 @@ var tns = function(options) {
 
     destroy: function () {
       // remove win event listeners
-      removeEvents(win, {'resize': onResize});
+      removeEvents(win$2, {'resize': onResize});
 
       // remove arrowKeys eventlistener
       removeEvents(doc, docmentKeydownEvent);
