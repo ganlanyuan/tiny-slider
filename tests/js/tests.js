@@ -716,7 +716,6 @@ function testVerticalEdgePaddingGutter () {
 
 
 function testResponsive1 () {
-  console.log('abc');
   var id = 'responsive1',
       responsive = options[id]['responsive'],
       bps = Object.keys(responsive).sort(function(a, b) { return a - b; });
@@ -761,6 +760,7 @@ function testResponsive1 () {
           gutter = options[id].gutter,
           edgePadding = responsive[bps[0]].edgePadding,
           firstRect,
+          secondRect,
           lastRect,
           wrapperRect;
 
@@ -819,12 +819,13 @@ function testResponsive1 () {
       }
 
       updateTest(testSlideBy, assertionSlideBy);
-      document.body.removeChild(newWindow);
     } catch (e) {
+      console.log(e);
       testItems.className = 'item-notsure';
       testSlideBy.className = 'item-notsure';
       testGutter.className = 'item-notsure';
       testEdgePadding.className = 'item-notsure';
+    } finally {
       document.body.removeChild(newWindow);
     }
   }
@@ -855,10 +856,10 @@ function testResponsive2 () {
 
   addTitle(id + ': controls, nav, autoplay display toggle');
 
-  var testControlsT = addTest('controls');
-  var testNavT = addTest('nav');
-  var testAutoplayT = addTest('autoplay');
-  var newWindow = document.createElement('iframe');
+  var testControlsT = addTest('controls'),
+      testNavT = addTest('nav'),
+      testAutoplayT = addTest('autoplay'),
+      newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
@@ -875,7 +876,7 @@ function testResponsive2 () {
 
   document.body.appendChild(newWindow);
 
-  function responsive2Tests () {
+  async function responsive2Tests () {
     try {
       var assertionControls,
           assertionNav,
@@ -890,77 +891,52 @@ function testResponsive2 () {
           timeouts = [options[id].autoplayTimeout, responsive[bps[0]].autoplayTimeout],
           firstRect;
 
-      return new Promise(function(resolve) {
-        firstRect = slideItems[index].getBoundingClientRect();
+      firstRect = slideItems[index].getBoundingClientRect();
+      await wait(timeouts[1] + 1000);
+      assertionControls = getComputedStyle(controlsContainer, null).display !== 'none';
+      assertionNav = getComputedStyle(navContainer, null).display === 'none';
+      assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
+        autoplayButton.getAttribute('data-action') === 'start' &&
+        firstRect.left === slideItems[index].getBoundingClientRect().left;
+      // console.log(assertionControls, assertionNav, assertionAutoplay);
+      // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
 
-        resolve();
-      }).then(function() {
-        return wait(timeouts[1] + 1000).then(function() {
-          return new Promise(function(resolve) {
-            assertionControls = getComputedStyle(controlsContainer, null).display !== 'none';
-            assertionNav = getComputedStyle(navContainer, null).display === 'none';
-            assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
-              autoplayButton.getAttribute('data-action') === 'start' &&
-              firstRect.left === slideItems[index].getBoundingClientRect().left;
-            // console.log(assertionControls, assertionNav, assertionAutoplay);
-            // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
-            resolve();
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
-          firstRect = slideItems[index].getBoundingClientRect();
-          resolve();
-        }).then(function() {
-          return wait(timeouts[1] + 1000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display === 'none'; }
-              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
-              if (assertionAutoplay) {
-                assertionAutoplay = getComputedStyle(autoplayButton, null).display !== 'none' &&
-                  autoplayButton.getAttribute('data-action') === 'stop' &&
-                  firstRect.left !== slideItems[index].getBoundingClientRect().left;
-              }
-              // console.log(assertionControls, assertionNav, assertionAutoplay);
-              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
-          firstRect = slideItems[index].getBoundingClientRect();
-          resolve();
-        }).then(function() {
-          return wait(timeouts[0] + 1000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display !== 'none'; }
-              if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
-              if (assertionAutoplay) {
-                assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
-                  autoplayButton.getAttribute('data-action') === 'start' 
-                  firstRect.left === slideItems[index].getBoundingClientRect().left;
-              }
-              // console.log(assertionControls, assertionNav, assertionAutoplay);
-              // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        updateTest(testControlsT, assertionControls);
-        updateTest(testNavT, assertionNav);
-        updateTest(testAutoplayT, assertionAutoplay);
-        document.body.removeChild(newWindow);
-      });
+      // resize window
+      newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+      firstRect = slideItems[index].getBoundingClientRect();
+      await wait(timeouts[1] + 1000);
+      if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display === 'none'; }
+      if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
+      if (assertionAutoplay) {
+        assertionAutoplay = getComputedStyle(autoplayButton, null).display !== 'none' &&
+          autoplayButton.getAttribute('data-action') === 'stop' &&
+          firstRect.left !== slideItems[index].getBoundingClientRect().left;
+      }
+      // console.log(assertionControls, assertionNav, assertionAutoplay);
+      // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
+
+      // resize window
+      newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+      firstRect = slideItems[index].getBoundingClientRect();
+      await wait(timeouts[0] + 1000);
+      if (assertionControls) { assertionControls = getComputedStyle(controlsContainer, null).display !== 'none'; }
+      if (assertionNav) { assertionNav = getComputedStyle(navContainer, null).display !== 'none'; }
+      if (assertionAutoplay) {
+        assertionAutoplay = getComputedStyle(autoplayButton, null).display === 'none' &&
+          autoplayButton.getAttribute('data-action') === 'start' 
+          firstRect.left === slideItems[index].getBoundingClientRect().left;
+      }
+      // console.log(assertionControls, assertionNav, assertionAutoplay);
+      // alert(assertionControls + ', ' + assertionNav + ', ' + assertionAutoplay);
+
+      updateTest(testControlsT, assertionControls);
+      updateTest(testNavT, assertionNav);
+      updateTest(testAutoplayT, assertionAutoplay);
     } catch (e) {
       testControlsT.className = 'item-notsure';
       testNavT.className = 'item-notsure';
       testAutoplayT.className = 'item-notsure';
+    } finally {
       document.body.removeChild(newWindow);
     }
   }
@@ -992,9 +968,10 @@ function testResponsive3() {
 
   addTitle(id + ': controls, autoplay text content update');
 
-  var testControlsT = addTest('controlsText');
-  var testAutoplayT = addTest('autoplayText');
-  var newWindow = document.createElement('iframe');
+  var testControlsT = addTest('controlsText'),
+      testAutoplayT = addTest('autoplayText'),
+      newWindow = document.createElement('iframe');
+
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
@@ -1011,7 +988,7 @@ function testResponsive3() {
 
   document.body.appendChild(newWindow);
 
-  function responsive3Tests () {
+  async function responsive3Tests () {
     try {
       var assertionControls,
           assertionAutoplay,
@@ -1020,65 +997,44 @@ function testResponsive3() {
           controlsContainer = box.querySelector('.tns-controls'),
           prevButton = controlsContainer.children[0],
           nextButton = controlsContainer.children[1],
-          autoplayButton = box.querySelector('[data-action]');
+          autoplayButton = box.querySelector('[data-action]'),
+          str;
 
-      return new Promise(function(resolve) {
-        var str = autoplayButton.innerHTML;
+      str = autoplayButton.innerHTML;
+      assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+      assertionAutoplay = str.substring(str.length - 4) === 'stop';
+      // console.log(assertionControls, assertionAutoplay);
+
+      // resize window
+      newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+      await wait(1000);
+      str = autoplayButton.innerHTML;
+      if (assertionControls) {
+        assertionControls = prevButton.innerHTML === '&lt;' && nextButton.innerHTML === '&gt;';
+      }
+      if (assertionAutoplay) {
+        assertionAutoplay = str.substring(str.length - 2) === '||';
+      }
+      // console.log(assertionControls, assertionAutoplay);
+
+      // resize window
+      newWindow.style.width = (Number(bps[0]) - 20) + 'px';
+      await wait(1000);
+      str = autoplayButton.innerHTML;
+      if (assertionControls) {
         assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
+      }
+      if (assertionAutoplay) {
         assertionAutoplay = str.substring(str.length - 4) === 'stop';
-        // console.log(assertionControls, assertionAutoplay);
+      }
+      // console.log(assertionControls, assertionAutoplay);
 
-        resolve();
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              var str = autoplayButton.innerHTML;
-              if (assertionControls) {
-                assertionControls = prevButton.innerHTML === '&lt;' && nextButton.innerHTML === '&gt;';
-              }
-              if (assertionAutoplay) {
-                assertionAutoplay = str.substring(str.length - 2) === '||';
-              }
-              // console.log(assertionControls, assertionAutoplay);
-
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[0]) - 20) + 'px';
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              var str = autoplayButton.innerHTML;
-              if (assertionControls) {
-                assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
-              }
-              if (assertionAutoplay) {
-                assertionAutoplay = str.substring(str.length - 4) === 'stop';
-              }
-              // console.log(assertionControls, assertionAutoplay);
-
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        updateTest(testControlsT, assertionControls);
-        updateTest(testAutoplayT, assertionAutoplay);
-        document.body.removeChild(newWindow);
-      });
+      updateTest(testControlsT, assertionControls);
+      updateTest(testAutoplayT, assertionAutoplay);
     } catch (e) {
       testControlsT.className = 'item-notsure';
       testAutoplayT.className = 'item-notsure';
+    } finally {
       document.body.removeChild(newWindow);
     }
   }
@@ -1110,9 +1066,10 @@ function testResponsive4 () {
 
   addTitle(id + ': touch, mouseDrag, arrowKeys toggle');
 
-  var testTouchT = addTest('touch');
-  var testMouseDragT = addTest('mouse drag');
-  var testArrowKeysT = addTest('arrow keys');
+  var testTouchT = addTest('touch'),
+      testMouseDragT = addTest('mouse drag'),
+      testArrowKeysT = addTest('arrow keys');
+
   updateTest(testTouchT, '-notsure');
   updateTest(testMouseDragT, '-notsure');
   updateTest(testArrowKeysT, '-notsure');
@@ -1216,9 +1173,10 @@ function testResponsive5 () {
 
   addTitle(id + ': fixedWidth update, autoHeight toggle');
 
-  var testFixedWidthT = addTest('fixedWidth');
-  var testAutoHeightT = addTest('auto height');
-  var newWindow = document.createElement('iframe');
+  var testFixedWidthT = addTest('fixedWidth'),
+      testAutoHeightT = addTest('auto height'),
+      newWindow = document.createElement('iframe');
+
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[0]) - 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
@@ -1235,7 +1193,7 @@ function testResponsive5 () {
 
   document.body.appendChild(newWindow);
 
-  function responsive5Tests () {
+  async function responsive5Tests () {
     try {
       var assertionFixedWidth,
           assertionAutoHeight,
@@ -1243,43 +1201,29 @@ function testResponsive5 () {
           wrapper = doc.querySelector('#' + id + '-iw'),
           first = doc.querySelector('#' + id).children[14];
 
-      new Promise(function(resolve) {
-        assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
+      assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
+        wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+      assertionAutoHeight = wrapper.style.height === '';
+      // console.log(assertionFixedWidth, assertionAutoHeight);
+
+      // resize window
+      newWindow.style.width = (Number(bps[0]) + 20) + 'px';
+      await wait(2000);
+      if (assertionFixedWidth) {
+        assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth &&
           wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
-        assertionAutoHeight = wrapper.style.height === '';
-        // console.log(assertionFixedWidth, assertionAutoHeight);
+      }
+      if (assertionAutoHeight) {
+        assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
+      }
+      // console.log(assertionFixedWidth, assertionAutoHeight);
 
-        resolve();
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (Number(bps[0]) + 20) + 'px';
-
-          resolve();
-        }).then(function() {
-          return wait(2000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionFixedWidth) {
-                assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth &&
-                  wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
-              }
-              if (assertionAutoHeight) {
-                assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
-              }
-              // console.log(assertionFixedWidth, assertionAutoHeight);
-
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        updateTest(testFixedWidthT, assertionFixedWidth);
-        updateTest(testAutoHeightT, assertionAutoHeight);
-        document.body.removeChild(newWindow);
-      });
+      updateTest(testFixedWidthT, assertionFixedWidth);
+      updateTest(testAutoHeightT, assertionAutoHeight);
     } catch(e) {
       testFixedWidthT.className = 'item-notsure';
       testAutoHeightT.className = 'item-notsure';
+    } finally {
       document.body.removeChild(newWindow);
     }
   }
@@ -1313,10 +1257,11 @@ function testResponsive6 () {
 
   addTitle(id + ': fixedWidth width few items');
 
-  var testEdgePaddingT = addTest('edgePadding toggle');
-  var testControlsNavT = addTest('controls, nav toggle');
-  var testControlsClickT = addTest('controls click after resizing');
-  var newWindow = document.createElement('iframe');
+  var testEdgePaddingT = addTest('edgePadding toggle'),
+      testControlsNavT = addTest('controls, nav toggle'),
+      testControlsClickT = addTest('controls click after resizing'),
+      newWindow = document.createElement('iframe');
+
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (slideWidth + 100) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
@@ -1332,7 +1277,8 @@ function testResponsive6 () {
   }
 
   document.body.appendChild(newWindow);
-  function responsive6Tests () {
+
+  async function responsive6Tests () {
     try {
       var assertionEdgePadding,
           assertionControlsNav,
@@ -1349,97 +1295,62 @@ function testResponsive6 () {
           prevButton = controls.children[0],
           nextButton = controls.children[1];
 
-      new Promise(function(resolve) {
+      var viewport = wrapper.clientWidth,
+          edge = (viewport - fixedWidth)/2;
+      assertionEdgePadding = 
+        child0.getBoundingClientRect().left === edge &&
+        child0.getBoundingClientRect().right === viewport - (edge - gutter);
+
+      // go to the second slide
+      nextButton.click();
+      await wait(1000);
+      var viewport = wrapper.clientWidth,
+          edge = (viewport - fixedWidth)/2;
+      assertionControlsClick = 
+        child1.getBoundingClientRect().left === edge &&
+        child1.getBoundingClientRect().right === viewport - (edge - gutter);
+
+      // resize window
+      newWindow.style.width = (slideWidth * 2 + 100) + 'px';
+      await wait(1000);
+      if (assertionEdgePadding) {
+        assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+      }
+      assertionControlsNav = 
+        getComputedStyle(controls, null).display === 'none' &&
+        getComputedStyle(nav, null).display === 'none';
+
+      // resize window
+      newWindow.style.width = (slideWidth + 100) + 'px';
+      await wait(1000);
+      if (assertionEdgePadding) {
         var viewport = wrapper.clientWidth,
             edge = (viewport - fixedWidth)/2;
         assertionEdgePadding = 
           child0.getBoundingClientRect().left === edge &&
           child0.getBoundingClientRect().right === viewport - (edge - gutter);
-        resolve();
-      }).then(function() {
-        // go to the second slide
-        return new Promise(function(resolve) {
-          nextButton.click();
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              var viewport = wrapper.clientWidth,
-                  edge = (viewport - fixedWidth)/2;
-              assertionControlsClick = 
-                child1.getBoundingClientRect().left === edge &&
-                child1.getBoundingClientRect().right === viewport - (edge - gutter);
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (slideWidth * 2 + 100) + 'px';
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionEdgePadding) {
-                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
-              }
-              assertionControlsNav = 
-                getComputedStyle(controls, null).display === 'none' &&
-                getComputedStyle(nav, null).display === 'none';
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (slideWidth + 100) + 'px';
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionEdgePadding) {
-                var viewport = wrapper.clientWidth,
-                    edge = (viewport - fixedWidth)/2;
-                assertionEdgePadding = 
-                  child0.getBoundingClientRect().left === edge &&
-                  child0.getBoundingClientRect().right === viewport - (edge - gutter);
-              }
-              if (assertionControlsNav) {
-                assertionControlsNav = 
-                  getComputedStyle(controls, null).display !== 'none' &&
-                  getComputedStyle(nav, null).display !== 'none';
-              }
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        // resize window
-        return new Promise(function(resolve) {
-          newWindow.style.width = (fixedWidth - 20) + 'px';
-          resolve();
-        }).then(function() {
-          return wait(1000).then(function() {
-            return new Promise(function(resolve) {
-              if (assertionEdgePadding) {
-                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
-              }
-              resolve();
-            });
-          });
-        });
-      }).then(function() {
-        updateTest(testEdgePaddingT, assertionEdgePadding);
-        updateTest(testControlsNavT, assertionControlsNav);
-        updateTest(testControlsClickT, assertionControlsClick);
-        document.body.removeChild(newWindow);
-      });
+      }
+      if (assertionControlsNav) {
+        assertionControlsNav = 
+          getComputedStyle(controls, null).display !== 'none' &&
+          getComputedStyle(nav, null).display !== 'none';
+      }
+
+      // resize window
+      newWindow.style.width = (fixedWidth - 20) + 'px';
+      await wait(1000);
+      if (assertionEdgePadding) {
+        assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+      }
+
+      updateTest(testEdgePaddingT, assertionEdgePadding);
+      updateTest(testControlsNavT, assertionControlsNav);
+      updateTest(testControlsClickT, assertionControlsClick);
     } catch(e) {
       updateTest(testEdgePaddingT, assertionEdgePadding);
       updateTest(testControlsNavT, assertionControlsNav);
       updateTest(testControlsClickT, assertionControlsClick);
+    } finally {
       document.body.removeChild(newWindow);
     }
   }
@@ -1666,63 +1577,28 @@ function testArrowKeys () {
         slideBy = info.slideBy,
         index = slider.getInfo().index;
     
-    new Promise(function(resolve) {
+    // fire keydown event on right arrow
+    fire(document, 'keydown', { 'keyCode': 39 });
+    assertion = slider.getInfo().index === index + slideBy;
+
+    if (assertion) {
       // fire keydown event on right arrow
       fire(document, 'keydown', { 'keyCode': 39 });
-      resolve();
-    }).then(function() {
-      return new Promise(function(resolve) {
-        assertion = slider.getInfo().index === index + slideBy;
-        resolve();
-      });
-    }).then(function() {
+      assertion = slider.getInfo().index === index + slideBy * 2;
+
       if (assertion) {
-        return new Promise(function(resolve) {
-          // fire keydown event on right arrow
-          fire(document, 'keydown', { 'keyCode': 39 });
-          resolve();
-        }).then(function() {
-          return new Promise(function(resolve) {
-            assertion = slider.getInfo().index === index + slideBy * 2;
-            resolve();
-          });
-        }).then(function() {
-          if (assertion) {
-            return new Promise(function(resolve) {
-              // fire keydown event on left arrow
-              fire(document, 'keydown', { 'keyCode': 37 });
-              resolve();
-            }).then(function() {
-              return new Promise(function(resolve) {
-                assertion = slider.getInfo().index === index + slideBy;
-                resolve();
-              });
-            }).then(function() {
-              if (assertion) {
-                return new Promise(function(resolve) {
-                  // fire keydown event on left arrow
-                  fire(document, 'keydown', { 'keyCode': 37 });
-                  resolve();
-                }).then(function() {
-                  return new Promise(function(resolve) {
-                    assertion = slider.getInfo().index === index;
-                    resolve();
-                  });
-                });
-              } else {
-                return Promise.resolve();
-              }
-            })
-          } else {
-            return Promise.resolve();
-          }
-        })
-      } else {
-        return Promise.resolve();
+        // fire keydown event on left arrow
+        fire(document, 'keydown', { 'keyCode': 37 });
+        assertion = slider.getInfo().index === index + slideBy;
+
+        if (assertion) {
+          // fire keydown event on left arrow
+          fire(document, 'keydown', { 'keyCode': 37 });
+          assertion = slider.getInfo().index === index;
+        }
       }
-    }).then(function() {
-      updateTest(test, assertion);
-    });
+    }
+    updateTest(test, assertion);
 
   // can't fire keydown event
   // manual test needed
@@ -1750,7 +1626,7 @@ function testArrowKeys () {
 
 
 
-function testAutoplay () {
+async function testAutoplay () {
   var id = 'autoplay',
       slider = sliders[id],
       info = slider.getInfo(),
@@ -1768,62 +1644,32 @@ function testAutoplay () {
   if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
   if (opt['speed']) { timeout += opt['speed']; }
 
-  var testClick = addTest('autoplayButton: click');
-  var test1 = addTest('Slide: autoplay');
-  var test2 = addTest('Slide: autoplay pause');
+  var testClick = addTest('autoplayButton: click'),
+      test1 = addTest('Slide: autoplay'),
+      test2 = addTest('Slide: autoplay pause'),
+      assertion;
 
-  var assertion;
-  new Promise(function(resolve) {
-    // click autoplay button once
-    // pause
+  // click autoplay button once => pause
+  autoplayButton.click();
+  assertion = 
+    autoplayButton.getAttribute('data-action') === 'start' &&
+    autoplayButton.textContent.indexOf('start animation') > -1;
+
+  if (assertion) {
+    // click autoplay button the second time => restart
     autoplayButton.click();
-    resolve();
-  }).then(function() {
-    return new Promise(function(resolve) {
-      assertion = 
-        autoplayButton.getAttribute('data-action') === 'start' &&
-        autoplayButton.textContent.indexOf('start animation') > -1;
-      resolve();
-    });
-  }).then(function() {
-    if (assertion) {
-      return new Promise(function(resolve) {
-        // click autoplay button the second time
-        // restart
-        autoplayButton.click();
-        resolve();
-      }).then(function() {
-        return new Promise(function(resolve) {
-          assertion = 
-              autoplayButton.getAttribute('data-action') === 'stop' &&
-              autoplayButton.textContent.indexOf('stop animation') > -1;
-          resolve();
-        });
-      });
-    } else {
-      return Promise.resolve();
-    }
-  }).then(function() {
-    return new Promise(function(resolve) {
-      updateTest(testClick, assertion);
-      resolve();
-    });
-  }).then(function() {
-    /* ### test autoplay
-     *
-     */
-    return testAutoplayFn(id, test1, timeout, false);
-  }).then(function() {
-    /* ### test autoplay pause
-     *
-     */
-    return new Promise(function(resolve) {
-      autoplayButton.click();
-      resolve();
-    }).then(function() {
-      return testAutoplayFn(id, test2, timeout, true);
-    });
-  });
+    assertion = 
+        autoplayButton.getAttribute('data-action') === 'stop' &&
+        autoplayButton.textContent.indexOf('stop animation') > -1;
+  }
+
+  updateTest(testClick, assertion);
+
+  // test autoplay
+  await testAutoplayFn(id, test1, timeout, false);
+  // test autoplay pause
+  autoplayButton.click();
+  await testAutoplayFn(id, test2, timeout, true);
 }
 
 
@@ -1845,7 +1691,7 @@ function testAutoplay () {
 
 
 
-function testAnimation1 () {
+async function testAnimation1 () {
   var id = 'animation1',
       slider = sliders[id],
       info = slider.getInfo(),
@@ -1883,16 +1729,10 @@ function testAnimation1 () {
   });
 
   var test = addTest('Slides: classes after click');
-  wait(300).then(function() {
-    return new Promise(function (resolve) {
-      info.nextButton.click();
-      resolve();
-    });
-  }).then(function() {
-    return wait(speed + 500).then(function() {
-      updateTest(test, checkAnimationClasses());
-    });
-  });
+  await wait(300);
+  info.nextButton.click();
+  await wait(speed + 500);
+  updateTest(test, checkAnimationClasses());
 }
 
 
@@ -1914,7 +1754,7 @@ function testAnimation1 () {
 
 
 
-function testAnimation2 () {
+async function testAnimation2 () {
   var id = 'animation2',
       slider = sliders[id],
       info = slider.getInfo(),
@@ -1926,29 +1766,25 @@ function testAnimation2 () {
 
   addTitle(id);
 
-  var test = addTest('Slides: position after click');
-  var count = info.slideCountNew + 1;
-  var assertion;
+  var test = addTest('Slides: position after click'),
+      count = info.slideCountNew + 1,
+      assertion;
 
-  repeat(function() {
-    // click next button *count* times
+  // click next button *count* times
+  await repeat(function() {
     nextButton.click();
-  }, count).then(function() {
-    return wait(300).then(function() {
-      return new Promise(function(resolve) {
-        var index = slider.getInfo().index,
-            rect = container.parentNode.getBoundingClientRect();
-            
-        assertion = 
-          index%slideCount === count*items%slideCount &&
-          compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
-          compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
-        resolve();
-      }).then(function() {
-        updateTest(test, assertion);
-      });
-    });
-  });
+  }, count);
+
+  await wait(300);
+  var index = slider.getInfo().index,
+      rect = container.parentNode.getBoundingClientRect();
+      
+  assertion = 
+    index%slideCount === count*items%slideCount &&
+    compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) &&
+    compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
+
+  updateTest(test, assertion);
 }
 
 
@@ -1973,9 +1809,8 @@ function testAnimation2 () {
 function testLazyload () {
   var id = 'lazyload',
       slider = sliders[id],
-      info = slider.getInfo();
-
-  var edgePadding = options[id]['edgePadding'],
+      info = slider.getInfo(),
+      edgePadding = options[id]['edgePadding'],
       slideBy = options[id]['slideBy'] || 1,
       slideItems = info.slideItems,
       items = info.items,
@@ -2009,19 +1844,15 @@ function testLazyload () {
   var test = addTest('Controls: click'),
       assertion;
 
-  new Promise(function(resolve) {
-    info.nextButton.click();
-    resolve();
-  }).then(function() {
-    for (var i = last + 1; i < last + 1 + slideBy; i++) {
-      if (assertion === undefined || assertion !== false) {
-        var img = slideItems[i].querySelector('img');
-        assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
-          containsClasses(img, 'loaded');
-      }
+  info.nextButton.click();
+  for (var i = last + 1; i < last + 1 + slideBy; i++) {
+    if (assertion === undefined || assertion !== false) {
+      var img = slideItems[i].querySelector('img');
+      assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
+        containsClasses(img, 'loaded');
     }
-    updateTest(test, assertion);
-  });
+  }
+  updateTest(test, assertion);
 }
 
 
@@ -2043,7 +1874,7 @@ function testLazyload () {
 
 
 
-function testCustomize () {
+async function testCustomize () {
   var id = 'customize',
       slider = sliders[id],
       info = slider.getInfo(),
@@ -2092,28 +1923,24 @@ function testCustomize () {
   });
 
   // simulateClick(info.prevButton);
-  var controlsClick = addTest('Controls: click functions');
-  var autoplayT = addTest('Slide: autoplay');
-  var autoplayPauseT = addTest('Slide: autoplay pause');
-  checkControlsClick(controlsClick, id, 11).then(function() {
-    if (opt['autoplay']) {
-      // reset autoplay
-      autoplayButton.click();
+  var controlsClick = addTest('Controls: click functions'),
+      autoplayT = addTest('Slide: autoplay'),
+      autoplayPauseT = addTest('Slide: autoplay pause');
 
-      var timeout = 100;
-      if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
-      if (opt['speed']) { timeout += opt['speed']; }
+  await checkControlsClick(controlsClick, id, 11);
 
-      testAutoplayFn(id, autoplayT, timeout, false).then(function() {
-        return new Promise(function(resolve) {
-          autoplayButton.click();
-          resolve();
-        }).then(function() {
-          testAutoplayFn(id, autoplayPauseT, timeout, true);
-        });
-      });
-    }
-  });
+  if (opt['autoplay']) {
+    // reset autoplay
+    autoplayButton.click();
+
+    var timeout = 100;
+    if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+    if (opt['speed']) { timeout += opt['speed']; }
+
+    await testAutoplayFn(id, autoplayT, timeout, false);
+    autoplayButton.click();
+    await testAutoplayFn(id, autoplayPauseT, timeout, true);
+  }
 }
 
 
@@ -2142,9 +1969,10 @@ function testAutoHeight () {
 
   addTitle(id);
 
-  var test1 = addTest('Slide: init');
-  var test2 = addTest('Slide: click');
-  imagesLoaded(info.container, function() {
+  var test1 = addTest('Slide: init'),
+      test2 = addTest('Slide: click');
+
+  imagesLoaded(info.container, async function() {
     var assertion,
         wrapper = info.container.parentNode,
         slideItems = info.slideItems,
@@ -2152,30 +1980,21 @@ function testAutoHeight () {
 
     assertion = containsClasses(wrapper, ['tns-ah']) &&
       compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+
     updateTest(test1, assertion);
 
     assertion = null;
-    new Promise(function(resolve) {
-      nextButton.click();
 
-      setTimeout(function() {
-        assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-        resolve();
-      }, 500);
-    }).then(function() {
-      return new Promise(function(resolve) {
-        nextButton.click();
+    nextButton.click();
+    await wait(500);
+    assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
 
-        setTimeout(function() {
-          if (assertion || assertion === null) {
-            assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-          }
-          resolve();
-        }, 500);
-      });
-    }).then(function() {
-      updateTest(test2, assertion);
-    });
+    nextButton.click();
+    await wait(500);
+    if (assertion || assertion === null) {
+      assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+    }
+    updateTest(test2, assertion);
   });
 }
 
@@ -2226,32 +2045,19 @@ function testNested () {
   runTest('Slides: position', function() {
     return checkPositionEdgePadding(_id);
   });
+
   var _test = addTest('Controls: click');
 
-  new Promise(function(resolve) {
-    nextButton.click();
-    resolve();
-  }).then(function() {
-    return new Promise(function(resolve) {
-      assertion = slider.getInfo().index === index + slideBy &&
-        _slider.getInfo().index === _index;
-      updateTest(test, assertion);
-      resolve();
-    });
-  }).then(function() {
-    return new Promise(function(resolve) {
-      prevButton.click();
-      _nextButton.click();
-      resolve();
-    }).then(function() {
-      return new Promise(function(resolve) {
-        _assertion = _slider.getInfo().index === _index + _slideBy &&
-          slider.getInfo().index === index;    
-        updateTest(_test, _assertion);
-        resolve();
-      });
-    });
-  });
+  nextButton.click();
+  assertion = slider.getInfo().index === index + slideBy &&
+    _slider.getInfo().index === _index;
+  updateTest(test, assertion);
+
+  prevButton.click();
+  _nextButton.click();
+  _assertion = _slider.getInfo().index === _index + _slideBy &&
+    slider.getInfo().index === index;    
+  updateTest(_test, _assertion);
 }
 
 
@@ -2333,36 +2139,19 @@ function getAbsIndex (current, clicks, info) {
   return (current + info.slideBy * clicks + info.slideCount * multiplyer)%info.slideCount;
 }
 
-function repeat (fn, count, timeout) {
-  var promise = Promise.resolve();
-
+async function repeat (fn, count, timeout) {
   if (timeout) {
     while (count > 0) {
-      promise = promise.then(function() {
-        return wait(timeout);
-      }).then(function() {
-        return new Promise(function(resolve, reject) {
-          fn();
-          resolve();
-        });
-      });
-
+      await wait(timeout);
+      fn();
       count--;
     }
   } else {
     while (count > 0) {
-      promise = promise.then(function() {
-        return new Promise(function(resolve, reject) {
-          fn();
-          resolve();
-        });
-      });
-
+      fn();
       count--;
     }
   }
-
-  return promise;
 }
 
 function checkSlidesAttrs (id) {
@@ -2489,18 +2278,14 @@ function checkPositionEdgePadding (id, vertical) {
     compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
 }
 
-function testAutoplayFn (id, el, timeout, equal) {
+async function testAutoplayFn (id, el, timeout, equal) {
   var assertion,
       current = sliders[id].getInfo().index;
 
-  return wait(timeout).then(function() {
-    return new Promise(function(resolve) {
-      assertion = current === sliders[id].getInfo().index;
-      assertion = (equal) ? assertion : !assertion;
-      updateTest(el, assertion);
-      resolve();
-    });
-  });
+  await wait(timeout);
+  assertion = current === sliders[id].getInfo().index;
+  assertion = (equal) ? assertion : !assertion;
+  updateTest(el, assertion);
 }
 
 initFns = {
@@ -2517,12 +2302,12 @@ initFns = {
   'fixedWidth-gutter': testFixedWidthGutter,
   'fixedWidth-edgePadding': testFixedWidthEdgePadding,
   'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
-  // 'responsive1': testResponsive1,
-  // 'responsive2': testResponsive2,
-  // 'responsive3': testResponsive3,
-  // 'responsive4': testResponsive4,
-  // 'responsive5': testResponsive5,
-  // 'responsive6': testResponsive6,
+  'responsive1': testResponsive1,
+  'responsive2': testResponsive2,
+  'responsive3': testResponsive3,
+  'responsive4': testResponsive4,
+  'responsive5': testResponsive5,
+  'responsive6': testResponsive6,
   'arrowKeys': testArrowKeys,
   'autoplay': testAutoplay,
   'vertical': testVertical,

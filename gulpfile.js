@@ -189,7 +189,7 @@ gulp.task('server', function() {
   gulp.watch(scriptSources, ['min']);
   gulp.watch(pathSrc + helperIEScript, ['helper-ie8']);
   // gulp.watch([pathTest + testScript], ['test']);
-  gulp.watch(['**/*.html', pathTest + '*.js', pathDest + '*.css', pathDest + 'min/*.js']).on('change', browserSync.reload);
+  gulp.watch(['**/*.html', pathTest + '*.js', '!' + pathTest + 'tests.js', pathDest + '*.css', pathDest + 'min/*.js']).on('change', browserSync.reload);
 });
 
 // Default Task

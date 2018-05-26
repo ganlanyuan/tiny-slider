@@ -4,6 +4,7 @@ for (var i in options) {
   var item = options[i];
   item.container = '#' + i;
   if (!item.speed) { item.speed = speed; }
+  
   if (doc.querySelector(item.container)) {
     sliders[i] = tns(options[i]);
 
@@ -21,6 +22,10 @@ for (var i in options) {
         return value;
       }, '  ') + '</code></pre>');
     }
+
+  // test responsive pages
+  } else if (i.indexOf('responsive') >= 0) {
+    if (isTestPage && initFns[i]) { initFns[i](); }
   }
 }
 
