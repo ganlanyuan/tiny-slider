@@ -52,6 +52,7 @@ var testBase = function () {
             runTest('Nav items: data-nav, hidden', function () {
               var nav0 = navItems[0],
                   nav1 = navItems[1];
+              // console.log(nav0, nav1);
               return nav0.getAttribute('data-nav') === '0' && !nav0.hasAttribute('hidden') && nav1.getAttribute('data-nav') === '1' && nav1.hasAttribute('hidden');
             });
 
@@ -1877,7 +1878,7 @@ function getCloneCountForLoop(opt, sCount) {
     }
   }
   itemsMax = Math.max.apply(null, arr);
-  result = carousel ? Math.ceil((itemsMax * 5 - slideCount) / 2) : itemsMax * 3 - slideCount;
+  result = opt.mode !== 'gallery' ? Math.ceil((itemsMax * 5 - sCount) / 2) : itemsMax * 3 - sCount;
   return Math.max(0, result);
 }
 
@@ -1887,7 +1888,9 @@ function checkSlidesAttrs(id) {
       index = info.index,
       items = info.items,
       slideCount = info.slideCount,
-      cloneCount = info.cloneCount,
+
+  // cloneCount = info.cloneCount,
+  cloneCount1 = getCloneCountForLoop(options[id], slideCount),
       firstVisible = slideItems[index],
       lastVisible = slideItems[index + items - 1],
       firstVisiblePrev = slideItems[index - 1],
@@ -1895,7 +1898,7 @@ function checkSlidesAttrs(id) {
       checkLastItem = options[id]['axis'] === 'vertical' ? true : compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top),
       mul = options[id].loop !== false ? 2 : 1;
 
-  return slideItems.length === slideCount + cloneCount * mul && containsClasses(firstVisible, ['tns-item']) && firstVisible.id === id + '-item' + 0 && firstVisible.getAttribute('aria-hidden') === 'false' && !firstVisible.hasAttribute('tabindex') && firstVisiblePrev.id === '' && firstVisiblePrev.getAttribute('aria-hidden') === 'true' && firstVisiblePrev.getAttribute('tabindex') === '-1' && lastVisible.id === id + '-item' + (items - 1) && lastVisible.getAttribute('aria-hidden') === 'false' && !lastVisible.hasAttribute('tabindex') && lastVisibleNext.getAttribute('aria-hidden') === 'true' && lastVisibleNext.getAttribute('tabindex') === '-1' && compare2Nums(firstVisible.clientWidth, windowWidth / items) && checkLastItem;
+  return slideItems.length === slideCount + cloneCount1 * mul && containsClasses(firstVisible, ['tns-item']) && firstVisible.id === id + '-item' + 0 && firstVisible.getAttribute('aria-hidden') === 'false' && !firstVisible.hasAttribute('tabindex') && firstVisiblePrev.id === '' && firstVisiblePrev.getAttribute('aria-hidden') === 'true' && firstVisiblePrev.getAttribute('tabindex') === '-1' && lastVisible.id === id + '-item' + (items - 1) && lastVisible.getAttribute('aria-hidden') === 'false' && !lastVisible.hasAttribute('tabindex') && lastVisibleNext.getAttribute('aria-hidden') === 'true' && lastVisibleNext.getAttribute('tabindex') === '-1' && compare2Nums(firstVisible.clientWidth, windowWidth / items) && checkLastItem;
 }
 
 function checkControlsAttrs(id) {
