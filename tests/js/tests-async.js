@@ -89,13 +89,13 @@ async function testBase () {
   });
 
   runTest('Nav items: data-nav, hidden', function() {
-    var nav0 = navItems[0],
-        nav1 = navItems[1];
+    var navVisible = navItems[0],
+        navHidden = navItems[2];
 
-    return nav0.getAttribute('data-nav') === '0' &&
-      !nav0.hasAttribute('hidden') &&
-      nav1.getAttribute('data-nav') === '1' &&
-      nav1.hasAttribute('hidden');
+    return navVisible.getAttribute('data-nav') === '0' &&
+      !navVisible.hasAttribute('hidden') &&
+      navHidden.getAttribute('data-nav') === '2' &&
+      navHidden.hasAttribute('hidden');
   });
 
   var controlsClick = addTest('Controls: click functions'),
@@ -105,145 +105,145 @@ async function testBase () {
       testGoto = addTest('Goto: Random numbers');
 
   // controls click
-  await checkControlsClick(controlsClick, id, 11);
+  // await checkControlsClick(controlsClick, id, 11);
 
-  // nav click
-  for (var i = visibleNavIndexes.length; i--;) {
-    navItems[visibleNavIndexes[i]].click();
-    var current = slider.getInfo().index,
-        currentSlide = slideItems[current];
+  // // nav click
+  // for (var i = visibleNavIndexes.length; i--;) {
+  //   navItems[visibleNavIndexes[i]].click();
+  //   var current = slider.getInfo().index,
+  //       currentSlide = slideItems[current];
 
-    if (assertion !== false) {
-      assertion = 
-        navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
-        current%slideCount === visibleNavIndexes[i] &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
-        currentSlide.getAttribute('aria-hidden') === 'false';
-    }
-  }
+  //   if (assertion !== false) {
+  //     assertion = 
+  //       navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' &&
+  //       current%slideCount === visibleNavIndexes[i] &&
+  //       compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
+  //       currentSlide.getAttribute('aria-hidden') === 'false';
+  //   }
+  // }
 
-  updateTest(navClick, assertion);
+  // updateTest(navClick, assertion);
 
-  // keydown events
-  if (canFireKeydown) {
+  // // keydown events
+  // if (canFireKeydown) {
 
-    // controls keydown
-    await repeat(function() {
-      // fire keydown events on left arrow
-      fire(info.controlsContainer, 'keydown', {'keyCode': 37}); 
-    }, 3);
+  //   // controls keydown
+  //   await repeat(function() {
+  //     // fire keydown events on left arrow
+  //     fire(info.controlsContainer, 'keydown', {'keyCode': 37}); 
+  //   }, 3);
 
-    var prev = info.index,
-        current = slider.getInfo().index,
-        absIndex = getAbsIndex(prev, -3, info),
-        currentSlide = slideItems[current];
+  //   var prev = info.index,
+  //       current = slider.getInfo().index,
+  //       absIndex = getAbsIndex(prev, -3, info),
+  //       currentSlide = slideItems[current];
         
-    assertion = 
-      current%slideCount === absIndex &&
-      navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-      compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+  //   assertion = 
+  //     current%slideCount === absIndex &&
+  //     navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+  //     compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
-    if (assertion) {
-      // fire keydown events on right arrow
-      await repeat(function() { 
-        fire(info.controlsContainer, 'keydown', {'keyCode': 39});
-      }, 3);
+  //   if (assertion) {
+  //     // fire keydown events on right arrow
+  //     await repeat(function() { 
+  //       fire(info.controlsContainer, 'keydown', {'keyCode': 39});
+  //     }, 3);
 
-      current = slider.getInfo().index;
-      absIndex = 0;
-      currentSlide = slideItems[current];
+  //     current = slider.getInfo().index;
+  //     absIndex = 0;
+  //     currentSlide = slideItems[current];
           
-      assertion = 
-        current%slideCount === absIndex &&
-        navItems[absIndex].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
-    }
+  //     assertion = 
+  //       current%slideCount === absIndex &&
+  //       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
+  //       compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+  //   }
 
-    updateTest(controlsKeydown, assertion);
+  //   updateTest(controlsKeydown, assertion);
 
-    // nav keydown
-    var navContainer = info.navContainer,
-        wrapperLeft = innerWrapper.getBoundingClientRect().left;
-    // focus on the 1st nav item
-    navItems[visibleNavIndexes[0]].focus();
-    // fire keydown event on right arrow
-    // the 2nd nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 39});
-    assertion = document.activeElement === navItems[visibleNavIndexes[1]];
-    // press "Enter"
-    fire(navContainer, 'keydown', {'keyCode': 13});
-    var current = slider.getInfo().index,
-        currentSlide = slideItems[current];
-    if (assertion) {
-      assertion = current%slideCount === visibleNavIndexes[1] &&
-        navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
-    }
-    // fire keydown event on left arrow
-    // the 1st nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 37});
-    if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-    }
-    // fire keydown event on down arrow
-    // the 3nd nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 40});
-    if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[2]];
-    }
-    // press "Space"
-    fire(navContainer, 'keydown', {'keyCode': 32});
-    var current = slider.getInfo().index,
-        currentSlide = slideItems[current];
+  //   // nav keydown
+  //   var navContainer = info.navContainer,
+  //       wrapperLeft = innerWrapper.getBoundingClientRect().left;
+  //   // focus on the 1st nav item
+  //   navItems[visibleNavIndexes[0]].focus();
+  //   // fire keydown event on right arrow
+  //   // the 2nd nav item get focused
+  //   fire(navContainer, 'keydown', {'keyCode': 39});
+  //   assertion = document.activeElement === navItems[visibleNavIndexes[1]];
+  //   // press "Enter"
+  //   fire(navContainer, 'keydown', {'keyCode': 13});
+  //   var current = slider.getInfo().index,
+  //       currentSlide = slideItems[current];
+  //   if (assertion) {
+  //     assertion = current%slideCount === visibleNavIndexes[1] &&
+  //       navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' &&
+  //       compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+  //   }
+  //   // fire keydown event on left arrow
+  //   // the 1st nav item get focused
+  //   fire(navContainer, 'keydown', {'keyCode': 37});
+  //   if (assertion) {
+  //     assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+  //   }
+  //   // fire keydown event on down arrow
+  //   // the 3nd nav item get focused
+  //   fire(navContainer, 'keydown', {'keyCode': 40});
+  //   if (assertion) {
+  //     assertion = document.activeElement === navItems[visibleNavIndexes[2]];
+  //   }
+  //   // press "Space"
+  //   fire(navContainer, 'keydown', {'keyCode': 32});
+  //   var current = slider.getInfo().index,
+  //       currentSlide = slideItems[current];
 
-    if (assertion) {
-      assertion = current%slideCount === visibleNavIndexes[2] &&
-        navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
-    }
-    // fire keydown event on up arrow
-    // the 1st nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 38});
-    if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
-    }
-    // press "Enter"
-    fire(navContainer, 'keydown', {'keyCode': 13});
-    var current = slider.getInfo().index,
-        currentSlide = slideItems[current];
+  //   if (assertion) {
+  //     assertion = current%slideCount === visibleNavIndexes[2] &&
+  //       navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' &&
+  //       compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+  //   }
+  //   // fire keydown event on up arrow
+  //   // the 1st nav item get focused
+  //   fire(navContainer, 'keydown', {'keyCode': 38});
+  //   if (assertion) {
+  //     assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+  //   }
+  //   // press "Enter"
+  //   fire(navContainer, 'keydown', {'keyCode': 13});
+  //   var current = slider.getInfo().index,
+  //       currentSlide = slideItems[current];
 
-    if (assertion) {
-      assertion = current%slideCount === visibleNavIndexes[0] &&
-        navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
-    }
-    updateTest(navKeydown, assertion);
-  } else {
-    updateTest(controlsKeydown, '?');
-    updateTest(navKeydown, '?');
-  }
+  //   if (assertion) {
+  //     assertion = current%slideCount === visibleNavIndexes[0] &&
+  //       navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' &&
+  //       compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+  //   }
+  //   updateTest(navKeydown, assertion);
+  // } else {
+  //   updateTest(controlsKeydown, '?');
+  //   updateTest(navKeydown, '?');
+  // }
 
-  // go to
-  var controls = document.querySelector('#base_wrapper .goto-controls'),
-      input = controls.querySelector('input'),
-      button = controls.querySelector('.button'),
-      mul = 100;
+  // // go to
+  // var controls = document.querySelector('#base_wrapper .goto-controls'),
+  //     input = controls.querySelector('input'),
+  //     button = controls.querySelector('.button'),
+  //     mul = 100;
 
-  function checkGoto () {
-    var number = Math.round(Math.random() * mul);
-    input.value = number;
-    button.click();
-    while (number < 0) { number += slideCount; }
-    if (assertion !== false) {
-      assertion = slider.getInfo().index%slideCount === number%slideCount;
-    }
-  }
+  // function checkGoto () {
+  //   var number = Math.round(Math.random() * mul);
+  //   input.value = number;
+  //   button.click();
+  //   while (number < 0) { number += slideCount; }
+  //   if (assertion !== false) {
+  //     assertion = slider.getInfo().index%slideCount === number%slideCount;
+  //   }
+  // }
 
-  await repeat(checkGoto, 3);
-  mul = -100;
-  await repeat(checkGoto, 3);
+  // await repeat(checkGoto, 3);
+  // mul = -100;
+  // await repeat(checkGoto, 3);
 
-  updateTest(testGoto, assertion);
+  // updateTest(testGoto, assertion);
 }
 
 
@@ -2316,34 +2316,34 @@ async function testAutoplayFn (id, el, timeout, equal) {
 
 initFns = {
   'base': testBase,
-  'few-items': testFewitems,
-  'mouse-drag': testMouseDrag,
-  'gutter': testGutter,
-  'edgePadding': testEdgePadding,
-  'edgePadding-gutter': testEdgePaddingGutter,
-  'non-loop': testNonLoop,
-  'rewind': testRewind,
-  'slide-by-page': testSlideByPage,
-  'fixedWidth': testFixedWidth,
-  'fixedWidth-gutter': testFixedWidthGutter,
-  'fixedWidth-edgePadding': testFixedWidthEdgePadding,
-  'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
-  'responsive1': testResponsive1,
-  'responsive2': testResponsive2,
-  'responsive3': testResponsive3,
-  'responsive4': testResponsive4,
-  'responsive5': testResponsive5,
-  'responsive6': testResponsive6,
-  'arrowKeys': testArrowKeys,
-  'autoplay': testAutoplay,
-  'vertical': testVertical,
-  'vertical-gutter': testVerticalGutter,
-  'vertical-edgePadding': testVerticalEdgePadding,
-  'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
-  'animation1': testAnimation1,
-  'animation2': testAnimation2,
-  'lazyload': testLazyload,
-  'customize': testCustomize,
-  'autoHeight': testAutoHeight,
-  'nested': testNested,
+  // 'few-items': testFewitems,
+  // 'mouse-drag': testMouseDrag,
+  // 'gutter': testGutter,
+  // 'edgePadding': testEdgePadding,
+  // 'edgePadding-gutter': testEdgePaddingGutter,
+  // 'non-loop': testNonLoop,
+  // 'rewind': testRewind,
+  // 'slide-by-page': testSlideByPage,
+  // 'fixedWidth': testFixedWidth,
+  // 'fixedWidth-gutter': testFixedWidthGutter,
+  // 'fixedWidth-edgePadding': testFixedWidthEdgePadding,
+  // 'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
+  // 'responsive1': testResponsive1,
+  // 'responsive2': testResponsive2,
+  // 'responsive3': testResponsive3,
+  // 'responsive4': testResponsive4,
+  // 'responsive5': testResponsive5,
+  // 'responsive6': testResponsive6,
+  // 'arrowKeys': testArrowKeys,
+  // 'autoplay': testAutoplay,
+  // 'vertical': testVertical,
+  // 'vertical-gutter': testVerticalGutter,
+  // 'vertical-edgePadding': testVerticalEdgePadding,
+  // 'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
+  // 'animation1': testAnimation1,
+  // 'animation2': testAnimation2,
+  // 'lazyload': testLazyload,
+  // 'customize': testCustomize,
+  // 'autoHeight': testAutoHeight,
+  // 'nested': testNested,
 };
