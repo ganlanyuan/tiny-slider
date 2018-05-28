@@ -52,7 +52,7 @@ var testBase = function () {
             runTest('Nav items: data-nav, hidden', function () {
               var nav0 = navItems[0],
                   nav1 = navItems[1];
-              // console.log(nav0, nav1);
+
               return nav0.getAttribute('data-nav') === '0' && !nav0.hasAttribute('hidden') && nav1.getAttribute('data-nav') === '1' && nav1.hasAttribute('hidden');
             });
 
@@ -763,8 +763,9 @@ function testFixedWidth() {
     var assertion,
         slideItems = info.slideItems,
         slideCount = info.slideCount,
+        cloneCount = info.cloneCount,
         items = info.items;
-    assertion = items === Math.floor(windowWidth / fixedWidth) && compare2Nums(slideItems[slideCount * 2].getBoundingClientRect().left, 0);
+    assertion = items === Math.floor(windowWidth / fixedWidth) && compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, 0);
 
     return assertion;
   });
@@ -891,13 +892,13 @@ function testVerticalEdgePaddingGutter() {
 function testResponsive1() {
   var responsive1Tests = function () {
     var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-      var doc, nextButton, assertionItems, assertionSlideBy, assertionGutter, assertionEdgePadding, container, slideItems, wrapper, slideBy, items, index, gutter, edgePadding, firstRect, secondRect, lastRect, wrapperRect;
+      var doc, nextButton, assertionItems, assertionSlideBy, assertionGutter, assertionEdgePadding, container, slideItems, wrapper, slideBy, items, cloneCount, index, gutter, edgePadding, firstRect, secondRect, lastRect, wrapperRect;
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
               _context3.prev = 0;
-              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, nextButton = doc.querySelector('[data-controls="next"]'), container = doc.querySelector('#' + id), slideItems = container.children, wrapper = container.parentNode, slideBy = options[id].slideBy, items = responsive[bps[0]].items, index = 14 + slideBy, gutter = options[id].gutter, edgePadding = responsive[bps[0]].edgePadding;
+              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, nextButton = doc.querySelector('[data-controls="next"]'), container = doc.querySelector('#' + id), slideItems = container.children, wrapper = container.parentNode, slideBy = options[id].slideBy, items = responsive[bps[0]].items, cloneCount = getCloneCountForLoop(options[id], 7), index = cloneCount, gutter = options[id].gutter, edgePadding = responsive[bps[0]].edgePadding;
 
 
               nextButton.click();

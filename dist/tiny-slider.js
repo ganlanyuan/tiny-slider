@@ -797,7 +797,7 @@ var tns = function(options) {
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
-        navCurrentIndex = index%slideCount,
+        navCurrentIndex = getCurrentNavIndex(),
         navCurrentIndexCached = navCurrentIndex,
         navActiveClass = 'tns-nav-active';
   }
@@ -860,6 +860,12 @@ var tns = function(options) {
     if (indexTem < 0) { indexTem += slideCount; }
     indexTem = Math.min(indexTem, slideCountNew - items);
     return indexTem;
+  }
+
+  function getCurrentNavIndex () {
+    var i = index;
+    while (i < cloneCount) { i += slideCount; }
+    return (i-cloneCount)%slideCount;
   }
 
   function getItemsMax () {
@@ -1320,7 +1326,6 @@ var tns = function(options) {
 
         navContainer = outerWrapper.querySelector('.tns-nav');
         navItems = navContainer.children;
-        // if (slideId === 'base') { console.log(navItems[1]); }
       }
 
       updateNavVisibility();
@@ -2022,7 +2027,7 @@ var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : index%slideCount;
+      navCurrentIndex = navClicked !== -1 ? navClicked : getCurrentNavIndex();
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {

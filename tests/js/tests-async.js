@@ -91,7 +91,7 @@ async function testBase () {
   runTest('Nav items: data-nav, hidden', function() {
     var nav0 = navItems[0],
         nav1 = navItems[1];
-    // console.log(nav0, nav1);
+
     return nav0.getAttribute('data-nav') === '0' &&
       !nav0.hasAttribute('hidden') &&
       nav1.getAttribute('data-nav') === '1' &&
@@ -427,9 +427,10 @@ function testFixedWidth () {
     var assertion,
         slideItems = info.slideItems,
         slideCount = info.slideCount,
+        cloneCount = info.cloneCount,
         items = info.items;
     assertion = items === Math.floor(windowWidth / fixedWidth) &&
-      compare2Nums(slideItems[slideCount*2].getBoundingClientRect().left, 0);
+      compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, 0);
 
     return assertion;
   });
@@ -757,7 +758,8 @@ function testResponsive1 () {
           wrapper = container.parentNode,
           slideBy = options[id].slideBy,
           items = responsive[bps[0]].items,
-          index = 14 + slideBy,
+          cloneCount = getCloneCountForLoop(options[id], 7),
+          index = cloneCount,
           gutter = options[id].gutter,
           edgePadding = responsive[bps[0]].edgePadding,
           firstRect,
