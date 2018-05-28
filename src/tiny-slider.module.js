@@ -392,7 +392,7 @@ export var tns = function(options) {
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
         navClicked = -1,
-        navCurrentIndex = getCurrentNavIndex(),
+        navCurrentIndex = getAbsIndex(),
         navCurrentIndexCached = navCurrentIndex,
         navActiveClass = 'tns-nav-active';
   }
@@ -457,8 +457,8 @@ export var tns = function(options) {
     return indexTem;
   }
 
-  function getCurrentNavIndex () {
-    var i = index;
+  function getAbsIndex (ind) {
+    var i = ind || index;
     while (i < cloneCount) { i += slideCount; }
     return (i-cloneCount)%slideCount;
   }
@@ -1622,7 +1622,7 @@ export var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : getCurrentNavIndex();
+      navCurrentIndex = navClicked !== -1 ? navClicked : getAbsIndex();
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -1895,7 +1895,7 @@ export var tns = function(options) {
 
     // go to exact slide
     } else if (!running) {
-      var absIndex = index%slideCount, 
+      var absIndex = getAbsIndex(), 
           indexGap = 0;
       if (absIndex < 0) { absIndex += slideCount; }
 
@@ -1906,7 +1906,7 @@ export var tns = function(options) {
       } else {
         if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
         if (!isNaN(targetIndex)) {
-          var absTargetIndex = targetIndex%slideCount;
+          var absTargetIndex = getAbsIndex(targetIndex);
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
           indexGap = absTargetIndex - absIndex;
         }
@@ -1915,7 +1915,7 @@ export var tns = function(options) {
       index += indexGap;
 
       // if index is changed, start rendering
-      if (index%slideCount !== indexCached%slideCount) {
+      if (getAbsIndex(index) !== getAbsIndex(indexCached)) {
         render(e);
       }
 
@@ -1969,7 +1969,7 @@ export var tns = function(options) {
       while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
       if (hasAttr(target, 'data-nav')) {
         navIndex = navClicked = [].indexOf.call(navItems, target);
-        goTo(navIndex, e);
+        goTo(navIndex + cloneCount, e);
       }
     }
   }
@@ -2145,7 +2145,7 @@ export var tns = function(options) {
       case KEYS.ENTER:
       case KEYS.SPACE:
         navClicked = navIndex;
-        goTo(navIndex, e);
+        goTo(navIndex + cloneCount, e);
         break;
     }
   }
@@ -2293,7 +2293,7 @@ export var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var absIndexMin = index%slideCount%items;
+    var absIndexMin = getAbsIndex()%items;
     while (absIndexMin < slideCount) {
       if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
