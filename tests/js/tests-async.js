@@ -2261,10 +2261,11 @@ async function checkControlsClick (test, id, count, vertical) {
         first = slideItems[index],
         last = slideItems[index + items - 1],
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
-        
+
     // if (id === 'customize') {
     //   console.log(absIndex, index%slideCount);
     // }
+    if (first === undefined) { console.log(id, sliders[id].getInfo().index); }
     return absIndex === Number(navContainer.querySelector('.tns-nav-active').getAttribute('data-nav')) &&
       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&

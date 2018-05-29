@@ -545,6 +545,7 @@ var tns = function(options) {
     gutter: 0,
     edgePadding: 0,
     fixedWidth: false,
+    fixedWidthViewportWidth: false,
     slideBy: 1,
     controls: true,
     controlsText: ['prev', 'next'],
@@ -699,6 +700,7 @@ var tns = function(options) {
       gutter = getOption('gutter'),
       edgePadding = getOption('edgePadding'),
       fixedWidth = getOption('fixedWidth'),
+      fixedWidthViewportWidth = options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
       rewind = options.rewind,
@@ -862,23 +864,32 @@ var tns = function(options) {
     return indexTem;
   }
 
-  function getAbsIndex (ind) {
-    var i = ind || index;
+  function getAbsIndex (i) {
+    if (i === undefined) { i = index; }
     while (i < cloneCount) { i += slideCount; }
     return (i-cloneCount)%slideCount;
   }
 
   function getItemsMax () {
-    var arr = [0];
-    if (options.items < slideCount) { arr.push(options.items); }
+    if (fixedWidth && !fixedWidthViewportWidth) {
+      return slideCount - 1;
+    } else {
+      var str = fixedWidth ? 'fixedWidth' : 'items',
+          isFW = fixedWidth,
+          arr = [];
 
-    if (breakpoints && responsiveItems.indexOf('items') >= 0) {
-      breakpoints.forEach(function (bp) {
-        var itemsTem = responsive[bp].items;
-        if (itemsTem && itemsTem < slideCount) { arr.push(itemsTem); }
-      });
+      if (isFW || options[str] < slideCount) { arr.push(options[str]); }
+
+      if (breakpoints && responsiveItems.indexOf(str)) {
+        breakpoints.forEach(function(bp) {
+          var tem = responsive[bp][str];
+          if (tem && (isFW || tem < slideCount)) { arr.push(tem); }
+        });
+      }
+
+      return isFW ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
+        Math.max.apply(null, arr);
     }
-    return Math.max.apply(null, arr);
   }
 
   function getCloneCountForLoop () {

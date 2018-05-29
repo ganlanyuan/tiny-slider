@@ -607,6 +607,9 @@ var checkControlsClick = function () {
               // if (id === 'customize') {
               //   console.log(absIndex, index%slideCount);
               // }
+              if (first === undefined) {
+                console.log(id, sliders[id].getInfo().index);
+              }
               return absIndex === Number(navContainer.querySelector('.tns-nav-active').getAttribute('data-nav')) && navItems[absIndex].getAttribute('aria-selected') === 'true' && first.getAttribute('aria-hidden') === 'false' && !first.hasAttribute(tabindex) && last.getAttribute('aria-hidden') === 'false' && !last.hasAttribute(tabindex) && compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) && checkLastEdge;
             };
 
