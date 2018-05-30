@@ -714,7 +714,7 @@ var tns = function(options) {
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
-      updateIndexBeforeTransform = !carousel || !loop ? true : false,
+      updateIndexBeforeTransform = (!carousel || !loop) ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
       transformPrefix = '',
@@ -1728,6 +1728,7 @@ var tns = function(options) {
         var leftEdge = indexMin,
             rightEdge = indexMax;
 
+        console.log(indexMin, indexMax, '|', index);
         if (carousel) {
           leftEdge += slideBy;
           rightEdge -= slideBy;
@@ -1743,10 +1744,12 @@ var tns = function(options) {
           }
         }
 
-        if (index > rightEdge) {
-          while(index >= leftEdge + slideCount) { index -= slideCount; }
-        } else if(index < leftEdge) {
-          while(index <= rightEdge - slideCount) { index += slideCount; }
+        if (cloneCount) {
+          if (index > rightEdge) {
+            while(index >= leftEdge + slideCount) { index -= slideCount; }
+          } else if(index < leftEdge) {
+            while(index <= rightEdge - slideCount) { index += slideCount; }
+          }
         }
       } :
       function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
@@ -2135,10 +2138,18 @@ var tns = function(options) {
 
   function animateSlide (number, classOut, classIn, isOut) {
     for (var i = number, l = number + items; i < l; i++) {
-      var item = slideItems[i];
+      var a = i;
+      var right = false;
+      if (i >= slideCountNew) { a = i - slideCount; console.log('>=', a); right = true; }
+      if (i < 0) { a = i + slideCount; console.log('<=', a); }
 
+      var item = slideItems[a];
+
+      if (right) { console.log(item); }
       // set item positions
-      if (!isOut) { item.style.left = (i - index) * 100 / items + '%'; }
+      if (!isOut) { 
+        if (item === undefined) { console.log(i, slideId); }
+        item.style.left = (i - index) * 100 / items + '%'; }
 
       if (animateDelay && TRANSITIONDELAY) {
         item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = animateDelay * (i - number) / 1000 + 's';
@@ -2369,7 +2380,7 @@ var tns = function(options) {
       if (dir) {
         index += slideBy * dir;
         // pass e when click control buttons or keydown
-        render(passEventObject || e && e.type === 'keydown' ? e : null);
+        render((passEventObject || (e && e.type === 'keydown')) ? e : null);
       }
     }
   }
@@ -2593,15 +2604,15 @@ var tns = function(options) {
     caf(rafIndex);
     rafIndex = raf(function(){ panUpdate(e); });
 
-    e = getEvent(e);
+    var $ = getEvent(e);
     events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
 
     if (!isTouchEvent(e) && ['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(e))) >= 0) {
       preventDefaultBehavior(e);
     }
 
-    lastPosition.x = initPosition.x = parseInt(e.clientX);
-    lastPosition.y = initPosition.y = parseInt(e.clientY);
+    lastPosition.x = initPosition.x = parseInt($.clientX);
+    lastPosition.y = initPosition.y = parseInt($.clientY);
     translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
 
     resetDuration(container, '0s');
@@ -2609,44 +2620,56 @@ var tns = function(options) {
 
   function onPanMove (e) {
     if (panStart) {
-      e = getEvent(e);
-      lastPosition.x = parseInt(e.clientX);
-      lastPosition.y = parseInt(e.clientY);
+      var $ = getEvent(e);
+      lastPosition.x = parseInt($.clientX);
+      lastPosition.y = parseInt($.clientY);
     }
   }
 
   function panUpdate (e) {
-    if (!moveDirectionExpected) { return; }
+    if (!moveDirectionExpected) {
+      panStart = false;
+      return;
+    }
     caf(rafIndex);
     if (panStart) { rafIndex = raf(function(){ panUpdate(e); }); }
 
-    if (moveDirectionExpected === '?') {
+    if (
+      moveDirectionExpected === '?' && 
+      lastPosition.x !== initPosition.x && 
+      lastPosition.y !== initPosition.y) {
       moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
     }
-    events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e));
 
-    var x = translateInit,
-        dist = getDist(lastPosition, initPosition);
-    if (!horizontal || fixedWidth) {
-      x += dist;
-      x += 'px';
-    } else {
-      var percentageX = TRANSFORM ? dist * items * 100 / (vpInner * slideCountNew): dist * 100 / vpInner;
-      x += percentageX;
-      x += '%';
+    if (moveDirectionExpected) {
+      events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e));
+
+      var x = translateInit,
+          dist = getDist(lastPosition, initPosition);
+      if (!horizontal || fixedWidth) {
+        x += dist;
+        x += 'px';
+      } else {
+        var percentageX = TRANSFORM ? dist * items * 100 / (vpInner * slideCountNew): dist * 100 / vpInner;
+        x += percentageX;
+        x += '%';
+      }
+
+      container.style[transformAttr] = transformPrefix + x + transformPostfix;
     }
-
-    container.style[transformAttr] = transformPrefix + x + transformPostfix;
   }
 
   function onPanEnd (e) {
+    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
+
     if (panStart) {
       caf(rafIndex);
       resetDuration(container, '');
-      if (swipeAngle) { moveDirectionExpected = '?'; } // reset
       panStart = false;
-      lastPosition.x = parseInt(e.clientX);
-      lastPosition.y = parseInt(e.clientY);
+
+      var $ = getEvent(e);
+      lastPosition.x = parseInt($.clientX);
+      lastPosition.y = parseInt($.clientY);
       var dist = getDist(lastPosition, initPosition);
 
       // initPosition = {x:0, y:0}; // reset positions
@@ -2665,7 +2688,6 @@ var tns = function(options) {
         }
 
         rafIndex = raf(function() {
-          e = getEvent(e);
           events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
 
           if (horizontal) {
