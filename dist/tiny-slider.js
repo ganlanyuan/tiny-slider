@@ -644,7 +644,7 @@ var tns = function(options) {
   if (!carousel) {
     options.axis = 'horizontal';
     options.rewind = false;
-    options.loop = true;
+    // options.loop = true;
     options.edgePadding = false;
 
     var animateIn = 'tns-fadeIn',
@@ -724,7 +724,7 @@ var tns = function(options) {
       index = startIndex ? updateStartIndex(startIndex) : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
-      indexMax = slideCountNew - items,
+      indexMax = getIndexMax(),
       // resize
       resizeTimer,
       swipeAngle = options.swipeAngle,
@@ -857,6 +857,10 @@ var tns = function(options) {
   }
 
   // === COMMON FUNCTIONS === //
+  function getIndexMax () {
+    return loop ? carousel ? slideCountNew - items : slideCount - slideCount%items : slideCountNew - 1;
+  }
+
   function updateStartIndex (indexTem) {
     indexTem = indexTem%slideCount;
     if (indexTem < 0) { indexTem += slideCount; }
@@ -895,7 +899,9 @@ var tns = function(options) {
   function getCloneCountForLoop () {
     var itemsMax = getItemsMax(),
         result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 3 - slideCount);
-    return Math.max(0, result);
+    result = Math.max(0, result);
+
+    return carousel ? result : Math.max(itemsMax, result);
   }
 
   function getWindowWidth () {
@@ -1510,7 +1516,7 @@ var tns = function(options) {
       freeze = disable ? true : freezable ? slideCount <= items : false;
 
       if (items !== itemsTem) {
-        indexMax = slideCountNew - items;
+        indexMax = getIndexMax();
         // check index before transform in case
         // slider reach the right edge then items become bigger
         updateIndex();
@@ -1721,27 +1727,33 @@ var tns = function(options) {
     });
   }
 
+  function loopNumber (num, min, max) {
+    return index >= indexMin && index <= indexMax ? index : index > indexMax ? index - slideCount : index + slideCount;
+  }
+
+  function cutindexber (index, min, indexMax) {
+    return index >= indexMin && index <= indexMax ? index : index > indexMax ? indexMax : indexMin;
+  }
+
   // (slideBy, indexMin, indexMax) => index
   var updateIndex = (function () {
     return loop ? 
+      carousel ?
       function () {
         var leftEdge = indexMin,
             rightEdge = indexMax;
 
-        console.log(indexMin, indexMax, '|', index);
-        if (carousel) {
-          leftEdge += slideBy;
-          rightEdge -= slideBy;
+        leftEdge += slideBy;
+        rightEdge -= slideBy;
 
-          // adjust edges when edge padding is true
-          // or fixed-width slider with extra space on the right side
-          if (edgePadding) {
-            leftEdge += 1;
-            rightEdge -= 1;
-          } else if (fixedWidth) {
-            var gt = gutter ? gutter : 0;
-            if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
-          }
+        // adjust edges when edge padding is true
+        // or fixed-width slider with extra space on the right side
+        if (edgePadding) {
+          leftEdge += 1;
+          rightEdge -= 1;
+        } else if (fixedWidth) {
+          var gt = gutter ? gutter : 0;
+          if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
         }
 
         if (cloneCount) {
@@ -1752,7 +1764,18 @@ var tns = function(options) {
           }
         }
       } :
-      function () { index = Math.max(indexMin, Math.min(indexMax, index)); };
+      function() {
+        index = (index >= indexMin && index <= indexMax) ?
+          index :
+            index > indexMax ?
+              index - slideCount : index + slideCount;
+      } :
+      function() {
+        index = (index >= indexMin && index <= indexMax) ?
+          index :
+            index > indexMax ?
+            indexMax : indexMin;
+      };
   })();
 
   function toggleSlideDisplayAndEdgePadding () {
@@ -2137,19 +2160,14 @@ var tns = function(options) {
   }
 
   function animateSlide (number, classOut, classIn, isOut) {
-    for (var i = number, l = number + items; i < l; i++) {
-      var a = i;
-      var right = false;
-      if (i >= slideCountNew) { a = i - slideCount; console.log('>=', a); right = true; }
-      if (i < 0) { a = i + slideCount; console.log('<=', a); }
+    var l = number + items;
+    if (!loop) { l = Math.min(l, slideCountNew); }
 
-      var item = slideItems[a];
+    for (var i = number; i < l; i++) {
+        var item = slideItems[i];
 
-      if (right) { console.log(item); }
       // set item positions
-      if (!isOut) { 
-        if (item === undefined) { console.log(i, slideId); }
-        item.style.left = (i - index) * 100 / items + '%'; }
+      if (!isOut) { item.style.left = (i - index) * 100 / items + '%'; }
 
       if (animateDelay && TRANSITIONDELAY) {
         item.style[TRANSITIONDELAY] = item.style[ANIMATIONDELAY] = animateDelay * (i - number) / 1000 + 's';
@@ -2260,7 +2278,7 @@ var tns = function(options) {
       events.emit('transitionEnd', info(event));
 
       if (!carousel && slideItemsOut.length > 0) {
-        for (var i = 0; i < items; i++) {
+        for (var i = 0; i < slideItemsOut.length; i++) {
           var item = slideItemsOut[i];
           // set item positions
           item.style.left = '';
