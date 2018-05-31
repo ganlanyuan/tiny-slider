@@ -305,7 +305,7 @@ export var tns = function(options) {
       lazyload = options.lazyload,
       slideOffsetTops, // collection of slide offset tops
       slideItemsOut = [],
-      // cloneCount = loop ? slideCount * 2 : 0,
+      hasEdgePadding = checkOption('edgePadding'),
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
@@ -494,9 +494,9 @@ export var tns = function(options) {
   function getCloneCountForLoop () {
     var itemsMax = getItemsMax(),
         result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 3 - slideCount);
-    result = Math.max(0, result);
+    result = Math.max(itemsMax, result);
 
-    return carousel ? result : Math.max(itemsMax, result);
+    return hasEdgePadding ? result + 1 : result;
   }
 
   function getWindowWidth () {
@@ -1353,9 +1353,9 @@ export var tns = function(options) {
 
         if (cloneCount) {
           if (index > rightEdge) {
-            while(index >= leftEdge + slideCount) { index -= slideCount; }
-          } else if(index < leftEdge) {
-            while(index <= rightEdge - slideCount) { index += slideCount; }
+            index -= slideCount;
+          } else if (index < leftEdge) {
+            index += slideCount;
           }
         }
       } :

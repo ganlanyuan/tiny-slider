@@ -2345,7 +2345,7 @@ initFns = {
   // 'responsive2': testResponsive2,
   // 'responsive3': testResponsive3,
   // 'responsive4': testResponsive4,
-  'responsive5': testResponsive5,
+  // 'responsive5': testResponsive5,
   // 'responsive6': testResponsive6,
   // 'arrowKeys': testArrowKeys,
   // 'autoplay': testAutoplay,
