@@ -767,23 +767,22 @@ function testResponsive1 () {
           index = cloneCount,
           gutter = options[id].gutter,
           edgePadding = responsive[bps[0]].edgePadding,
-          firstRect,
-          secondRect,
-          lastRect,
+          first,
+          second,
+          last,
           wrapperRect;
 
       nextButton.click();
-      firstRect = slideItems[index].getBoundingClientRect();
-      lastRect = slideItems[index + items - 1].getBoundingClientRect();
+      first = slideItems[index + 1];
+      last = slideItems[index + items - 1 + 1];
       wrapperRect = wrapper.getBoundingClientRect();
 
       assertionItems = 
-        compare2Nums(firstRect.left, wrapperRect.left) &&
-        compare2Nums(lastRect.right, wrapperRect.right);
-      assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+        compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) &&
+        compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
+      assertionGutter = window.getComputedStyle(first, null).paddingRight === gutter + 'px';
       assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
         compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
-      // alert(assertionEdgePadding);
 
       // resize window
       newWindow.style.width = (Number(bps[1]) + 20) + 'px';
@@ -791,20 +790,17 @@ function testResponsive1 () {
       items = responsive[bps[1]].items;
       gutter = responsive[bps[1]].gutter;
       edgePadding = responsive[bps[1]].edgePadding,
-
-      firstRect = slideItems[index].getBoundingClientRect();
-      secondRect = slideItems[index + 1].getBoundingClientRect();
-      lastRect = slideItems[index + items - 1].getBoundingClientRect();
+      last = slideItems[index + items - 1 + 1];
       wrapperRect = wrapper.getBoundingClientRect();
 
       if (assertionItems) {
         assertionItems = 
-          compare2Nums(firstRect.left, wrapperRect.left) &&
-          compare2Nums(lastRect.right, wrapperRect.right);
+          compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) &&
+          compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
       }
 
       if (assertionGutter) {
-        assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+        assertionGutter = window.getComputedStyle(first, null).paddingRight === gutter + 'px';
       }
 
       if (assertionEdgePadding) {
@@ -816,14 +812,14 @@ function testResponsive1 () {
       updateTest(testEdgePadding, assertionEdgePadding);
 
       nextButton.click();
-      firstRect = slideItems[index + items].getBoundingClientRect();
-      lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
+      first = slideItems[index + items + 1];
+      last = slideItems[index + items * 2 - 1 + 1];
       wrapperRect = wrapper.getBoundingClientRect();
 
       if (assertionItems) {
         assertionSlideBy = 
-          compare2Nums(firstRect.left, wrapperRect.left) &&
-          compare2Nums(lastRect.right, wrapperRect.right);
+          compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) &&
+          compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
       }
 
       updateTest(testSlideBy, assertionSlideBy);
@@ -1207,7 +1203,10 @@ function testResponsive5 () {
           assertionAutoHeight,
           doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           wrapper = doc.querySelector('#' + id + '-iw'),
-          first = doc.querySelector('#' + id).children[14];
+          container = doc.querySelector('#' + id),
+          slideItems = container.children,
+          cloneCount = (slideItems.length - 7) / 2,
+          first = slideItems[cloneCount];
 
       assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
         wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
@@ -2308,35 +2307,35 @@ async function testAutoplayFn (id, el, timeout, equal) {
 }
 
 initFns = {
-  // 'base': testBase,
-  // 'few-items': testFewitems,
-  // 'mouse-drag': testMouseDrag,
-  // 'gutter': testGutter,
-  // 'edgePadding': testEdgePadding,
-  // 'edgePadding-gutter': testEdgePaddingGutter,
-  // 'non-loop': testNonLoop,
-  // 'rewind': testRewind,
-  // 'slide-by-page': testSlideByPage,
-  // 'fixedWidth': testFixedWidth,
-  // 'fixedWidth-gutter': testFixedWidthGutter,
-  // 'fixedWidth-edgePadding': testFixedWidthEdgePadding,
-  // 'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
+  'base': testBase,
+  'few-items': testFewitems,
+  'mouse-drag': testMouseDrag,
+  'gutter': testGutter,
+  'edgePadding': testEdgePadding,
+  'edgePadding-gutter': testEdgePaddingGutter,
+  'non-loop': testNonLoop,
+  'rewind': testRewind,
+  'slide-by-page': testSlideByPage,
+  'fixedWidth': testFixedWidth,
+  'fixedWidth-gutter': testFixedWidthGutter,
+  'fixedWidth-edgePadding': testFixedWidthEdgePadding,
+  'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
   'responsive1': testResponsive1,
-  // 'responsive2': testResponsive2,
-  // 'responsive3': testResponsive3,
-  // 'responsive4': testResponsive4,
-  // 'responsive5': testResponsive5,
-  // 'responsive6': testResponsive6,
-  // 'arrowKeys': testArrowKeys,
-  // 'autoplay': testAutoplay,
-  // 'vertical': testVertical,
-  // 'vertical-gutter': testVerticalGutter,
-  // 'vertical-edgePadding': testVerticalEdgePadding,
-  // 'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
-  // 'animation1': testAnimation1,
-  // 'animation2': testAnimation2,
-  // 'lazyload': testLazyload,
-  // 'customize': testCustomize,
-  // 'autoHeight': testAutoHeight,
-  // 'nested': testNested,
+  'responsive2': testResponsive2,
+  'responsive3': testResponsive3,
+  'responsive4': testResponsive4,
+  'responsive5': testResponsive5,
+  'responsive6': testResponsive6,
+  'arrowKeys': testArrowKeys,
+  'autoplay': testAutoplay,
+  'vertical': testVertical,
+  'vertical-gutter': testVerticalGutter,
+  'vertical-edgePadding': testVerticalEdgePadding,
+  'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
+  'animation1': testAnimation1,
+  'animation2': testAnimation2,
+  'lazyload': testLazyload,
+  'customize': testCustomize,
+  'autoHeight': testAutoHeight,
+  'nested': testNested,
 };

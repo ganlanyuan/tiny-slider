@@ -896,7 +896,7 @@ function testVerticalEdgePaddingGutter() {
 function testResponsive1() {
   var responsive1Tests = function () {
     var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-      var doc, nextButton, assertionItems, assertionSlideBy, assertionGutter, assertionEdgePadding, container, slideItems, wrapper, slideBy, items, cloneCount, index, gutter, edgePadding, firstRect, secondRect, lastRect, wrapperRect;
+      var doc, nextButton, assertionItems, assertionSlideBy, assertionGutter, assertionEdgePadding, container, slideItems, wrapper, slideBy, items, cloneCount, index, gutter, edgePadding, first, second, last, wrapperRect;
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
@@ -906,14 +906,13 @@ function testResponsive1() {
 
 
               nextButton.click();
-              firstRect = slideItems[index].getBoundingClientRect();
-              lastRect = slideItems[index + items - 1].getBoundingClientRect();
+              first = slideItems[index + 1];
+              last = slideItems[index + items - 1 + 1];
               wrapperRect = wrapper.getBoundingClientRect();
 
-              assertionItems = compare2Nums(firstRect.left, wrapperRect.left) && compare2Nums(lastRect.right, wrapperRect.right);
-              assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+              assertionItems = compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) && compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
+              assertionGutter = window.getComputedStyle(first, null).paddingRight === gutter + 'px';
               assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) && compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
-              // alert(assertionEdgePadding);
 
               // resize window
               newWindow.style.width = Number(bps[1]) + 20 + 'px';
@@ -923,17 +922,15 @@ function testResponsive1() {
             case 12:
               items = responsive[bps[1]].items;
               gutter = responsive[bps[1]].gutter;
-              edgePadding = responsive[bps[1]].edgePadding, firstRect = slideItems[index].getBoundingClientRect();
-              secondRect = slideItems[index + 1].getBoundingClientRect();
-              lastRect = slideItems[index + items - 1].getBoundingClientRect();
+              edgePadding = responsive[bps[1]].edgePadding, last = slideItems[index + items - 1 + 1];
               wrapperRect = wrapper.getBoundingClientRect();
 
               if (assertionItems) {
-                assertionItems = compare2Nums(firstRect.left, wrapperRect.left) && compare2Nums(lastRect.right, wrapperRect.right);
+                assertionItems = compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) && compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
               }
 
               if (assertionGutter) {
-                assertionGutter = window.getComputedStyle(slideItems[index], null).paddingRight === gutter + 'px';
+                assertionGutter = window.getComputedStyle(first, null).paddingRight === gutter + 'px';
               }
 
               if (assertionEdgePadding) {
@@ -944,20 +941,20 @@ function testResponsive1() {
               updateTest(testEdgePadding, assertionEdgePadding);
 
               nextButton.click();
-              firstRect = slideItems[index + items].getBoundingClientRect();
-              lastRect = slideItems[index + items * 2 - 1].getBoundingClientRect();
+              first = slideItems[index + items + 1];
+              last = slideItems[index + items * 2 - 1 + 1];
               wrapperRect = wrapper.getBoundingClientRect();
 
               if (assertionItems) {
-                assertionSlideBy = compare2Nums(firstRect.left, wrapperRect.left) && compare2Nums(lastRect.right, wrapperRect.right);
+                assertionSlideBy = compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) && compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
               }
 
               updateTest(testSlideBy, assertionSlideBy);
-              _context3.next = 39;
+              _context3.next = 37;
               break;
 
-            case 32:
-              _context3.prev = 32;
+            case 30:
+              _context3.prev = 30;
               _context3.t0 = _context3['catch'](0);
 
               console.log(_context3.t0);
@@ -966,18 +963,18 @@ function testResponsive1() {
               testGutter.className = 'item-notsure';
               testEdgePadding.className = 'item-notsure';
 
-            case 39:
-              _context3.prev = 39;
+            case 37:
+              _context3.prev = 37;
 
               document.body.removeChild(newWindow);
-              return _context3.finish(39);
+              return _context3.finish(37);
 
-            case 42:
+            case 40:
             case 'end':
               return _context3.stop();
           }
         }
-      }, _callee3, this, [[0, 32, 39, 42]]);
+      }, _callee3, this, [[0, 30, 37, 40]]);
     }));
 
     return function responsive1Tests() {
@@ -1339,13 +1336,13 @@ function testResponsive4() {
 function testResponsive5() {
   var responsive5Tests = function () {
     var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-      var assertionFixedWidth, assertionAutoHeight, doc, wrapper, first;
+      var assertionFixedWidth, assertionAutoHeight, doc, wrapper, container, slideItems, cloneCount, first;
       return regeneratorRuntime.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
               _context6.prev = 0;
-              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), first = doc.querySelector('#' + id).children[14];
+              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), slideItems = container.children, cloneCount = (slideItems.length - 7) / 2, first = slideItems[cloneCount];
 
 
               assertionFixedWidth = first.clientWidth === options[id].fixedWidth && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
@@ -1922,35 +1919,35 @@ function checkPositionEdgePadding(id, vertical) {
 }
 
 initFns = {
-  // 'base': testBase,
-  // 'few-items': testFewitems,
-  // 'mouse-drag': testMouseDrag,
-  // 'gutter': testGutter,
-  // 'edgePadding': testEdgePadding,
-  // 'edgePadding-gutter': testEdgePaddingGutter,
-  // 'non-loop': testNonLoop,
-  // 'rewind': testRewind,
-  // 'slide-by-page': testSlideByPage,
-  // 'fixedWidth': testFixedWidth,
-  // 'fixedWidth-gutter': testFixedWidthGutter,
-  // 'fixedWidth-edgePadding': testFixedWidthEdgePadding,
-  // 'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
-  'responsive1': testResponsive1
-  // 'responsive2': testResponsive2,
-  // 'responsive3': testResponsive3,
-  // 'responsive4': testResponsive4,
-  // 'responsive5': testResponsive5,
-  // 'responsive6': testResponsive6,
-  // 'arrowKeys': testArrowKeys,
-  // 'autoplay': testAutoplay,
-  // 'vertical': testVertical,
-  // 'vertical-gutter': testVerticalGutter,
-  // 'vertical-edgePadding': testVerticalEdgePadding,
-  // 'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
-  // 'animation1': testAnimation1,
-  // 'animation2': testAnimation2,
-  // 'lazyload': testLazyload,
-  // 'customize': testCustomize,
-  // 'autoHeight': testAutoHeight,
-  // 'nested': testNested,
+  'base': testBase,
+  'few-items': testFewitems,
+  'mouse-drag': testMouseDrag,
+  'gutter': testGutter,
+  'edgePadding': testEdgePadding,
+  'edgePadding-gutter': testEdgePaddingGutter,
+  'non-loop': testNonLoop,
+  'rewind': testRewind,
+  'slide-by-page': testSlideByPage,
+  'fixedWidth': testFixedWidth,
+  'fixedWidth-gutter': testFixedWidthGutter,
+  'fixedWidth-edgePadding': testFixedWidthEdgePadding,
+  'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
+  'responsive1': testResponsive1,
+  'responsive2': testResponsive2,
+  'responsive3': testResponsive3,
+  'responsive4': testResponsive4,
+  'responsive5': testResponsive5,
+  'responsive6': testResponsive6,
+  'arrowKeys': testArrowKeys,
+  'autoplay': testAutoplay,
+  'vertical': testVertical,
+  'vertical-gutter': testVerticalGutter,
+  'vertical-edgePadding': testVerticalEdgePadding,
+  'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
+  'animation1': testAnimation1,
+  'animation2': testAnimation2,
+  'lazyload': testLazyload,
+  'customize': testCustomize,
+  'autoHeight': testAutoHeight,
+  'nested': testNested
 };
