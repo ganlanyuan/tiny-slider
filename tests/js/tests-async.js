@@ -2306,36 +2306,45 @@ async function testAutoplayFn (id, el, timeout, equal) {
   updateTest(el, assertion);
 }
 
+function waitFn (fn, time) {
+  if (!time) { time = 200; }
+
+  return async function() {
+    await wait(time);
+    fn();
+  };
+}
+
 initFns = {
-  'base': testBase,
-  'few-items': testFewitems,
-  'mouse-drag': testMouseDrag,
-  'gutter': testGutter,
-  'edgePadding': testEdgePadding,
-  'edgePadding-gutter': testEdgePaddingGutter,
-  'non-loop': testNonLoop,
-  'rewind': testRewind,
-  'slide-by-page': testSlideByPage,
-  'fixedWidth': testFixedWidth,
-  'fixedWidth-gutter': testFixedWidthGutter,
-  'fixedWidth-edgePadding': testFixedWidthEdgePadding,
-  'fixedWidth-edgePadding-gutter': testFixedWidthEdgePaddingGutter,
-  'responsive1': testResponsive1,
-  'responsive2': testResponsive2,
-  'responsive3': testResponsive3,
-  'responsive4': testResponsive4,
-  'responsive5': testResponsive5,
-  'responsive6': testResponsive6,
-  'arrowKeys': testArrowKeys,
-  'autoplay': testAutoplay,
-  'vertical': testVertical,
-  'vertical-gutter': testVerticalGutter,
-  'vertical-edgePadding': testVerticalEdgePadding,
-  'vertical-edgePadding-gutter': testVerticalEdgePaddingGutter,
-  'animation1': testAnimation1,
-  'animation2': testAnimation2,
-  'lazyload': testLazyload,
-  'customize': testCustomize,
-  'autoHeight': testAutoHeight,
-  'nested': testNested,
+  'base': waitFn(testBase),
+  'few-items': waitFn(testFewitems),
+  'mouse-drag': waitFn(testMouseDrag),
+  'gutter': waitFn(testGutter),
+  'edgePadding': waitFn(testEdgePadding),
+  'edgePadding-gutter': waitFn(testEdgePaddingGutter),
+  'non-loop': waitFn(testNonLoop),
+  'rewind': waitFn(testRewind),
+  'slide-by-page': waitFn(testSlideByPage),
+  'fixedWidth': waitFn(testFixedWidth),
+  'fixedWidth-gutter': waitFn(testFixedWidthGutter),
+  'fixedWidth-edgePadding': waitFn(testFixedWidthEdgePadding),
+  'fixedWidth-edgePadding-gutter': waitFn(testFixedWidthEdgePaddingGutter),
+  'responsive1': waitFn(testResponsive1),
+  'responsive2': waitFn(testResponsive2),
+  'responsive3': waitFn(testResponsive3),
+  'responsive4': waitFn(testResponsive4),
+  'responsive5': waitFn(testResponsive5),
+  'responsive6': waitFn(testResponsive6),
+  'arrowKeys': waitFn(testArrowKeys),
+  'autoplay': waitFn(testAutoplay),
+  'vertical': waitFn(testVertical),
+  'vertical-gutter': waitFn(testVerticalGutter),
+  'vertical-edgePadding': waitFn(testVerticalEdgePadding),
+  'vertical-edgePadding-gutter': waitFn(testVerticalEdgePaddingGutter),
+  'animation1': waitFn(testAnimation1),
+  'animation2': waitFn(testAnimation2),
+  'lazyload': waitFn(testLazyload),
+  'customize': waitFn(testCustomize),
+  'autoHeight': waitFn(testAutoHeight),
+  'nested': waitFn(testNested),
 };
