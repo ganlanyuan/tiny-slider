@@ -479,7 +479,7 @@ export var tns = function(options) {
 
       if (isFW || options[str] < slideCount) { arr.push(options[str]); }
 
-      if (breakpoints && responsiveItems.indexOf(str)) {
+      if (breakpoints && responsiveItems.indexOf(str) >= 0) {
         breakpoints.forEach(function(bp) {
           var tem = responsive[bp][str];
           if (tem && (isFW || tem < slideCount)) { arr.push(tem); }
