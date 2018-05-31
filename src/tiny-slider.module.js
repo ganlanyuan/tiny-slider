@@ -453,7 +453,7 @@ export var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return loop ? carousel ? slideCountNew - items : slideCount - slideCount%items : slideCountNew - 1;
+    return carousel ? slideCountNew - items : loop ? slideCount - slideCount%items : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
