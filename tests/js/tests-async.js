@@ -763,7 +763,7 @@ function testResponsive1 () {
           wrapper = container.parentNode,
           slideBy = options[id].slideBy,
           items = responsive[bps[0]].items,
-          cloneCount = getCloneCountForLoop(options[id], 7),
+          cloneCount = (slideItems.length - 7) / 2,
           index = cloneCount,
           gutter = options[id].gutter,
           edgePadding = responsive[bps[0]].edgePadding,
@@ -2168,33 +2168,13 @@ async function repeat (fn, count, timeout) {
   }
 }
 
-function getCloneCountForLoop (opt, sCount) {
-  var arr = [0], 
-      responsive = opt.responsive,
-      itemsMax,
-      result;
-
-  if (opt.items < sCount) { arr.push(opt.items); }
-
-  if (responsive) {
-    for (var bp in responsive) {
-      var itemsTem = responsive[bp].items;
-      if (itemsTem && itemsTem < sCount) { arr.push(itemsTem); }
-    }
-  }
-  itemsMax = Math.max.apply(null, arr);
-  result = opt.mode !== 'gallery' ? Math.ceil((itemsMax * 5 - sCount)/2) : (itemsMax * 3 - sCount);
-  return Math.max(0, result);
-}
-
 function checkSlidesAttrs (id) {
   var info = sliders[id].getInfo(),
       slideItems = info.slideItems,
       index = info.index,
       items = info.items,
       slideCount = info.slideCount,
-      // cloneCount = info.cloneCount,
-      cloneCount1 = getCloneCountForLoop(options[id], slideCount),
+      cloneCount = info.cloneCount,
       firstVisible = slideItems[index],
       lastVisible = slideItems[index + items - 1],
       firstVisiblePrev = slideItems[index - 1],
@@ -2203,7 +2183,7 @@ function checkSlidesAttrs (id) {
         compare2Nums(slideItems[slideItems.length - 1].getBoundingClientRect().top, info.container.parentNode.getBoundingClientRect().top),
       mul = options[id].loop !== false ? 2 : 1;
 
-  return slideItems.length === slideCount + cloneCount1 * mul &&
+  return slideItems.length === slideCount + cloneCount * mul &&
     containsClasses(firstVisible, ['tns-item']) &&
     firstVisible.id === id + '-item' + 0 &&
     firstVisible.getAttribute('aria-hidden') === 'false' &&
