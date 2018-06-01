@@ -1934,7 +1934,10 @@ export var tns = function(options) {
       onControlsClick(e, 1);
 
     // go to exact slide
-    } else if (!running) {
+    } else {
+      if (running) { onTransitionEnd(); }
+
+    // } else if (!running) {
       var absIndex = getAbsIndex(), 
           indexGap = 0;
       if (absIndex < 0) { absIndex += slideCount; }
@@ -1964,7 +1967,9 @@ export var tns = function(options) {
 
   // on controls click
   function onControlsClick (e, dir) {
-    if (!running) {
+    // if (!running) {
+      if (running) { onTransitionEnd(); }
+
       var passEventObject;
 
       if (!dir) {
@@ -1995,12 +2000,14 @@ export var tns = function(options) {
         // pass e when click control buttons or keydown
         render((passEventObject || (e && e.type === 'keydown')) ? e : null);
       }
-    }
+    // }
   }
 
   // on nav click
   function onNavClick (e) {
-    if (!running) {
+    // if (!running) {
+      if (running) { onTransitionEnd(); }
+      
       e = getEvent(e);
       var target = e.target || e.srcElement,
           navIndex;
@@ -2011,7 +2018,7 @@ export var tns = function(options) {
         navIndex = navClicked = [].indexOf.call(navItems, target);
         goTo(navIndex + cloneCount, e);
       }
-    }
+    // }
   }
 
   // autoplay functions
