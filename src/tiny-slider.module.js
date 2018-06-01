@@ -2213,6 +2213,8 @@ export var tns = function(options) {
   }
 
   function onPanStart (e) {
+    if (running) { onTransitionEnd(); }
+    
     panStart = true;
     caf(rafIndex);
     rafIndex = raf(function(){ panUpdate(e); });

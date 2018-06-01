@@ -161,9 +161,10 @@
 
         {# auto height #}
         {% elif slide === 'autoHeight' %}
+          {% set hs = [600, 900, 700, 900, 800, 600, 900] %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="images/1000x{{ [600, 700, 800, 900] | random }}/{{ i }}.png" alt=""></div>
+              <div><img src="images/1000x{{ hs[i-1] }}/{{ i }}.png" alt=""></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
