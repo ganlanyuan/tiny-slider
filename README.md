@@ -123,6 +123,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `gutter` | Integer | Default: 0. <br> Space between slides (in "px"). |
 | `edgePadding` | Integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | Integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
+| `fixedWidthViewportWidth` | Integer \| false | Default: false. <br> Maximum width of `fixedWidth` slider viewport. |
 | `slideBy` | Integer \| "page" | Default: 1. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
@@ -244,6 +245,7 @@ To get the slider information, you can either use the `getInfo()` method or subs
          navCurrentCached: navCurrentCached, // previous dot index
         visibleNavIndexes: visibleNavIndexes, // visible nav indexes
   visibleNavIndexesCached: visibleNavIndexesCached,
+                    sheet: sheet,
                     event: e || {}, // event object if available
 };
 ```
