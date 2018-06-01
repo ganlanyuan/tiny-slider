@@ -1439,8 +1439,8 @@ var tns = function(options) {
     }
 
 
-    if (touch) { addEvents(container, touchEvents); }
-    if (mouseDrag) { addEvents(container, dragEvents); }
+    if (carousel && touch) { addEvents(container, touchEvents); }
+    if (carousel && mouseDrag) { addEvents(container, dragEvents); }
     if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
 
