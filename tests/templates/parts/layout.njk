@@ -99,6 +99,18 @@
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
 ] %}
 
+{% set imgs = [
+  "n9HrO34Ie4s",
+  "Fq54FqucgCE",
+  "ZLGFy3dNWfo",
+  "rhUU1pemhQ0",
+  "kVCRP3uiLiE",
+  "p0aIMbPK-Z0",
+  "u6W19kIACKw",
+  "Cof1UY6wQFg",
+  "end"
+] %}
+
 {% block main %}
   {# test results #}
   {% if page === 'tests' %}
@@ -145,7 +157,7 @@
         {% if slide === 'lazyload' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="images/600x600/{{ i }}.png" alt="" width="600" height="600"></div>
+              <div><img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/{{ imgs[i - 1] }}/600x600" alt="" width="600" height="600"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -154,17 +166,17 @@
         {% elif slide === 'customize' %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="images/600x400/{{ i }}.png" alt="" width="600" height="400"></div>
+              <div><img src="https://source.unsplash.com/{{ imgs[i - 1] }}/600x400" alt="" width="600" height="400"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
 
         {# auto height #}
         {% elif slide === 'autoHeight' %}
-          {% set hs = [600, 900, 700, 900, 800, 600, 900] %}
+          {% set hs = [400, 600, 500, 700, 400, 500, 700] %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="images/1000x{{ hs[i-1] }}/{{ i }}.png" alt=""></div>
+              <div><img src="https://source.unsplash.com/{{ imgs[i - 1] }}/1000x{{ hs[i-1] }}" alt=""></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
@@ -204,7 +216,7 @@
           {% for i in range(1, 8) %}
           <div class="item">
             {% if slide === 'mouse-drag' %}
-              <div><a href=""><img src="images/600x400/{{ i }}.png" width="600" height="400" alt=""></a></div>
+              <div><a href=""><img src="https://source.unsplash.com/{{ imgs[i - 1] }}/600x400" width="600" height="400" alt=""></a></div>
             {% else %}
               <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
             {% endif %}
@@ -228,7 +240,7 @@
         <div class="customize-tools">
           <ul class="thumbnails" id="customize-thumbnails">
             {% for i in range(1, 6) %}
-              <li><img src="images/50x50/{{ i }}.png" alt="" width="50" height="50"></li>
+              <li><img src="https://source.unsplash.com/{{ imgs[i - 1] }}/50x50" alt="" width="50" height="50"></li>
             {% endfor %}
           </ul>
           <ul class="controls" id="customize-controls">
