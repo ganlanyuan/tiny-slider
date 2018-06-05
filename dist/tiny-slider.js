@@ -891,6 +891,8 @@ var tns = function(options) {
         });
       }
 
+      if (!arr.length) { arr.push(0); }
+
       return isFW ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
         Math.max.apply(null, arr);
     }
