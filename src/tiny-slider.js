@@ -1,5 +1,5 @@
 // Format: IIFE
-// Version: 2.7.0
+// Version: 2.7.1
 
 // helper functions
 import './helpers/keys';
