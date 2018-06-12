@@ -1309,8 +1309,8 @@ var tns = function(options) {
     // == msInit ==
     // for IE10
     if (navigator.msMaxTouchPoints) {
-      addClass(outerWrapper, 'ms-touch');
-      addEvents(outerWrapper, {'scroll': ie10Scroll});
+      addClass(container, 'ms-touch');
+      addEvents(container, {'scroll': ie10Scroll});
       setSnapInterval();
     }
 
@@ -1441,8 +1441,12 @@ var tns = function(options) {
     }
 
 
-    if (carousel && touch) { addEvents(container, touchEvents); }
-    if (carousel && mouseDrag) { addEvents(container, dragEvents); }
+    // if (!navigator.msMaxTouchPoints) {
+    if (carousel) {
+      if (touch) { addEvents(container, touchEvents); }
+      if (mouseDrag) { addEvents(container, dragEvents); }
+    }
+    // }
     if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
 
