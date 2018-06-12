@@ -2606,7 +2606,7 @@ var tns = function(options) {
 
   // IE10 scroll function
   function ie10Scroll () {
-    transformCore(0, container.scrollLeft());
+    transformCore(0, container.scrollLeft);
     indexCached = index;
   }
 
