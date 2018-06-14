@@ -2368,6 +2368,7 @@ export var tns = function(options) {
 
     var absIndexMin = getAbsIndex()%items;
     while (absIndexMin < slideCount) {
+      // if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
       absIndexMin += items;
     }
