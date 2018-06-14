@@ -465,8 +465,13 @@ export var tns = function(options) {
 
   function getAbsIndex (i) {
     if (i === undefined) { i = index; }
-    while (i < cloneCount) { i += slideCount; }
-    return (i-cloneCount)%slideCount;
+    
+    if (carousel) {
+      while (i < cloneCount) { i += slideCount; }
+      i -= cloneCount;
+    }
+
+    return i ? i%slideCount : i;
   }
 
   function getItemsMax () {
@@ -956,6 +961,7 @@ export var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
+      console.log(navCurrentIndex);
       setAttrs(navItems[navCurrentIndex], {'tabindex': '0', 'aria-selected': 'true'});
       addClass(navItems[navCurrentIndex], navActiveClass);
 
