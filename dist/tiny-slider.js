@@ -858,7 +858,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return carousel ? slideCountNew - items : loop ? slideCount - slideCount%items : slideCountNew - 1;
+    return loop ? slideCountNew - items : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -870,7 +870,7 @@ var tns = function(options) {
 
   function getAbsIndex (i) {
     if (i === undefined) { i = index; }
-    
+
     if (carousel) {
       while (i < cloneCount) { i += slideCount; }
       i -= cloneCount;
@@ -905,7 +905,7 @@ var tns = function(options) {
 
   function getCloneCountForLoop () {
     var itemsMax = getItemsMax(),
-        result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 3 - slideCount);
+        result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 4 - slideCount);
     result = Math.max(itemsMax, result);
 
     return hasEdgePadding ? result + 1 : result;
@@ -1366,7 +1366,6 @@ var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
-      console.log(navCurrentIndex);
       setAttrs(navItems[navCurrentIndex], {'tabindex': '0', 'aria-selected': 'true'});
       addClass(navItems[navCurrentIndex], navActiveClass);
 
@@ -1751,42 +1750,44 @@ var tns = function(options) {
   var updateIndex = (function () {
     return loop ? 
       carousel ?
-      function () {
-        var leftEdge = indexMin,
-            rightEdge = indexMax;
+        // loop + carousel
+        function () {
+          var leftEdge = indexMin,
+              rightEdge = indexMax;
 
-        leftEdge += slideBy;
-        rightEdge -= slideBy;
+          leftEdge += slideBy;
+          rightEdge -= slideBy;
 
-        // adjust edges when edge padding is true
-        // or fixed-width slider with extra space on the right side
-        if (edgePadding) {
-          leftEdge += 1;
-          rightEdge -= 1;
-        } else if (fixedWidth) {
-          var gt = gutter ? gutter : 0;
-          if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
-        }
-
-        if (cloneCount) {
-          if (index > rightEdge) {
-            index -= slideCount;
-          } else if (index < leftEdge) {
-            index += slideCount;
+          // adjust edges when edge padding is true
+          // or fixed-width slider with extra space on the right side
+          if (edgePadding) {
+            leftEdge += 1;
+            rightEdge -= 1;
+          } else if (fixedWidth) {
+            var gt = gutter ? gutter : 0;
+            if (vpOuter%(fixedWidth + gt) > gt) { rightEdge -= 1; }
           }
-        }
-      } :
+
+          if (cloneCount) {
+            if (index > rightEdge) {
+              index -= slideCount;
+            } else if (index < leftEdge) {
+              index += slideCount;
+            }
+          }
+        } :
+        // loop + gallery
+        function() {
+          if (index > indexMax) {
+            while (index >= indexMin + slideCount) { index -= slideCount; }
+          } else if (index < indexMin) {
+            while (index <= indexMax - slideCount) { index += slideCount; }
+          }
+        } :
+      // non-loop
       function() {
-        index = (index >= indexMin && index <= indexMax) ?
-          index :
-            index > indexMax ?
-              index - slideCount : index + slideCount;
-      } :
-      function() {
-        index = (index >= indexMin && index <= indexMax) ?
-          index :
-            index > indexMax ?
-            indexMax : indexMin;
+        index = (index >= indexMin && index <= indexMax) ? index :
+            index > indexMax ? indexMax : indexMin;
       };
   })();
 
