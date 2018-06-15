@@ -643,7 +643,7 @@ var tns = function(options) {
 
   if (!carousel) {
     options.axis = 'horizontal';
-    options.rewind = false;
+    // options.rewind = false;
     // options.loop = true;
     options.edgePadding = false;
 
@@ -858,7 +858,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return loop ? slideCountNew - items : slideCountNew - 1;
+    return carousel || loop ? slideCountNew - items : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -2363,7 +2363,7 @@ var tns = function(options) {
       if (targetIndex === 'first') {
         indexGap = - absIndex;
       } else if (targetIndex === 'last') {
-        indexGap = slideCount - items - absIndex;
+        indexGap = carousel ? slideCount - items - absIndex : slideCount - 1 - absIndex;
       } else {
         if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
         if (!isNaN(targetIndex)) {
@@ -2773,7 +2773,7 @@ var tns = function(options) {
 
     var absIndexMin = getAbsIndex()%items;
     while (absIndexMin < slideCount) {
-      // if (!loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
+      if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
       absIndexMin += items;
     }

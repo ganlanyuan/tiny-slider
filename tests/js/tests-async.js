@@ -1007,7 +1007,6 @@ function testResponsive3() {
       str = autoplayButton.innerHTML;
       assertionControls = prevButton.innerHTML === 'prev' && nextButton.innerHTML === 'next';
       assertionAutoplay = str.substring(str.length - 4) === 'stop';
-      // console.log(assertionControls, assertionAutoplay);
 
       // resize window
       newWindow.style.width = (Number(bps[0]) + 20) + 'px';
