@@ -1899,11 +1899,13 @@ var tns = function(options) {
     if (lazyload && !disable) {
       var i = index, 
           len = index + items;
-          
+
       if (edgePadding) {
         i -=1;
         len +=1;
       }
+
+      len = Math.min(len, slideCountNew);
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
