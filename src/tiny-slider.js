@@ -32,6 +32,7 @@ import { hideElement } from './helpers/hideElement';
 import { showElement } from './helpers/showElement';
 import { isVisible } from './helpers/isVisible';
 import { whichProperty } from './helpers/whichProperty';
+import { has3D } from './helpers/has3D';
 import { getEndProperty } from './helpers/getEndProperty';
 import { addEvents } from './helpers/addEvents';
 import { removeEvents } from './helpers/removeEvents';
@@ -60,7 +61,7 @@ try {
   tnsStorage = localStorage;
   // remove storage when browser version changes
   if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
-    ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
+    ['tC', 'tSP', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
       tnsStorage.removeItem(item);
     })
   }
@@ -101,6 +102,7 @@ var doc = document,
       'msTransform', 
       'OTransform'
     ]), localStorageAccess),
+    HAS3D = checkStorageValue(tnsStorage['t3D']) || setLocalStorage('t3D', has3D(TRANSFORM), localStorageAccess),
     TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
@@ -447,8 +449,15 @@ export var tns = function(options) {
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
     transformPrefix = 'translate';
-    transformPrefix += horizontal ? 'X(' : 'Y(';
-    transformPostfix = ')';
+
+    if (HAS3D) {
+      transformPrefix += horizontal ? '3d(' : '3d(0px, ';
+      transformPostfix = horizontal ? ', 0px, 0px)' : ', 0px)';
+    } else {
+      transformPrefix += horizontal ? 'X(' : 'Y(';
+      transformPostfix = ')';
+    }
+
   }
 
   // === COMMON FUNCTIONS === //

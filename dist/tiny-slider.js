@@ -351,6 +351,25 @@ function whichProperty(props){
   return false; // explicit for ie9-
 }
 
+function has3D(tf){
+  if (!window.getComputedStyle) { return false; }
+  
+  var el = document.createElement('p'),
+      has3d,
+      cssTF = tf.length > 9 ? '-' + tf.slice(0, -9).toLowerCase() + '-' : '';
+
+  cssTF += 'transform';
+
+  // Add it to the body to get the computed style
+  document.body.insertBefore(el, null);
+
+  el.style[tf] = 'translate3d(1px,1px,1px)';
+  has3d = window.getComputedStyle(el).getPropertyValue(cssTF);
+
+  document.body.removeChild(el);
+  return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
+}
+
 // get transitionend, animationend based on transitionDuration
 // @propin: string
 // @propOut: string, first-letter uppercase
@@ -465,7 +484,7 @@ try {
   tnsStorage = localStorage;
   // remove storage when browser version changes
   if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
-    ['tC', 'tSP', 'tMQ', 'tTf', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
+    ['tC', 'tSP', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
       tnsStorage.removeItem(item);
     });
   }
@@ -506,6 +525,7 @@ var doc = document,
       'msTransform', 
       'OTransform'
     ]), localStorageAccess),
+    HAS3D = checkStorageValue(tnsStorage['t3D']) || setLocalStorage('t3D', has3D(TRANSFORM), localStorageAccess),
     TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
       'transitionDuration', 
       'WebkitTransitionDuration', 
@@ -852,8 +872,15 @@ var tns = function(options) {
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
     transformPrefix = 'translate';
-    transformPrefix += horizontal ? 'X(' : 'Y(';
-    transformPostfix = ')';
+
+    if (HAS3D) {
+      transformPrefix += horizontal ? '3d(' : '3d(0px, ';
+      transformPostfix = horizontal ? ', 0px, 0px)' : ', 0px)';
+    } else {
+      transformPrefix += horizontal ? 'X(' : 'Y(';
+      transformPostfix = ')';
+    }
+
   }
 
   // === COMMON FUNCTIONS === //
