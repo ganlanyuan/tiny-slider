@@ -1928,7 +1928,7 @@ var tns = function(options) {
       var i = index, 
           len = index + items;
 
-      if (edgePadding) {
+      if (edgePadding && loop) {
         i -=1;
         len +=1;
       }
