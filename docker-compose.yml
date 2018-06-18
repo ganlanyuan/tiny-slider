@@ -5,7 +5,7 @@ services:
     image: cmcdev/web:2.7.3
     ports:
       - 3000:3000
-      - 3001:3001
+      # - 3001:3001
     volumes:
       - .:/www/web/
     working_dir: /www/web

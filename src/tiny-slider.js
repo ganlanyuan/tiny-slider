@@ -691,10 +691,7 @@ export var tns = function(options) {
     outerWrapper.className = classOuter;
     innerWrapper.className = classInner;
     innerWrapper.id = slideId + '-iw';
-    if (autoHeight) {
-      innerWrapper.className += ' tns-ah';
-      innerWrapper.style[TRANSITIONDURATION] = speed / 1000 + 's';
-    }
+    if (autoHeight) { innerWrapper.className += ' tns-ah'; }
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
