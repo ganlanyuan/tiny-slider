@@ -462,7 +462,7 @@ export var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return carousel || loop ? slideCountNew - items : slideCountNew - 1;
+    return carousel || loop ? Math.max(0, slideCountNew - items) : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -488,21 +488,20 @@ export var tns = function(options) {
       return slideCount - 1;
     } else {
       var str = fixedWidth ? 'fixedWidth' : 'items',
-          isFW = fixedWidth,
           arr = [];
 
-      if (isFW || options[str] < slideCount) { arr.push(options[str]); }
+      if (fixedWidth || options[str] < slideCount) { arr.push(options[str]); }
 
       if (breakpoints && responsiveItems.indexOf(str) >= 0) {
         breakpoints.forEach(function(bp) {
           var tem = responsive[bp][str];
-          if (tem && (isFW || tem < slideCount)) { arr.push(tem); }
+          if (tem && (fixedWidth || tem < slideCount)) { arr.push(tem); }
         });
       }
 
       if (!arr.length) { arr.push(0); }
 
-      return isFW ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
+      return fixedWidth ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
         Math.max.apply(null, arr);
     }
   }
@@ -1501,11 +1500,12 @@ export var tns = function(options) {
       var i = index, 
           len = index + items;
 
-      if (edgePadding && loop) {
+      if (edgePadding) {
         i -=1;
         len +=1;
       }
 
+      i = Math.max(i, 0);
       len = Math.min(len, slideCountNew);
 
       for(; i < len; i++) {
