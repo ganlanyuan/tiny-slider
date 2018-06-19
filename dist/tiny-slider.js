@@ -366,6 +366,7 @@ function whichProperty(props){
 }
 
 function has3D(tf){
+  if (!tf) { return false; }
   if (!window.getComputedStyle) { return false; }
   
   var doc = document,
