@@ -604,7 +604,7 @@ export var tns = function(options) {
       var gap = edgePaddingTem;
       if (gutterTem) { gap += gutterTem; }
       if (fixedWidthTem) {
-        str = 'margin: 0px ' + (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2 + 'px';
+        str = 'margin: 0px ' + (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2 + 'px;';
       } else {
         str = horizontal ?
           'margin: 0 ' + edgePaddingTem + 'px 0 ' + gap + 'px;' :
@@ -617,7 +617,7 @@ export var tns = function(options) {
     }
 
     if (TRANSITIONDURATION && speedTem) { str += getTrsnsitionDurationStyle(speedTem); }
-
+    
     return str;
   }
 
