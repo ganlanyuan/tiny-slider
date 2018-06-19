@@ -160,6 +160,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `disable` | Boolean | Default: false. <br> Disable slider. |
 | `startIndex` | Integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
+| `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
 
 *[top↑](#tiny-slider-20)*  
 

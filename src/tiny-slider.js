@@ -39,100 +39,6 @@ import { removeEvents } from './helpers/removeEvents';
 import { Events } from './helpers/events';
 import { jsTransform } from './helpers/jsTransform';
 
-// check browser version and local storage
-// if browser upgraded, 
-// 1. delete browser ralated data from local storage and 
-// 2. recheck these options and save them to local storage
-var browserInfo = navigator.userAgent,
-    localStorageAccess = true,
-    tnsStorage = {};
-
-// tC => calc
-// tSP => subpixel
-// tMQ => mediaquery
-// tTf => transform
-// tTDu => transitionDuration
-// tTDe => transitionDelay
-// tADu => animationDuration
-// tADe => animationDelay
-// tTE => transitionEnd
-// tAE => animationEnd
-try {
-  tnsStorage = localStorage;
-  // remove storage when browser version changes
-  if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
-    ['tC', 'tSP', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function (item) {
-      tnsStorage.removeItem(item);
-    })
-  }
-  // update browserInfo
-  tnsStorage['tnsApp'] = browserInfo;
-} catch(e) {
-  localStorageAccess = false;
-}
-
-// reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
-// https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
-if (localStorageAccess && !localStorage) { tnsStorage = {}; }
-
-// get browser related data from local storage if they exist
-// otherwise, run the functions again and save these data to local storage
-// checkStorageValue() convert non-string value to its original value: 'true' > true
-var doc = document,
-    win = window,
-    KEYS = {
-      ENTER: 13,
-      SPACE: 32,
-      PAGEUP: 33,
-      PAGEDOWN: 34,
-      END: 35,
-      HOME: 36,
-      LEFT: 37,
-      UP: 38,
-      RIGHT: 39,
-      DOWN: 40
-    },
-    CALC = checkStorageValue(tnsStorage['tC']) || setLocalStorage('tC', calc(), localStorageAccess),
-    SUBPIXEL = checkStorageValue(tnsStorage['tSP']) || setLocalStorage('tSP', subpixelLayout(), localStorageAccess),
-    CSSMQ = checkStorageValue(tnsStorage['tMQ']) || setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess),
-    TRANSFORM = checkStorageValue(tnsStorage['tTf']) || setLocalStorage('tTf', whichProperty([
-      'transform', 
-      'WebkitTransform', 
-      'MozTransform', 
-      'msTransform', 
-      'OTransform'
-    ]), localStorageAccess),
-    HAS3D = checkStorageValue(tnsStorage['t3D']) || setLocalStorage('t3D', has3D(TRANSFORM), localStorageAccess),
-    TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']) || setLocalStorage('tTDu', whichProperty([
-      'transitionDuration', 
-      'WebkitTransitionDuration', 
-      'MozTransitionDuration', 
-      'OTransitionDuration'
-    ]), localStorageAccess),
-    TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']) || setLocalStorage('tTDe', whichProperty([
-      'transitionDelay', 
-      'WebkitTransitionDelay', 
-      'MozTransitionDelay', 
-      'OTransitionDelay'
-    ]), localStorageAccess),
-    ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']) || setLocalStorage('tADu', whichProperty([
-      'animationDuration', 
-      'WebkitAnimationDuration', 
-      'MozAnimationDuration', 
-      'OAnimationDuration'
-    ]), localStorageAccess),
-    ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']) || setLocalStorage('tADe', whichProperty([
-      'animationDelay', 
-      'WebkitAnimationDelay', 
-      'MozAnimationDelay', 
-      'OAnimationDelay'
-    ]), localStorageAccess),
-    TRANSITIONEND = checkStorageValue(tnsStorage['tTE']) || setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
-    ANIMATIONEND = checkStorageValue(tnsStorage['tAE']) || setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
-
-// reset SUBPIXEL for IE8
-if (!CSSMQ) { SUBPIXEL = false; }
-
 export var tns = function(options) {
   options = extend({
     container: '.slider',
@@ -177,9 +83,125 @@ export var tns = function(options) {
     nested: false,
     freezable: true,
     // startIndex: 0,
-    onInit: false
+    onInit: false,
+    useLocalStorage: true
   }, options || {});
   
+  var doc = document,
+      win = window,
+      KEYS = {
+        ENTER: 13,
+        SPACE: 32,
+        PAGEUP: 33,
+        PAGEDOWN: 34,
+        END: 35,
+        HOME: 36,
+        LEFT: 37,
+        UP: 38,
+        RIGHT: 39,
+        DOWN: 40
+      },
+      CALC,
+      SUBPIXEL,
+      CSSMQ,
+      TRANSFORM,
+      HAS3D,
+      TRANSITIONDURATION,
+      TRANSITIONDELAY,
+      ANIMATIONDURATION,
+      ANIMATIONDELAY,
+      TRANSITIONEND,
+      ANIMATIONEND,
+      localStorageAccess = true;
+
+  if (options.useLocalStorage) {
+    // check browser version and local storage
+    // if browser upgraded, 
+    // 1. delete browser ralated data from local storage and 
+    // 2. recheck these options and save them to local storage
+    var browserInfo = navigator.userAgent,
+        tnsStorage = {};
+
+    // tC => calc
+    // tSP => subpixel
+    // tMQ => mediaquery
+    // tTf => transform
+    // tTDu => transitionDuration
+    // tTDe => transitionDelay
+    // tADu => animationDuration
+    // tADe => animationDelay
+    // tTE => transitionEnd
+    // tAE => animationEnd
+    try {
+      tnsStorage = localStorage;
+      // remove storage when browser version changes
+      if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
+        ['tC', 'tSP', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function(item) { tnsStorage.removeItem(item); });
+      }
+      // update browserInfo
+      tnsStorage['tnsApp'] = browserInfo;
+    } catch(e) {
+      localStorageAccess = false;
+    }
+
+    // reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
+    // https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
+    if (!localStorage) {
+      tnsStorage = {};
+      localStorageAccess = false;
+    }
+
+    // get browser related data from local storage if they exist
+    // otherwise, run the functions again and save these data to local storage
+    // checkStorageValue() convert non-string value to its original value: 'true' > true
+    if (localStorageAccess) {
+      if (tnsStorage['tC']) {
+        CALC = checkStorageValue(tnsStorage['tC']);
+        SUBPIXEL = checkStorageValue(tnsStorage['tSP']);
+        CSSMQ = checkStorageValue(tnsStorage['tMQ']);
+        TRANSFORM = checkStorageValue(tnsStorage['tTf']);
+        HAS3D = checkStorageValue(tnsStorage['t3D']);
+        TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']);
+        TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']);
+        ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']);
+        ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']);
+        TRANSITIONEND = checkStorageValue(tnsStorage['tTE']);
+        ANIMATIONEND = checkStorageValue(tnsStorage['tAE']);
+      } else {
+        CALC = setLocalStorage('tC', calc());
+        SUBPIXEL = setLocalStorage('tSP', subpixelLayout());
+        CSSMQ = setLocalStorage('tMQ', mediaquerySupport());
+        TRANSFORM = setLocalStorage('tTf', whichProperty('transform'));
+        HAS3D = setLocalStorage('t3D', has3D(TRANSFORM));
+        TRANSITIONDURATION = setLocalStorage('tTDu', whichProperty('transitionDuration'));
+        TRANSITIONDELAY = setLocalStorage('tTDe', whichProperty('transitionDelay'));
+        ANIMATIONDURATION = setLocalStorage('tADu', whichProperty('animationDuration'));
+        ANIMATIONDELAY = setLocalStorage('tADe', whichProperty('animationDelay'));
+        TRANSITIONEND = setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'));
+        ANIMATIONEND = setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'));
+      }
+    }
+  } else {
+    localStorageAccess = false;
+  }
+
+  if (!localStorageAccess) {
+    CALC = calc();
+    SUBPIXEL = subpixelLayout();
+    CSSMQ = mediaquerySupport();
+    TRANSFORM = whichProperty('transform');
+    HAS3D = has3D(TRANSFORM);
+    TRANSITIONDURATION = whichProperty('transitionDuration');
+    TRANSITIONDELAY = whichProperty('transitionDelay');
+    ANIMATIONDURATION = whichProperty('animationDuration');
+    ANIMATIONDELAY = whichProperty('animationDelay');
+    TRANSITIONEND = getEndProperty(TRANSITIONDURATION, 'Transition');
+    ANIMATIONEND = getEndProperty(ANIMATIONDURATION, 'Animation');
+  }
+
+  // reset SUBPIXEL for IE8
+  if (!CSSMQ) { SUBPIXEL = false; }
+
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function";
   var list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'];
