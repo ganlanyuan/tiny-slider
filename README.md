@@ -1,6 +1,6 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.7.2-green.svg)  
+![version](https://img.shields.io/badge/Version-2.7.3-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)
@@ -72,10 +72,10 @@ Note: some features may need a manual test.
 #### 1. Include tiny-slider
 via [cdnjs](https://cdnjs.com/libraries/tiny-slider):  
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.2/tiny-slider.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.3/tiny-slider.css">
 
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.2/min/tiny-slider.helper.ie8.js"></script><![endif]-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.2/min/tiny-slider.js"></script>
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.3/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.7.3/min/tiny-slider.js"></script>
 
 <!-- NOTE: from v2.2.1 tiny-slider.js is no longer required to be in <body> -->
 ```
