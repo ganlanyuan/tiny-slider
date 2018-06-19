@@ -6,7 +6,7 @@
 *.scssc
 *.swp
 *.log
-index.html
+/*.html
 *.sketch
 
 /.codekit-cache/

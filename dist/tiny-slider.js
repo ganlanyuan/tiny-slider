@@ -703,8 +703,6 @@ var tns = function(options) {
 
   if (!carousel) {
     options.axis = 'horizontal';
-    // options.rewind = false;
-    // options.loop = true;
     options.edgePadding = false;
 
     var animateIn = 'tns-fadeIn',
@@ -1207,8 +1205,8 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
-    // add image events
-    if (checkOption('autoHeight') || !carousel) {
+    // check images loading
+    if (checkOption('autoHeight') || !carousel || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
       // check all image complete status
@@ -1223,10 +1221,24 @@ var tns = function(options) {
 
       // set imgsComplete to true 
       // when all images are compulete (loaded or error)
-      raf(function(){ checkImagesLoaded(arrayFromNodeList(imgs), function() {
+      raf(function(){ imageLoaded(arrayFromNodeList(imgs), function() {
         imgsComplete = true;
+
+        if (!disable) {
+          if (!horizontal) {
+            getSlideOffsetTops();
+            updateContentWrapperHeight();
+          }
+
+          // set container transform property
+          if (carousel) {
+            doContainerTransformSilent();
+          }
+        }
       }); });
     }
+
+    if (carousel && horizontal) { doContainerTransformSilent(); }
 
     // activate visible slides
     // add aria attrs
@@ -1309,11 +1321,6 @@ var tns = function(options) {
       }
     }
 
-    if (!horizontal && !disable) {
-      getSlideOffsetTops();
-      updateContentWrapperHeight();
-    }
-
     // media queries
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
@@ -1365,12 +1372,6 @@ var tns = function(options) {
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
         }
       });
-    }
-
-
-    // set container transform property
-    if (carousel && !disable) {
-      doContainerTransformSilent();
     }
 
 
@@ -2012,10 +2013,10 @@ var tns = function(options) {
         getImageArray(index, items) :
         getImageArray(cloneCount, slideCount);
 
-    raf(function(){ checkImagesLoaded(imgs, updateInnerWrapperHeight); });
+    raf(function(){ imageLoaded(imgs, updateInnerWrapperHeight); });
   }
 
-  function checkImagesLoaded (imgs, cb) {
+  function imageLoaded (imgs, cb) {
     // directly execute callback function if all images are complete
     if (imgsComplete) { return cb(); }
 
@@ -2028,7 +2029,7 @@ var tns = function(options) {
     if (!imgs.length) { return cb(); }
 
     // otherwise execute this functiona again
-    raf(function(){ checkImagesLoaded(imgs, cb); });
+    raf(function(){ imageLoaded(imgs, cb); });
   } 
 
   function additionalUpdates () {
