@@ -126,12 +126,14 @@ function calc() {
 
   body.appendChild(div);
   try {
-    var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
+    var str = '(10px * 10)',
+        vals = ['calc' + str, '-moz-calc' + str, '-webkit-calc' + str],
+        val;
     for (var i = 0; i < 3; i++) {
       val = vals[i];
       div.style.width = val;
-      if (div.offsetWidth === 10) { 
-        result = val.replace('(10px)', ''); 
+      if (div.offsetWidth === 100) { 
+        result = val.replace(str, ''); 
         break;
       }
     }
@@ -145,13 +147,14 @@ function calc() {
 // get subpixel support value
 
 function subpixelLayout() {
+  // check subpixel layout supporting
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
       parent = doc.createElement('div'),
       child1 = doc.createElement('div'),
       child2,
-      supported;
+      supported = false;
 
   parent.style.cssText = 'width: 10px';
   child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
@@ -161,7 +164,22 @@ function subpixelLayout() {
   parent.appendChild(child2);
   body.appendChild(parent);
 
-  supported = child1.offsetTop !== child2.offsetTop;
+  // check calc() capability
+  if(child1.offsetTop !== child2.offsetTop) {
+    var wrapper = doc.createElement('div'),
+        outer = doc.createElement('div'),
+        inner = doc.createElement('div'),
+        count = 700;
+
+    wrapper.className = "tns-t-subp2";
+    outer.className = "out";
+    inner.className = "in";
+    outer.appendChild(inner);
+    wrapper.appendChild(outer);
+    body.appendChild(wrapper);
+
+    supported = inner.offsetWidth === 500;
+  }
 
   body.fake ? resetFakeBody(body, docOverflow) : parent.remove();
 
@@ -1071,6 +1089,7 @@ var tns = function(options) {
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
         slideCountNew * 100 / itemsTem + '%';
     }
+    console.log(str);
 
     return str;
   }

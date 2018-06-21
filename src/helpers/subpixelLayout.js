@@ -6,13 +6,14 @@ import { setFakeBody } from './setFakeBody';
 import { resetFakeBody } from './resetFakeBody';
 
 export function subpixelLayout() {
+  // check subpixel layout supporting
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
       parent = doc.createElement('div'),
       child1 = doc.createElement('div'),
       child2,
-      supported;
+      supported = false;
 
   parent.style.cssText = 'width: 10px';
   child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
@@ -22,7 +23,22 @@ export function subpixelLayout() {
   parent.appendChild(child2);
   body.appendChild(parent);
 
-  supported = child1.offsetTop !== child2.offsetTop;
+  // check calc() capability
+  if(child1.offsetTop !== child2.offsetTop) {
+    var wrapper = doc.createElement('div'),
+        outer = doc.createElement('div'),
+        inner = doc.createElement('div'),
+        count = 700;
+
+    wrapper.className = "tns-t-subp2";
+    outer.className = "out";
+    inner.className = "in";
+    outer.appendChild(inner);
+    wrapper.appendChild(outer);
+    body.appendChild(wrapper);
+
+    supported = inner.offsetWidth === 500;
+  }
 
   body.fake ? resetFakeBody(body, docOverflow) : parent.remove();
 

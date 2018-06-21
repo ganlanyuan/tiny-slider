@@ -629,6 +629,7 @@ export var tns = function(options) {
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
         slideCountNew * 100 / itemsTem + '%';
     }
+    console.log(str);
 
     return str;
   }

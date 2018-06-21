@@ -94,3 +94,21 @@
   filter: alpha(opacity=0);
   z-index: -1;
 }
+
+
+// *** Detecting browser capability ***
+// Check calc() capability / IE Edge browsers
+.tns-t-subp2 {
+  width: 500px;
+  .out {
+    width: -webkit-calc(100% * 700);
+    width: -moz-calc(100% * 700);
+    width: calc(100% * 700);
+  }
+  .in {
+    width: -webkit-calc(100% / 700);
+    width: -moz-calc(100% / 700);
+    width: calc(100% / 700);
+    height: 100px;
+  }
+}

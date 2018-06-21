@@ -15,12 +15,14 @@ export function calc() {
 
   body.appendChild(div);
   try {
-    var vals = ['calc(10px)', '-moz-calc(10px)', '-webkit-calc(10px)'], val;
+    var str = '(10px * 10)',
+        vals = ['calc' + str, '-moz-calc' + str, '-webkit-calc' + str],
+        val;
     for (var i = 0; i < 3; i++) {
       val = vals[i];
       div.style.width = val;
-      if (div.offsetWidth === 10) { 
-        result = val.replace('(10px)', ''); 
+      if (div.offsetWidth === 100) { 
+        result = val.replace(str, ''); 
         break;
       }
     }
