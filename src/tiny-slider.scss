@@ -17,7 +17,7 @@
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
-  > .tns-item {
+  > div, > li {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -26,7 +26,7 @@
 
 .tns-horizontal.tns-subpixel {
   white-space: nowrap;
-  > .tns-item {
+  > div, > li {
     display: inline-block;
     vertical-align: top;
     white-space: normal;
@@ -38,7 +38,7 @@
     display: table;
     clear: both;
   }
-  > .tns-item {
+  > div, > li {
     float: left;
     margin-right: -100%;
   }
@@ -53,7 +53,7 @@
   left: 0;
   min-height: 1px; // make sure slider container is visible
   // overflow: hidden;
-  > .tns-item {
+  > div, > li {
     position: absolute;
     left: -100%;
     -webkit-transition: transform 0s, opacity 0s;

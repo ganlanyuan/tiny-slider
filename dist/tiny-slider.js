@@ -243,6 +243,15 @@ function addCSSRule(sheet, selector, rules, index) {
   // });
 }
 
+// cross browsers addRule method
+function removeCSSRule(sheet, index) {
+  // return raf(function() {
+    'deleteRule' in sheet ?
+      sheet.deleteRule(index) :
+      sheet.removeRule(index);
+  // });
+}
+
 function getCssRulesLength(sheet) {
   var rule = ('insertRule' in sheet) ? sheet.cssRules : sheet.rules;
   return rule.length;
@@ -661,6 +670,8 @@ var tns = function(options) {
 
   // reset SUBPIXEL for IE8
   if (!CSSMQ) { SUBPIXEL = false; }
+  SUBPIXEL = false;
+  CALC = false;
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function";
@@ -1049,10 +1060,11 @@ var tns = function(options) {
   }
 
   function getSlideMarginLeft (i) {
-    var str = CALC ? 
-      CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
-      i * 100 / slideCountNew + '%';
-    return str;
+    return vpInner * i / items + 'px';
+    // var str = CALC ? 
+    //   CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
+    //   i * 100 / slideCountNew + '%';
+    // return str;
   }
 
   function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
@@ -1080,37 +1092,40 @@ var tns = function(options) {
   }
 
   function getContainerWidth (fixedWidthTem, gutterTem, itemsTem) {
-    var str;
-
     if (fixedWidthTem) {
-      str = (fixedWidthTem + gutterTem) * slideCountNew + 'px';
-    } else {
-      str = CALC ? 
-        CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' : 
+      return (fixedWidthTem + gutterTem) * slideCountNew + 'px';
+    } else if (SUBPIXEL) {
+      return CALC ?
+        CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' :
         slideCountNew * 100 / itemsTem + '%';
+    } else {
+      return getContainerWidthPX(itemsTem);
     }
-    console.log(str);
+  }
 
-    return str;
+  function getContainerWidthPX (itemsTem) {
+    return vpInner * slideCountNew / itemsTem + 'px';
   }
 
   function getSlideWidthStyle (fixedWidthTem, gutterTem, itemsTem) {
-    var str = '';
+    var width;
 
-    if (horizontal) {
-      str = 'width:';
-      if (fixedWidthTem) {
-        str += (fixedWidthTem + gutterTem) + 'px';
-      } else {
-        var dividend = carousel ? slideCountNew : itemsTem;
-        str += CALC ? 
-          CALC + '(100% / ' + dividend + ')' : 
-          100 / dividend + '%';
-      }
-      str += importantStr + ';';
+    if (fixedWidthTem) {
+      width = (fixedWidthTem + gutterTem) + 'px';
+    } else if (SUBPIXEL) {
+      var dividend = carousel ? slideCountNew : itemsTem;
+      width = CALC ? 
+        CALC + '(100% / ' + dividend + ')' : 
+        100 / dividend + '%';
+    } else {
+      width = getSlideWidthStylePX(itemsTem);
     }
 
-    return str;
+    return 'width:' + width + importantStr + ';';
+  }
+
+  function getSlideWidthStylePX (itemsTem) {
+    return vpInner / itemsTem + 'px';
   }
 
   function getSlideGutterStyle (gutterTem) {
@@ -1148,7 +1163,6 @@ var tns = function(options) {
     outerWrapper.appendChild(innerWrapper);
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
-    vpInner = getViewportWidth(innerWrapper);
 
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
@@ -1175,11 +1189,18 @@ var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    classContainer += SUBPIXEL ? ' tns-subpixel' : ' tns-no-subpixel';
+    classContainer += ' tns-subpixel';
+    // classContainer += SUBPIXEL ? ' tns-subpixel' : ' tns-no-subpixel';
     classContainer += CALC ? ' tns-calc' : ' tns-no-calc';
     if (carousel) { classContainer += ' tns-' + options.axis; }
     container.className += classContainer;
-    // add event
+
+    // get inner viewport width after classes added
+    // to prevent scrollbar occupies part of viewport
+    vpInner = getViewportWidth(innerWrapper);
+    if (edgePadding) { vpInner -= edgePadding * 2; }
+
+    // add events
     if (carousel && TRANSITIONEND) {
       var eve = {};
       eve[TRANSITIONEND] = onTransitionEnd;
@@ -1280,18 +1301,18 @@ var tns = function(options) {
     if (carousel && horizontal) {
       // set font-size rules
       // for modern browsers
-      if (SUBPIXEL) {
+      // if (SUBPIXEL) {
         // set slides font-size first
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
 
       // slide left margin
       // for IE8 & webkit browsers (no subpixel)
-      } else {
-        forEachNodeList(slideItems, function (slide, i) {
-          slide.style.marginLeft = getSlideMarginLeft(i);
-        });
-      }
+      // } else {
+      //   forEachNodeList(slideItems, function (slide, i) {
+      //     slide.style.marginLeft = getSlideMarginLeft(i);
+      //   });
+      // }
     }
 
     // all browsers which support CSS transitions support CSS media queries
@@ -1760,22 +1781,6 @@ var tns = function(options) {
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
         }
 
-        // container styles
-        if (carousel && horizontal && (fixedWidth !== fixedWidthTem || gutter !== gutterTem || items !== itemsTem)) {
-          container.style.width = getContainerWidth(fixedWidth, gutter, items);
-        }
-
-        // slide styles
-        if (horizontal && (items !== itemsTem || gutter !== gutterTem || fixedWidth != fixedWidthTem)) {
-          var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
-                    getSlideGutterStyle(gutter);
-
-          // remove the last line and
-          // add new styles
-          sheet.removeRule(getCssRulesLength(sheet) - 1);
-          addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
-        }
-
         if (!fixedWidth) { needContainerTransform = true; }
       }
 
@@ -1792,7 +1797,23 @@ var tns = function(options) {
       }
     }
 
-    // things always do regardless of breakpoint zone changing
+    // ** things always do regardless of breakpoint zone changing **
+    if (!SUBPIXEL && horizontal) {
+      // container styles
+      if (carousel) {
+        container.style.width = getContainerWidthPX(items);
+      }
+
+      // slide styles
+      var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
+                getSlideGutterStyle(gutter);
+
+      // remove the last line and
+      // add new styles
+      removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
+      addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
+    }
+
     if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
