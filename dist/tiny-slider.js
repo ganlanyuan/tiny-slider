@@ -1899,8 +1899,7 @@ var tns = function(options) {
         } :
       // non-loop
       function() {
-        index = (index >= indexMin && index <= indexMax) ? index :
-            index > indexMax ? indexMax : indexMin;
+        index = Math.max(indexMin, Math.min(indexMax, index));
       };
   })();
 
@@ -2046,7 +2045,7 @@ var tns = function(options) {
 
   function getImageArray (slideStart, slideRange) {
     var imgs = [];
-    for (var i = slideStart, l = slideStart + slideRange; i < l; i++) {
+    for (var i = slideStart, l = Math.min(slideStart + slideRange, slideCountNew); i < l; i++) {
       forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
         imgs.push(img);
       });
@@ -2092,7 +2091,7 @@ var tns = function(options) {
 
   function getMaxSlideHeight (slideStart, slideRange) {
     var heights = [];
-    for (var i = slideStart, l = slideStart + slideRange; i < l; i++) {
+    for (var i = slideStart, l = Math.min(slideStart + slideRange, slideCountNew); i < l; i++) {
       heights.push(slideItems[i].offsetHeight);
     }
 
@@ -2489,8 +2488,13 @@ var tns = function(options) {
         }
       }
 
-      index += indexGap;
+      // gallery: make sure new page won't overlap with current page
+      if (!carousel && indexGap && Math.abs(indexGap) < items) {
+        var factor = indexGap > 0 ? 1 : -1;
+        indexGap += (index + indexGap - slideCount) >= indexMin ? slideCount * factor : slideCount * 2 * factor * -1;
+      }
 
+      index += indexGap;
       // if index is changed, start rendering
       if (getAbsIndex(index) !== getAbsIndex(indexCached)) {
         render(e);
@@ -2540,18 +2544,18 @@ var tns = function(options) {
   // on nav click
   function onNavClick (e) {
     // if (!running) {
-      if (running) { onTransitionEnd(); }
-      
-      e = getEvent(e);
-      var target = e.target || e.srcElement,
-          navIndex;
+    if (running) { onTransitionEnd(); }
+    
+    e = getEvent(e);
+    var target = e.target || e.srcElement,
+        navIndex;
 
-      // find the clicked nav item
-      while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
-      if (hasAttr(target, 'data-nav')) {
-        navIndex = navClicked = [].indexOf.call(navItems, target);
-        goTo(navIndex + cloneCount, e);
-      }
+    // find the clicked nav item
+    while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
+    if (hasAttr(target, 'data-nav')) {
+      navIndex = navClicked = [].indexOf.call(navItems, target);
+      goTo(carousel ? navIndex + cloneCount : navIndex, e);
+    }
     // }
   }
 
