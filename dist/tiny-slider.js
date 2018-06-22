@@ -670,8 +670,6 @@ var tns = function(options) {
 
   // reset SUBPIXEL for IE8
   if (!CSSMQ) { SUBPIXEL = false; }
-  SUBPIXEL = false;
-  CALC = false;
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function";
@@ -1198,7 +1196,7 @@ var tns = function(options) {
     // get inner viewport width after classes added
     // to prevent scrollbar occupies part of viewport
     vpInner = getViewportWidth(innerWrapper);
-    if (edgePadding) { vpInner -= edgePadding * 2; }
+    if (edgePadding) { vpInner -= edgePadding * 2 + gutter; }
 
     // add events
     if (carousel && TRANSITIONEND) {
