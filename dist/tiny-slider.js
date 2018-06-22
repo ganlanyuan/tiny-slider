@@ -2836,8 +2836,6 @@ var tns = function(options) {
         }
 
         rafIndex = raf(function() {
-          events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
-
           if (horizontal) {
             var indexMoved = - dist * items / vpInner;
             indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
@@ -2858,6 +2856,7 @@ var tns = function(options) {
           }
 
           render(e, dist);
+          events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
         });
       }
 

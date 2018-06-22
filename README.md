@@ -314,7 +314,7 @@ slider = slider.rebuild();
 ```
 
 ## Custom Events
-Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove` and `touchEnd`.
+Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove`, `touchEnd`, `dragStart`, `dragMove` and `dragEnd`.
 ```javascript
 var customizedFunction = function (info) {
   // direct access to info object
