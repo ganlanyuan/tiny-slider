@@ -1196,7 +1196,9 @@ var tns = function(options) {
     // get inner viewport width after classes added
     // to prevent scrollbar occupies part of viewport
     vpInner = getViewportWidth(innerWrapper);
-    if (edgePadding) { vpInner -= edgePadding * 2 + gutter; }
+    var epT = getOption('edgePadding'),
+        gT = getOption('gutter');
+    vpInner += epT ? - (epT * 2 + gutter) : gutter;
 
     // add events
     if (carousel && TRANSITIONEND) {
@@ -1321,21 +1323,29 @@ var tns = function(options) {
 
       // container styles
       if (carousel) {
-        str = horizontal ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
+        str = horizontal && SUBPIXEL ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
         if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
         addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
       // slide styles
       if (horizontal || options.gutter) {
-        str = getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) + 
-              getSlideGutterStyle(options.gutter);
+        str = horizontal && SUBPIXEL ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
+        str += getSlideGutterStyle(options.gutter);
         // set gallery items transition-duration
         if (!carousel) {
           if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
           if (ANIMATIONDURATION) { str += getAnimationDurationStyle(speed); }
         }
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
+      }
+
+      // generate inline styles for container width and slides width
+      if (!SUBPIXEL && horizontal) {
+        // container styles
+        if (carousel) { container.style.width = getContainerWidthPX(items); }
+        // slide styles
+        addCSSRule(sheet, '#' + slideId + ' > .tns-item', getSlideWidthStyle(fixedWidth, gutter, items), getCssRulesLength(sheet));
       }
 
     // non CSS mediaqueries: IE8
