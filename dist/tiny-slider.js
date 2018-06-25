@@ -2363,6 +2363,7 @@ var tns = function(options) {
   function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
 
+    console.log(index);
     // render when slider was moved (touch or drag) even though index may not change
     if (index !== indexCached || sliderMoved) {
       // events
@@ -2477,9 +2478,13 @@ var tns = function(options) {
         indexGap = carousel ? slideCount - items - absIndex : slideCount - 1 - absIndex;
       } else {
         if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
+
         if (!isNaN(targetIndex)) {
-          targetIndex -= 1; // switch from natual index to JS index
-          if (carousel && cloneCount) { targetIndex += cloneCount; }
+          if (!e) {
+            targetIndex -= 1; // switch from natual index to JS index
+            if (carousel && cloneCount) { targetIndex += cloneCount; }
+          }
+
           var absTargetIndex = getAbsIndex(targetIndex);
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
           indexGap = absTargetIndex - absIndex;

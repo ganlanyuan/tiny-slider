@@ -238,6 +238,11 @@ async function testBase () {
     var number = Math.round(Math.random() * mul);
     input.value = number;
     button.click();
+
+    // switch natural index to JS index
+    number -= 1;
+    if (cloneCount) { number += cloneCount; }
+
     while (number < 0) { number += slideCount; }
     if (assertion !== false) {
       assertion = slider.getInfo().index%slideCount === number%slideCount;
@@ -1893,7 +1898,7 @@ async function testCustomize () {
   // before testing slide attrs
   if (opt['autoplay']) {
     autoplayButton.click();
-    slider.goTo(0);
+    slider.goTo('first');
   }
   runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
     return checkSlidesAttrs(id);

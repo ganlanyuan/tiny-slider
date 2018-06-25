@@ -12,6 +12,13 @@ var testBase = function () {
               var number = Math.round(Math.random() * mul);
               input.value = number;
               button.click();
+
+              // switch natural index to JS index
+              number -= 1;
+              if (cloneCount) {
+                number += cloneCount;
+              }
+
               while (number < 0) {
                 number += slideCount;
               }
@@ -465,7 +472,7 @@ var testCustomize = function () {
             // before testing slide attrs
             if (opt['autoplay']) {
               autoplayButton.click();
-              slider.goTo(0);
+              slider.goTo('first');
             }
             runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
               return checkSlidesAttrs(id);
