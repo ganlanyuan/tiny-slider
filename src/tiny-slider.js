@@ -496,10 +496,9 @@ export var tns = function(options) {
   function getAbsIndex (i) {
     if (i === undefined) { i = index; }
 
-    if (carousel) {
-      while (i < cloneCount) { i += slideCount; }
-      i -= cloneCount;
-    }
+    var min = carousel ? cloneCount : 0;
+    while (i < min) { i += slideCount; }
+    if (carousel) { i -= cloneCount; }
 
     return i ? i%slideCount : i;
   }
@@ -1999,7 +1998,6 @@ export var tns = function(options) {
     } else {
       if (running) { onTransitionEnd(); }
 
-    // } else if (!running) {
       var absIndex = getAbsIndex(), 
           indexGap = 0;
       if (absIndex < 0) { absIndex += slideCount; }
@@ -2011,6 +2009,8 @@ export var tns = function(options) {
       } else {
         if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
         if (!isNaN(targetIndex)) {
+          targetIndex -= 1; // switch from natual index to JS index
+          if (carousel && cloneCount) { targetIndex += cloneCount; }
           var absTargetIndex = getAbsIndex(targetIndex);
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
           indexGap = absTargetIndex - absIndex;
