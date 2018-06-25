@@ -2760,7 +2760,7 @@ var tns = function(options) {
     
     panStart = true;
     caf(rafIndex);
-    rafIndex = raf(function(){ panUpdate(e); });
+    rafIndex = 0;
 
     var $ = getEvent(e);
     events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
@@ -2782,6 +2782,7 @@ var tns = function(options) {
       lastPosition.x = parseInt($.clientX);
       lastPosition.y = parseInt($.clientY);
     }
+    if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
   }
 
   function panUpdate (e) {
@@ -2800,7 +2801,9 @@ var tns = function(options) {
     }
 
     if (moveDirectionExpected) {
-      events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e));
+      try {
+        if (e.type) { events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e)); }
+      } catch(err) {}
 
       var x = translateInit,
           dist = getDist(lastPosition, initPosition);
