@@ -133,6 +133,7 @@ export var tns = function(options) {
     // tADe => animationDelay
     // tTE => transitionEnd
     // tAE => animationEnd
+    // alert(localStorage);
     try {
       tnsStorage = localStorage;
       // remove storage when browser version changes
@@ -147,7 +148,7 @@ export var tns = function(options) {
 
     // reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
     // https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
-    if (!localStorage) {
+    if (localStorageAccess && !localStorage) {
       tnsStorage = {};
       localStorageAccess = false;
     }
