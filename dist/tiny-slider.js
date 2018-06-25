@@ -1329,19 +1329,17 @@ var tns = function(options) {
       }
 
       // slide styles
-      if (horizontal || options.gutter) {
-        str = horizontal && SUBPIXEL ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
-        str += getSlideGutterStyle(options.gutter);
-        // set gallery items transition-duration
-        if (!carousel) {
-          if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
-          if (ANIMATIONDURATION) { str += getAnimationDurationStyle(speed); }
-        }
-        addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
+      str = horizontal && (fixedWidth || SUBPIXEL) ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
+      if (options.gutter) { str += getSlideGutterStyle(options.gutter); }
+      // set gallery items transition-duration
+      if (!carousel) {
+        if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
+        if (ANIMATIONDURATION) { str += getAnimationDurationStyle(speed); }
       }
+      if (str) { addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet)); }
 
       // generate inline styles for container width and slides width
-      if (!SUBPIXEL && horizontal) {
+      if (horizontal && !SUBPIXEL && !fixedWidth) {
         // container styles
         if (carousel) { container.style.width = getContainerWidthPX(items); }
         // slide styles
@@ -1362,12 +1360,11 @@ var tns = function(options) {
       }
 
       // slide styles
-      if (horizontal || gutter) {
-        var str = getSlideWidthStyle(fixedWidth, gutter, items) +
-                  getSlideGutterStyle(gutter);
-        // append to the last line
-        addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
-      }
+      var str = horizontal ? getSlideWidthStyle(fixedWidth, gutter, items) : '';
+      if (gutter) { str += getSlideGutterStyle(gutter); }
+
+      // append to the last line
+      if (str) { addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet)); }
     }
 
     // media queries
@@ -1390,7 +1387,7 @@ var tns = function(options) {
         }
 
         // container string
-        if (carousel && horizontal && ('fixedWidth' in opts || 'gutter' in opts || 'items' in opts)) {
+        if (carousel && horizontal && ('fixedWidth' in opts || (fixedWidth && 'gutter' in opts) || (SUBPIXEL && 'items' in opts))) {
           containerStr = 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + ';';
         }
         if (TRANSITIONDURATION && 'speed' in opts) {
@@ -1806,7 +1803,7 @@ var tns = function(options) {
     }
 
     // ** things always do regardless of breakpoint zone changing **
-    if (!SUBPIXEL && horizontal) {
+    if (!SUBPIXEL && horizontal && !fixedWidth) {
       // container styles
       if (carousel) {
         container.style.width = getContainerWidthPX(items);
