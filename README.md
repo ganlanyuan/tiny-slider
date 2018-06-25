@@ -269,7 +269,7 @@ document.querySelector('.next-button').onclick = function () {
 ```
 
 #### goTo
-Go to specific slide by number or keywords.
+Go to specific slide by number or keywords. The first slide is referred to as 1.
 ```javascript
 slider.goTo(3);
 slider.goTo('prev');
