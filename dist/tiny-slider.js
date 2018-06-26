@@ -2363,7 +2363,6 @@ var tns = function(options) {
   function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
 
-    console.log(index);
     // render when slider was moved (touch or drag) even though index may not change
     if (index !== indexCached || sliderMoved) {
       // events
@@ -2488,6 +2487,7 @@ var tns = function(options) {
           var absTargetIndex = getAbsIndex(targetIndex);
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
           indexGap = absTargetIndex - absIndex;
+          console.log('before:', index, targetIndex, absIndex, indexGap);
         }
       }
 
@@ -2498,6 +2498,13 @@ var tns = function(options) {
       }
 
       index += indexGap;
+
+      // make sure index is in range
+      if (carousel && loop) {
+        if (index < indexMin) { index += slideCount; }
+        if (index > indexMax) { index -= slideCount; }
+      }
+
       // if index is changed, start rendering
       if (getAbsIndex(index) !== getAbsIndex(indexCached)) {
         render(e);
@@ -2531,7 +2538,7 @@ var tns = function(options) {
           goTo('last', e);
           return;
         } else if (index === indexMax && dir === 1) {
-          goTo(0, e);
+          goTo('first', e);
           return;
         }
       }
@@ -2674,7 +2681,7 @@ var tns = function(options) {
           }
           break;
       case KEYS.HOME:
-        goTo(0, e);
+        goTo('first', e);
         break;
       case KEYS.END:
         goTo(slideCount - 1, e);
