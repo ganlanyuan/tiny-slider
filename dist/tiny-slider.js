@@ -642,7 +642,7 @@ var tns = function(options) {
   }
 
   // make sure at least 1 slide
-  if (options.container.children && options.container.children.length < 1) {
+  if (options.container.children.length < 1) {
     if (supportConsoleWarn) { console.warn('No slides found in', options.container); }
     return;
    }
@@ -1372,14 +1372,17 @@ var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        forEachNodeList(navItems, function (item, i) {
-          setAttrs(item, {
-            'data-nav': i,
-            'tabindex': '-1',
-            'aria-selected': 'false',
-            'aria-controls': slideItems[initIndex + i].id,
-          });
-        });
+        for (var i = 0; i < slideCount; i++) {
+          var item = navItems[i];
+          if (item) {
+            setAttrs(item, {
+              'data-nav': i,
+              'tabindex': '-1',
+              'aria-selected': 'false',
+              'aria-controls': slideItems[initIndex + i].id,
+            });
+          }
+        }
 
       // generated nav 
       } else {
