@@ -1110,13 +1110,14 @@ var tns = function(options) {
 
     if (fixedWidthTem) {
       width = (fixedWidthTem + gutterTem) + 'px';
-    } else if (SUBPIXEL) {
+    } else {
+    // } else if (SUBPIXEL) {
       var dividend = carousel ? slideCountNew : itemsTem;
       width = CALC ? 
         CALC + '(100% / ' + dividend + ')' : 
         100 / dividend + '%';
-    } else {
-      width = getSlideWidthStylePX(itemsTem);
+    // } else {
+    //   width = getSlideWidthStylePX(itemsTem);
     }
 
     return 'width:' + width + importantStr + ';';
@@ -2487,7 +2488,6 @@ var tns = function(options) {
           var absTargetIndex = getAbsIndex(targetIndex);
           if (absTargetIndex < 0) { absTargetIndex += slideCount; }
           indexGap = absTargetIndex - absIndex;
-          console.log('before:', index, targetIndex, absIndex, indexGap);
         }
       }
 
