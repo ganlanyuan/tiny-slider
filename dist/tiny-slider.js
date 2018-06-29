@@ -65,8 +65,8 @@ function checkStorageValue (value) {
   return ['true', 'false'].indexOf(value) >= 0 ? JSON.parse(value) : value;
 }
 
-function setLocalStorage(key, value) {
-  localStorage.setItem(key, value);
+function setLocalStorage(key, value, access) {
+  if (access) { localStorage.setItem(key, value); }
   return value;
 }
 
@@ -146,42 +146,32 @@ function calc() {
 
 // get subpixel support value
 
-function subpixelLayout() {
+function percentageLayout() {
   // check subpixel layout supporting
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
-      parent = doc.createElement('div'),
-      child1 = doc.createElement('div'),
-      child2,
+      wrapper = doc.createElement('div'),
+      outer = doc.createElement('div'),
+      str = '',
+      count = 70,
+      perPage = 3,
       supported = false;
 
-  parent.style.cssText = 'width: 10px';
-  child1.style.cssText = 'float: left; width: 5.5px; height: 10px;';
-  child2 = child1.cloneNode(true);
+  wrapper.className = "tns-t-subp2";
+  outer.className = "tns-t-ct";
 
-  parent.appendChild(child1);
-  parent.appendChild(child2);
-  body.appendChild(parent);
-
-  // check calc() capability
-  if(child1.offsetTop !== child2.offsetTop) {
-    var wrapper = doc.createElement('div'),
-        outer = doc.createElement('div'),
-        inner = doc.createElement('div'),
-        count = 700;
-
-    wrapper.className = "tns-t-subp2";
-    outer.className = "out";
-    inner.className = "in";
-    outer.appendChild(inner);
-    wrapper.appendChild(outer);
-    body.appendChild(wrapper);
-
-    supported = inner.offsetWidth === 500;
+  for (var i = 0; i < count; i++) {
+    str += '<div></div>';
   }
 
-  body.fake ? resetFakeBody(body, docOverflow) : parent.remove();
+  outer.innerHTML = str;
+  wrapper.appendChild(outer);
+  body.appendChild(wrapper);
+
+  supported = Math.abs(wrapper.getBoundingClientRect().left - outer.children[count - perPage].getBoundingClientRect().left) < 2;
+
+  body.fake ? resetFakeBody(body, docOverflow) : wrapper.remove();
 
   return supported;
 }
@@ -570,46 +560,24 @@ var tns = function(options) {
         RIGHT: 39,
         DOWN: 40
       },
-      CALC,
-      SUBPIXEL,
-      CSSMQ,
-      TRANSFORM,
-      HAS3D,
-      TRANSITIONDURATION,
-      TRANSITIONDELAY,
-      ANIMATIONDURATION,
-      ANIMATIONDELAY,
-      TRANSITIONEND,
-      ANIMATIONEND,
-      localStorageAccess = true;
+      tnsStorage = {},
+      localStorageAccess = options.useLocalStorage;
 
-  if (options.useLocalStorage) {
+  if (localStorageAccess) {
     // check browser version and local storage
     // if browser upgraded, 
     // 1. delete browser ralated data from local storage and 
     // 2. recheck these options and save them to local storage
-    var browserInfo = navigator.userAgent,
-        tnsStorage = {};
+    var browserInfo = navigator.userAgent;
 
-    // tC => calc
-    // tSP => subpixel
-    // tMQ => mediaquery
-    // tTf => transform
-    // tTDu => transitionDuration
-    // tTDe => transitionDelay
-    // tADu => animationDuration
-    // tADe => animationDelay
-    // tTE => transitionEnd
-    // tAE => animationEnd
-    // alert(localStorage);
     try {
       tnsStorage = localStorage;
       // remove storage when browser version changes
-      if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
-        ['tC', 'tSP', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function(item) { tnsStorage.removeItem(item); });
+      if (tnsStorage['tnsApp'] !== browserInfo) {
+        ['tC', 'tPL', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function(item) { tnsStorage.removeItem(item); });
       }
       // update browserInfo
-      tnsStorage['tnsApp'] = browserInfo;
+      localStorage['tnsApp'] = browserInfo;
     } catch(e) {
       localStorageAccess = false;
     }
@@ -620,61 +588,45 @@ var tns = function(options) {
       tnsStorage = {};
       localStorageAccess = false;
     }
-
-    // get browser related data from local storage if they exist
-    // otherwise, run the functions again and save these data to local storage
-    // checkStorageValue() convert non-string value to its original value: 'true' > true
-    if (localStorageAccess) {
-      if (tnsStorage['tC']) {
-        CALC = checkStorageValue(tnsStorage['tC']);
-        SUBPIXEL = checkStorageValue(tnsStorage['tSP']);
-        CSSMQ = checkStorageValue(tnsStorage['tMQ']);
-        TRANSFORM = checkStorageValue(tnsStorage['tTf']);
-        HAS3D = checkStorageValue(tnsStorage['t3D']);
-        TRANSITIONDURATION = checkStorageValue(tnsStorage['tTDu']);
-        TRANSITIONDELAY = checkStorageValue(tnsStorage['tTDe']);
-        ANIMATIONDURATION = checkStorageValue(tnsStorage['tADu']);
-        ANIMATIONDELAY = checkStorageValue(tnsStorage['tADe']);
-        TRANSITIONEND = checkStorageValue(tnsStorage['tTE']);
-        ANIMATIONEND = checkStorageValue(tnsStorage['tAE']);
-      } else {
-        CALC = setLocalStorage('tC', calc());
-        SUBPIXEL = setLocalStorage('tSP', subpixelLayout());
-        CSSMQ = setLocalStorage('tMQ', mediaquerySupport());
-        TRANSFORM = setLocalStorage('tTf', whichProperty('transform'));
-        HAS3D = setLocalStorage('t3D', has3D(TRANSFORM));
-        TRANSITIONDURATION = setLocalStorage('tTDu', whichProperty('transitionDuration'));
-        TRANSITIONDELAY = setLocalStorage('tTDe', whichProperty('transitionDelay'));
-        ANIMATIONDURATION = setLocalStorage('tADu', whichProperty('animationDuration'));
-        ANIMATIONDELAY = setLocalStorage('tADe', whichProperty('animationDelay'));
-        TRANSITIONEND = setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'));
-        ANIMATIONEND = setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'));
-      }
-    }
-  } else {
-    localStorageAccess = false;
   }
 
-  if (!localStorageAccess) {
-    CALC = calc();
-    SUBPIXEL = subpixelLayout();
-    CSSMQ = mediaquerySupport();
-    TRANSFORM = whichProperty('transform');
-    HAS3D = has3D(TRANSFORM);
-    TRANSITIONDURATION = whichProperty('transitionDuration');
-    TRANSITIONDELAY = whichProperty('transitionDelay');
-    ANIMATIONDURATION = whichProperty('animationDuration');
-    ANIMATIONDELAY = whichProperty('animationDelay');
-    TRANSITIONEND = getEndProperty(TRANSITIONDURATION, 'Transition');
-    ANIMATIONEND = getEndProperty(ANIMATIONDURATION, 'Animation');
-  }
-
-  // reset SUBPIXEL for IE8
-  if (!CSSMQ) { SUBPIXEL = false; }
+  var CALC = tnsStorage['tC'] ? 
+        checkStorageValue(tnsStorage['tC']) :
+        setLocalStorage('tC', calc(), localStorageAccess),
+      PERCENTAGELAYOUT = tnsStorage['tPL'] ? 
+        checkStorageValue(tnsStorage['tPL']) :
+        setLocalStorage('tPL', percentageLayout(), localStorageAccess),
+      CSSMQ = tnsStorage['tMQ'] ? 
+        checkStorageValue(tnsStorage['tMQ']) :
+        setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess),
+      TRANSFORM = tnsStorage['tTf'] ? 
+        checkStorageValue(tnsStorage['tTf']) :
+        setLocalStorage('tTf', whichProperty('transform'), localStorageAccess),
+      HAS3D = tnsStorage['t3D'] ? 
+        checkStorageValue(tnsStorage['t3D']) :
+        setLocalStorage('t3D', has3D(TRANSFORM), localStorageAccess),
+      TRANSITIONDURATION = tnsStorage['tTDu'] ? 
+        checkStorageValue(tnsStorage['tTDu']) :
+        setLocalStorage('tTDu', whichProperty('transitionDuration'), localStorageAccess),
+      TRANSITIONDELAY = tnsStorage['tTDe'] ? 
+        checkStorageValue(tnsStorage['tTDe']) :
+        setLocalStorage('tTDe', whichProperty('transitionDelay'), localStorageAccess),
+      ANIMATIONDURATION = tnsStorage['tADu'] ? 
+        checkStorageValue(tnsStorage['tADu']) :
+        setLocalStorage('tADu', whichProperty('animationDuration'), localStorageAccess),
+      ANIMATIONDELAY = tnsStorage['tADe'] ? 
+        checkStorageValue(tnsStorage['tADe']) :
+        setLocalStorage('tADe', whichProperty('animationDelay'), localStorageAccess),
+      TRANSITIONEND = tnsStorage['tTE'] ? 
+        checkStorageValue(tnsStorage['tTE']) :
+        setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
+      ANIMATIONEND = tnsStorage['tAE'] ? 
+        checkStorageValue(tnsStorage['tAE']) :
+        setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
 
   // get element nodes from selectors
-  var supportConsoleWarn = win.console && typeof win.console.warn === "function";
-  var list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'];
+  var supportConsoleWarn = win.console && typeof win.console.warn === "function",
+      list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'];
   for (var i = list.length; i--;) {
     var item = list[i];
     if (typeof options[item] === 'string') {
@@ -1092,17 +1044,11 @@ var tns = function(options) {
   function getContainerWidth (fixedWidthTem, gutterTem, itemsTem) {
     if (fixedWidthTem) {
       return (fixedWidthTem + gutterTem) * slideCountNew + 'px';
-    } else if (SUBPIXEL) {
+    } else {
       return CALC ?
         CALC + '(' + slideCountNew * 100 + '% / ' + itemsTem + ')' :
         slideCountNew * 100 / itemsTem + '%';
-    } else {
-      return getContainerWidthPX(itemsTem);
     }
-  }
-
-  function getContainerWidthPX (itemsTem) {
-    return vpInner * slideCountNew / itemsTem + 'px';
   }
 
   function getSlideWidthStyle (fixedWidthTem, gutterTem, itemsTem) {
@@ -1111,13 +1057,10 @@ var tns = function(options) {
     if (fixedWidthTem) {
       width = (fixedWidthTem + gutterTem) + 'px';
     } else {
-    // } else if (SUBPIXEL) {
       var dividend = carousel ? slideCountNew : itemsTem;
       width = CALC ? 
         CALC + '(100% / ' + dividend + ')' : 
         100 / dividend + '%';
-    // } else {
-    //   width = getSlideWidthStylePX(itemsTem);
     }
 
     return 'width:' + width + importantStr + ';';
@@ -1188,8 +1131,7 @@ var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    classContainer += ' tns-subpixel';
-    // classContainer += SUBPIXEL ? ' tns-subpixel' : ' tns-no-subpixel';
+    classContainer += PERCENTAGELAYOUT ? ' tns-subpixel' : ' tns-no-subpixel';
     classContainer += CALC ? ' tns-calc' : ' tns-no-calc';
     if (carousel) { classContainer += ' tns-' + options.axis; }
     container.className += classContainer;
@@ -1302,18 +1244,18 @@ var tns = function(options) {
     if (carousel && horizontal) {
       // set font-size rules
       // for modern browsers
-      // if (SUBPIXEL) {
+      if (PERCENTAGELAYOUT) {
         // set slides font-size first
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
 
       // slide left margin
-      // for IE8 & webkit browsers (no subpixel)
-      // } else {
-      //   forEachNodeList(slideItems, function (slide, i) {
-      //     slide.style.marginLeft = getSlideMarginLeft(i);
-      //   });
-      // }
+      // for IE8, MS Edge & webkit browsers (no subpixel)
+      } else {
+        forEachNodeList(slideItems, function (slide, i) {
+          slide.style.marginLeft = getSlideMarginLeft(i);
+        });
+      }
     }
 
     // all browsers which support CSS transitions support CSS media queries
@@ -1324,13 +1266,13 @@ var tns = function(options) {
 
       // container styles
       if (carousel) {
-        str = horizontal && SUBPIXEL ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
+        str = horizontal ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
         if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
         addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
       // slide styles
-      str = horizontal && (fixedWidth || SUBPIXEL) ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
+      str = horizontal ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
       if (options.gutter) { str += getSlideGutterStyle(options.gutter); }
       // set gallery items transition-duration
       if (!carousel) {
@@ -1338,14 +1280,6 @@ var tns = function(options) {
         if (ANIMATIONDURATION) { str += getAnimationDurationStyle(speed); }
       }
       if (str) { addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet)); }
-
-      // generate inline styles for container width and slides width
-      if (horizontal && !SUBPIXEL && !fixedWidth) {
-        // container styles
-        if (carousel) { container.style.width = getContainerWidthPX(items); }
-        // slide styles
-        addCSSRule(sheet, '#' + slideId + ' > .tns-item', getSlideWidthStyle(fixedWidth, gutter, items), getCssRulesLength(sheet));
-      }
 
     // non CSS mediaqueries: IE8
     // ## update inner wrapper, container, slides if needed
@@ -1388,7 +1322,7 @@ var tns = function(options) {
         }
 
         // container string
-        if (carousel && horizontal && ('fixedWidth' in opts || (fixedWidth && 'gutter' in opts) || (SUBPIXEL && 'items' in opts))) {
+        if (carousel && horizontal && ('fixedWidth' in opts || 'items' in opts || (fixedWidth && 'gutter' in opts))) {
           containerStr = 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + ';';
         }
         if (TRANSITIONDURATION && 'speed' in opts) {
@@ -1399,7 +1333,7 @@ var tns = function(options) {
         }
 
         // slide string
-        if ('fixedWidth' in opts || checkOption('fixedWidth') && 'gutter' in opts || !carousel && 'items' in opts) {
+        if ('fixedWidth' in opts || (fixedWidth && 'gutter' in opts) || !carousel && 'items' in opts) {
           slideStr += getSlideWidthStyle(fixedWidthBP, gutterBP, itemsBP);
         }
         if ('gutter' in opts) {
@@ -1429,7 +1363,6 @@ var tns = function(options) {
       addEvents(container, {'scroll': ie10Scroll});
       setSnapInterval();
     }
-
  
     // == navInit ==
     if (hasNav) {
@@ -1620,6 +1553,7 @@ var tns = function(options) {
     vpInner = getViewportWidth(innerWrapper);
     if (breakpoints) { setBreakpointZone(); }
 
+    if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
 
     // things do when breakpoint zone change
     if (breakpointZoneTem !== breakpointZone || fixedWidth) {
@@ -1777,7 +1711,7 @@ var tns = function(options) {
         }
       }
 
-      // IE8
+      // non-meduaqueries: IE8
       // ## update inner wrapper, container, slides if needed
       // set inline styles for inner wrapper & container
       // insert stylesheet (one line) for slides only (since slides are many)
@@ -1785,6 +1719,22 @@ var tns = function(options) {
         // inner wrapper styles
         if (!freeze && (edgePadding !== edgePaddingTem || gutter !== gutterTem)) {
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+        }
+
+        if (horizontal && !fixedWidth) {
+          // container styles
+          if (carousel) {
+            container.style.width = getContainerWidth(false, null, items);
+          }
+
+          // slide styles
+          var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
+                    getSlideGutterStyle(gutter);
+
+          // remove the last line and
+          // add new styles
+          removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
+          addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
         }
 
         if (!fixedWidth) { needContainerTransform = true; }
@@ -1804,22 +1754,6 @@ var tns = function(options) {
     }
 
     // ** things always do regardless of breakpoint zone changing **
-    if (!SUBPIXEL && horizontal && !fixedWidth) {
-      // container styles
-      if (carousel) {
-        container.style.width = getContainerWidthPX(items);
-      }
-
-      // slide styles
-      var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
-                getSlideGutterStyle(gutter);
-
-      // remove the last line and
-      // add new styles
-      removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
-      addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
-    }
-
     if (!horizontal && !disable) {
       getSlideOffsetTops();
       updateContentWrapperHeight();
@@ -1835,6 +1769,8 @@ var tns = function(options) {
 
     // auto height
     if ((autoHeight || !carousel) && !disable) { runAutoHeight(); }
+
+    if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointEnd', info(e)); }
   }
 
 

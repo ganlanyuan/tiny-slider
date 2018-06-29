@@ -98,17 +98,52 @@
 
 // *** Detecting browser capability ***
 // Check calc() capability / IE Edge browsers
-.tns-t-subp2 {
-  width: 500px;
-  .out {
-    width: -webkit-calc(100% * 700);
-    width: -moz-calc(100% * 700);
-    width: calc(100% * 700);
+// .tns-t-subp1 {
+//   width: 10px;
+//   &:after {
+//     content: '';
+//     display: table;
+//     clear: both;
+//   }
+//   > div {
+//     float: left;
+//     width: 5.5px;
+//     height: 10px;
+//   }
+// }
+
+$width: 310px;
+$height: 10px;
+$count: 70;
+$perpage: 3;
+
+.tns-t {
+  &-subp2 {
+    margin: 0 auto;
+    width: $width;
+    position: relative;
+    height: $height;
+    overflow: hidden;
   }
-  .in {
-    width: -webkit-calc(100% / 700);
-    width: -moz-calc(100% / 700);
-    width: calc(100% / 700);
-    height: 100px;
+  &-ct {
+    width: (100% * $count / $perpage);
+    width: -webkit-calc(100% * $count / $perpage);
+    width: -moz-calc(100% * $count / $perpage);
+    width: calc(100% * $count / $perpage);
+    position: absolute;
+    right: 0;
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+    > div {
+      width: (100% / $count);
+      width: -webkit-calc(100% / $count);
+      width: -moz-calc(100% / $count);
+      width: calc(100% / $count);
+      height: $height;
+      float: left;
+    }
   }
 }
