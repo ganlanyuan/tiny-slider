@@ -2214,7 +2214,7 @@ var tns = function(options) {
   function doContainerTransformSilent (val) {
     resetDuration(container, '0s');
     doContainerTransform(val);
-    setTimeout(function() { resetDuration(container, ''); }, 0);
+    setTimeout(function() { resetDuration(container, ''); }, 10);
   }
 
   function doContainerTransform (val, test) {
