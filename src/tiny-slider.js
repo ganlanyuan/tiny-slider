@@ -552,11 +552,9 @@ export var tns = function(options) {
   }
 
   function getSlideMarginLeft (i) {
-    return vpInner * i / items + 'px';
-    // var str = CALC ? 
-    //   CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
-    //   i * 100 / slideCountNew + '%';
-    // return str;
+    return CALC ? 
+      CALC + '(' + i * 100 + '% / ' + slideCountNew + ')' : 
+      i * 100 / slideCountNew + '%';
   }
 
   function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
