@@ -1010,7 +1010,7 @@ fsevents@^1.0.0, fsevents@^1.1.2:
     nan "^2.9.2"
     node-pre-gyp "^0.10.0"
 
-gauge@~2.7.3:
+gauge@~2.7.4:
   version "2.7.4"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-2.7.4.tgz#2c03405c7538c39d7eb37b317022e325fb018bf7"
   dependencies:
@@ -1662,7 +1662,7 @@ npmlog@^4.0.2:
   dependencies:
     are-we-there-yet "~1.1.2"
     console-control-strings "~1.1.0"
-    gauge "~2.7.3"
+    gauge "~2.7.4"
     set-blocking "~2.0.0"
 
 number-is-nan@^1.0.0:
