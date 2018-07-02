@@ -473,7 +473,7 @@ export var tns = function(options) {
       var str = fixedWidth ? 'fixedWidth' : 'items',
           arr = [];
 
-      if (fixedWidth || options[str] < slideCount) { arr.push(options[str]); }
+      if (fixedWidth || options[str] <= slideCount) { arr.push(options[str]); }
 
       if (breakpoints && responsiveItems.indexOf(str) >= 0) {
         breakpoints.forEach(function(bp) {
