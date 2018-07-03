@@ -343,9 +343,13 @@ Opera 12.1+ ✓
 IE 8+ ✓  
 
 ## Support
-[Browserstack](https://www.browserstack.com/)  
+<a href="https://www.browserstack.com/" target="_blank"><img src="logos/browserstack.svg" alt="Browser Stack" width="170"></a><br>Live tests and Automated Tests <br>
+<br>
+<a href="https://crossbrowsertesting.com/" target="_blank"><img src="logos/cbt.svg" width="230" alt="Cross Browser Testing"></a><br>Live tests, Screenshots and Automated Tests <br>
+<br>
 [Cdnjs](https://cdnjs.com/)  
-Images in demos from https://unsplash.com/.
+<br>
+Images on demo page are from https://unsplash.com/.
 
 ## License
 This project is available under the [MIT](https://opensource.org/licenses/mit-license.php) license.  
