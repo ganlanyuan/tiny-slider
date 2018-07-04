@@ -1033,12 +1033,8 @@ export var tns = function(options) {
     }
 
 
-    // if (!navigator.msMaxTouchPoints) {
-    if (carousel) {
-      if (touch) { addEvents(container, touchEvents); }
-      if (mouseDrag) { addEvents(container, dragEvents); }
-    }
-    // }
+    if (touch) { addEvents(container, touchEvents); }
+    if (mouseDrag) { addEvents(container, dragEvents); }
     if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
 
@@ -1994,40 +1990,38 @@ export var tns = function(options) {
 
   // on controls click
   function onControlsClick (e, dir) {
-    // if (!running) {
-      if (running) { onTransitionEnd(); }
+    if (running) { onTransitionEnd(); }
 
-      var passEventObject;
+    var passEventObject;
 
-      if (!dir) {
-        e = getEvent(e);
-        var target = e.target || e.srcElement;
+    if (!dir) {
+      e = getEvent(e);
+      var target = e.target || e.srcElement;
 
-        while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
+      while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
 
-        var targetIn = [prevButton, nextButton].indexOf(target);
-        if (targetIn >= 0) {
-          passEventObject = true;
-          dir = targetIn === 0 ? -1 : 1;
-        }
+      var targetIn = [prevButton, nextButton].indexOf(target);
+      if (targetIn >= 0) {
+        passEventObject = true;
+        dir = targetIn === 0 ? -1 : 1;
       }
+    }
 
-      if (rewind) {
-        if (index === indexMin && dir === -1) {
-          goTo('last', e);
-          return;
-        } else if (index === indexMax && dir === 1) {
-          goTo('first', e);
-          return;
-        }
+    if (rewind) {
+      if (index === indexMin && dir === -1) {
+        goTo('last', e);
+        return;
+      } else if (index === indexMax && dir === 1) {
+        goTo('first', e);
+        return;
       }
+    }
 
-      if (dir) {
-        index += slideBy * dir;
-        // pass e when click control buttons or keydown
-        render((passEventObject || (e && e.type === 'keydown')) ? e : null);
-      }
-    // }
+    if (dir) {
+      index += slideBy * dir;
+      // pass e when click control buttons or keydown
+      render((passEventObject || (e && e.type === 'keydown')) ? e : null);
+    }
   }
 
   // on nav click
@@ -2250,8 +2244,10 @@ export var tns = function(options) {
     if (running) { onTransitionEnd(); }
     
     panStart = true;
-    caf(rafIndex);
-    rafIndex = 0;
+    if (carousel) {
+      caf(rafIndex);
+      rafIndex = 0;
+    }
 
     var $ = getEvent(e);
     events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
@@ -2262,9 +2258,10 @@ export var tns = function(options) {
 
     lastPosition.x = initPosition.x = parseInt($.clientX);
     lastPosition.y = initPosition.y = parseInt($.clientY);
-    translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
-
-    resetDuration(container, '0s');
+    if (carousel) {
+      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+      resetDuration(container, '0s');
+    }
   }
 
   function onPanMove (e) {
@@ -2273,7 +2270,7 @@ export var tns = function(options) {
       lastPosition.x = parseInt($.clientX);
       lastPosition.y = parseInt($.clientY);
     }
-    if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
+    if (carousel && !rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
   }
 
   function panUpdate (e) {
@@ -2315,8 +2312,10 @@ export var tns = function(options) {
     if (swipeAngle) { moveDirectionExpected = '?'; } // reset
 
     if (panStart) {
-      caf(rafIndex);
-      resetDuration(container, '');
+      if (carousel) {
+        caf(rafIndex);
+        resetDuration(container, '');
+      }
       panStart = false;
 
       var $ = getEvent(e);
@@ -2339,29 +2338,42 @@ export var tns = function(options) {
           }}); 
         }
 
-        rafIndex = raf(function() {
-          if (horizontal) {
-            var indexMoved = - dist * items / vpInner;
-            indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-            index += indexMoved;
-          } else {
-            var moved = - (translateInit + dist);
-            if (moved <= 0) {
-              index = indexMin;
-            } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
-              index = indexMax;
+        if (carousel) {
+          rafIndex = raf(function() {
+            if (horizontal) {
+              var indexMoved = - dist * items / vpInner;
+              indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+              index += indexMoved;
             } else {
-              var i = 0;
-              do {
-                i++;
-                index = dist < 0 ? i + 1 : i;
-              } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+              var moved = - (translateInit + dist);
+              if (moved <= 0) {
+                index = indexMin;
+              } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+                index = indexMax;
+              } else {
+                var i = 0;
+                do {
+                  i++;
+                  index = dist < 0 ? i + 1 : i;
+                } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+              }
             }
+
+            render(e, dist);
+            events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
+          });
+        } else {
+          if (
+            moveDirectionExpected === '?' && 
+            lastPosition.x !== initPosition.x && 
+            lastPosition.y !== initPosition.y) {
+            moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
           }
 
-          render(e, dist);
-          events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
-        });
+          if (moveDirectionExpected) {
+            onControlsClick(e, dist > 0 ? -1 : 1);
+          }
+        }
       }
 
     }
