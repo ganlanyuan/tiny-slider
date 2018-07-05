@@ -2,43 +2,43 @@
 // Version: 2.7.4
 
 // helper functions
-import './helpers/keys';
-import './helpers/childNode.remove';
-import { raf } from './helpers/raf';
-import { caf } from './helpers/caf';
-import { extend } from './helpers/extend';
-import { checkStorageValue } from './helpers/checkStorageValue';
-import { setLocalStorage } from './helpers/setLocalStorage';
-import { getSlideId } from './helpers/getSlideId';
-import { calc } from './helpers/calc';
-import { percentageLayout } from './helpers/percentageLayout';
-import { mediaquerySupport } from './helpers/mediaquerySupport';
-import { createStyleSheet } from './helpers/createStyleSheet';
-import { addCSSRule } from './helpers/addCSSRule';
-import { removeCSSRule } from './helpers/removeCSSRule';
-import { getCssRulesLength } from './helpers/getCssRulesLength';
-import { toDegree } from './helpers/toDegree';
-import { getTouchDirection } from './helpers/getTouchDirection';
-import { forEachNodeList } from './helpers/forEachNodeList';
-import { hasClass } from './helpers/hasClass';
-import { addClass } from './helpers/addClass';
-import { removeClass } from './helpers/removeClass';
-import { hasAttr } from './helpers/hasAttr';
-import { getAttr } from './helpers/getAttr';
-import { setAttrs } from './helpers/setAttrs';
-import { removeAttrs } from './helpers/removeAttrs';
-import { removeElementStyles } from './helpers/removeElementStyles';
-import { arrayFromNodeList } from './helpers/arrayFromNodeList';
-import { hideElement } from './helpers/hideElement';
-import { showElement } from './helpers/showElement';
-import { isVisible } from './helpers/isVisible';
-import { whichProperty } from './helpers/whichProperty';
-import { has3D } from './helpers/has3D';
-import { getEndProperty } from './helpers/getEndProperty';
-import { addEvents } from './helpers/addEvents';
-import { removeEvents } from './helpers/removeEvents';
-import { Events } from './helpers/events';
-import { jsTransform } from './helpers/jsTransform';
+import './helpers/keys.js';
+import './helpers/childNode.remove.js';
+import { raf } from './helpers/raf.js';
+import { caf } from './helpers/caf.js';
+import { extend } from './helpers/extend.js';
+import { checkStorageValue } from './helpers/checkStorageValue.js';
+import { setLocalStorage } from './helpers/setLocalStorage.js';
+import { getSlideId } from './helpers/getSlideId.js';
+import { calc } from './helpers/calc.js';
+import { percentageLayout } from './helpers/percentageLayout.js';
+import { mediaquerySupport } from './helpers/mediaquerySupport.js';
+import { createStyleSheet } from './helpers/createStyleSheet.js';
+import { addCSSRule } from './helpers/addCSSRule.js';
+import { removeCSSRule } from './helpers/removeCSSRule.js';
+import { getCssRulesLength } from './helpers/getCssRulesLength.js';
+import { toDegree } from './helpers/toDegree.js';
+import { getTouchDirection } from './helpers/getTouchDirection.js';
+import { forEachNodeList } from './helpers/forEachNodeList.js';
+import { hasClass } from './helpers/hasClass.js';
+import { addClass } from './helpers/addClass.js';
+import { removeClass } from './helpers/removeClass.js';
+import { hasAttr } from './helpers/hasAttr.js';
+import { getAttr } from './helpers/getAttr.js';
+import { setAttrs } from './helpers/setAttrs.js';
+import { removeAttrs } from './helpers/removeAttrs.js';
+import { removeElementStyles } from './helpers/removeElementStyles.js';
+import { arrayFromNodeList } from './helpers/arrayFromNodeList.js';
+import { hideElement } from './helpers/hideElement.js';
+import { showElement } from './helpers/showElement.js';
+import { isVisible } from './helpers/isVisible.js';
+import { whichProperty } from './helpers/whichProperty.js';
+import { has3D } from './helpers/has3D.js';
+import { getEndProperty } from './helpers/getEndProperty.js';
+import { addEvents } from './helpers/addEvents.js';
+import { removeEvents } from './helpers/removeEvents.js';
+import { Events } from './helpers/events.js';
+import { jsTransform } from './helpers/jsTransform.js';
 
 export var tns = function(options) {
   options = extend({
@@ -275,7 +275,7 @@ export var tns = function(options) {
     setBreakpointZone();
   } 
 
-  var items = getOption('items'),
+  var items = Math.floor(getOption('items')),
       slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
       nested = options.nested,
       gutter = getOption('gutter'),
@@ -446,7 +446,7 @@ export var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return carousel || loop ? Math.max(0, slideCountNew - items) : slideCountNew - 1;
+    return carousel || loop ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -484,8 +484,19 @@ export var tns = function(options) {
 
       if (!arr.length) { arr.push(0); }
 
-      return fixedWidth ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
-        Math.max.apply(null, arr);
+      return Math.ceil(fixedWidth ? fixedWidthViewportWidth / Math.min.apply(null, arr) : Math.max.apply(null, arr));
+    }
+  }
+
+  function itemsAreFloating() {
+    if (options.items%1) {
+      return true;
+    } else {
+      if (!responsive) { return false; }
+      for (var bp in responsive) {
+        if ('items' in responsive[bp] && responsive[bp].items%1) { return true; }
+      }
+      return false;
     }
   }
 
@@ -544,7 +555,6 @@ export var tns = function(options) {
         }
       }
     }
-
 
     if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
 
@@ -1665,7 +1675,7 @@ export var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : getAbsIndex();
+      navCurrentIndex = navClicked !== -1 ? navClicked : Math.floor(getAbsIndex());
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -2394,7 +2404,7 @@ export var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var absIndexMin = getAbsIndex()%items;
+    var absIndexMin = Math.floor(getAbsIndex())%items;
     while (absIndexMin < slideCount) {
       if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);

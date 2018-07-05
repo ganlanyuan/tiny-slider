@@ -733,7 +733,7 @@ var tns = function(options) {
     setBreakpointZone();
   } 
 
-  var items = getOption('items'),
+  var items = Math.floor(getOption('items')),
       slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
       nested = options.nested,
       gutter = getOption('gutter'),
@@ -904,7 +904,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return carousel || loop ? Math.max(0, slideCountNew - items) : slideCountNew - 1;
+    return carousel || loop ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -942,8 +942,19 @@ var tns = function(options) {
 
       if (!arr.length) { arr.push(0); }
 
-      return fixedWidth ? Math.ceil(fixedWidthViewportWidth / Math.min.apply(null, arr)) :
-        Math.max.apply(null, arr);
+      return Math.ceil(fixedWidth ? fixedWidthViewportWidth / Math.min.apply(null, arr) : Math.max.apply(null, arr));
+    }
+  }
+
+  function itemsAreFloating() {
+    if (options.items%1) {
+      return true;
+    } else {
+      if (!responsive) { return false; }
+      for (var bp in responsive) {
+        if ('items' in responsive[bp] && responsive[bp].items%1) { return true; }
+      }
+      return false;
     }
   }
 
@@ -1002,7 +1013,6 @@ var tns = function(options) {
         }
       }
     }
-
 
     if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
 
@@ -2123,7 +2133,7 @@ var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : getAbsIndex();
+      navCurrentIndex = navClicked !== -1 ? navClicked : Math.floor(getAbsIndex());
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -2852,7 +2862,7 @@ var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var absIndexMin = getAbsIndex()%items;
+    var absIndexMin = Math.floor(getAbsIndex())%items;
     while (absIndexMin < slideCount) {
       if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
