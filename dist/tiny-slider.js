@@ -507,6 +507,7 @@ var tns = function(options) {
     gutter: 0,
     edgePadding: 0,
     fixedWidth: false,
+    autoWidth: false,
     fixedWidthViewportWidth: false,
     slideBy: 1,
     controls: true,
@@ -738,6 +739,7 @@ var tns = function(options) {
       nested = options.nested,
       gutter = getOption('gutter'),
       edgePadding = getOption('edgePadding'),
+      autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
       fixedWidthViewportWidth = options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
@@ -747,12 +749,13 @@ var tns = function(options) {
       autoHeight = getOption('autoHeight'),
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
-      slideOffsetTops, // collection of slide offset tops
+      slidePositions, // collection of slide positions
       slideItemsOut = [],
       hasEdgePadding = checkOption('edgePadding'),
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
-      hasRightDeadZone = fixedWidth && !loop && !edgePadding ? true : false,
+      hasRightDeadZone = (fixedWidth || autoWidth) && !loop && !edgePadding ? true : false,
+      rightBoundary,
       updateIndexBeforeTransform = (!carousel || !loop) ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
@@ -904,7 +907,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return carousel || loop ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
+    return loop ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -1150,6 +1153,7 @@ var tns = function(options) {
     var epT = getOption('edgePadding'),
         gT = getOption('gutter');
     vpInner += epT ? - (epT * 2 + gutter) : gutter;
+    if (fixedWidth) { rightBoundary = getRightBoundary(); }
 
     // add events
     if (carousel && TRANSITIONEND) {
@@ -1198,7 +1202,7 @@ var tns = function(options) {
     }
 
     // check images loading
-    if (checkOption('autoHeight') || !carousel || !horizontal) {
+    if (checkOption('autoHeight') || !carousel || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
       // check all image complete status
@@ -1217,9 +1221,10 @@ var tns = function(options) {
         imgsComplete = true;
 
         if (!disable) {
-          if (!horizontal) {
-            getSlideOffsetTops();
-            updateContentWrapperHeight();
+          if (!horizontal || autoWidth) {
+            getSlidePositions();
+            if (autoWidth) { rightBoundary = getRightBoundary(); }
+            if (!horizontal) { updateContentWrapperHeight(); }
           }
 
           // set container transform property
@@ -1230,7 +1235,7 @@ var tns = function(options) {
       }); });
     }
 
-    if (carousel && horizontal) { doContainerTransformSilent(); }
+    if (carousel && horizontal && !autoWidth) { doContainerTransformSilent(); }
 
     // activate visible slides
     // add aria attrs
@@ -1274,13 +1279,13 @@ var tns = function(options) {
 
       // container styles
       if (carousel) {
-        str = horizontal ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
+        str = horizontal && !autoWidth ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
         if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
         addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
       // slide styles
-      str = horizontal ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
+      str = horizontal && !autoWidth ? getSlideWidthStyle(options.fixedWidth, options.gutter, options.items) : '';
       if (options.gutter) { str += getSlideGutterStyle(options.gutter); }
       // set gallery items transition-duration
       if (!carousel) {
@@ -1298,12 +1303,12 @@ var tns = function(options) {
       innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
 
       // container styles
-      if (carousel && horizontal) {
+      if (carousel && horizontal && !autoWidth) {
         container.style.width = getContainerWidth(fixedWidth, gutter, items);
       }
 
       // slide styles
-      var str = horizontal ? getSlideWidthStyle(fixedWidth, gutter, items) : '';
+      var str = horizontal && !autoWidth ? getSlideWidthStyle(fixedWidth, gutter, items) : '';
       if (gutter) { str += getSlideGutterStyle(gutter); }
 
       // append to the last line
@@ -1330,7 +1335,7 @@ var tns = function(options) {
         }
 
         // container string
-        if (carousel && horizontal && ('fixedWidth' in opts || 'items' in opts || (fixedWidth && 'gutter' in opts))) {
+        if (carousel && horizontal && !autoWidth ('fixedWidth' in opts || 'items' in opts || (fixedWidth && 'gutter' in opts))) {
           containerStr = 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + ';';
         }
         if (TRANSITIONDURATION && 'speed' in opts) {
@@ -1559,6 +1564,7 @@ var tns = function(options) {
     if (fixedWidth) { vpOuter = getViewportWidth(outerWrapper); }
     vpInner = getViewportWidth(innerWrapper);
     if (breakpoints) { setBreakpointZone(); }
+    if (fixedWidth) { rightBoundary = getRightBoundary(); }
 
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
 
@@ -1761,11 +1767,15 @@ var tns = function(options) {
     }
 
     // ** things always do regardless of breakpoint zone changing **
-    if (!horizontal && !disable) {
-      getSlideOffsetTops();
-      updateContentWrapperHeight();
-      needContainerTransform = true;
+    if ((!horizontal || autoWidth) && !disable) {
+      getSlidePositions();
+      if (autoWidth) { rightBoundary = getRightBoundary(); }
+      if (!horizontal) {
+        updateContentWrapperHeight();
+        needContainerTransform = true;
+      }
     }
+    if (hasRightDeadZone) { needContainerTransform = true; }
 
     if (needContainerTransform) {
       doContainerTransformSilent();
@@ -1925,7 +1935,10 @@ var tns = function(options) {
       container.className += classContainer;
 
       // vertical slider: get offsetTops before container transform
-      if (!horizontal) { getSlideOffsetTops(); }
+      if (!horizontal || autoWidth) {
+        getSlidePositions();
+        if (autoWidth) { rightBoundary = getRightBoundary(); }
+      }
 
       doContainerTransformSilent();
       if (loop) {
@@ -2053,13 +2066,15 @@ var tns = function(options) {
   }
 
   // get the distance from the top edge of the first slide to each slide
-  // (init) => slideOffsetTops
-  function getSlideOffsetTops () {
-    slideOffsetTops = [0];
-    var topFirst = slideItems[0].getBoundingClientRect().top, attr;
+  // (init) => slidePositions
+  function getSlidePositions () {
+    slidePositions = [0];
+    var attr = horizontal ? 'left' : 'top',
+        first = slideItems[0].getBoundingClientRect()[attr],
+        position;
     for (var i = 1; i < slideCountNew; i++) {
-      attr = slideItems[i].getBoundingClientRect().top;
-      slideOffsetTops.push(attr - topFirst);
+      position = slideItems[i].getBoundingClientRect()[attr];
+      slidePositions.push(position - first);
     }
   }
 
@@ -2202,18 +2217,30 @@ var tns = function(options) {
     if (TRANSITIONDURATION) { el.style[TRANSITIONDURATION] = str; }
   }
 
+  function getRightBoundary () {
+    var result = fixedWidth ? 
+      - ((fixedWidth + gutter) * slideCountNew - vpInner) : 
+      - (slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - vpInner);
+    if (result > 0) { result = 0; }
+    return result;
+  }
+
   function getContainerTransformValue () {
     var val;
-    if (horizontal) {
+    if (horizontal && !autoWidth) {
       if (fixedWidth) {
-        val = - (fixedWidth + gutter) * index + 'px';
+        val = - (fixedWidth + gutter) * index;
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
-        val = - index * 100 / denominator + '%';
+        val = - index * 100 / denominator;
       }
     } else {
-      val = - slideOffsetTops[index] + 'px';
+      val = - slidePositions[index];
     }
+
+    if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
+
+    val += (horizontal && !autoWidth && !fixedWidth) ? '%' : 'px';
     return val;
   }
 
@@ -2223,7 +2250,7 @@ var tns = function(options) {
     setTimeout(function() { resetDuration(container, ''); }, 10);
   }
 
-  function doContainerTransform (val, test) {
+  function doContainerTransform (val) {
     if (!val) { val = getContainerTransformValue(); }
     container.style[transformAttr] = transformPrefix + val + transformPostfix;
   }
@@ -2256,11 +2283,6 @@ var tns = function(options) {
       function (duration, distance) {
         if (!distance) { distance = getContainerTransformValue(); }
         
-        // constrain the distance when non-loop no-edgePadding fixedWidth reaches the right edge
-        if (hasRightDeadZone && index === indexMax) {
-          distance = - ((fixedWidth + gutter) * slideCountNew - vpInner) + 'px';
-        }
-
         if (TRANSITIONDURATION || !duration) {
           // for morden browsers with non-zero duration or 
           // zero duration for all browsers
@@ -2816,14 +2838,14 @@ var tns = function(options) {
               var moved = - (translateInit + dist);
               if (moved <= 0) {
                 index = indexMin;
-              } else if (moved >= slideOffsetTops[slideOffsetTops.length - 1]) {
+              } else if (moved >= slidePositions[slidePositions.length - 1]) {
                 index = indexMax;
               } else {
                 var i = 0;
                 do {
                   i++;
                   index = dist < 0 ? i + 1 : i;
-                } while (i < slideCountNew && moved >= slideOffsetTops[i + 1]);
+                } while (i < slideCountNew && moved >= slidePositions[i + 1]);
               }
             }
 
@@ -2848,9 +2870,9 @@ var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
-  // (slideOffsetTops, index, items) => vertical_conentWrapper.height
+  // (slidePositions, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight () {
-    innerWrapper.style.height = slideOffsetTops[index + items] - slideOffsetTops[index] + 'px';
+    innerWrapper.style.height = slidePositions[index + items] - slidePositions[index] + 'px';
   }
 
   /*
