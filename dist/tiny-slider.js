@@ -1037,18 +1037,19 @@ var tns = function(options) {
   function getFixedWidthEdgePadding (fixedWidthTem, gutterTem) {
     return (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2;
   }
+
   function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
     var str = '';
 
     if (edgePaddingTem) {
       var gap = edgePaddingTem;
-      if (gutterTem) { gap += gutterTem; }
+      if (gutterTem) { gap -= gutterTem; }
       if (fixedWidthTem) {
         str = 'margin: 0px ' + getFixedWidthEdgePadding(fixedWidthTem, gutterTem) + 'px;';
       } else {
         str = horizontal ?
-          'margin: 0 ' + edgePaddingTem + 'px 0 ' + gap + 'px;' :
-          'padding: ' + gap + 'px 0 ' + edgePaddingTem + 'px 0;';
+          'margin: 0 ' + gap + 'px 0 ' + edgePaddingTem + 'px;' :
+          'margin: ' + edgePaddingTem + 'px 0 ' + gap + 'px 0;';
       }
     } else if (gutterTem && !fixedWidthTem) {
       var gutterTemUnit = '-' + gutterTem + 'px',
