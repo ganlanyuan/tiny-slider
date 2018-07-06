@@ -706,6 +706,7 @@ var tns = function(options) {
       containerParent = container.parentNode,
       slideItems = container.children,
       slideCount = slideItems.length,
+      vpOuter = getViewportWidth(containerParent),
       vpInner,
       responsive = options.responsive,
       responsiveItems = [],
@@ -714,7 +715,6 @@ var tns = function(options) {
       windowWidth = getWindowWidth(),
       isOn;
 
-  if (options.fixedWidth) { var vpOuter = getViewportWidth(containerParent); }
 
   if (responsive) {
     breakpoints = Object.keys(responsive)
@@ -977,14 +977,10 @@ var tns = function(options) {
     return el.clientWidth || getViewportWidth(el.parentNode);
   }
 
-  function getViewportWidthInner() {
-    if (edgePadding) {
-      // ? check for autoWidth
-      return !fixedWidth ? vpOuter - (edgePadding * 2 + gutter) : vpOuter - getFixedWidthEdgePadding(fixedWidth, gutter) * 2;
-    } else {
-      // ? include gutter
-      return vpOuter + gutter;
-    }
+  function getViewportWidthInner () {
+    if (!edgePadding) { return vpOuter; }
+    // ? check for autoWidth
+    return !fixedWidth ? vpOuter - (edgePadding * 2 + gutter) : vpOuter - getFixedWidthEdgePadding(fixedWidth, gutter) * 2;
   }
 
   function checkOption (item) {
@@ -1088,10 +1084,6 @@ var tns = function(options) {
     }
 
     return 'width:' + width + importantStr + ';';
-  }
-
-  function getSlideWidthStylePX (itemsTem) {
-    return vpInner / itemsTem + 'px';
   }
 
   function getSlideGutterStyle (gutterTem) {
