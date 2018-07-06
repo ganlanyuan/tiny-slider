@@ -1135,7 +1135,7 @@ var tns = function(options) {
           classInner += ' tns-ovh';
         }
       } else {
-        classInner += ' tns-ovh';
+        classOuter += ' tns-ovh';
       }
     } else if (hasGutter) {
       classOuter += ' tns-ovh';
