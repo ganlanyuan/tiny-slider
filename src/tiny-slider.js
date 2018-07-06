@@ -466,7 +466,7 @@ export var tns = function(options) {
     while (i < min) { i += slideCount; }
     if (carousel) { i -= cloneCount; }
 
-    return i ? i%slideCount : i;
+    return i ? Math.floor(i%slideCount) : i;
   }
 
   function getItemsMax () {
@@ -1690,7 +1690,7 @@ export var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : Math.floor(getAbsIndex());
+      navCurrentIndex = navClicked !== -1 ? navClicked : getAbsIndex();
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -1707,6 +1707,8 @@ export var tns = function(options) {
         });
         removeClass(navPrev, navActiveClass);
         addClass(navCurrent, navActiveClass);
+
+        navCurrentIndexCached = navCurrentIndex;
       }
     }
   }
@@ -1952,7 +1954,6 @@ export var tns = function(options) {
 
         if (nested === 'inner') { events.emit('innerLoaded', info()); }
         running = false;
-        navCurrentIndexCached = navCurrentIndex;
         indexCached = index;
       }
     }
@@ -2426,7 +2427,7 @@ export var tns = function(options) {
     // reset visibleNavIndexes
     visibleNavIndexes = [];
 
-    var absIndexMin = Math.floor(getAbsIndex())%items;
+    var absIndexMin = getAbsIndex()%items;
     while (absIndexMin < slideCount) {
       if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
       visibleNavIndexes.push(absIndexMin);
