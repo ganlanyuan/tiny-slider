@@ -754,7 +754,7 @@ var tns = function(options) {
       hasEdgePadding = checkOption('edgePadding'),
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
-      hasRightDeadZone = (fixedWidth || autoWidth) && !loop && !edgePadding ? true : false,
+      hasRightDeadZone = (fixedWidth || autoWidth) && !loop ? true : false,
       rightBoundary,
       updateIndexBeforeTransform = (!carousel || !loop) ? true : false,
       // transform
@@ -977,6 +977,16 @@ var tns = function(options) {
     return el.clientWidth || getViewportWidth(el.parentNode);
   }
 
+  function getViewportWidthInner() {
+    if (edgePadding) {
+      // ? check for autoWidth
+      return !fixedWidth ? vpOuter - (edgePadding * 2 + gutter) : vpOuter - getFixedWidthEdgePadding(fixedWidth, gutter) * 2;
+    } else {
+      // ? include gutter
+      return vpOuter + gutter;
+    }
+  }
+
   function checkOption (item) {
     var result = options[item];
     if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
@@ -1028,6 +1038,9 @@ var tns = function(options) {
       i * 100 / slideCountNew + '%';
   }
 
+  function getFixedWidthEdgePadding (fixedWidthTem, gutterTem) {
+    return (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2;
+  }
   function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
     var str = '';
 
@@ -1035,7 +1048,7 @@ var tns = function(options) {
       var gap = edgePaddingTem;
       if (gutterTem) { gap += gutterTem; }
       if (fixedWidthTem) {
-        str = 'margin: 0px ' + (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2 + 'px;';
+        str = 'margin: 0px ' + getFixedWidthEdgePadding(fixedWidthTem, gutterTem) + 'px;';
       } else {
         str = horizontal ?
           'margin: 0 ' + edgePaddingTem + 'px 0 ' + gap + 'px;' :
@@ -1149,10 +1162,7 @@ var tns = function(options) {
 
     // get inner viewport width after classes added
     // to prevent scrollbar occupies part of viewport
-    vpInner = getViewportWidth(innerWrapper);
-    var epT = getOption('edgePadding'),
-        gT = getOption('gutter');
-    vpInner += epT ? - (epT * 2 + gutter) : gutter;
+    vpInner = getViewportWidthInner();
     if (fixedWidth) { rightBoundary = getRightBoundary(); }
 
     // add events
@@ -1551,7 +1561,7 @@ var tns = function(options) {
 
   function resizeTasks (e) {
     if (!isOn) { return; }
-    
+
     windowWidth = getWindowWidth();
     if (nested === 'outer') { events.emit('outerResized', info(e)); }
 
@@ -1562,14 +1572,20 @@ var tns = function(options) {
         needContainerTransform = false;
 
     if (fixedWidth) { vpOuter = getViewportWidth(outerWrapper); }
-    vpInner = getViewportWidth(innerWrapper);
+    vpInner = getViewportWidthInner();
     if (breakpoints) { setBreakpointZone(); }
-    if (fixedWidth) { rightBoundary = getRightBoundary(); }
-
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
+    if ((!horizontal || autoWidth) && !disable) {
+      getSlidePositions();
+      if (!horizontal) {
+        updateContentWrapperHeight();
+        needContainerTransform = true;
+      }
+    }
+    if (fixedWidth || autoWidth) { rightBoundary = getRightBoundary(); }
 
     // things do when breakpoint zone change
-    if (breakpointZoneTem !== breakpointZone || fixedWidth) {
+    if (breakpointZoneTem !== breakpointZone || fixedWidth || autoWidth) {
       var slideByTem = slideBy,
           arrowKeysTem = arrowKeys,
           autoHeightTem = autoHeight,
@@ -1582,7 +1598,8 @@ var tns = function(options) {
       items = getOption('items');
       slideBy = getOption('slideBy');
       disable = getOption('disable');
-      freeze = disable ? true : freezable ? slideCount <= items : false;
+    if (hasRightDeadZone) { needContainerTransform = true; }
+      freeze = disable ? true : freezable ? !fixedWidth && !autoWidth ? slideCount <= items : !rightBoundary : false;
 
       if (items !== itemsTem) {
         indexMax = getIndexMax();
@@ -1596,8 +1613,12 @@ var tns = function(options) {
       }
       
       if (freeze !== freezeTem) {
-        // reset index to initial status
-        if (freeze) { index = !carousel ? 0 : cloneCount; }
+        // reset container transforms
+        if (freeze) {
+          doContainerTransformSilent(0);
+        } else {
+          needContainerTransform = true;
+        }
 
         toggleSlideDisplayAndEdgePadding();
       }
@@ -1766,23 +1787,12 @@ var tns = function(options) {
       }
     }
 
-    // ** things always do regardless of breakpoint zone changing **
-    if ((!horizontal || autoWidth) && !disable) {
-      getSlidePositions();
-      if (autoWidth) { rightBoundary = getRightBoundary(); }
-      if (!horizontal) {
-        updateContentWrapperHeight();
-        needContainerTransform = true;
-      }
-    }
-    if (hasRightDeadZone) { needContainerTransform = true; }
+    updateFixedWidthInnerWrapperStyle(true);
 
     if (needContainerTransform) {
       doContainerTransformSilent();
       indexCached = index;
     }
-
-    updateFixedWidthInnerWrapperStyle(true);
 
     // auto height
     if ((autoHeight || !carousel) && !disable) { runAutoHeight(); }
@@ -1855,41 +1865,38 @@ var tns = function(options) {
   })();
 
   function toggleSlideDisplayAndEdgePadding () {
-    // if (cloneCount) {
-    // if (fixedWidth && cloneCount) {
-      var str = 'tns-transparent';
+    var str = 'tns-transparent';
 
-      if (freeze) {
-        if (!frozen) {
-          // remove edge padding from inner wrapper
-          if (edgePadding) { innerWrapper.style.margin = '0px'; }
+    if (freeze) {
+      if (!frozen) {
+        // remove edge padding from inner wrapper
+        if (edgePadding) { innerWrapper.style.margin = '0px'; }
 
-          // add class tns-transparent to cloned slides
-          if (cloneCount) {
-            for (var i = cloneCount; i--;) {
-              if (carousel) { addClass(slideItems[i], str); }
-              addClass(slideItems[slideCountNew - i - 1], str);
-            }
-          }
-
-          frozen = true;
-        }
-      } else if (frozen) {
-        // restore edge padding for inner wrapper
-        // for mordern browsers
-        if (edgePadding && !fixedWidth && CSSMQ) { innerWrapper.style.margin = ''; }
-
-        // remove class tns-transparent to cloned slides
+        // add class tns-transparent to cloned slides
         if (cloneCount) {
           for (var i = cloneCount; i--;) {
-            if (carousel) { removeClass(slideItems[i], str); }
-            removeClass(slideItems[slideCountNew - i - 1], str);
+            if (carousel) { addClass(slideItems[i], str); }
+            addClass(slideItems[slideCountNew - i - 1], str);
           }
         }
 
-        frozen = false;
+        frozen = true;
       }
-    // }
+    } else if (frozen) {
+      // restore edge padding for inner wrapper
+      // for mordern browsers
+      if (edgePadding && !fixedWidth && CSSMQ) { innerWrapper.style.margin = ''; }
+
+      // remove class tns-transparent to cloned slides
+      if (cloneCount) {
+        for (var i = cloneCount; i--;) {
+          if (carousel) { removeClass(slideItems[i], str); }
+          removeClass(slideItems[slideCountNew - i - 1], str);
+        }
+      }
+
+      frozen = false;
+    }
   }
 
   function updateFixedWidthInnerWrapperStyle (resize) {
@@ -2219,10 +2226,12 @@ var tns = function(options) {
     if (TRANSITIONDURATION) { el.style[TRANSITIONDURATION] = str; }
   }
 
+  function getSliderWidthForFixedWidthOrAutoWidth() {
+    return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter - getFixedWidthEdgePadding(fixedWidth, gutter): slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
+  }
+
   function getRightBoundary () {
-    var result = fixedWidth ? 
-      - ((fixedWidth + gutter) * slideCountNew - vpInner) : 
-      - (slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - vpInner);
+    var result = - (getSliderWidthForFixedWidthOrAutoWidth() - vpInner);
     if (result > 0) { result = 0; }
     return result;
   }
@@ -2253,7 +2262,7 @@ var tns = function(options) {
   }
 
   function doContainerTransform (val) {
-    if (!val) { val = getContainerTransformValue(); }
+    if (val == null) { val = getContainerTransformValue(); }
     container.style[transformAttr] = transformPrefix + val + transformPostfix;
   }
 
