@@ -907,7 +907,7 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return loop ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
+    return loop || (carousel && !fixedWidth && !autoWidth) ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
   }
 
   function updateStartIndex (indexTem) {
@@ -1345,7 +1345,7 @@ var tns = function(options) {
         }
 
         // container string
-        if (carousel && horizontal && !autoWidth ('fixedWidth' in opts || 'items' in opts || (fixedWidth && 'gutter' in opts))) {
+        if (carousel && horizontal && !autoWidth && ('fixedWidth' in opts || 'items' in opts || (fixedWidth && 'gutter' in opts))) {
           containerStr = 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + ';';
         }
         if (TRANSITIONDURATION && 'speed' in opts) {
@@ -2227,7 +2227,7 @@ var tns = function(options) {
   }
 
   function getSliderWidthForFixedWidthOrAutoWidth() {
-    return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter - getFixedWidthEdgePadding(fixedWidth, gutter): slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
+    return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter: slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
   }
 
   function getRightBoundary () {

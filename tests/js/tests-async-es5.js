@@ -614,9 +614,6 @@ var checkControlsClick = function () {
               // if (id === 'customize') {
               //   console.log(absIndex, index%slideCount);
               // }
-              if (first === undefined) {
-                console.log(id, sliders[id].getInfo().index);
-              }
               return absIndex === Number(navContainer.querySelector('.tns-nav-active').getAttribute('data-nav')) && navItems[absIndex].getAttribute('aria-selected') === 'true' && first.getAttribute('aria-hidden') === 'false' && !first.hasAttribute(tabindex) && last.getAttribute('aria-hidden') === 'false' && !last.hasAttribute(tabindex) && compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) && checkLastEdge;
             };
 
@@ -957,31 +954,30 @@ function testResponsive1() {
               }
 
               updateTest(testSlideBy, assertionSlideBy);
-              _context3.next = 37;
+              _context3.next = 36;
               break;
 
             case 30:
               _context3.prev = 30;
               _context3.t0 = _context3['catch'](0);
 
-              console.log(_context3.t0);
               testItems.className = 'item-notsure';
               testSlideBy.className = 'item-notsure';
               testGutter.className = 'item-notsure';
               testEdgePadding.className = 'item-notsure';
 
-            case 37:
-              _context3.prev = 37;
+            case 36:
+              _context3.prev = 36;
 
               document.body.removeChild(newWindow);
-              return _context3.finish(37);
+              return _context3.finish(36);
 
-            case 40:
+            case 39:
             case 'end':
               return _context3.stop();
           }
         }
-      }, _callee3, this, [[0, 30, 37, 40]]);
+      }, _callee3, this, [[0, 30, 36, 39]]);
     }));
 
     return function responsive1Tests() {
@@ -1473,7 +1469,7 @@ function testResponsive6() {
               if (assertionEdgePadding) {
                 viewport = wrapper.clientWidth, edge = (viewport - fixedWidth) / 2;
 
-                assertionEdgePadding = child0.getBoundingClientRect().left === edge && child0.getBoundingClientRect().right === viewport - (edge - gutter);
+                assertionEdgePadding = child1.getBoundingClientRect().left === edge && child1.getBoundingClientRect().right === viewport - (edge - gutter);
               }
               if (assertionControlsNav) {
                 assertionControlsNav = getComputedStyle(controls, null).display !== 'none' && getComputedStyle(nav, null).display !== 'none';
@@ -1486,7 +1482,7 @@ function testResponsive6() {
 
             case 22:
               if (assertionEdgePadding) {
-                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+                assertionEdgePadding = child1.getBoundingClientRect().left === 0;
               }
 
               updateTest(testEdgePaddingT, assertionEdgePadding);

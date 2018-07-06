@@ -829,7 +829,6 @@ function testResponsive1 () {
 
       updateTest(testSlideBy, assertionSlideBy);
     } catch (e) {
-      console.log(e);
       testItems.className = 'item-notsure';
       testSlideBy.className = 'item-notsure';
       testGutter.className = 'item-notsure';
@@ -1338,8 +1337,8 @@ function testResponsive6 () {
         var viewport = wrapper.clientWidth,
             edge = (viewport - fixedWidth)/2;
         assertionEdgePadding = 
-          child0.getBoundingClientRect().left === edge &&
-          child0.getBoundingClientRect().right === viewport - (edge - gutter);
+          child1.getBoundingClientRect().left === edge &&
+          child1.getBoundingClientRect().right === viewport - (edge - gutter);
       }
       if (assertionControlsNav) {
         assertionControlsNav = 
@@ -1351,7 +1350,7 @@ function testResponsive6 () {
       newWindow.style.width = (fixedWidth - 20) + 'px';
       await wait(1000);
       if (assertionEdgePadding) {
-        assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+        assertionEdgePadding = child1.getBoundingClientRect().left === 0;
       }
 
       updateTest(testEdgePaddingT, assertionEdgePadding);
@@ -2248,7 +2247,6 @@ async function checkControlsClick (test, id, count, vertical) {
     // if (id === 'customize') {
     //   console.log(absIndex, index%slideCount);
     // }
-    if (first === undefined) { console.log(id, sliders[id].getInfo().index); }
     return absIndex === Number(navContainer.querySelector('.tns-nav-active').getAttribute('data-nav')) &&
       navItems[absIndex].getAttribute('aria-selected') === 'true' &&
       first.getAttribute('aria-hidden') === 'false' &&
