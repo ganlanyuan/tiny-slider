@@ -586,8 +586,12 @@ function testVertical () {
 
   addTitle(id);
 
+  runTest('Outer wrapper: classes', function() {
+    return containsClasses(info.container.parentNode.parentNode, ['tns-ovh']);
+  });
+
   runTest('Inner wrapper: classes', function() {
-    return containsClasses(info.container.parentNode, ['tns-inner', 'tns-ovh']);
+    return containsClasses(info.container.parentNode, ['tns-inner']);
   });
 
   runTest('Container: classes', function() {
@@ -786,8 +790,8 @@ function testResponsive1 () {
         compare2Nums(first.getBoundingClientRect().left, wrapperRect.left) &&
         compare2Nums(last.getBoundingClientRect().right, wrapperRect.right);
       assertionGutter = window.getComputedStyle(first, null).paddingRight === gutter + 'px';
-      assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding + gutter) &&
-        compare2Nums(wrapperRect.right + edgePadding, Number(bps[0]) + 20);
+      assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
+        compare2Nums(wrapperRect.right, (Number(bps[0]) + 20) - (edgePadding - gutter));
 
       // resize window
       newWindow.style.width = (Number(bps[1]) + 20) + 'px';
@@ -810,7 +814,7 @@ function testResponsive1 () {
 
       if (assertionEdgePadding) {
         assertionEdgePadding = compare2Nums(wrapperRect.left, edgePadding) &&
-          compare2Nums(wrapperRect.right + edgePadding, Number(bps[1]) + 20);
+          compare2Nums(wrapperRect.right, (Number(bps[1]) + 20) - (edgePadding - gutter));
       }
       updateTest(testItems, assertionItems);
       updateTest(testGutter, assertionGutter);
@@ -2279,8 +2283,8 @@ async function checkControlsClick (test, id, count, vertical) {
 function checkPositionEdgePadding (id, vertical) {
   var opt = options[id],
       info = sliders[id].getInfo(),
-      padding = opt.edgePadding ? opt.edgePadding : 0,
-      gap = opt.gutter ? opt.gutter : 0,
+      edgePadding = opt.edgePadding ? opt.edgePadding : 0,
+      gutter = opt.gutter ? opt.gutter : 0,
       vertical = vertical || false,
       slideItems = info.slideItems,
       cloneCount = info.cloneCount,
@@ -2289,13 +2293,13 @@ function checkPositionEdgePadding (id, vertical) {
       last = slideItems[cloneCount + info.items - 1],
       edge1 = (vertical) ? 'top' : 'left',
       edge2 = (vertical) ? 'bottom' : 'right',
-      gutterAdjust = (vertical) ? 0 : (padding) ? gap : 0;
+      endGap = vertical ? edgePadding : edgePadding - gutter,
 
-  if (!vertical) { wrapper = wrapper.parentNode; }
+  wrapper = wrapper.parentNode;
   var wrapperRect = wrapper.getBoundingClientRect();
 
-  return compare2Nums(first.getBoundingClientRect()[edge1] - (padding + gap), wrapperRect[edge1]) &&
-    compare2Nums(last.getBoundingClientRect()[edge2] - gutterAdjust, wrapperRect[edge2] - (padding + gap));
+  return compare2Nums(first.getBoundingClientRect()[edge1] - edgePadding, wrapperRect[edge1]) &&
+    compare2Nums(last.getBoundingClientRect()[edge2], wrapperRect[edge2] - endGap);
 }
 
 async function testAutoplayFn (id, el, timeout, equal) {

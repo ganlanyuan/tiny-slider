@@ -226,10 +226,14 @@
 
         {# default #}
         {% else %}
+          {% set regExp = r/^vertical/%}
           {% for i in range(1, 8) %}
           <div class="item">
             <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+
+            {% if not regExp.test(slide) %}
             <p>{{ titles[i] }}</p>
+            {% endif %}
           </div>
           {% endfor %}
         {% endif %}

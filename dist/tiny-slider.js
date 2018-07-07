@@ -1117,28 +1117,15 @@ var tns = function(options) {
   }
 
   (function sliderInit () {
-    // First thing first, wrap container with 'outerWrapper > innerWrapper',
-    // to get the correct view width
-    outerWrapper.appendChild(innerWrapper);
-    containerParent.insertBefore(outerWrapper, container);
-    innerWrapper.appendChild(container);
-
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
-        hasGutter = checkOption('gutter');
+        hasGutter = checkOption('gutter'),
+        ovhC = ' tns-ovh';
 
-    if (carousel) {
-      if (horizontal) {
-        if (checkOption('edgePadding') || hasGutter && !options.fixedWidth) {
-          classOuter += ' tns-ovh';
-        } else {
-          classInner += ' tns-ovh';
-        }
-      } else {
-        classOuter += ' tns-ovh';
-      }
-    } else if (hasGutter) {
-      classOuter += ' tns-ovh';
+    if (horizontal) {
+      carousel && !hasEdgePadding && (!hasGutter || !fixedWidth) ? 
+        classInner += ovhC : 
+        classOuter += ovhC;
     }
 
     outerWrapper.className = classOuter;
@@ -1153,8 +1140,20 @@ var tns = function(options) {
     if (carousel) { classContainer += ' tns-' + options.axis; }
     container.className += classContainer;
 
-    // get inner viewport width after classes added
-    // to prevent scrollbar occupies part of viewport
+    // add middle layer for vertical sliders
+    if (!horizontal) {
+      var middleWrapper = doc.createElement('div');
+      middleWrapper.className = 'tns-ovh';
+
+      outerWrapper.appendChild(middleWrapper);
+      middleWrapper.appendChild(innerWrapper);
+    } else {
+      outerWrapper.appendChild(innerWrapper);
+    }
+    containerParent.insertBefore(outerWrapper, container);
+    innerWrapper.appendChild(container);
+
+    // get inner viewport width 
     vpInner = getViewportWidthInner();
     if (fixedWidth) { rightBoundary = getRightBoundary(); }
 
@@ -1379,6 +1378,32 @@ var tns = function(options) {
       addEvents(container, {'scroll': ie10Scroll});
       setSnapInterval();
     }
+
+    // == autoplayInit ==
+    if (hasAutoplay) {
+      var txt = autoplay ? 'stop' : 'start';
+      if (autoplayButton) {
+        setAttrs(autoplayButton, {'data-action': txt});
+      } else if (options.autoplayButtonOutput) {
+        outerWrapper.insertAdjacentHTML('afterbegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
+        autoplayButton = outerWrapper.querySelector('[data-action]');
+      }
+
+      // add event
+      if (autoplayButton) {
+        addEvents(autoplayButton, {'click': toggleAutoplay});
+      }
+
+      if (!autoplay) {
+        if (autoplayButton) {
+          hideElement(autoplayButton);
+        }
+      } else {
+        startAutoplay();
+        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
+        if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
+      }
+    }
  
     // == navInit ==
     if (hasNav) {
@@ -1438,32 +1463,6 @@ var tns = function(options) {
       if (!nav) { hideElement(navContainer); }
     }
 
-
-    // == autoplayInit ==
-    if (hasAutoplay) {
-      var txt = autoplay ? 'stop' : 'start';
-      if (autoplayButton) {
-        setAttrs(autoplayButton, {'data-action': txt});
-      } else if (options.autoplayButtonOutput) {
-        innerWrapper.insertAdjacentHTML('beforebegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
-        autoplayButton = outerWrapper.querySelector('[data-action]');
-      }
-
-      // add event
-      if (autoplayButton) {
-        addEvents(autoplayButton, {'click': toggleAutoplay});
-      }
-
-      if (!autoplay) {
-        if (autoplayButton) {
-          hideElement(autoplayButton);
-        }
-      } else {
-        startAutoplay();
-        if (autoplayHoverPause) { addEvents(container, hoverEvents); }
-        if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
-      }
-    }
 
 
     // == controlsInit ==
