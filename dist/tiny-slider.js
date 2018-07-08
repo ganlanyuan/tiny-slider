@@ -766,7 +766,7 @@ var tns = function(options) {
       index = startIndex ? updateStartIndex(startIndex) : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
-      indexMax = getIndexMax(),
+      indexMax = !fixedWidth && !autoWidth ? getIndexMax() : null,
       // resize
       resizeTimer,
       swipeAngle = options.swipeAngle,
@@ -821,7 +821,6 @@ var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
-      console.log(cloneCount);
 
   // controls
   if (hasControls) {
@@ -908,7 +907,19 @@ var tns = function(options) {
 
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
-    return loop || (carousel && !fixedWidth && !autoWidth) ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
+    if (!fixedWidth && !autoWidth) {
+      return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
+    } else if (fixedWidth) {
+      return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1;
+    } else if (autoWidth) {
+      var i = slideCountNew - 1,
+          result = i;
+      while (slidePositions[i] > - rightBoundary) {
+        i--;
+        result = i;
+      }
+      return result;
+    }
   }
 
   function updateStartIndex (indexTem) {
@@ -930,10 +941,10 @@ var tns = function(options) {
 
   function getItemsMax () {
     // fixedWidth or autoWidth while viewportMax is not available
-    if ((fixedWidth || autoWidth) && !viewportMax) {
+    if (autoWidth || (fixedWidth && !viewportMax)) {
       return slideCount - 1;
     // most cases
-    } else if (!autoWidth) {
+    } else {
       var str = fixedWidth ? 'fixedWidth' : 'items',
           arr = [];
 
@@ -949,30 +960,6 @@ var tns = function(options) {
       if (!arr.length) { arr.push(0); }
 
       return Math.ceil(fixedWidth ? viewportMax / Math.min.apply(null, arr) : Math.max.apply(null, arr));
-    // autoWidth with viewportMax
-    } else {
-      raf(function(){ imageLoaded(arrayFromNodeList(container.querySelectorAll('img')), function() {
-        var i = slideCount - 1, left;
-        do {
-          left = slideItems[i].getBoundingClientRect().left;
-          if (left <= viewportMax) {
-            return i === slideCount - 1 ? i : i + 1;
-          }
-          i--;
-        } while (left > viewportMax);
-      }); });
-    }
-  }
-
-  function itemsAreFloating() {
-    if (options.items%1) {
-      return true;
-    } else {
-      if (!responsive) { return false; }
-      for (var bp in responsive) {
-        if ('items' in responsive[bp] && responsive[bp].items%1) { return true; }
-      }
-      return false;
     }
   }
 
@@ -980,7 +967,6 @@ var tns = function(options) {
     var itemsMax = getItemsMax(),
         result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 4 - slideCount);
     result = Math.max(itemsMax, result);
-    console.log(itemsMax, result);
 
     return hasEdgePadding ? result + 1 : result;
   }
@@ -1171,7 +1157,11 @@ var tns = function(options) {
 
     // get inner viewport width 
     vpInner = getViewportWidthInner();
-    if (fixedWidth) { rightBoundary = getRightBoundary(); }
+    if (fixedWidth) {
+      rightBoundary = getRightBoundary();
+      indexMax = getIndexMax();
+      console.log('indexmax', indexMax);
+    }
 
     // add events
     if (carousel && TRANSITIONEND) {
@@ -1241,7 +1231,11 @@ var tns = function(options) {
         if (!disable) {
           if (!horizontal || autoWidth) {
             getSlidePositions();
-            if (autoWidth) { rightBoundary = getRightBoundary(); }
+            if (autoWidth) {
+              rightBoundary = getRightBoundary();
+              indexMax = getIndexMax();
+              console.log('indexMax', indexMax);
+            }
             if (!horizontal) { updateContentWrapperHeight(); }
           }
 
@@ -1590,7 +1584,10 @@ var tns = function(options) {
         needContainerTransform = true;
       }
     }
-    if (fixedWidth || autoWidth) { rightBoundary = getRightBoundary(); }
+    if (fixedWidth || autoWidth) {
+      rightBoundary = getRightBoundary();
+      indexMax = getIndexMax();
+    }
 
     // things do when breakpoint zone change
     if (breakpointZoneTem !== breakpointZone || fixedWidth || autoWidth) {
@@ -1610,7 +1607,7 @@ var tns = function(options) {
       freeze = disable ? true : freezable ? !fixedWidth && !autoWidth ? slideCount <= items : !rightBoundary : false;
 
       if (items !== itemsTem) {
-        indexMax = getIndexMax();
+        if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
         // check index before transform in case
         // slider reach the right edge then items become bigger
         updateIndex();
@@ -1820,14 +1817,6 @@ var tns = function(options) {
     });
   }
 
-  function loopNumber (num, min, max) {
-    return index >= indexMin && index <= indexMax ? index : index > indexMax ? index - slideCount : index + slideCount;
-  }
-
-  function cutindexber (index, min, indexMax) {
-    return index >= indexMin && index <= indexMax ? index : index > indexMax ? indexMax : indexMin;
-  }
-
   // (slideBy, indexMin, indexMax) => index
   var updateIndex = (function () {
     return loop ? 
@@ -1952,7 +1941,10 @@ var tns = function(options) {
       // vertical slider: get offsetTops before container transform
       if (!horizontal || autoWidth) {
         getSlidePositions();
-        if (autoWidth) { rightBoundary = getRightBoundary(); }
+        if (autoWidth) {
+          rightBoundary = getRightBoundary();
+          indexMax = getIndexMax();
+        }
       }
 
       doContainerTransformSilent();
@@ -2234,12 +2226,12 @@ var tns = function(options) {
     if (TRANSITIONDURATION) { el.style[TRANSITIONDURATION] = str; }
   }
 
-  function getSliderWidthForFixedWidthOrAutoWidth() {
+  function getFixedSliderWidth () {
     return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter: slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
   }
 
   function getRightBoundary () {
-    var result = - (getSliderWidthForFixedWidthOrAutoWidth() - vpInner);
+    var result = - (getFixedSliderWidth() - vpInner);
     if (result > 0) { result = 0; }
     return result;
   }
@@ -2353,6 +2345,7 @@ var tns = function(options) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
+      console.log(index);
 
       // pause autoplay when click or keydown from user
       if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
@@ -2419,6 +2412,7 @@ var tns = function(options) {
           var indexTem = index;
           updateIndex();
           if (index !== indexTem) { 
+            console.log(index);
             events.emit('indexChanged', info());
 
             doContainerTransformSilent();
