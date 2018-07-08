@@ -363,6 +363,7 @@ export var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
+      console.log(cloneCount);
 
   // controls
   if (hasControls) {
@@ -492,14 +493,16 @@ export var tns = function(options) {
       return Math.ceil(fixedWidth ? viewportMax / Math.min.apply(null, arr) : Math.max.apply(null, arr));
     // autoWidth with viewportMax
     } else {
-      var i = slideCount - 1, left;
-      do {
-        left = slideItems[i].getBoundingClientRect().left;
-        if (left <= viewportMax) {
-          return i === slideCount - 1 ? i : i + 1;
-        }
-        i--;
-      } while (left > viewportMax);
+      raf(function(){ imageLoaded(arrayFromNodeList(container.querySelectorAll('img')), function() {
+        var i = slideCount - 1, left;
+        do {
+          left = slideItems[i].getBoundingClientRect().left;
+          if (left <= viewportMax) {
+            return i === slideCount - 1 ? i : i + 1;
+          }
+          i--;
+        } while (left > viewportMax);
+      }); });
     }
   }
 
@@ -519,6 +522,7 @@ export var tns = function(options) {
     var itemsMax = getItemsMax(),
         result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 4 - slideCount);
     result = Math.max(itemsMax, result);
+    console.log(itemsMax, result);
 
     return hasEdgePadding ? result + 1 : result;
   }
