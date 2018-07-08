@@ -508,7 +508,7 @@ var tns = function(options) {
     edgePadding: 0,
     fixedWidth: false,
     autoWidth: false,
-    fixedWidthViewportWidth: false,
+    viewportMax: false,
     slideBy: 1,
     controls: true,
     controlsText: ['prev', 'next'],
@@ -741,7 +741,7 @@ var tns = function(options) {
       edgePadding = getOption('edgePadding'),
       autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
-      fixedWidthViewportWidth = options.fixedWidthViewportWidth,
+      viewportMax = options.viewportMax,
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
       rewind = options.rewind,
@@ -928,9 +928,11 @@ var tns = function(options) {
   }
 
   function getItemsMax () {
-    if (fixedWidth && !fixedWidthViewportWidth) {
+    // fixedWidth or autoWidth while viewportMax is not available
+    if ((fixedWidth || autoWidth) && !viewportMax) {
       return slideCount - 1;
-    } else {
+    // most cases
+    } else if (!autoWidth) {
       var str = fixedWidth ? 'fixedWidth' : 'items',
           arr = [];
 
@@ -945,7 +947,17 @@ var tns = function(options) {
 
       if (!arr.length) { arr.push(0); }
 
-      return Math.ceil(fixedWidth ? fixedWidthViewportWidth / Math.min.apply(null, arr) : Math.max.apply(null, arr));
+      return Math.ceil(fixedWidth ? viewportMax / Math.min.apply(null, arr) : Math.max.apply(null, arr));
+    // autoWidth with viewportMax
+    } else {
+      var i = slideCount - 1, left;
+      do {
+        left = slideItems[i].getBoundingClientRect().left;
+        if (left <= viewportMax) {
+          return i === slideCount - 1 ? i : i + 1;
+        }
+        i--;
+      } while (left > viewportMax);
     }
   }
 
