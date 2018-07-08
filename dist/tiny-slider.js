@@ -2797,7 +2797,7 @@ var tns = function(options) {
 
       var x = translateInit,
           dist = getDist(lastPosition, initPosition);
-      if (!horizontal || fixedWidth) {
+      if (!horizontal || fixedWidth || autoWidth) {
         x += dist;
         x += 'px';
       } else {
@@ -2842,7 +2842,7 @@ var tns = function(options) {
 
         if (carousel) {
           rafIndex = raf(function() {
-            if (horizontal) {
+            if (horizontal && !autoWidth) {
               var indexMoved = - dist * items / vpInner;
               indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
               index += indexMoved;
