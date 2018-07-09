@@ -756,11 +756,15 @@ export var tns = function(options) {
       // check all image complete status
       // add complete class if true
       forEachNodeList(imgs, function(img) {
-        addEvents(img, imgEvents);
-
         var src = img.src;
-        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-        img.src = src;
+
+        if (src.indexOf('data:image') < 0) {
+          addEvents(img, imgEvents);
+          img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+          img.src = src;
+        } else {
+          addClass(img, imgCompleteClass);
+        }
       });
 
       // set imgsComplete to true 
