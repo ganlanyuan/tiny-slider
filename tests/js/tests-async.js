@@ -66,11 +66,15 @@ async function testBase () {
   addTitle(id);
 
   runTest('Outer wrapper: classes', function() {
-    return containsClasses(innerWrapper.parentNode, ['tns-outer']);
+    return containsClasses(innerWrapper.parentNode.parentNode, ['tns-outer']);
+  });
+
+  runTest('Middle wrapper: classes', function() {
+    return containsClasses(innerWrapper.parentNode, ['tns-ovh']);
   });
 
   runTest('Inner wrapper: classes', function() {
-    return containsClasses(innerWrapper, ['tns-inner', 'tns-ovh']);
+    return containsClasses(innerWrapper, ['tns-inner']);
   });
 
   runTest('Container: classes', function() {

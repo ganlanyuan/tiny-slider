@@ -33,11 +33,15 @@ var testBase = function () {
             addTitle(id);
 
             runTest('Outer wrapper: classes', function () {
-              return containsClasses(innerWrapper.parentNode, ['tns-outer']);
+              return containsClasses(innerWrapper.parentNode.parentNode, ['tns-outer']);
+            });
+
+            runTest('Middle wrapper: classes', function () {
+              return containsClasses(innerWrapper.parentNode, ['tns-ovh']);
             });
 
             runTest('Inner wrapper: classes', function () {
-              return containsClasses(innerWrapper, ['tns-inner', 'tns-ovh']);
+              return containsClasses(innerWrapper, ['tns-inner']);
             });
 
             runTest('Container: classes', function () {
@@ -67,10 +71,10 @@ var testBase = function () {
 
             // controls click
 
-            _context.next = 13;
+            _context.next = 14;
             return checkControlsClick(controlsClick, id, 11);
 
-          case 13:
+          case 14:
 
             // nav click
             for (i = visibleNavIndexes.length; i--;) {
@@ -89,33 +93,33 @@ var testBase = function () {
             // keydown events
 
             if (!canFireKeydown) {
-              _context.next = 50;
+              _context.next = 51;
               break;
             }
 
-            _context.next = 18;
+            _context.next = 19;
             return repeat(function () {
               // fire keydown events on left arrow
               fire(info.controlsContainer, 'keydown', { 'keyCode': 37 });
             }, 3);
 
-          case 18:
+          case 19:
             prev = info.index, current = slider.getInfo().index, absIndex = getAbsIndex(prev, -3, info), currentSlide = slideItems[current];
 
 
             assertion = current === absIndex + cloneCount && navItems[absIndex].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
             if (!assertion) {
-              _context.next = 27;
+              _context.next = 28;
               break;
             }
 
-            _context.next = 23;
+            _context.next = 24;
             return repeat(function () {
               fire(info.controlsContainer, 'keydown', { 'keyCode': 39 });
             }, 3);
 
-          case 23:
+          case 24:
 
             current = slider.getInfo().index;
             absIndex = 0;
@@ -123,7 +127,7 @@ var testBase = function () {
 
             assertion = current === absIndex + cloneCount && navItems[absIndex].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
-          case 27:
+          case 28:
 
             updateTest(controlsKeydown, assertion);
 
@@ -178,30 +182,30 @@ var testBase = function () {
               assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[0] && navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
             }
             updateTest(navKeydown, assertion);
-            _context.next = 52;
+            _context.next = 53;
             break;
 
-          case 50:
+          case 51:
             updateTest(controlsKeydown, '?');
             updateTest(navKeydown, '?');
 
-          case 52:
+          case 53:
 
             // go to
             controls = document.querySelector('#base_wrapper .goto-controls'), input = controls.querySelector('input'), button = controls.querySelector('.button'), mul = 100;
-            _context.next = 55;
+            _context.next = 56;
             return repeat(checkGoto, 3);
 
-          case 55:
+          case 56:
             mul = -100;
-            _context.next = 58;
+            _context.next = 59;
             return repeat(checkGoto, 3);
 
-          case 58:
+          case 59:
 
             updateTest(testGoto, assertion);
 
-          case 59:
+          case 60:
           case 'end':
             return _context.stop();
         }
