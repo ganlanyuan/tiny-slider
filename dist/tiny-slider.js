@@ -1230,6 +1230,7 @@ var tns = function(options) {
         if (!disable) {
           if (!horizontal || autoWidth) {
             getSlidePositions();
+            lazyLoad();
             if (autoWidth) {
               rightBoundary = getRightBoundary();
               indexMax = getIndexMax();
@@ -1536,7 +1537,7 @@ var tns = function(options) {
       runAutoHeight();
     }
 
-    lazyLoad();
+    if (!autoWidth) { lazyLoad(); }
     toggleSlideDisplayAndEdgePadding();
     updateFixedWidthInnerWrapperStyle();
 
@@ -1571,7 +1572,7 @@ var tns = function(options) {
         freezeTem = freeze,
         needContainerTransform = false;
 
-    if (fixedWidth) { vpOuter = getViewportWidth(outerWrapper); }
+    vpOuter = getViewportWidth(outerWrapper);
     vpInner = getViewportWidthInner();
     if (breakpoints) { setBreakpointZone(); }
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
@@ -1782,7 +1783,8 @@ var tns = function(options) {
         needContainerTransform = true;
       }
 
-      if (items !== itemsTem) { 
+      // items is not updated in autoWidth slider
+      if (items !== itemsTem || autoWidth) { 
         additionalUpdates();
         updateSlidePosition();
 
@@ -1965,15 +1967,26 @@ var tns = function(options) {
     }
   }
 
-  // lazyload
+  // lazyLoad
   function lazyLoad () {
     if (lazyload && !disable) {
-      var i = index, 
-          len = index + items;
+      var i = index, len;
+
+      if (!autoWidth) {
+        len = index + items;
+      } else {
+        var a = index + 1,
+            len = a,
+            edge = slidePositions[index] + vpInner + edgePadding - gutter;
+        while (slidePositions[a] < edge) {
+          a++;
+          len = a;
+        }
+      }
 
       if (edgePadding) {
         i -=1;
-        len +=1;
+        if (!autoWidth) { len +=1; }
       }
 
       i = Math.max(i, 0);
