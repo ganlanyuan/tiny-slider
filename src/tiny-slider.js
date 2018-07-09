@@ -679,7 +679,7 @@ export var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    classContainer += PERCENTAGELAYOUT ? ' tns-subpixel' : ' tns-no-subpixel';
+    classContainer += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
     classContainer += CALC ? ' tns-calc' : ' tns-no-calc';
     if (carousel) { classContainer += ' tns-' + options.axis; }
     container.className += classContainer;
@@ -702,7 +702,6 @@ export var tns = function(options) {
     if (fixedWidth) {
       rightBoundary = getRightBoundary();
       indexMax = getIndexMax();
-      console.log('indexmax', indexMax);
     }
 
     // add events
@@ -776,7 +775,6 @@ export var tns = function(options) {
             if (autoWidth) {
               rightBoundary = getRightBoundary();
               indexMax = getIndexMax();
-              console.log('indexMax', indexMax);
             }
             if (!horizontal) { updateContentWrapperHeight(); }
           }
@@ -811,7 +809,7 @@ export var tns = function(options) {
     if (carousel && horizontal) {
       // set font-size rules
       // for modern browsers
-      if (PERCENTAGELAYOUT) {
+      if (PERCENTAGELAYOUT || autoWidth) {
         // set slides font-size first
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
@@ -1887,7 +1885,6 @@ export var tns = function(options) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
-      console.log(index);
 
       // pause autoplay when click or keydown from user
       if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
@@ -1954,7 +1951,6 @@ export var tns = function(options) {
           var indexTem = index;
           updateIndex();
           if (index !== indexTem) { 
-            console.log(index);
             events.emit('indexChanged', info());
 
             doContainerTransformSilent();
