@@ -283,7 +283,7 @@ export var tns = function(options) {
       edgePadding = getOption('edgePadding'),
       autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
-      viewportMax = options.viewportMax,
+      viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
       rewind = options.rewind,
@@ -1532,7 +1532,6 @@ export var tns = function(options) {
 
       i = Math.floor(Math.max(i, 0));
       len = Math.ceil(Math.min(len, slideCountNew));
-      console.log(index, i, len);
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {

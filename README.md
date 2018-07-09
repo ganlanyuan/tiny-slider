@@ -119,12 +119,12 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `container` | Node \| String | Default: `'.slider'`. <br> The slider container element or selector. |
 | `mode` | "carousel" \| "gallery" | Default: "carousel". <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | "horizontal" \| "vertical" | Default: "horizontal". <br> The axis of the slider. |
-| `items` | Integer | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less than `items`, the slider won't be initialized. |
-| `gutter` | Integer | Default: 0. <br> Space between slides (in "px"). |
-| `edgePadding` | Integer | Default: 0. <br> Space on the outside (in "px"). |
-| `fixedWidth` | Integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
-| `fixedWidthViewportWidth` | Integer \| false | Default: false. <br> Maximum width of `fixedWidth` slider viewport. |
-| `slideBy` | Integer \| "page" | Default: 1. <br> Number of slides going on one "click". |
+| `items` | positive number | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less than `items`, the slider won't be initialized. |
+| `gutter` | positive integer | Default: 0. <br> Space between slides (in "px"). |
+| `edgePadding` | positive integer | Default: 0. <br> Space on the outside (in "px"). |
+| `fixedWidth` | positive integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
+| `viewportMax` (previously `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum width of `fixedWidth`/`autoWidth` slider viewport. |
+| `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
 | `controlsContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the prev/next buttons. <br> `controlsContainer` must have at least 2 child elements. |
