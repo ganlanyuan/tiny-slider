@@ -363,6 +363,7 @@ export var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
+      console.log(slideBy, items);
 
   // controls
   if (hasControls) {
@@ -568,6 +569,7 @@ export var tns = function(options) {
     }
 
     if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
+    if (!carousel && (item === 'slideBy' || item === 'items')) { result = Math.floor(result); }
 
     return result;
   }
@@ -622,6 +624,7 @@ export var tns = function(options) {
     if (fixedWidthTem) {
       width = (fixedWidthTem + gutterTem) + 'px';
     } else {
+      if (!carousel) { itemsTem = Math.floor(itemsTem); }
       var dividend = carousel ? slideCountNew : itemsTem;
       width = CALC ? 
         CALC + '(100% / ' + dividend + ')' : 
@@ -1845,7 +1848,6 @@ export var tns = function(options) {
     return carousel ?
       function (duration, distance) {
         if (duration == null) { duration = speed; }
-
         if (TRANSITIONDURATION || !duration) {
           // for morden browsers with non-zero duration or 
           // zero duration for all browsers
@@ -1862,6 +1864,7 @@ export var tns = function(options) {
         if (!horizontal) { updateContentWrapperHeight(); }
       } :
       function (duration) {
+        if (duration == null) { duration = speed; }
         slideItemsOut = [];
 
         var eve = {};
@@ -1880,6 +1883,7 @@ export var tns = function(options) {
 
   function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
+    // if (!carousel) { index = Math.floor(index);}
 
     // render when slider was moved (touch or drag) even though index may not change
     if (index !== indexCached || sliderMoved) {
