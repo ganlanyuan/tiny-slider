@@ -45,6 +45,7 @@ Note: some features may need a manual test.
 - carousel / gallery
 - responsive
 - fixed width
+- auto width (v2.8.0+)
 - vertical slider
 - gutter
 - edge padding (center)

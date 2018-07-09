@@ -98,6 +98,26 @@ var options = {
     loop: false,
     arrowKeys: true,
   }, 
+  'autoWidth': {
+    autoWidth: true,
+    items: 3.3,
+    slideBy: 2.6,
+    gutter: 10,
+    mouseDrag: true,
+  },
+  'autoWidth-non-loop': {
+    autoWidth: true,
+    loop: false,
+    mouseDrag: true,
+  },
+  'autoWidth-lazyload': {
+    autoWidth: true,
+    items: 3.3,
+    slideBy: 2.6,
+    gutter: 10,
+    mouseDrag: true,
+    lazyload: true,
+  },
   'responsive': {
     items: 2,
     controls: false,

@@ -821,7 +821,6 @@ var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
-      console.log(slideBy, items);
 
   // controls
   if (hasControls) {
@@ -1124,14 +1123,13 @@ var tns = function(options) {
   (function sliderInit () {
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
-        hasGutter = checkOption('gutter'),
-        ovhC = ' tns-ovh';
+        hasGutter = checkOption('gutter');
 
-    if (horizontal) {
-      carousel && !hasEdgePadding && (!hasGutter || !fixedWidth) ? 
-        classInner += ovhC : 
-        classOuter += ovhC;
-    }
+    // if (horizontal) {
+    //   carousel && !hasEdgePadding && (!hasGutter || !fixedWidth) ? 
+    //     classInner += ovhC : 
+    //     classOuter += ovhC;
+    // }
 
     outerWrapper.className = classOuter;
     innerWrapper.className = classInner;
@@ -1145,8 +1143,8 @@ var tns = function(options) {
     if (carousel) { classContainer += ' tns-' + options.axis; }
     container.className += classContainer;
 
-    // add middle layer for vertical sliders
-    if (!horizontal) {
+    // add constrain layer for carousel
+    if (carousel) {
       var middleWrapper = doc.createElement('div');
       middleWrapper.className = 'tns-ovh';
 
@@ -1155,6 +1153,7 @@ var tns = function(options) {
     } else {
       outerWrapper.appendChild(innerWrapper);
     }
+
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
 
@@ -1171,9 +1170,6 @@ var tns = function(options) {
       eve[TRANSITIONEND] = onTransitionEnd;
       addEvents(container, eve);
     }
-
-    // delete datas after init
-    classOuter = classInner = null;
 
     // add id, class, aria attributes 
     // before clone slides
@@ -1993,6 +1989,7 @@ var tns = function(options) {
 
       i = Math.floor(Math.max(i, 0));
       len = Math.ceil(Math.min(len, slideCountNew));
+      console.log(i, len);
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
