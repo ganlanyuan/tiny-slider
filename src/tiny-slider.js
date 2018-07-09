@@ -1844,8 +1844,8 @@ export var tns = function(options) {
   var transformCore = (function () {
     return carousel ?
       function (duration, distance) {
-        if (!distance) { distance = getContainerTransformValue(); }
-        
+        if (duration == null) { duration = speed; }
+
         if (TRANSITIONDURATION || !duration) {
           // for morden browsers with non-zero duration or 
           // zero duration for all browsers
@@ -1874,20 +1874,9 @@ export var tns = function(options) {
 
         // run fallback function manually 
         // when transition or animation not supported / duration is 0
-        if (!TRANSITIONEND || !ANIMATIONEND || !duration) { onTransitionEnd(); }
+        if (!TRANSITIONEND || !ANIMATIONEND || !duration || !isVisible(container)) { onTransitionEnd(); }
       };
   })();
-
-  function doTransform (duration, distance) {
-    // check duration is defined and is a number
-    if (isNaN(duration)) { duration = speed; }
-
-    // if container is hidden, set duration to 0
-    // to fix an issue where browser doesn't fire ontransitionend on hidden element
-    if (animating && !isVisible(container)) { duration = 0; }
-
-    transformCore(duration, distance);
-  }
 
   function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
@@ -1902,7 +1891,7 @@ export var tns = function(options) {
       if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
 
       running = true;
-      doTransform();
+      transformCore();
     }
   }
 
