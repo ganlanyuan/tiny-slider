@@ -1967,7 +1967,6 @@ var tns = function(options) {
     }
   }
 
-  // lazyLoad
   function lazyLoad () {
     if (lazyload && !disable) {
       var i = index, len;
@@ -1989,8 +1988,9 @@ var tns = function(options) {
         if (!autoWidth) { len +=1; }
       }
 
-      i = Math.max(i, 0);
-      len = Math.min(len, slideCountNew);
+      i = Math.floor(Math.max(i, 0));
+      len = Math.ceil(Math.min(len, slideCountNew));
+      console.log(index, i, len);
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
@@ -2530,6 +2530,7 @@ var tns = function(options) {
 
     if (dir) {
       index += slideBy * dir;
+      if (autoWidth) { index = Math.floor(index); }
       // pass e when click control buttons or keydown
       render((passEventObject || (e && e.type === 'keydown')) ? e : null);
     }
