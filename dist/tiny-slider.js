@@ -496,7 +496,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// Format: IIFE
+// Version: 2.8.0
 
 var tns = function(options) {
   options = extend({

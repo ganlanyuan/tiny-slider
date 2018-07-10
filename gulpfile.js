@@ -17,14 +17,13 @@ let libName = 'tiny-slider',
     modulePostfix = '.module',
     helperIEPostfix = '.helper.ie8',
     script = libName + '.js',
-    moduleScript = libName + modulePostfix + '.js',
     helperIEScript = libName + helperIEPostfix + '.js',
     testScript = testName + '.js',
     sassFile = libName + '.scss',
     pathSrc = 'src/',
     pathDest = 'dist/',
     pathTest = 'tests/js/',
-    scriptSources = [pathSrc + '**/*.js', '!' + pathSrc + moduleScript, '!' + pathSrc + helperIEScript];
+    scriptSources = [pathSrc + '**/*.js', '!' + pathSrc + helperIEScript];
 
 function errorlog (error) {  
   console.error.bind(error);  
@@ -87,17 +86,6 @@ gulp.task('editPro', ['script'], function() {
       return 'var tns = (function (){\n' + content.replace('export { tns }', 'return tns') + '})();';
     }))
     .pipe(gulp.dest(pathDest))
-});
-
-gulp.task('makeDevCopy', function() {
-  return gulp.src(pathSrc + script)
-    .pipe($.change(function (content) {
-      return content
-        .replace('IIFE', 'ES MODULE')
-        .replace(/bower_components/g, '..');
-    }))
-    .pipe($.rename({ basename: libName + modulePostfix }))
-    .pipe(gulp.dest(pathSrc))
 });
 
 gulp.task('min', ['editPro'], function () {
@@ -185,7 +173,6 @@ gulp.task('server', function() {
   gulp.watch(pathSrc + sassFile, function (e) {
     sassTask(pathSrc + sassFile, pathDest);
   });
-  gulp.watch(pathSrc + script, ['makeDevCopy']);
   gulp.watch(scriptSources, ['min']);
   gulp.watch(pathSrc + helperIEScript, ['helper-ie8']);
   // gulp.watch([pathTest + testScript], ['test']);
@@ -197,7 +184,6 @@ gulp.task('default', [
   // 'sass',
   // 'min',
   // 'helper-ie8',
-  // 'makeDevCopy',
   // 'test',
   'server', 
 ]);  
