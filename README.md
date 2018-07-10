@@ -124,7 +124,8 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `gutter` | positive integer | Default: 0. <br> Space between slides (in "px"). |
 | `edgePadding` | positive integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | positive integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
-| `viewportMax` (previously `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum width of `fixedWidth`/`autoWidth` slider viewport. |
+| `autoWidth` | Boolean | Default: false. <br> If `true`, the width of each slide will be its natural width as a `inline-block` box. |
+| `viewportMax` (previously `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
@@ -135,9 +136,9 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `navContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the dots. <br> `navContainer` must have at least same number of children as the slides. |
 | `navAsThumbnails` | Boolean | Default: false. <br> Indecate if the dots are thurbnails. If `true`, they will always be visible even when more than 1 slides displayed in the viewport. |
 | `arrowKeys` | Boolean | Default: false. <br> Allows using arrow keys to switch slides. |
-| `speed` | Integer | Default: 300. <br> Speed of the slide animation (in "ms"). |
+| `speed` | positive integer | Default: 300. <br> Speed of the slide animation (in "ms"). |
 | `autoplay` | Boolean | Default: false. <br> Toggles the automatic change of slides. |
-| `autoplayTimeout` | Integer | Default: 5000. <br> Time between 2 `autoplay` slides change (in "ms"). |
+| `autoplayTimeout` | positive integer | Default: 5000. <br> Time between 2 `autoplay` slides change (in "ms"). |
 | `autoplayDirection` | "forward" \| "backward" | Default: "forward". <br> Direction of slide movement (ascending/descending the slide index). |
 | `autoplayText` | Array (Text \| Markup) | Default: ["start", "stop"]. <br> Text or markup in the autoplay start/stop button. |
 | `autoplayHoverPause` | Boolean | Default: false. <br> Stops sliding on mouseover. |
@@ -147,7 +148,7 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `animateIn` | String | Default: "tns-fadeIn". <br> Name of intro animation `class`. |
 | `animateOut` | String | Default: "tns-fadeOut". <br> Name of outro animation `class`. |
 | `animateNormal` | String | Default: "tns-normal". <br> Name of default animation `class`. |
-| `animateDelay` | Integer \| false | Default: false. <br> Time between each `gallery` animation (in "ms"). |
+| `animateDelay` | positive integer \| false | Default: false. <br> Time between each `gallery` animation (in "ms"). |
 | `loop` | Boolean | Default: true. <br> Moves throughout all the slides seamlessly. |
 | `rewind` | Boolean | Default: false. <br> Moves to the opposite edge when reaching the first or last slide. |
 | `autoHeight` | Boolean | Default: false. <br> Height of slider container changes according to each slide's height. |
@@ -155,11 +156,11 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
 | `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). <br> NOTE: `width` attribute for each `<img>` is required for `autoWidth` slider. |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
-| `swipeAngle` | Integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
+| `swipeAngle` | positive integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
 | `nested` | "inner" \| "outer" \| false | Default: false. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `freezable` | Boolean | Default: true. <br> Indicate whether the slider will be frozen (`controls`, `nav`, `autoplay` and other functions will stop work) when all slides can be displayed in one page. |
 | `disable` | Boolean | Default: false. <br> Disable slider. |
-| `startIndex` | Integer | Default: 0. <br> The initial `index` of the slider. |
+| `startIndex` | positive integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
 | `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
 
