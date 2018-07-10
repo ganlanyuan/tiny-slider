@@ -107,65 +107,51 @@ export var tns = function(options) {
       localStorageAccess = options.useLocalStorage;
 
   if (localStorageAccess) {
-    // check browser version and local storage
-    // if browser upgraded, 
-    // 1. delete browser ralated data from local storage and 
-    // 2. recheck these options and save them to local storage
+    // check browser version and local storage access
     var browserInfo = navigator.userAgent;
+    var uid = new Date;
 
     try {
-      tnsStorage = localStorage;
-      // remove storage when browser version changes
-      if (tnsStorage['tnsApp'] !== browserInfo) {
-        ['tC', 'tPL', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function(item) { tnsStorage.removeItem(item); });
+      tnsStorage = win.localStorage;
+      if (tnsStorage) {
+        tnsStorage.setItem(uid, uid);
+        localStorageAccess = tnsStorage.getItem(uid) == uid;
+        tnsStorage.removeItem(uid);
+      } else {
+        localStorageAccess = false;
       }
-      // update browserInfo
-      localStorage['tnsApp'] = browserInfo;
+      if (!localStorageAccess) { tnsStorage = {}; }
     } catch(e) {
       localStorageAccess = false;
     }
 
-    // reset tnsStorage when localStorage is null (on some versions of Chrome Mobile #134)
-    // https://stackoverflow.com/questions/8701015/html-localstorage-is-null-on-android-when-using-webview
-    if (localStorageAccess && !localStorage) {
-      tnsStorage = {};
-      localStorageAccess = false;
+    if (localStorageAccess) {
+      // remove storage when browser version changes
+      if (tnsStorage['tnsApp'] && tnsStorage['tnsApp'] !== browserInfo) {
+        ['tC', 'tPL', 'tMQ', 'tTf', 't3D', 'tTDu', 'tTDe', 'tADu', 'tADe', 'tTE', 'tAE'].forEach(function(item) { tnsStorage.removeItem(item); });
+      }
+      // update browserInfo
+      localStorage['tnsApp'] = browserInfo;
     }
   }
 
-  var CALC = tnsStorage['tC'] ? 
-        checkStorageValue(tnsStorage['tC']) :
-        setLocalStorage('tC', calc(), localStorageAccess),
-      PERCENTAGELAYOUT = tnsStorage['tPL'] ? 
-        checkStorageValue(tnsStorage['tPL']) :
-        setLocalStorage('tPL', percentageLayout(), localStorageAccess),
-      CSSMQ = tnsStorage['tMQ'] ? 
-        checkStorageValue(tnsStorage['tMQ']) :
-        setLocalStorage('tMQ', mediaquerySupport(), localStorageAccess),
-      TRANSFORM = tnsStorage['tTf'] ? 
-        checkStorageValue(tnsStorage['tTf']) :
-        setLocalStorage('tTf', whichProperty('transform'), localStorageAccess),
-      HAS3D = tnsStorage['t3D'] ? 
-        checkStorageValue(tnsStorage['t3D']) :
-        setLocalStorage('t3D', has3D(TRANSFORM), localStorageAccess),
-      TRANSITIONDURATION = tnsStorage['tTDu'] ? 
-        checkStorageValue(tnsStorage['tTDu']) :
-        setLocalStorage('tTDu', whichProperty('transitionDuration'), localStorageAccess),
-      TRANSITIONDELAY = tnsStorage['tTDe'] ? 
-        checkStorageValue(tnsStorage['tTDe']) :
-        setLocalStorage('tTDe', whichProperty('transitionDelay'), localStorageAccess),
-      ANIMATIONDURATION = tnsStorage['tADu'] ? 
-        checkStorageValue(tnsStorage['tADu']) :
-        setLocalStorage('tADu', whichProperty('animationDuration'), localStorageAccess),
-      ANIMATIONDELAY = tnsStorage['tADe'] ? 
-        checkStorageValue(tnsStorage['tADe']) :
-        setLocalStorage('tADe', whichProperty('animationDelay'), localStorageAccess),
-      TRANSITIONEND = tnsStorage['tTE'] ? 
-        checkStorageValue(tnsStorage['tTE']) :
-        setLocalStorage('tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
-      ANIMATIONEND = tnsStorage['tAE'] ? 
-        checkStorageValue(tnsStorage['tAE']) :
-        setLocalStorage('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
+  function getSetConstant (name, value) {
+    return tnsStorage[name] ? 
+        checkStorageValue(tnsStorage[name]) :
+        setLocalStorage(tnsStorage, name, value, localStorageAccess);
+  }
+
+  var CALC = getSetConstant('tC', calc()),
+      PERCENTAGELAYOUT = getSetConstant('tPL', percentageLayout()),
+      CSSMQ = getSetConstant('tMQ', mediaquerySupport()),
+      TRANSFORM = getSetConstant('tTf', whichProperty('transform')),
+      HAS3D = getSetConstant('t3D', has3D(TRANSFORM)),
+      TRANSITIONDURATION = getSetConstant('tTDu', whichProperty('transitionDuration')),
+      TRANSITIONDELAY = getSetConstant('tTDe', whichProperty('transitionDelay')),
+      ANIMATIONDURATION = getSetConstant('tADu', whichProperty('animationDuration')),
+      ANIMATIONDELAY = getSetConstant('tADe', whichProperty('animationDelay')),
+      TRANSITIONEND = getSetConstant('tTE', getEndProperty(TRANSITIONDURATION, 'Transition')),
+      ANIMATIONEND = getSetConstant('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'));
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
@@ -1535,7 +1521,6 @@ export var tns = function(options) {
 
       i = Math.floor(Math.max(i, 0));
       len = Math.ceil(Math.min(len, slideCountNew));
-      console.log(i, len);
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {

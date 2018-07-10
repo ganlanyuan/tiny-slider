@@ -1,4 +1,4 @@
-export function setLocalStorage(key, value, access) {
-  if (access) { localStorage.setItem(key, value); }
+export function setLocalStorage(storage, key, value, access) {
+  if (access) { storage.setItem(key, value); }
   return value;
 }
