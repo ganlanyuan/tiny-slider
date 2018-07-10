@@ -652,12 +652,6 @@ export var tns = function(options) {
         classInner = 'tns-inner',
         hasGutter = checkOption('gutter');
 
-    // if (horizontal) {
-    //   carousel && !hasEdgePadding && (!hasGutter || !fixedWidth) ? 
-    //     classInner += ovhC : 
-    //     classOuter += ovhC;
-    // }
-
     outerWrapper.className = classOuter;
     innerWrapper.className = classInner;
     innerWrapper.id = slideId + '-iw';
@@ -1132,8 +1126,22 @@ export var tns = function(options) {
       items = getOption('items');
       slideBy = getOption('slideBy');
       disable = getOption('disable');
-    if (hasRightDeadZone) { needContainerTransform = true; }
-      freeze = disable ? true : freezable ? !fixedWidth && !autoWidth ? slideCount <= items : !rightBoundary : false;
+      if (hasRightDeadZone) { needContainerTransform = true; }
+      // freeze = disable ? true : freezable ? !fixedWidth && !autoWidth ? slideCount <= items : slidePositions[slideCount] <= vpInner : false;
+      if (disable) {
+        freeze = true;
+      } else if (!freezable) {
+        freeze = false;
+      } else if (!fixedWidth && !autoWidth) {
+        freeze = slideCount <= items;
+      } else {
+        if (loop) {
+          var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
+          freeze = width - gutter <= vpInner;
+        } else {
+          freeze = !rightBoundary;
+        }
+      }
 
       if (items !== itemsTem) {
         if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
@@ -1149,7 +1157,7 @@ export var tns = function(options) {
       if (freeze !== freezeTem) {
         // reset container transforms
         if (freeze) {
-          doContainerTransformSilent(0);
+          doContainerTransform(getContainerTransformValue(!carousel ? 0 : cloneCount));
         } else {
           needContainerTransform = true;
         }
@@ -1776,17 +1784,18 @@ export var tns = function(options) {
     return result;
   }
 
-  function getContainerTransformValue () {
+  function getContainerTransformValue (num) {
+    if (num == null) { num = index; }
     var val;
     if (horizontal && !autoWidth) {
       if (fixedWidth) {
-        val = - (fixedWidth + gutter) * index;
+        val = - (fixedWidth + gutter) * num;
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
-        val = - index * 100 / denominator;
+        val = - num * 100 / denominator;
       }
     } else {
-      val = - slidePositions[index];
+      val = - slidePositions[num];
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }

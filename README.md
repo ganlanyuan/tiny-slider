@@ -83,7 +83,7 @@ via [cdnjs](https://cdnjs.com/libraries/tiny-slider):
 Or import it via `webpack` or `rollup`:
 ```javascript
 // yourScript.js
-import { tns } from "path/to/tiny-slider/src/tiny-slider.module"
+import { tns } from "path/to/tiny-slider/src/tiny-slider"
 ```
 
 #### 2. Add markup
