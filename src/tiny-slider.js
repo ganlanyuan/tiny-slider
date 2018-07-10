@@ -234,7 +234,6 @@ export var tns = function(options) {
       slideItems = container.children,
       slideCount = slideItems.length,
       vpOuter = getViewportWidth(containerParent),
-      vpInner,
       responsive = options.responsive,
       responsiveItems = [],
       breakpoints = false,
@@ -261,13 +260,14 @@ export var tns = function(options) {
     setBreakpointZone();
   } 
 
-  var items = Math.floor(getOption('items')),
-      slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
-      nested = options.nested,
-      gutter = getOption('gutter'),
-      edgePadding = getOption('edgePadding'),
+  var nested = options.nested,
       autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
+      edgePadding = getOption('edgePadding'),
+      gutter = getOption('gutter'),
+      vpInner = getViewportWidthInner(),
+      items = !autoWidth ? Math.floor(getOption('items')) : null,
+      slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
       viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
@@ -307,7 +307,7 @@ export var tns = function(options) {
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
       freezable = options.freezable,
-      freeze = disable ? true : freezable ? slideCount <= items : false,
+      freeze = getFreeze(),
       frozen,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
@@ -507,9 +507,7 @@ export var tns = function(options) {
   }
 
   function getViewportWidthInner () {
-    if (!edgePadding) { return vpOuter; }
-    // ? check for autoWidth
-    return !fixedWidth ? vpOuter - (edgePadding * 2 + gutter) : vpOuter - getFixedWidthEdgePadding(fixedWidth, gutter) * 2;
+    return edgePadding ? vpOuter - (edgePadding * 2 - gutter) : vpOuter;
   }
 
   function checkOption (item) {
@@ -534,8 +532,18 @@ export var tns = function(options) {
     if (!carousel && item in obj) {
       result = obj[item];
     } else {
-      if (item === 'items' && getOption('fixedWidth')) {
-        result = Math.floor(vpOuter / (getOption('fixedWidth') + getOption('gutter')));
+      if (item === 'items' && (fixedWidth || autoWidth)) {
+        if (fixedWidth) {
+          result = Math.floor(vpInner / (fixedWidth + gutter));
+        } else {
+          var i = cloneCount,
+              l = cloneCount + slideCount,
+              base = slidePositions[cloneCount];
+          while (i < l && (slidePositions[i] - base) <= vpInner) {
+            i++;
+            result = i;
+          }
+        }
       } else if (item === 'autoHeight' && nested === 'outer') {
         result = true;
       } else {
@@ -564,23 +572,15 @@ export var tns = function(options) {
       i * 100 / slideCountNew + '%';
   }
 
-  function getFixedWidthEdgePadding (fixedWidthTem, gutterTem) {
-    return (vpOuter%(fixedWidthTem + gutterTem) + gutterTem) / 2;
-  }
-
   function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
     var str = '';
 
     if (edgePaddingTem) {
       var gap = edgePaddingTem;
       if (gutterTem) { gap -= gutterTem; }
-      if (fixedWidthTem) {
-        str = 'margin: 0px ' + getFixedWidthEdgePadding(fixedWidthTem, gutterTem) + 'px;';
-      } else {
-        str = horizontal ?
-          'margin: 0 ' + gap + 'px 0 ' + edgePaddingTem + 'px;' :
-          'margin: ' + edgePaddingTem + 'px 0 ' + gap + 'px 0;';
-      }
+      str = horizontal ?
+        'margin: 0 ' + gap + 'px 0 ' + edgePaddingTem + 'px;' :
+        'margin: ' + edgePaddingTem + 'px 0 ' + gap + 'px 0;';
     } else if (gutterTem && !fixedWidthTem) {
       var gutterTemUnit = '-' + gutterTem + 'px',
           dir = horizontal ? gutterTemUnit + ' 0 0' : '0 ' + gutterTemUnit + ' 0';
@@ -678,8 +678,6 @@ export var tns = function(options) {
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
 
-    // get inner viewport width 
-    vpInner = getViewportWidthInner();
     if (fixedWidth) {
       rightBoundary = getRightBoundary();
       indexMax = getIndexMax();
@@ -756,6 +754,7 @@ export var tns = function(options) {
             getSlidePositions();
             lazyLoad();
             if (autoWidth) {
+              items = getOption('items');
               rightBoundary = getRightBoundary();
               indexMax = getIndexMax();
             }
@@ -858,7 +857,7 @@ export var tns = function(options) {
             innerWrapperStr = '',
             containerStr = '',
             slideStr = '',
-            itemsBP = getOption('items', bp),
+            itemsBP = !autoWidth ? getOption('items', bp) : null,
             fixedWidthBP = getOption('fixedWidth', bp),
             speedBP = getOption('speed', bp),
             edgePaddingBP = getOption('edgePadding', bp),
@@ -1063,7 +1062,6 @@ export var tns = function(options) {
 
     if (!autoWidth) { lazyLoad(); }
     toggleSlideDisplayAndEdgePadding();
-    updateFixedWidthInnerWrapperStyle();
 
     events.on('indexChanged', additionalUpdates);
 
@@ -1091,12 +1089,16 @@ export var tns = function(options) {
     if (nested === 'outer') { events.emit('outerResized', info(e)); }
 
     var breakpointZoneTem = breakpointZone,
+        edgePaddingTem = edgePadding,
+        gutterTem = gutter,
         indexTem = index, 
         itemsTem = items,
         freezeTem = freeze,
         needContainerTransform = false;
 
     vpOuter = getViewportWidth(outerWrapper);
+    edgePadding = getOption('edgePadding');
+    gutter = getOption('gutter');
     vpInner = getViewportWidthInner();
     if (breakpoints) { setBreakpointZone(); }
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
@@ -1118,8 +1120,6 @@ export var tns = function(options) {
           arrowKeysTem = arrowKeys,
           autoHeightTem = autoHeight,
           fixedWidthTem = fixedWidth,
-          edgePaddingTem = edgePadding,
-          gutterTem = gutter,
           disableTem = disable;
 
       // update variables
@@ -1127,21 +1127,7 @@ export var tns = function(options) {
       slideBy = getOption('slideBy');
       disable = getOption('disable');
       if (hasRightDeadZone) { needContainerTransform = true; }
-      // freeze = disable ? true : freezable ? !fixedWidth && !autoWidth ? slideCount <= items : slidePositions[slideCount] <= vpInner : false;
-      if (disable) {
-        freeze = true;
-      } else if (!freezable) {
-        freeze = false;
-      } else if (!fixedWidth && !autoWidth) {
-        freeze = slideCount <= items;
-      } else {
-        if (loop) {
-          var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
-          freeze = width - gutter <= vpInner;
-        } else {
-          freeze = !rightBoundary;
-        }
-      }
+      freeze = getFreeze();
 
       if (items !== itemsTem) {
         if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
@@ -1167,8 +1153,6 @@ export var tns = function(options) {
       
       if (breakpointZoneTem !== breakpointZone) {
         speed = getOption('speed');
-        edgePadding = getOption('edgePadding');
-        gutter = getOption('gutter');
 
         fixedWidth = getOption('fixedWidth');
         if (!disable && fixedWidth !== fixedWidthTem) {
@@ -1330,8 +1314,6 @@ export var tns = function(options) {
       }
     }
 
-    updateFixedWidthInnerWrapperStyle(true);
-
     if (needContainerTransform) {
       doContainerTransformSilent();
       indexCached = index;
@@ -1348,6 +1330,23 @@ export var tns = function(options) {
 
 
   // === INITIALIZATION FUNCTIONS === //
+  function getFreeze () {
+    if (disable) {
+      return true;
+    } else if (!freezable) {
+      return false;
+    } else if (!fixedWidth && !autoWidth) {
+      return slideCount <= items;
+    } else {
+      if (loop) {
+        var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
+        return width - gutter <= vpInner;
+      } else {
+        return !rightBoundary;
+      }
+    }
+  }
+
   function setBreakpointZone () {
     breakpointZone = 0;
     breakpoints.forEach(function(bp, i) {
@@ -1420,7 +1419,7 @@ export var tns = function(options) {
     } else if (frozen) {
       // restore edge padding for inner wrapper
       // for mordern browsers
-      if (edgePadding && !fixedWidth && CSSMQ) { innerWrapper.style.margin = ''; }
+      if (edgePadding && CSSMQ) { innerWrapper.style.margin = ''; }
 
       // remove class tns-transparent to cloned slides
       if (cloneCount) {
@@ -1431,18 +1430,6 @@ export var tns = function(options) {
       }
 
       frozen = false;
-    }
-  }
-
-  function updateFixedWidthInnerWrapperStyle (resize) {
-    if (fixedWidth && edgePadding) {
-      // remove edge padding when freeze or viewport narrower than one slide
-      if (freeze || vpOuter <= (fixedWidth + gutter)) {
-        if (innerWrapper.style.margin !== '0px') { innerWrapper.style.margin = '0px'; }
-      // update edge padding on resize
-      } else if (resize) {
-        innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
-      }
     }
   }
 
@@ -2392,10 +2379,11 @@ export var tns = function(options) {
                 index = indexMax;
               } else {
                 var i = 0;
-                do {
+                while (i < slideCountNew && moved >= slidePositions[i]) {
+                  index = i;
+                  if (moved > slidePositions[i] && dist < 0) { index += 1; }
                   i++;
-                  index = dist < 0 ? i + 1 : i;
-                } while (i < slideCountNew && moved >= slidePositions[i + 1]);
+                }
               }
             }
 
