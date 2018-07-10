@@ -127,9 +127,9 @@ $perpage: 3;
   }
   &-ct {
     width: (100% * $count / $perpage);
-    width: -webkit-calc(100% * $count / $perpage);
-    width: -moz-calc(100% * $count / $perpage);
-    width: calc(100% * $count / $perpage);
+    width: -webkit-calc(100% * #{$count} / #{$perpage});
+    width: -moz-calc(100% * #{$count} / #{$perpage});
+    width: calc(100% * #{$count} / #{$perpage});
     position: absolute;
     right: 0;
     &:after {
@@ -139,9 +139,9 @@ $perpage: 3;
     }
     > div {
       width: (100% / $count);
-      width: -webkit-calc(100% / $count);
-      width: -moz-calc(100% / $count);
-      width: calc(100% / $count);
+      width: -webkit-calc(100% / #{$count});
+      width: -moz-calc(100% / #{$count});
+      width: calc(100% / #{$count});
       height: $height;
       float: left;
     }
