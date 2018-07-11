@@ -496,7 +496,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// Version: 2.8.0
+// Version: 2.8.1
 
 var tns = function(options) {
   options = extend({
