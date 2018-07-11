@@ -719,6 +719,7 @@ var tns = function(options) {
     setBreakpointZone();
   } 
 
+  // fixedWidth: vpOuter > vpInner > rightBoundary > indexMax
   var nested = options.nested,
       autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
@@ -741,7 +742,7 @@ var tns = function(options) {
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = (fixedWidth || autoWidth) && !loop ? true : false,
-      rightBoundary,
+      rightBoundary = fixedWidth ? getRightBoundary() : null,
       updateIndexBeforeTransform = (!carousel || !loop) ? true : false,
       // transform
       transformAttr = horizontal ? 'left' : 'top',
@@ -752,7 +753,7 @@ var tns = function(options) {
       index = startIndex ? updateStartIndex(startIndex) : !carousel ? 0 : cloneCount,
       indexCached = index,
       indexMin = 0,
-      indexMax = !fixedWidth && !autoWidth ? getIndexMax() : null,
+      indexMax = !autoWidth ? getIndexMax() : null,
       // resize
       resizeTimer,
       swipeAngle = options.swipeAngle,
@@ -766,7 +767,7 @@ var tns = function(options) {
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
       freezable = options.freezable,
-      freeze = getFreeze(),
+      freeze = !autoWidth ? getFreeze() : null,
       frozen,
       importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
@@ -796,7 +797,7 @@ var tns = function(options) {
       },
       hasControls = checkOption('controls'),
       hasNav = checkOption('nav'),
-      navAsThumbnails = options.navAsThumbnails,
+      navAsThumbnails = autoWidth ? true : options.navAsThumbnails,
       hasAutoplay = checkOption('autoplay'),
       hasTouch = checkOption('touch'),
       hasMouseDrag = checkOption('mouseDrag'),
@@ -891,20 +892,24 @@ var tns = function(options) {
 
   }
 
+  sliderInit();
+
   // === COMMON FUNCTIONS === //
   function getIndexMax () {
     if (!fixedWidth && !autoWidth) {
       return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
-    } else if (fixedWidth) {
-      return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1;
-    } else if (autoWidth) {
-      var i = slideCountNew - 1,
+    } else {
+      if (fixedWidth) {
+        return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1;
+      } else {
+        var i = slideCountNew - 1,
+            result = i;
+        while (slidePositions[i] > - rightBoundary) {
+          i--;
           result = i;
-      while (slidePositions[i] > - rightBoundary) {
-        i--;
-        result = i;
+        }
+        return result;
       }
-      return result;
     }
   }
 
@@ -991,18 +996,8 @@ var tns = function(options) {
     if (!carousel && item in obj) {
       result = obj[item];
     } else {
-      if (item === 'items' && (fixedWidth || autoWidth)) {
-        if (fixedWidth) {
-          result = Math.floor(vpInner / (fixedWidth + gutter));
-        } else {
-          var i = cloneCount,
-              l = cloneCount + slideCount,
-              base = slidePositions[cloneCount];
-          while (i < l && (slidePositions[i] - base) <= vpInner) {
-            i++;
-            result = i;
-          }
-        }
+      if (item === 'items' && fixedWidth) {
+        result = Math.floor(vpInner / (fixedWidth + gutter));
       } else if (item === 'autoHeight' && nested === 'outer') {
         result = true;
       } else {
@@ -1106,7 +1101,7 @@ var tns = function(options) {
     return getCSSPrefix(ANIMATIONDURATION, 17) + 'animation-duration:' + speed / 1000 + 's;';
   }
 
-  (function sliderInit () {
+  function sliderInit () {
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
         hasGutter = checkOption('gutter');
@@ -1137,11 +1132,6 @@ var tns = function(options) {
     containerParent.insertBefore(outerWrapper, container);
     innerWrapper.appendChild(container);
 
-    if (fixedWidth) {
-      rightBoundary = getRightBoundary();
-      indexMax = getIndexMax();
-    }
-
     // add events
     if (carousel && TRANSITIONEND) {
       var eve = {};
@@ -1162,8 +1152,10 @@ var tns = function(options) {
       });
     }
 
-    // clone slides
-    if (loop || edgePadding) {
+    // ## clone slides
+    // carousel: n + slides + n
+    // gallery:      slides + n
+    if (cloneCount) {
       var fragmentBefore = doc.createDocumentFragment(), 
           fragmentAfter = doc.createDocumentFragment();
 
@@ -1185,12 +1177,11 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
-    // check images loading
+    // ## images loaded/failed
     if (checkOption('autoHeight') || !carousel || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
-      // check all image complete status
-      // add complete class if true
+      // add complete class if all images are loaded/failed
       forEachNodeList(imgs, function(img) {
         var src = img.src;
 
@@ -1203,20 +1194,26 @@ var tns = function(options) {
         }
       });
 
-      // set imgsComplete to true 
-      // when all images are compulete (loaded or error)
       raf(function(){ imageLoaded(arrayFromNodeList(imgs), function() {
+        // set imgsComplete to true
         imgsComplete = true;
 
+        // run Fn()s which are rely on image loading
         if (!disable) {
           if (!horizontal || autoWidth) {
             getSlidePositions();
             lazyLoad();
+
             if (autoWidth) {
               items = getOption('items');
               rightBoundary = getRightBoundary();
+              freeze = getFreeze();
               indexMax = getIndexMax();
+
+              // update slider UI
+              initUI();
             }
+
             if (!horizontal) { updateContentWrapperHeight(); }
           }
 
@@ -1230,6 +1227,11 @@ var tns = function(options) {
 
     if (carousel && horizontal && !autoWidth) { doContainerTransformSilent(); }
 
+    initSheet();
+    if (!autoWidth) { initUI(); }
+  }
+
+  function initSheet () {
     // activate visible slides
     // add aria attrs
     // set animation classes and left value for gallery slider
@@ -1360,8 +1362,9 @@ var tns = function(options) {
         }
       });
     }
+  }
 
-
+  function initUI () {
     // == msInit ==
     // for IE10
     if (navigator.msMaxTouchPoints) {
@@ -1530,7 +1533,7 @@ var tns = function(options) {
     if (disable) { disableSlider(true); }
 
     isOn = true;
-  })();
+  }
 
 
 
