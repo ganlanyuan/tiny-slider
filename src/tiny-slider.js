@@ -790,16 +790,24 @@ export var tns = function(options) {
       }
     }
 
+    // #### LAYOUT
+
+    // ## INLINE-BLOCK VS FLOAT
+
+    // ## PercentageLayout:
+    // slides: inline-block
+    // remove blank space between slides by set font-size: 0
+
+    // ## Non PercentageLayout:
+    // slides: float
+    //         margin-right: -100%
+    //         margin-left: ~
+
+    // Resource: https://docs.google.com/spreadsheets/d/147up245wwTXeQYve3BRSAD4oVcvQmuGsFteJOeA5xNQ/edit?usp=sharing
     if (carousel && horizontal) {
-      // set font-size rules
-      // for modern browsers
       if (PERCENTAGELAYOUT || autoWidth) {
-        // set slides font-size first
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
-
-      // slide left margin
-      // for IE8, MS Edge & webkit browsers (no subpixel)
       } else {
         forEachNodeList(slideItems, function (slide, i) {
           slide.style.marginLeft = getSlideMarginLeft(i);
@@ -807,7 +815,8 @@ export var tns = function(options) {
       }
     }
 
-    // all browsers which support CSS transitions support CSS media queries
+
+    // ## BASIC STYLES
     if (CSSMQ) {
       // inner wrapper styles
       var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed);
@@ -851,7 +860,7 @@ export var tns = function(options) {
       if (str) { addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet)); }
     }
 
-    // media queries
+    // ## MEDIAQUERIES
     if (responsive && CSSMQ) {
       breakpoints.forEach(function(bp) {
         var opts = responsive[bp],
