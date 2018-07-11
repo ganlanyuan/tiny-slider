@@ -806,11 +806,9 @@ function testFixedWidthEdgePadding() {
 
   addTitle(id);
   runTest('Slides: edge padding', function () {
-    var slideItems = info.slideItems,
-        cloneCount = info.cloneCount,
-        items = info.items;
+    var innerWrapper = info.container.parentNode;
 
-    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right);
+    return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
 }
 
@@ -821,14 +819,9 @@ function testFixedWidthEdgePaddingGutter() {
 
   addTitle(id);
   runTest('Slides: edge padding', function () {
-    var slideItems = info.slideItems,
-        cloneCount = info.cloneCount,
-        items = info.items;
+    var innerWrapper = info.container.parentNode;
 
-    // alert(items);
-    // alert(slideItems[cloneCount].getBoundingClientRect().left);
-    // alert(windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
-    return compare2Nums(slideItems[cloneCount].getBoundingClientRect().left, windowWidth - slideItems[cloneCount + items - 1].getBoundingClientRect().right + gutter);
+    return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
 }
 
@@ -1436,16 +1429,17 @@ function testResponsive5() {
 function testResponsive6() {
   var responsive6Tests = function () {
     var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-      var assertionEdgePadding, assertionControlsNav, assertionControlsClick, doc, wrapper, container, controls, nav, child0, child1, childL, prevButton, nextButton, viewport, edge;
+      var assertionEdgePadding, assertionControlsNav, assertionControlsClick, doc, wrapper, innerWrapper, container, controls, nav, child0, child1, childL, prevButton, nextButton, viewport;
       return regeneratorRuntime.wrap(function _callee7$(_context7) {
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
               _context7.prev = 0;
-              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '_wrapper'), container = doc.querySelector('#' + id), controls = wrapper.querySelector('.tns-controls'), nav = wrapper.querySelector('.tns-nav'), child0 = container.children[0], child1 = container.children[1], childL = container.children[container.children.length - 1], prevButton = controls.children[0], nextButton = controls.children[1];
-              viewport = wrapper.clientWidth, edge = (viewport - fixedWidth) / 2;
+              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '_wrapper'), innerWrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), controls = wrapper.querySelector('.tns-controls'), nav = wrapper.querySelector('.tns-nav'), child0 = container.children[0], child1 = container.children[1], childL = container.children[container.children.length - 1], prevButton = controls.children[0], nextButton = controls.children[1];
 
-              assertionEdgePadding = child0.getBoundingClientRect().left === edge && child0.getBoundingClientRect().right === viewport - (edge - gutter);
+
+              viewport = wrapper.clientWidth;
+              assertionEdgePadding = child0.getBoundingClientRect().left === edgepadding && child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
 
               // go to the second slide
               nextButton.click();
@@ -1453,72 +1447,58 @@ function testResponsive6() {
               return wait(1000);
 
             case 7:
-              viewport = wrapper.clientWidth, edge = (viewport - fixedWidth) / 2;
-
-              assertionControlsClick = child1.getBoundingClientRect().left === edge && child1.getBoundingClientRect().right === viewport - (edge - gutter);
 
               // resize window
               newWindow.style.width = slideWidth * 2 + 100 + 'px';
-              _context7.next = 12;
+              _context7.next = 10;
               return wait(1000);
 
-            case 12:
+            case 10:
               if (assertionEdgePadding) {
                 assertionEdgePadding = child0.getBoundingClientRect().left === 0;
               }
               assertionControlsNav = getComputedStyle(controls, null).display === 'none' && getComputedStyle(nav, null).display === 'none';
 
               // resize window
-              newWindow.style.width = slideWidth + 100 + 'px';
-              _context7.next = 17;
+              newWindow.style.width = slideWidth + edgepadding * 2 - gutter + 'px';
+              _context7.next = 15;
               return wait(1000);
 
-            case 17:
+            case 15:
               if (assertionEdgePadding) {
-                viewport = wrapper.clientWidth, edge = (viewport - fixedWidth) / 2;
-
-                assertionEdgePadding = child1.getBoundingClientRect().left === edge && child1.getBoundingClientRect().right === viewport - (edge - gutter);
+                viewport = wrapper.clientWidth;
+                assertionEdgePadding = child1.getBoundingClientRect().left === edgepadding + gutter && child1.getBoundingClientRect().right === viewport - (edgepadding - gutter * 2);
               }
               if (assertionControlsNav) {
                 assertionControlsNav = getComputedStyle(controls, null).display !== 'none' && getComputedStyle(nav, null).display !== 'none';
               }
 
-              // resize window
-              newWindow.style.width = fixedWidth - 20 + 'px';
-              _context7.next = 22;
-              return wait(1000);
-
-            case 22:
-              if (assertionEdgePadding) {
-                assertionEdgePadding = child1.getBoundingClientRect().left === 0;
-              }
-
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
               updateTest(testControlsClickT, assertionControlsClick);
-              _context7.next = 33;
+              _context7.next = 27;
               break;
 
-            case 28:
-              _context7.prev = 28;
+            case 22:
+              _context7.prev = 22;
               _context7.t0 = _context7['catch'](0);
 
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
               updateTest(testControlsClickT, assertionControlsClick);
 
-            case 33:
-              _context7.prev = 33;
+            case 27:
+              _context7.prev = 27;
 
               document.body.removeChild(newWindow);
-              return _context7.finish(33);
+              return _context7.finish(27);
 
-            case 36:
+            case 30:
             case 'end':
               return _context7.stop();
           }
         }
-      }, _callee7, this, [[0, 28, 33, 36]]);
+      }, _callee7, this, [[0, 22, 27, 30]]);
     }));
 
     return function responsive6Tests() {
@@ -1540,7 +1520,7 @@ function testResponsive6() {
       newWindow = document.createElement('iframe');
 
   newWindow.setAttribute('frameBorder', '0');
-  newWindow.style.cssText = 'width: ' + (slideWidth + 100) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.style.cssText = 'width: ' + (slideWidth + edgepadding * 2 - gutter) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + '.html';
 
   if (newWindow.addEventListener) {
