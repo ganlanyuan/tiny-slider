@@ -1374,13 +1374,6 @@ var tns = function(options) {
   }
 
   function initUI () {
-    // == msInit ==
-    // for IE10
-    if (navigator.msMaxTouchPoints) {
-      addClass(container, 'ms-touch');
-      addEvents(container, {'scroll': ie10Scroll});
-      setSnapInterval();
-    }
 
     // == autoplayInit ==
     if (hasAutoplay) {
@@ -2091,11 +2084,6 @@ var tns = function(options) {
     }
   }
 
-  // set snapInterval (for IE10)
-  function setSnapInterval () {
-    outerWrapper.style.msScrollSnapPointsX = 'snapInterval(0%, ' + (100 / items) + '%)';
-  }
-
   // update slide
   function updateSlideStatus () {
     var l = index + Math.min(slideCount, items);
@@ -2714,12 +2702,6 @@ var tns = function(options) {
         goTo(navIndex + cloneCount, e);
         break;
     }
-  }
-
-  // IE10 scroll function
-  function ie10Scroll () {
-    transformCore(0, container.scrollLeft);
-    indexCached = index;
   }
 
   function getEvent (e) {

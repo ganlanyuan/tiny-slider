@@ -5,14 +5,6 @@
   [hidden] { display: none !important; }
   [aria-controls], [data-action] { cursor: pointer; }
 }
-.ms-touch {
-  overflow-x: scroll;
-  overflow-y: hidden;
-  -ms-overflow-style: none; // Hides the scrollbar.
-  -ms-scroll-chaining: none; // Prevents Metro from swiping to the next tab or app.
-  -ms-scroll-snap-type: mandatory; // Forces a snap scroll behavior on your images.
-  -ms-scroll-snap-points-x: snapInterval(0%, 100%); // Defines the y and x intervals to snap to when scrolling.
-}
 .tns-slider {
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
@@ -24,30 +16,31 @@
   }
 }
 
-.tns-horizontal.tns-subpixel {
-  white-space: nowrap;
-  > div, > li {
-    display: inline-block;
-    vertical-align: top;
-    white-space: normal;
+.tns-horizontal {
+  &.tns-subpixel {
+    white-space: nowrap;
+    > div, > li {
+      display: inline-block;
+      vertical-align: top;
+      white-space: normal;
+    }
   }
-}
-.tns-horizontal.tns-no-subpixel {
-  &:after {
-    content: '';
-    display: table;
-    clear: both;
-  }
-  > div, > li {
-    float: left;
-    margin-right: -100%;
+  &.tns-no-subpixel {
+    &:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+    > div, > li {
+      float: left;
+      margin-right: -100%;
+    }
   }
 }
 .tns-no-calc {
   position: relative;
   left: 0;
 }
-
 .tns-gallery {
   position: relative;
   left: 0;
@@ -79,8 +72,6 @@
   transition: height 0s;
 }
 .tns-ovh { overflow: hidden; }
-.tns-hdx { overflow-x: hidden; }
-.tns-hdy { overflow-y: hidden; }
 .tns-visually-hidden { position: absolute; left: -10000em; }
 .tns-transparent { opacity: 0; visibility: hidden; }
 
@@ -97,21 +88,6 @@
 
 
 // *** Detecting browser capability ***
-// Check calc() capability / IE Edge browsers
-// .tns-t-subp1 {
-//   width: 10px;
-//   &:after {
-//     content: '';
-//     display: table;
-//     clear: both;
-//   }
-//   > div {
-//     float: left;
-//     width: 5.5px;
-//     height: 10px;
-//   }
-// }
-
 $width: 310px;
 $height: 10px;
 $count: 70;
