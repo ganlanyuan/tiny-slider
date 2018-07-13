@@ -1,30 +1,4 @@
 var tns = (function (){
-// keys
-if (!Object.keys) {
-    Object.keys = function (object) {
-        var keys = [];
-        for (var name in object) {
-            if (Object.prototype.hasOwnProperty.call(object, name)) {
-                keys.push(name);
-            }
-        }
-        return keys;
-    };
-}
-
-// ChildNode.remove
-(function () {
-  "use strict";
-
-  if(!("remove" in Element.prototype)){
-    Element.prototype.remove = function(){
-      if(this.parentNode) {
-        this.parentNode.removeChild(this);
-      }
-    };
-  }
-})();
-
 var win = window;
 
 var raf = win.requestAnimationFrame
@@ -76,6 +50,19 @@ function getSlideId() {
   
   return 'tns' + window.tnsId;
 }
+
+// ChildNode.remove
+(function () {
+  "use strict";
+
+  if(!("remove" in Element.prototype)){
+    Element.prototype.remove = function(){
+      if(this.parentNode) {
+        this.parentNode.removeChild(this);
+      }
+    };
+  }
+})();
 
 function getBody () {
   var doc = document,
@@ -497,6 +484,28 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 }
 
 // Version: 2.8.1
+
+// helper functions
+// import './helpers/keys.js';
+if (!Object.keys) {
+    Object.keys = function (object) {
+        var keys = [];
+        for (var name in object) {
+            if (Object.prototype.hasOwnProperty.call(object, name)) {
+                keys.push(name);
+            }
+        }
+        return keys;
+    };
+}
+// import './helpers/childNode.remove.js';
+if(!("remove" in Element.prototype)){
+  Element.prototype.remove = function(){
+    if(this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  };
+}
 
 var tns = function(options) {
   options = extend({

@@ -1,4 +1,4 @@
-import { docElement } from './docElement';
+import { docElement } from './docElement.js';
 
 export function setFakeBody (body) {
   var docOverflow = '';

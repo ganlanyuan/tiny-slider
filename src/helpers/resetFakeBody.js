@@ -1,5 +1,4 @@
-import './childNode.remove';
-import { docElement } from './docElement';
+import { docElement } from './docElement.js';
 
 export function resetFakeBody (body, docOverflow) {
   if (body.fake) {
