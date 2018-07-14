@@ -2743,8 +2743,9 @@ var tns = function(options) {
       var $ = getEvent(e);
       lastPosition.x = parseInt($.clientX);
       lastPosition.y = parseInt($.clientY);
+      
+      if (carousel && !rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
     }
-    if (carousel && !rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
   }
 
   function panUpdate (e) {
