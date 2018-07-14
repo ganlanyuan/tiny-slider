@@ -85,10 +85,10 @@ export var tns = function(options) {
     autoplayButton: false,
     autoplayButtonOutput: true,
     autoplayResetOnVisibility: true,
-    // animateIn: 'tns-fadeIn',
-    // animateOut: 'tns-fadeOut',
-    // animateNormal: 'tns-normal',
-    // animateDelay: false,
+    animateIn: 'tns-fadeIn',
+    animateOut: 'tns-fadeOut',
+    animateNormal: 'tns-normal',
+    animateDelay: false,
     loop: true,
     rewind: false,
     autoHeight: false,
@@ -230,16 +230,10 @@ export var tns = function(options) {
     options.axis = 'horizontal';
     options.edgePadding = false;
 
-    var animateIn = 'tns-fadeIn',
-        animateOut = 'tns-fadeOut',
-        animateDelay = false,
-        animateNormal = options.animateNormal || 'tns-normal';
-
-    if (TRANSITIONEND && ANIMATIONEND) {
-      animateIn = options.animateIn || animateIn;
-      animateOut = options.animateOut || animateOut;
-      animateDelay = options.animateDelay || animateDelay;
-    }
+    var animateIn = options.animateIn,
+        animateOut = options.animateOut,
+        animateDelay = options.animateDelay,
+        animateNormal = options.animateNormal;
   }
 
   var horizontal = options.axis === 'horizontal' ? true : false,
@@ -251,7 +245,6 @@ export var tns = function(options) {
       slideCount = slideItems.length,
       vpOuter = getViewportWidth(containerParent),
       responsive = options.responsive,
-      responsiveItems = [],
       breakpoints = false,
       breakpointZone = 0,
       windowWidth = getWindowWidth(),
@@ -262,16 +255,6 @@ export var tns = function(options) {
     breakpoints = Object.keys(responsive)
       .map(function (x) { return parseInt(x); })
       .sort(function (a, b) { return a - b; });
-
-    // get all responsive items
-    breakpoints.forEach(function(bp) {
-      responsiveItems = responsiveItems.concat(Object.keys(responsive[bp]));
-    });
-
-    // remove duplicated items
-    var arr = [];
-    responsiveItems.forEach(function (item) { if (arr.indexOf(item) < 0) { arr.push(item); } });
-    responsiveItems = arr;
 
     setBreakpointZone();
   } 
@@ -326,7 +309,6 @@ export var tns = function(options) {
       freezable = options.freezable,
       freeze = !autoWidth ? getFreeze() : null,
       frozen,
-      importantStr = nested === 'inner' ? ' !important' : '',
       controlsEvents = {
         'click': onControlsClick,
         'keydown': onControlsKeydown
@@ -498,7 +480,7 @@ export var tns = function(options) {
 
       if (fixedWidth || options[str] < slideCount) { arr.push(options[str]); }
 
-      if (breakpoints && responsiveItems.indexOf(str) >= 0) {
+      if (breakpoints) {
         breakpoints.forEach(function(bp) {
           var tem = responsive[bp][str];
           if (tem && (fixedWidth || tem < slideCount)) { arr.push(tem); }
@@ -532,13 +514,16 @@ export var tns = function(options) {
   }
 
   function checkOption (item) {
-    var result = options[item];
-    if (!result && breakpoints && responsiveItems.indexOf(item) >= 0) {
-      breakpoints.forEach(function (bp) {
-        if (responsive[bp][item]) { result = true; }
-      });
+    if (options[item]) {
+      return true;
+    } else {
+      if (breakpoints) {
+        breakpoints.forEach(function (bp) {
+          if (responsive[bp][item]) { return true; }
+        });
+      }
+      return false;
     }
-    return result;
   }
 
   function getOption (item, viewport) {
@@ -560,13 +545,12 @@ export var tns = function(options) {
       } else {
         result = options[item];
 
-        if (breakpoints && responsiveItems.indexOf(item) >= 0) {
-          for (var i = 0, len = breakpoints.length; i < len; i++) {
-            var bp = breakpoints[i];
+        if (breakpoints) {
+          breakpoints.forEach(function(bp) {
             if (viewport >= bp) {
               if (item in responsive[bp]) { result = responsive[bp][item]; }
-            } else { break; }
-          }
+            }
+          });
         }
       }
     }
@@ -626,7 +610,10 @@ export var tns = function(options) {
         100 / dividend + '%';
     }
 
-    return 'width:' + width + importantStr + ';';
+    width = 'width:' + width;
+
+    // inner slider: overwrite outer slider styles
+    return nested !== 'inner' ? width + ';' : width + ' !important;';
   }
 
   function getSlideGutterStyle (gutterTem) {
@@ -766,6 +753,10 @@ export var tns = function(options) {
               rightBoundary = getRightBoundary();
               freeze = getFreeze();
               indexMax = getIndexMax();
+
+              if (freeze) {
+                controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+              }
 
               // update slider UI
               initUI();
