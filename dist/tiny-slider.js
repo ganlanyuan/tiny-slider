@@ -2280,25 +2280,23 @@ var tns = function(options) {
   // 2. change 'left' property for legacy browsers
   var transformCore = (function () {
     return carousel ?
-      function (duration, distance) {
-        if (duration == null) { duration = speed; }
-        if (TRANSITIONDURATION || !duration) {
+      function () {
+        if (TRANSITIONDURATION || !speed) {
           // for morden browsers with non-zero duration or 
           // zero duration for all browsers
-          doContainerTransform(distance);
+          doContainerTransform();
           // run fallback function manually 
           // when duration is 0 / container is hidden
-          if (!duration || !isVisible(container)) { onTransitionEnd(); }
+          if (!speed || !isVisible(container)) { onTransitionEnd(); }
 
         } else {
           // for old browser with non-zero duration
-          jsTransform(container, transformAttr, transformPrefix, transformPostfix, distance, speed, onTransitionEnd);
+          jsTransform(container, transformAttr, transformPrefix, transformPostfix, getContainerTransformValue(), speed, onTransitionEnd);
         }
 
         if (!horizontal) { updateContentWrapperHeight(); }
       } :
-      function (duration) {
-        if (duration == null) { duration = speed; }
+      function () {
         slideItemsOut = [];
 
         var eve = {};
@@ -2311,13 +2309,12 @@ var tns = function(options) {
 
         // run fallback function manually 
         // when transition or animation not supported / duration is 0
-        if (!TRANSITIONEND || !ANIMATIONEND || !duration || !isVisible(container)) { onTransitionEnd(); }
+        if (!TRANSITIONEND || !ANIMATIONEND || !speed || !isVisible(container)) { onTransitionEnd(); }
       };
   })();
 
   function render (e, sliderMoved) {
     if (updateIndexBeforeTransform) { updateIndex(); }
-    // if (!carousel) { index = Math.floor(index);}
 
     // render when slider was moved (touch or drag) even though index may not change
     if (index !== indexCached || sliderMoved) {
@@ -2743,7 +2740,7 @@ var tns = function(options) {
       var $ = getEvent(e);
       lastPosition.x = parseInt($.clientX);
       lastPosition.y = parseInt($.clientY);
-      
+
       if (carousel && !rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
     }
   }
