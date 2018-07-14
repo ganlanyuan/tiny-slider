@@ -1,7 +1,6 @@
-import './childNode.remove';
-import { getBody } from './getBody';
-import { setFakeBody } from './setFakeBody';
-import { resetFakeBody } from './resetFakeBody';
+import { getBody } from './getBody.js';
+import { setFakeBody } from './setFakeBody.js';
+import { resetFakeBody } from './resetFakeBody.js';
 
 export function has3D(tf){
   if (!tf) { return false; }

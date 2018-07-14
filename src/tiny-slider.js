@@ -1,7 +1,6 @@
 // Version: 2.8.1
 
 // helper functions
-// import './helpers/keys.js';
 if (!Object.keys) {
     Object.keys = function (object) {
         var keys = [];
@@ -13,7 +12,6 @@ if (!Object.keys) {
         return keys;
     };
 }
-// import './helpers/childNode.remove.js';
 if(!("remove" in Element.prototype)){
   Element.prototype.remove = function(){
     if(this.parentNode) {

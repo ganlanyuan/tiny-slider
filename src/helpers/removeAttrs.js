@@ -1,4 +1,4 @@
-import { isNodeList } from "./isNodeList";
+import { isNodeList } from "./isNodeList.js";
 
 export function removeAttrs(els, attrs) {
   els = (isNodeList(els) || els instanceof Array) ? els : [els];

@@ -1,5 +1,5 @@
 // cross browsers addRule method
-import { raf } from './raf';
+import { raf } from './raf.js';
 export function addCSSRule(sheet, selector, rules, index) {
   // return raf(function() {
     'insertRule' in sheet ?

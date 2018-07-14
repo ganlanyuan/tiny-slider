@@ -51,19 +51,6 @@ function getSlideId() {
   return 'tns' + window.tnsId;
 }
 
-// ChildNode.remove
-(function () {
-  "use strict";
-
-  if(!("remove" in Element.prototype)){
-    Element.prototype.remove = function(){
-      if(this.parentNode) {
-        this.parentNode.removeChild(this);
-      }
-    };
-  }
-})();
-
 function getBody () {
   var doc = document,
       body = doc.body;
@@ -486,7 +473,6 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 // Version: 2.8.1
 
 // helper functions
-// import './helpers/keys.js';
 if (!Object.keys) {
     Object.keys = function (object) {
         var keys = [];
@@ -498,7 +484,6 @@ if (!Object.keys) {
         return keys;
     };
 }
-// import './helpers/childNode.remove.js';
 if(!("remove" in Element.prototype)){
   Element.prototype.remove = function(){
     if(this.parentNode) {

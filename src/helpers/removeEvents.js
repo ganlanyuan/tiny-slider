@@ -1,4 +1,4 @@
-import { passiveOption } from './passiveOption';
+import { passiveOption } from './passiveOption.js';
 
 export function removeEvents(el, obj) {
   for (var prop in obj) {

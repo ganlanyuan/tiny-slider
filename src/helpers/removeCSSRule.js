@@ -1,5 +1,5 @@
 // cross browsers addRule method
-import { raf } from './raf';
+import { raf } from './raf.js';
 export function removeCSSRule(sheet, index) {
   // return raf(function() {
     'deleteRule' in sheet ?
