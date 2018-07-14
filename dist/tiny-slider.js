@@ -356,7 +356,7 @@ function whichProperty(props){
   return false; // explicit for ie9-
 }
 
-function has3D(tf){
+function has3DTransforms(tf){
   if (!tf) { return false; }
   if (!window.getComputedStyle) { return false; }
   
@@ -597,7 +597,7 @@ var tns = function(options) {
       PERCENTAGELAYOUT = getSetConstant('tPL', percentageLayout()),
       CSSMQ = getSetConstant('tMQ', mediaquerySupport()),
       TRANSFORM = getSetConstant('tTf', whichProperty('transform')),
-      HAS3D = getSetConstant('t3D', has3D(TRANSFORM)),
+      HAS3DTRANSFORMS = getSetConstant('t3D', has3DTransforms(TRANSFORM)),
       TRANSITIONDURATION = getSetConstant('tTDu', whichProperty('transitionDuration')),
       TRANSITIONDELAY = getSetConstant('tTDe', whichProperty('transitionDelay')),
       ANIMATIONDURATION = getSetConstant('tADu', whichProperty('animationDuration')),
@@ -876,7 +876,7 @@ var tns = function(options) {
     transformAttr = TRANSFORM;
     transformPrefix = 'translate';
 
-    if (HAS3D) {
+    if (HAS3DTRANSFORMS) {
       transformPrefix += horizontal ? '3d(' : '3d(0px, ';
       transformPostfix = horizontal ? ', 0px, 0px)' : ', 0px)';
     } else {

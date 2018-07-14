@@ -2,7 +2,7 @@ import { getBody } from './getBody.js';
 import { setFakeBody } from './setFakeBody.js';
 import { resetFakeBody } from './resetFakeBody.js';
 
-export function has3D(tf){
+export function has3DTransforms(tf){
   if (!tf) { return false; }
   if (!window.getComputedStyle) { return false; }
   

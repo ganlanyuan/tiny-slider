@@ -48,7 +48,7 @@ import { hideElement } from './helpers/hideElement.js';
 import { showElement } from './helpers/showElement.js';
 import { isVisible } from './helpers/isVisible.js';
 import { whichProperty } from './helpers/whichProperty.js';
-import { has3D } from './helpers/has3D.js';
+import { has3DTransforms } from './helpers/has3DTransforms.js';
 import { getEndProperty } from './helpers/getEndProperty.js';
 import { addEvents } from './helpers/addEvents.js';
 import { removeEvents } from './helpers/removeEvents.js';
@@ -160,7 +160,7 @@ export var tns = function(options) {
       PERCENTAGELAYOUT = getSetConstant('tPL', percentageLayout()),
       CSSMQ = getSetConstant('tMQ', mediaquerySupport()),
       TRANSFORM = getSetConstant('tTf', whichProperty('transform')),
-      HAS3D = getSetConstant('t3D', has3D(TRANSFORM)),
+      HAS3DTRANSFORMS = getSetConstant('t3D', has3DTransforms(TRANSFORM)),
       TRANSITIONDURATION = getSetConstant('tTDu', whichProperty('transitionDuration')),
       TRANSITIONDELAY = getSetConstant('tTDe', whichProperty('transitionDelay')),
       ANIMATIONDURATION = getSetConstant('tADu', whichProperty('animationDuration')),
@@ -439,7 +439,7 @@ export var tns = function(options) {
     transformAttr = TRANSFORM;
     transformPrefix = 'translate';
 
-    if (HAS3D) {
+    if (HAS3DTRANSFORMS) {
       transformPrefix += horizontal ? '3d(' : '3d(0px, ';
       transformPostfix = horizontal ? ', 0px, 0px)' : ', 0px)';
     } else {
