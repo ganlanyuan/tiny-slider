@@ -48,7 +48,7 @@ Note: some features may need a manual test.
 - auto width (v2.8.1+)
 - vertical slider
 - gutter
-- edge padding (center)
+- edge padding
 - loop
 - rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
 - slide by
@@ -59,10 +59,10 @@ Note: some features may need a manual test.
 - touch support
 - mouse drag ([pull 32](https://github.com/ganlanyuan/tiny-slider/pull/32))
 - arrow keys
-- accessibility for people using keyboard navigation or screen readers ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
-- response to visibility changing ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
+- accessibility ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
+- response to DOM visibility changes ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
 - custom events
-- nested slider  
+- nested sliders  
 
 *[top↑](#tiny-slider-20)*  
 
@@ -70,20 +70,10 @@ Note: some features may need a manual test.
 `bower install tiny-slider` or `npm install tiny-slider`
 
 ## Usage
-#### 1. Include tiny-slider
-via [cdnjs](https://cdnjs.com/libraries/tiny-slider):  
+#### 1. Add CSS (and IE8 polyfills if needed)
 ```html
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/tiny-slider.css">
-
 <!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/min/tiny-slider.helper.ie8.js"></script><![endif]-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/min/tiny-slider.js"></script>
-
-<!-- NOTE: from v2.2.1 tiny-slider.js is no longer required to be in <body> -->
-```
-Or import it via `webpack` or `rollup`:
-```javascript
-// yourScript.js
-import { tns } from "path/to/tiny-slider/src/tiny-slider"
 ```
 
 #### 2. Add markup
@@ -97,19 +87,30 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider"
 ```
 
 #### 3. Call tns()
+Add tiny-slider.js to your page:  
 ```html
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/min/tiny-slider.js"></script>
+<!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
+```
+
+Or import `tns` via `webpack` or `rollup`:
+```javascript
+// yourScript.js
+import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
+```
+
+Or you can even directly import `tns` start from v2.8.2  
+```html
+<script type="module">
+  import {tns} from './src/tiny-slider.js';
+
   var slider = tns({
     container: '.my-slider',
     items: 3,
     slideBy: 'page',
     autoplay: true
   });
-  
-  // NOTE: 
-  // prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.
-  // e.g. container: document.querySelector('.my-slider'),
-</script>
+  </script>
 ```
 *[top↑](#tiny-slider-20)*  
 
@@ -163,6 +164,10 @@ import { tns } from "path/to/tiny-slider/src/tiny-slider"
 | `startIndex` | positive integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
 | `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
+
+NOTE:   
+Prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.  
+E.g. container: document.querySelector('.my-slider')  
 
 *[top↑](#tiny-slider-20)*  
 
