@@ -1,10 +1,3 @@
-// Array.isArray
-if (!Array.isArray) {
-    Array.isArray = function(obj) {
-        return Object.prototype.toString.call(obj) == "[object Array]";
-    };
-}
-
 // forEach
 
 if (!Array.prototype.forEach) {
@@ -34,19 +27,6 @@ if (!Array.prototype.map) {
         }
 
         return res;
-    };
-}
-
-// Filter
-
-if (!Array.prototype.filter) {
-    Array.prototype.filter = function (block /*, thisp */) {
-        var values = [];
-        var thisp = arguments[1];
-        for (var i = 0; i < this.length; i++)
-            if (block.call(thisp, this[i]))
-                values.push(this[i]);
-        return values;
     };
 }
 
@@ -138,80 +118,9 @@ if (!Array.prototype.indexOf) {
   }
 })();
 
-// Element.firstElementChild
-
-(function () {
-  "use strict";
-
-  if (!("firstElementChild" in document.documentElement)) {
-    Object.defineProperty(Element.prototype, "firstElementChild", {
-      get: function(){
-        for(var nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i) {
-          if(n = nodes[i], 1 === n.nodeType) { return n; }
-        }
-        return null;
-      }
-    });
-  }
-})();
-
-// Element.lastElementChild
-
-(function () {
-  "use strict";
-
-  if (!("lastElementChild" in document.documentElement)) {
-    Object.defineProperty(Element.prototype, "lastElementChild", {
-      get: function(){
-        for(var nodes = this.children, n, i = nodes.length - 1; i >= 0; --i) {
-          if(n = nodes[i], 1 === n.nodeType) { return n; }
-        }
-        return null;
-      }
-    });
-  }
-})();
-
-// Element.previousElementSibling
-
-(function () {
-  "use strict";
-
-  if (!("previousElementSibling" in document.documentElement)) {
-    Object.defineProperty(Element.prototype, "previousElementSibling", {
-      get: function(){
-        var e = this.previousSibling;
-        while(e && 1 !== e.nodeType) {
-          e = e.previousSibling;
-        }
-        return e;
-      }
-    });
-  }
-})();
-
-// Element.nextElementSibling
-
-(function () {
-  "use strict";
-
-  if (!("nextElementSibling" in document.documentElement)) {
-    Object.defineProperty(Element.prototype, "nextElementSibling", {
-      get: function(){
-        var e = this.nextSibling;
-        while(e && 1 !== e.nodeType) {
-          e = e.nextSibling;
-        }
-        return e;
-      }
-    });
-  }
-})();
-
 // getComputedStyle
 
 (function(){
-  "use strict";
   
   if(!window.getComputedStyle){
     window.getComputedStyle = function(el){
@@ -248,3 +157,5 @@ if (!Array.prototype.indexOf) {
     };
   } 
 })();
+
+// import "./ie8/isArray.js";
