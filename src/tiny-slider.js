@@ -459,13 +459,12 @@ export var tns = function(options) {
   }
 
   function getAbsIndex (i) {
-    if (i === undefined) { i = index; }
+    if (i == null) { i = index; }
 
-    var min = carousel ? cloneCount : 0;
-    while (i < min) { i += slideCount; }
     if (carousel) { i -= cloneCount; }
+    while (i < 0) { i += slideCount; }
 
-    return i ? Math.floor(i%slideCount) : i;
+    return Math.floor(i%slideCount);
   }
 
   function getItemsMax () {
@@ -1973,7 +1972,6 @@ export var tns = function(options) {
 
       var absIndex = getAbsIndex(), 
           indexGap = 0;
-      if (absIndex < 0) { absIndex += slideCount; }
 
       if (targetIndex === 'first') {
         indexGap = - absIndex;
@@ -1983,14 +1981,13 @@ export var tns = function(options) {
         if (typeof targetIndex !== 'number') { targetIndex = parseInt(targetIndex); }
 
         if (!isNaN(targetIndex)) {
+          // from directly called goTo function
           if (!e) {
+            targetIndex = Math.max(1, Math.min(slideCount, targetIndex));
             targetIndex -= 1; // switch from natual index to JS index
-            if (carousel && cloneCount) { targetIndex += cloneCount; }
           }
 
-          var absTargetIndex = getAbsIndex(targetIndex);
-          if (absTargetIndex < 0) { absTargetIndex += slideCount; }
-          indexGap = absTargetIndex - absIndex;
+          indexGap = targetIndex - absIndex;
         }
       }
 
@@ -2055,7 +2052,6 @@ export var tns = function(options) {
 
   // on nav click
   function onNavClick (e) {
-    // if (!running) {
     if (running) { onTransitionEnd(); }
     
     e = getEvent(e);
@@ -2066,9 +2062,8 @@ export var tns = function(options) {
     while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
     if (hasAttr(target, 'data-nav')) {
       navIndex = navClicked = [].indexOf.call(navItems, target);
-      goTo(carousel ? navIndex + cloneCount : navIndex, e);
+      goTo(navIndex, e);
     }
-    // }
   }
 
   // autoplay functions
@@ -2186,7 +2181,7 @@ export var tns = function(options) {
         goTo('first', e);
         break;
       case KEYS.END:
-        goTo(slideCount - 1, e);
+        goTo('last', e);
         break;
     }
   }
@@ -2242,7 +2237,7 @@ export var tns = function(options) {
       case KEYS.ENTER:
       case KEYS.SPACE:
         navClicked = navIndex;
-        goTo(navIndex + cloneCount, e);
+        goTo(navIndex, e);
         break;
     }
   }

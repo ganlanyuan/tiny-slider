@@ -243,13 +243,15 @@ async function testBase () {
     input.value = number;
     button.click();
 
-    // switch natural index to JS index
-    number -= 1;
-    if (cloneCount) { number += cloneCount; }
+    number = Math.max(1, Math.min(slideCount, number));
+    number -= 1; // switch from natural index to JS index
 
-    while (number < 0) { number += slideCount; }
-    if (assertion !== false) {
-      assertion = slider.getInfo().index%slideCount === number%slideCount;
+    if (assertion) {
+      var ind = slider.getInfo().index - cloneCount;
+      assertion = ind%slideCount === number;
+    // } else {
+    //   var ind = slider.getInfo().index - cloneCount;
+    //   console.log(ind%slideCount, number);
     }
   }
 
