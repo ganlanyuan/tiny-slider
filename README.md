@@ -42,7 +42,7 @@ Note: some features may need a manual test.
 *[top↑](#tiny-slider-20)*  
 
 ## Features
-![Features](/Features.png)   
+![Features](/Features.png "Features")   
 
 *[top↑](#tiny-slider-20)*  
 
