@@ -42,27 +42,7 @@ Note: some features may need a manual test.
 *[top↑](#tiny-slider-20)*  
 
 ## Features
-- carousel / gallery
-- responsive
-- fixed width
-- auto width (v2.8.1+)
-- vertical slider
-- gutter
-- edge padding
-- loop
-- rewind ([pull 10](https://github.com/ganlanyuan/tiny-slider/pull/10))
-- slide by
-- customize controls / nav
-- lazyload
-- autoplay
-- auto height
-- touch support
-- mouse drag ([pull 32](https://github.com/ganlanyuan/tiny-slider/pull/32))
-- arrow keys
-- accessibility ([issue 4](https://github.com/ganlanyuan/tiny-slider/issues/4))
-- response to DOM visibility changes ([pull 19](https://github.com/ganlanyuan/tiny-slider/pull/29))
-- custom events
-- nested sliders  
+![Features](/Features.png)   
 
 *[top↑](#tiny-slider-20)*  
 
