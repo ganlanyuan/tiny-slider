@@ -244,19 +244,9 @@ export var tns = function(options) {
       slideItems = container.children,
       slideCount = slideItems.length,
       responsive = options.responsive,
-      breakpoints = false,
       breakpointZone = 0,
       windowWidth = getWindowWidth(),
       isOn;
-
-
-  if (responsive) {
-    breakpoints = Object.keys(responsive)
-      .map(function (x) { return parseInt(x); })
-      .sort(function (a, b) { return a - b; });
-
-    setBreakpointZone();
-  } 
 
   // fixedWidth: viewport > rightBoundary > indexMax
   var nested = options.nested,
@@ -478,11 +468,11 @@ export var tns = function(options) {
 
       if (fixedWidth || options[str] < slideCount) { arr.push(options[str]); }
 
-      if (breakpoints) {
-        breakpoints.forEach(function(bp) {
+      if (responsive) {
+        for (var bp in responsive) {
           var tem = responsive[bp][str];
           if (tem && (fixedWidth || tem < slideCount)) { arr.push(tem); }
-        });
+        }
       }
 
       if (!arr.length) { arr.push(0); }
@@ -516,10 +506,10 @@ export var tns = function(options) {
     if (options[item]) {
       return true;
     } else {
-      if (breakpoints) {
-        breakpoints.forEach(function (bp) {
+      if (responsive) {
+        for (var bp in responsive) {
           if (responsive[bp][item]) { return true; }
-        });
+        }
       }
       return false;
     }
@@ -544,12 +534,12 @@ export var tns = function(options) {
       } else {
         result = options[item];
 
-        if (breakpoints) {
-          breakpoints.forEach(function(bp) {
+        if (responsive) {
+          for (var bp in responsive) {
             if (viewport >= bp) {
               if (item in responsive[bp]) { result = responsive[bp][item]; }
             }
-          });
+          }
         }
       }
     }
@@ -776,6 +766,7 @@ export var tns = function(options) {
 
     initSheet();
     if (!autoWidth) { initUI(); }
+    if (responsive) { setBreakpointZone(); }
   }
 
   function initSheet () {
@@ -868,7 +859,7 @@ export var tns = function(options) {
 
     // ## MEDIAQUERIES
     if (responsive && CSSMQ) {
-      breakpoints.forEach(function(bp) {
+      for (var bp in responsive) {
         var opts = responsive[bp],
             str = '',
             innerWrapperStr = '',
@@ -916,7 +907,7 @@ export var tns = function(options) {
         if (str) {
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
         }
-      });
+      }
     }
   }
 
@@ -1110,7 +1101,7 @@ export var tns = function(options) {
     edgePadding = getOption('edgePadding');
     gutter = getOption('gutter');
     viewport = getViewportWidth();
-    if (breakpoints) { setBreakpointZone(); }
+    if (responsive) { setBreakpointZone(); }
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
     if ((!horizontal || autoWidth) && !disable) {
       getSlidePositions();
@@ -1359,9 +1350,11 @@ export var tns = function(options) {
 
   function setBreakpointZone () {
     breakpointZone = 0;
-    breakpoints.forEach(function(bp, i) {
+    var i = 0;
+    for (var bp in responsive) {
       if (windowWidth >= bp) { breakpointZone = i + 1; }
-    });
+      i++;
+    }
   }
 
   // (slideBy, indexMin, indexMax) => index
