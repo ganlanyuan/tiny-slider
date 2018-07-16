@@ -1973,8 +1973,7 @@ export var tns = function(options) {
         if (!isNaN(targetIndex)) {
           // from directly called goTo function
           if (!e) {
-            targetIndex = Math.max(1, Math.min(slideCount, targetIndex));
-            targetIndex -= 1; // switch from natual index to JS index
+            targetIndex = Math.max(0, Math.min(slideCount - 1, targetIndex));
           }
 
           indexGap = targetIndex - absIndex;
