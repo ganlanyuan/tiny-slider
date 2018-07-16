@@ -79,7 +79,7 @@ Or import `tns` via `webpack` or `rollup`:
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or you can even directly import `tns` start from v2.8.2  
+Or import `tns` directly start from v2.8.2  
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
