@@ -18,10 +18,10 @@ var testBase = function () {
 
               if (assertion) {
                 var ind = slider.getInfo().index - cloneCount;
+                while (ind < 0) {
+                  ind += slideCount;
+                }
                 assertion = ind % slideCount === number;
-              } else {
-                var ind = slider.getInfo().index - cloneCount;
-                console.log(ind % slideCount, number);
               }
             };
 
@@ -190,12 +190,12 @@ var testBase = function () {
           case 53:
 
             // go to
-            controls = document.querySelector('#base_wrapper .goto-controls'), input = controls.querySelector('input'), button = controls.querySelector('.button'), mul = 100;
+            controls = document.querySelector('#base_wrapper .goto-controls'), input = controls.querySelector('input'), button = controls.querySelector('.button'), mul = 10;
             _context.next = 56;
             return repeat(checkGoto, 3);
 
           case 56:
-            mul = -100;
+            mul = -10;
             _context.next = 59;
             return repeat(checkGoto, 3);
 
@@ -1473,30 +1473,28 @@ function testResponsive6() {
 
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
-              updateTest(testControlsClickT, assertionControlsClick);
-              _context7.next = 27;
+              _context7.next = 25;
               break;
 
-            case 22:
-              _context7.prev = 22;
+            case 21:
+              _context7.prev = 21;
               _context7.t0 = _context7['catch'](0);
 
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
-              updateTest(testControlsClickT, assertionControlsClick);
 
-            case 27:
-              _context7.prev = 27;
+            case 25:
+              _context7.prev = 25;
 
               document.body.removeChild(newWindow);
-              return _context7.finish(27);
+              return _context7.finish(25);
 
-            case 30:
+            case 28:
             case 'end':
               return _context7.stop();
           }
         }
-      }, _callee7, this, [[0, 22, 27, 30]]);
+      }, _callee7, this, [[0, 21, 25, 28]]);
     }));
 
     return function responsive6Tests() {
@@ -1514,7 +1512,6 @@ function testResponsive6() {
 
   var testEdgePaddingT = addTest('edgePadding toggle'),
       testControlsNavT = addTest('controls, nav toggle'),
-      testControlsClickT = addTest('controls click after resizing'),
       newWindow = document.createElement('iframe');
 
   newWindow.setAttribute('frameBorder', '0');

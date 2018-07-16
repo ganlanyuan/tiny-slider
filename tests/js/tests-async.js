@@ -236,7 +236,7 @@ async function testBase () {
   var controls = document.querySelector('#base_wrapper .goto-controls'),
       input = controls.querySelector('input'),
       button = controls.querySelector('.button'),
-      mul = 100;
+      mul = 10;
 
   function checkGoto () {
     var number = Math.round(Math.random() * mul);
@@ -248,15 +248,13 @@ async function testBase () {
 
     if (assertion) {
       var ind = slider.getInfo().index - cloneCount;
+      while (ind < 0) { ind += slideCount; }
       assertion = ind%slideCount === number;
-    // } else {
-    //   var ind = slider.getInfo().index - cloneCount;
-    //   console.log(ind%slideCount, number);
     }
   }
 
   await repeat(checkGoto, 3);
-  mul = -100;
+  mul = -10;
   await repeat(checkGoto, 3);
 
   updateTest(testGoto, assertion);
@@ -1274,7 +1272,6 @@ function testResponsive6 () {
 
   var testEdgePaddingT = addTest('edgePadding toggle'),
       testControlsNavT = addTest('controls, nav toggle'),
-      testControlsClickT = addTest('controls click after resizing'),
       newWindow = document.createElement('iframe');
 
   newWindow.setAttribute('frameBorder', '0');
@@ -1348,11 +1345,9 @@ function testResponsive6 () {
 
       updateTest(testEdgePaddingT, assertionEdgePadding);
       updateTest(testControlsNavT, assertionControlsNav);
-      updateTest(testControlsClickT, assertionControlsClick);
     } catch(e) {
       updateTest(testEdgePaddingT, assertionEdgePadding);
       updateTest(testControlsNavT, assertionControlsNav);
-      updateTest(testControlsClickT, assertionControlsClick);
     } finally {
       document.body.removeChild(newWindow);
     }
