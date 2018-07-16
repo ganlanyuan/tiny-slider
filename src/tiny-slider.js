@@ -99,7 +99,6 @@ export var tns = function(options) {
     swipeAngle: 15,
     nested: false,
     freezable: true,
-    // startIndex: 0,
     onInit: false,
     useLocalStorage: true
   }, options || {});
@@ -255,7 +254,7 @@ export var tns = function(options) {
       edgePadding = getOption('edgePadding'),
       gutter = getOption('gutter'),
       viewport = getViewportWidth(),
-      items = !autoWidth ? Math.floor(getOption('items')) : null,
+      items = !autoWidth ? Math.floor(getOption('items')) : 1,
       slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
       viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
@@ -278,8 +277,7 @@ export var tns = function(options) {
       transformPrefix = '',
       transformPostfix = '',
       // index
-      startIndex = getOption('startIndex'),
-      index = startIndex ? updateStartIndex(startIndex) : !carousel ? 0 : cloneCount,
+      index = getStartIndex(getOption('startIndex')),
       indexCached = index,
       indexMin = 0,
       indexMax = !autoWidth ? getIndexMax() : null,
@@ -441,11 +439,9 @@ export var tns = function(options) {
     }
   }
 
-  function updateStartIndex (indexTem) {
-    indexTem = indexTem%slideCount;
-    if (indexTem < 0) { indexTem += slideCount; }
-    indexTem = Math.min(indexTem, slideCountNew - items);
-    return indexTem;
+  function getStartIndex (ind) {
+    ind = ind ? Math.max(0, Math.min(loop ? slideCount - 1 : slideCount - items, ind)) : 0;
+    return carousel ? ind + cloneCount : ind;
   }
 
   function getAbsIndex (i) {
@@ -696,6 +692,7 @@ export var tns = function(options) {
         var num = j%slideCount,
             cloneFirst = slideItems[num].cloneNode(true);
         removeAttrs(cloneFirst, 'id');
+        // setAttrs(cloneFirst, {disabled: ''});
         fragmentAfter.insertBefore(cloneFirst, fragmentAfter.firstChild);
 
         if (carousel) {
@@ -1144,7 +1141,7 @@ export var tns = function(options) {
       if (freeze !== freezeTem) {
         // reset container transforms
         if (freeze) {
-          doContainerTransform(getContainerTransformValue(!carousel ? 0 : cloneCount));
+          doContainerTransform(getContainerTransformValue(getStartIndex(0)));
         } else {
           needContainerTransform = true;
         }
@@ -1736,8 +1733,8 @@ export var tns = function(options) {
 
     var prevDisabled = (prevIsButton) ? prevButton.disabled : isAriaDisabled(prevButton),
         nextDisabled = (nextIsButton) ? nextButton.disabled : isAriaDisabled(nextButton),
-        disablePrev = (index === indexMin) ? true : false,
-        disableNext = (!rewind && index === indexMax) ? true : false;
+        disablePrev = (index <= indexMin) ? true : false,
+        disableNext = (!rewind && index >= indexMax) ? true : false;
 
     if (disablePrev && !prevDisabled) {
       disEnableElement(prevIsButton, prevButton, true);

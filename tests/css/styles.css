@@ -25,6 +25,9 @@ p {
   font-weight: 300;
   text-align: center;
 }
+a:focus {
+  outline: 1px solid red;
+}
 img { max-width: 100%; }
 img:not(.tns-lazy-img), .lazyload img { height: auto; }
 .img {
