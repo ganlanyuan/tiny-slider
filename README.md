@@ -42,7 +42,7 @@ Note: some features may need a manual test.
 *[top↑](#tiny-slider-20)*  
 
 ## Features
-![Features](/features-table.png "Features")   
+![Features](/features.png "Features")   
 
 *[top↑](#tiny-slider-20)*  
 
@@ -257,7 +257,6 @@ document.querySelector('.next-button').onclick = function () {
 
 #### goTo
 Go to specific slide by number or keywords.   
-(NOTE: the number in `goTo()` was 1 based)
 ```javascript
 slider.goTo(3);
 slider.goTo('prev');
