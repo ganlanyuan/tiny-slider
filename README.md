@@ -1,6 +1,6 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.8.1-green.svg)  
+![version](https://img.shields.io/badge/Version-2.8.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)
@@ -52,8 +52,8 @@ Note: some features may need a manual test.
 ## Usage
 #### 1. Add CSS (and IE8 polyfills if needed)
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/tiny-slider.css">
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.2/tiny-slider.css">
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.2/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 ```
 
 #### 2. Add markup
@@ -69,7 +69,7 @@ Note: some features may need a manual test.
 #### 3. Call tns()
 Add tiny-slider.js to your page:  
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.1/min/tiny-slider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.2/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 

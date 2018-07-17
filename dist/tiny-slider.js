@@ -470,7 +470,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// Version: 2.8.1
+// Version: 2.8.2
 
 // helper functions
 if (!Object.keys) {
