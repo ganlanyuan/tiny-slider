@@ -266,7 +266,6 @@ export var tns = function(options) {
       lazyload = options.lazyload,
       slidePositions, // collection of slide positions
       slideItemsOut = [],
-      hasEdgePadding = checkOption('edgePadding'),
       cloneCount = loop ? getCloneCountForLoop() : 0,
       slideCountNew = !carousel ? slideCount + cloneCount : slideCount + cloneCount * 2,
       hasRightDeadZone = (fixedWidth || autoWidth) && !loop ? true : false,
@@ -321,12 +320,12 @@ export var tns = function(options) {
         'mouseup': onPanEnd,
         'mouseleave': onPanEnd
       },
-      hasControls = checkOption('controls'),
-      hasNav = checkOption('nav'),
+      hasControls = hasOption('controls'),
+      hasNav = hasOption('nav'),
       navAsThumbnails = autoWidth ? true : options.navAsThumbnails,
-      hasAutoplay = checkOption('autoplay'),
-      hasTouch = checkOption('touch'),
-      hasMouseDrag = checkOption('mouseDrag'),
+      hasAutoplay = hasOption('autoplay'),
+      hasTouch = hasOption('touch'),
+      hasMouseDrag = hasOption('mouseDrag'),
       slideActiveClass = 'tns-slide-active',
       imgCompleteClass = 'tns-complete',
       imgEvents = {
@@ -482,7 +481,7 @@ export var tns = function(options) {
         result = carousel ? Math.ceil((itemsMax * 5 - slideCount)/2) : (itemsMax * 4 - slideCount);
     result = Math.max(itemsMax, result);
 
-    return hasEdgePadding ? result + 1 : result;
+    return hasOption('edgePadding') ? result + 1 : result;
   }
 
   function getWindowWidth () {
@@ -498,7 +497,7 @@ export var tns = function(options) {
     return edgePadding ? width - (edgePadding * 2 - gutter) : width;
   }
 
-  function checkOption (item) {
+  function hasOption (item) {
     if (options[item]) {
       return true;
     } else {
@@ -633,7 +632,7 @@ export var tns = function(options) {
   function sliderInit () {
     var classOuter = 'tns-outer',
         classInner = 'tns-inner',
-        hasGutter = checkOption('gutter');
+        hasGutter = hasOption('gutter');
 
     outerWrapper.className = classOuter;
     innerWrapper.className = classInner;
@@ -692,7 +691,6 @@ export var tns = function(options) {
         var num = j%slideCount,
             cloneFirst = slideItems[num].cloneNode(true);
         removeAttrs(cloneFirst, 'id');
-        // setAttrs(cloneFirst, {disabled: ''});
         fragmentAfter.insertBefore(cloneFirst, fragmentAfter.firstChild);
 
         if (carousel) {
@@ -708,7 +706,7 @@ export var tns = function(options) {
     }
 
     // ## images loaded/failed
-    if (checkOption('autoHeight') || !carousel || autoWidth || !horizontal) {
+    if (hasOption('autoHeight') || !carousel || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
       // add complete class if all images are loaded/failed
@@ -2281,6 +2279,15 @@ export var tns = function(options) {
     }
   }
 
+  function updateMoveDirectionExpected () {
+    if (
+      moveDirectionExpected === '?' && 
+      lastPosition.x !== initPosition.x && 
+      lastPosition.y !== initPosition.y) {
+      moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
+    }
+  }
+
   function panUpdate (e) {
     if (!moveDirectionExpected) {
       panStart = false;
@@ -2289,13 +2296,7 @@ export var tns = function(options) {
     caf(rafIndex);
     if (panStart) { rafIndex = raf(function(){ panUpdate(e); }); }
 
-    if (
-      moveDirectionExpected === '?' && 
-      lastPosition.x !== initPosition.x && 
-      lastPosition.y !== initPosition.y) {
-      moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
-    }
-
+    updateMoveDirectionExpected();
     if (moveDirectionExpected) {
       try {
         if (e.type) { events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e)); }
@@ -2317,8 +2318,6 @@ export var tns = function(options) {
   }
 
   function onPanEnd (e) {
-    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
-
     if (panStart) {
       if (carousel) {
         caf(rafIndex);
@@ -2331,13 +2330,9 @@ export var tns = function(options) {
       lastPosition.y = parseInt($.clientY);
       var dist = getDist(lastPosition, initPosition);
 
-      // initPosition = {x:0, y:0}; // reset positions
-      // lastPosition = {x:0, y:0}; // reset positions
-      
       if (Math.abs(dist) >= 5) {
         // drag vs click
-        if (!isTouchEvent(e)) { 
-
+        if (!isTouchEvent(e)) {
           // prevent "click"
           var target = getTarget(e);
           addEvents(target, {'click': function preventClick (e) {
@@ -2372,20 +2367,15 @@ export var tns = function(options) {
             events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
           });
         } else {
-          if (
-            moveDirectionExpected === '?' && 
-            lastPosition.x !== initPosition.x && 
-            lastPosition.y !== initPosition.y) {
-            moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
-          }
-
+          updateMoveDirectionExpected();
           if (moveDirectionExpected) {
             onControlsClick(e, dist > 0 ? -1 : 1);
           }
         }
       }
-
     }
+
+    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
   }
 
   // === RESIZE FUNCTIONS === //

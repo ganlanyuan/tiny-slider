@@ -21,7 +21,7 @@
     "url": "https://github.com/ganlanyuan/tiny-slider/issues"
   },
   "homepage": "https://github.com/ganlanyuan/tiny-slider#readme",
-  "dependencies": {
+  "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",

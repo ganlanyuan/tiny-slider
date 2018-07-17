@@ -13,8 +13,7 @@ var testBase = function () {
               input.value = number;
               button.click();
 
-              number = Math.max(1, Math.min(slideCount, number));
-              number -= 1; // switch from natural index to JS index
+              number = Math.max(0, Math.min(slideCount - 1, number));
 
               if (assertion) {
                 var ind = slider.getInfo().index - cloneCount;
