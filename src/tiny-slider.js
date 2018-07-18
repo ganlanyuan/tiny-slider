@@ -1070,9 +1070,90 @@ export var tns = function(options) {
     isOn = true;
   }
 
+  function destroy () {
+    // remove win event listeners
+    removeEvents(win, {'resize': onResize});
 
+    // remove arrowKeys eventlistener
+    if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
 
+    // sheet
+    sheet.disabled = true;
 
+    // cloned items
+    if (loop) {
+      for (var j = cloneCount; j--;) {
+        if (carousel) { slideItems[0].remove(); }
+        slideItems[slideItems.length - 1].remove();
+      }
+    }
+
+    // Slide Items
+    var slideClasses = ['tns-item', slideActiveClass];
+    if (!carousel) { slideClasses = slideClasses.concat('tns-normal', animateIn); }
+
+    for (var i = slideCount; i--;) {
+      var slide = slideItems[i];
+      if (slide.id.indexOf(slideId + '-item') >= 0) { slide.id = ''; }
+
+      slideClasses.forEach(function(cl) { removeClass(slide, cl); })
+    }
+    removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
+    slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
+
+    // controls
+    if (controls) {
+      removeEvents(controlsContainer, controlsEvents);
+      if (options.controlsContainer) {
+        removeAttrs(controlsContainer, ['aria-label', 'tabindex']);
+        removeAttrs(controlsContainer.children, ['aria-controls', 'aria-disabled', 'tabindex']);
+      }
+      controlsContainer = prevButton = nextButton = null;
+    }
+
+    // nav
+    if (nav) {
+      removeEvents(navContainer, navEvents);
+      if (options.navContainer) {
+        removeAttrs(navContainer, ['aria-label']);
+        removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
+      }
+      navContainer = navItems = null;
+    }
+
+    // auto
+    if (autoplay) {
+      clearInterval(autoplayTimer);
+      if (autoplayButton) {
+        removeEvents(autoplayButton, {'click': toggleAutoplay});
+      }
+      removeEvents(container, hoverEvents);
+      removeEvents(container, visibilityEvent);
+      if (options.autoplayButton) {
+        removeAttrs(autoplayButton, ['data-action'])
+      }
+    }
+
+    // container
+    container.id = containerIdCached || '';
+    container.className = container.className.replace(classContainer, '');
+    removeElementStyles(container);
+    if (carousel && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      removeEvents(container, eve);
+    }
+    if (touch) { removeEvents(container, touchEvents); }
+    if (mouseDrag) { removeEvents(container, dragEvents); }
+
+    // outerWrapper
+    containerParent.insertBefore(container, outerWrapper);
+    outerWrapper.remove();
+    outerWrapper = innerWrapper = container =
+    index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = 
+    this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
+    this.isOn = isOn = false;
+  }
 
 // === ON RESIZE ===
   function onResize (e) {
@@ -2468,90 +2549,6 @@ export var tns = function(options) {
     rebuild: function() {
       return tns(options);
     },
-
-    destroy: function () {
-      // remove win event listeners
-      removeEvents(win, {'resize': onResize});
-
-      // remove arrowKeys eventlistener
-      removeEvents(doc, docmentKeydownEvent);
-
-      // sheet
-      sheet.disabled = true;
-
-      // cloned items
-      if (loop) {
-        for (var j = cloneCount; j--;) {
-          if (carousel) { slideItems[0].remove(); }
-          slideItems[slideItems.length - 1].remove();
-        }
-      }
-
-      // Slide Items
-      var slideClasses = ['tns-item', slideActiveClass];
-      if (!carousel) { slideClasses = slideClasses.concat('tns-normal', animateIn); }
-
-      for (var i = slideCount; i--;) {
-        var slide = slideItems[i];
-        if (slide.id.indexOf(slideId + '-item') >= 0) { slide.id = ''; }
-
-        slideClasses.forEach(function(cl) { removeClass(slide, cl); })
-      }
-      removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
-      slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
-
-      // controls
-      if (controls) {
-        removeEvents(controlsContainer, controlsEvents);
-        if (options.controlsContainer) {
-          removeAttrs(controlsContainer, ['aria-label', 'tabindex']);
-          removeAttrs(controlsContainer.children, ['aria-controls', 'aria-disabled', 'tabindex']);
-        }
-        controlsContainer = prevButton = nextButton = null;
-      }
-
-      // nav
-      if (nav) {
-        removeEvents(navContainer, navEvents);
-        if (options.navContainer) {
-          removeAttrs(navContainer, ['aria-label']);
-          removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
-        }
-        navContainer = navItems = null;
-      }
-
-      // auto
-      if (autoplay) {
-        clearInterval(autoplayTimer);
-        if (autoplayButton) {
-          removeEvents(autoplayButton, {'click': toggleAutoplay});
-        }
-        removeEvents(container, hoverEvents);
-        removeEvents(container, visibilityEvent);
-        if (options.autoplayButton) {
-          removeAttrs(autoplayButton, ['data-action'])
-        }
-      }
-
-      // container
-      container.id = containerIdCached || '';
-      container.className = container.className.replace(classContainer, '');
-      removeElementStyles(container);
-      if (carousel && TRANSITIONEND) {
-        var eve = {};
-        eve[TRANSITIONEND] = onTransitionEnd;
-        removeEvents(container, eve);
-      }
-      removeEvents(container, touchEvents);
-      removeEvents(container, dragEvents);
-
-      // outerWrapper
-      containerParent.insertBefore(container, outerWrapper);
-      outerWrapper.remove();
-      outerWrapper = innerWrapper = container =
-      index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = 
-      this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
-      this.isOn = isOn = false;
-    }
+    destroy: destroy
   };
 };
