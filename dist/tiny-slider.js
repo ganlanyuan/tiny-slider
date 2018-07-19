@@ -968,7 +968,8 @@ var tns = function(options) {
 
         if (responsive) {
           for (var bp in responsive) {
-            if (viewport >= bp) {
+            // bp: convert string to number
+            if (viewport >= parseInt(bp)) {
               if (item in responsive[bp]) { result = responsive[bp][item]; }
             }
           }
@@ -1292,6 +1293,9 @@ var tns = function(options) {
     // ## MEDIAQUERIES
     if (responsive && CSSMQ) {
       for (var bp in responsive) {
+        // bp: convert string to number
+        bp = parseInt(bp);
+
         var opts = responsive[bp],
             str = '',
             innerWrapperStr = '',
@@ -1865,7 +1869,8 @@ var tns = function(options) {
     breakpointZone = 0;
     var i = 0;
     for (var bp in responsive) {
-      if (windowWidth >= bp) { breakpointZone = i + 1; }
+      // bp: convert string to number
+      if (windowWidth >= parseInt(bp)) { breakpointZone = i + 1; }
       i++;
     }
   }
