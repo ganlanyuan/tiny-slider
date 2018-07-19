@@ -677,6 +677,7 @@ var tns = function(options) {
       innerWrapper = doc.createElement('div'),
       container = options.container,
       containerParent = container.parentNode,
+      containerHTML = container.outerHTML,
       slideItems = container.children,
       slideCount = slideItems.length,
       responsive = options.responsive,
@@ -725,8 +726,7 @@ var tns = function(options) {
       onInit = options.onInit,
       events = new Events(),
       // id, class
-      containerIdCached = container.id,
-      classContainer = ' tns-slider tns-' + options.mode,
+      newContainerClasses = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
       freezable = options.freezable,
@@ -1079,10 +1079,10 @@ var tns = function(options) {
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
-    classContainer += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
-    classContainer += CALC ? ' tns-calc' : ' tns-no-calc';
-    if (carousel) { classContainer += ' tns-' + options.axis; }
-    container.className += classContainer;
+    newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
+    newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
+    if (carousel) { newContainerClasses += ' tns-' + options.axis; }
+    container.className += newContainerClasses;
 
     // add constrain layer for carousel
     if (carousel) {
@@ -1512,35 +1512,15 @@ var tns = function(options) {
   }
 
   function destroy () {
+    // sheet
+    sheet.disabled = true;
+
     // remove win event listeners
     removeEvents(win, {'resize': onResize});
 
     // remove arrowKeys eventlistener
     if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
 
-    // sheet
-    sheet.disabled = true;
-
-    // cloned items
-    if (loop) {
-      for (var j = cloneCount; j--;) {
-        if (carousel) { slideItems[0].remove(); }
-        slideItems[slideItems.length - 1].remove();
-      }
-    }
-
-    // Slide Items
-    var slideClasses = ['tns-item', slideActiveClass];
-    if (!carousel) { slideClasses = slideClasses.concat('tns-normal', animateIn); }
-
-    for (var i = slideCount; i--;) {
-      var slide = slideItems[i];
-      if (slide.id.indexOf(slideId + '-item') >= 0) { slide.id = ''; }
-
-      slideClasses.forEach(function(cl) { removeClass(slide, cl); });
-    }
-    removeAttrs(slideItems, ['style', 'aria-hidden', 'tabindex']);
-    slideItems = slideId = slideCount = slideCountNew = cloneCount = null;
 
     // controls
     if (controls) {
@@ -1576,9 +1556,6 @@ var tns = function(options) {
     }
 
     // container
-    container.id = containerIdCached || '';
-    container.className = container.className.replace(classContainer, '');
-    removeElementStyles(container);
     if (carousel && TRANSITIONEND) {
       var eve = {};
       eve[TRANSITIONEND] = onTransitionEnd;
@@ -1587,9 +1564,11 @@ var tns = function(options) {
     if (touch) { removeEvents(container, touchEvents); }
     if (mouseDrag) { removeEvents(container, dragEvents); }
 
-    // outerWrapper
-    containerParent.insertBefore(container, outerWrapper);
+    // switch back to the original HTML
+    outerWrapper.insertAdjacentHTML('beforebegin', containerHTML);
     outerWrapper.remove();
+
+    slideItems = slideId = slideCount = slideCountNew = cloneCount = 
     outerWrapper = innerWrapper = container =
     index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = 
     this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
@@ -1958,7 +1937,7 @@ var tns = function(options) {
     
     if (disable) {
       sheet.disabled = true;
-      container.className = container.className.replace(classContainer.substring(1), '');
+      container.className = container.className.replace(newContainerClasses.substring(1), '');
       removeElementStyles(container);
       if (loop) {
         for (var j = cloneCount; j--;) {
@@ -1981,7 +1960,7 @@ var tns = function(options) {
       }
     } else {
       sheet.disabled = false;
-      container.className += classContainer;
+      container.className += newContainerClasses;
 
       // vertical slider: get offsetTops before container transform
       if (!horizontal || autoWidth) {
