@@ -42,7 +42,7 @@ import { hasAttr } from './helpers/hasAttr.js';
 import { getAttr } from './helpers/getAttr.js';
 import { setAttrs } from './helpers/setAttrs.js';
 import { removeAttrs } from './helpers/removeAttrs.js';
-import { removeElementStyles } from './helpers/removeElementStyles.js';
+// import { removeElementStyles } from './helpers/removeElementStyles.js';
 import { arrayFromNodeList } from './helpers/arrayFromNodeList.js';
 import { hideElement } from './helpers/hideElement.js';
 import { showElement } from './helpers/showElement.js';
@@ -1200,7 +1200,7 @@ export var tns = function(options) {
         disableSlider(disable);
       }
       
-      if (freeze !== freezeTem) {
+      if (freeze !== freezeTem && !disable) {
         // reset container transforms
         if (freeze) {
           doContainerTransform(getContainerTransformValue(getStartIndex(0)));
@@ -1215,7 +1215,7 @@ export var tns = function(options) {
         speed = getOption('speed');
 
         fixedWidth = getOption('fixedWidth');
-        if (!disable && fixedWidth !== fixedWidthTem) {
+        if (fixedWidth !== fixedWidthTem) {
           needContainerTransform = true;
         }
 
@@ -1360,7 +1360,7 @@ export var tns = function(options) {
         if (!fixedWidth) { needContainerTransform = true; }
       }
 
-      if (index !== indexTem) { 
+      if (index !== indexTem && !disable) { 
         events.emit('indexChanged', info());
         needContainerTransform = true;
       }
@@ -1374,13 +1374,15 @@ export var tns = function(options) {
       }
     }
 
-    if (needContainerTransform) {
-      doContainerTransformSilent();
-      indexCached = index;
-    }
+    if (!disable) {
+      // auto height
+      if (autoHeight || !carousel) { runAutoHeight(); }
 
-    // auto height
-    if ((autoHeight || !carousel) && !disable) { runAutoHeight(); }
+      if (needContainerTransform) {
+        doContainerTransformSilent();
+        indexCached = index;
+      }
+    }
 
     if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointEnd', info(e)); }
   }
@@ -1501,7 +1503,7 @@ export var tns = function(options) {
     if (disable) {
       sheet.disabled = true;
       container.className = container.className.replace(newContainerClasses.substring(1), '');
-      removeElementStyles(container);
+      removeAttrs(container, ['style']);
       if (loop) {
         for (var j = cloneCount; j--;) {
           if (carousel) { hideElement(slideItems[j]); }
@@ -1510,13 +1512,13 @@ export var tns = function(options) {
       }
 
       // vertical slider
-      if (!horizontal || !carousel) { removeElementStyles(innerWrapper); }
+      if (!horizontal || !carousel) { removeAttrs(innerWrapper, ['style']); }
 
       // gallery
       if (!carousel) { 
         for (var i = index, l = index + slideCount; i < l; i++) {
           var item = slideItems[i];
-          removeElementStyles(item);
+          removeAttrs(item, ['style']);
           removeClass(item, animateIn);
           removeClass(item, animateNormal);
         }
