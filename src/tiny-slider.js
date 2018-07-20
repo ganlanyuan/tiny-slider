@@ -1925,6 +1925,7 @@ export var tns = function(options) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
+      if (autoHeight) { runAutoHeight(); }
 
       // pause autoplay when click or keydown from user
       if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
@@ -1996,8 +1997,6 @@ export var tns = function(options) {
             doContainerTransformSilent();
           }
         } 
-
-        if (autoHeight) { runAutoHeight(); }
 
         if (nested === 'inner') { events.emit('innerLoaded', info()); }
         running = false;

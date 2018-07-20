@@ -56,7 +56,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = ['base'] %} #}
+  {# {% set sliders = ['autoHeight'] %} #}
 {% else %}
   {% set sliders = [
     'base',
@@ -179,10 +179,10 @@
 
         {# auto height #}
         {% elif slide === 'autoHeight' %}
-          {% set hs = [400, 600, 500, 700, 400, 500, 700] %}
+          {% set hs = [500, 700, 600, 800, 500, 600, 800] %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/1000x{{ hs[i-1] }}" alt=""></div>
+              <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/1400x{{ hs[i-1] }}" alt=""></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}
