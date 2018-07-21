@@ -1580,244 +1580,250 @@ var tns = function(options) {
 
   function resizeTasks (e) {
     if (!isOn) { return; }
-
-    windowWidth = getWindowWidth();
     if (nested === 'outer') { events.emit('outerResized', info(e)); }
+    windowWidth = getWindowWidth();
 
-    var breakpointZoneTem = breakpointZone,
-        edgePaddingTem = edgePadding,
-        gutterTem = gutter,
-        indexTem = index, 
-        itemsTem = items,
-        freezeTem = freeze,
-        needContainerTransform = false;
+    // if (responsive) {
+      var breakpointZoneTem = breakpointZone,
+          edgePaddingTem = edgePadding,
+          gutterTem = gutter,
+          indexTem = index, 
+          itemsTem = items,
+          freezeTem = freeze,
+          needContainerTransform = false;
 
-    edgePadding = getOption('edgePadding');
-    gutter = getOption('gutter');
-    viewport = getViewportWidth();
-    if (responsive) { setBreakpointZone(); }
-    if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
-    if ((!horizontal || autoWidth) && !disable) {
-      getSlidePositions();
-      if (!horizontal) {
-        updateContentWrapperHeight();
-        needContainerTransform = true;
+      edgePadding = getOption('edgePadding');
+      gutter = getOption('gutter');
+      viewport = getViewportWidth();
+      if (responsive) { setBreakpointZone(); }
+      if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
+      if ((!horizontal || autoWidth) && !disable) {
+        getSlidePositions();
+        if (!horizontal) {
+          updateContentWrapperHeight();
+          needContainerTransform = true;
+        }
       }
-    }
-    if (fixedWidth || autoWidth) {
-      rightBoundary = getRightBoundary();
-      indexMax = getIndexMax();
-    }
-
-    // things do when breakpoint zone change
-    if (breakpointZoneTem !== breakpointZone || fixedWidth || autoWidth) {
-      var slideByTem = slideBy,
-          arrowKeysTem = arrowKeys,
-          autoHeightTem = autoHeight,
-          fixedWidthTem = fixedWidth,
-          disableTem = disable;
-
-      // update variables
-      items = getOption('items');
-      slideBy = getOption('slideBy');
-      disable = getOption('disable');
-      if (hasRightDeadZone) { needContainerTransform = true; }
-      freeze = getFreeze();
-
-      if (items !== itemsTem) {
-        if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
-        // check index before transform in case
-        // slider reach the right edge then items become bigger
-        updateIndex();
+      if (fixedWidth || autoWidth) {
+        rightBoundary = getRightBoundary();
+        indexMax = getIndexMax();
       }
 
-      if (disable !== disableTem) {
-        disableSlider(disable);
-      }
-      
-      if (freeze !== freezeTem && !disable) {
-        // reset container transforms
-        if (freeze) {
-          doContainerTransform(getContainerTransformValue(getStartIndex(0)));
-        } else {
+      // things do when breakpoint zone change
+      if (breakpointZoneTem !== breakpointZone || fixedWidth || autoWidth) {
+        var slideByTem = slideBy,
+            arrowKeysTem = arrowKeys,
+            autoHeightTem = autoHeight,
+            fixedWidthTem = fixedWidth,
+            disableTem = disable;
+
+        // update variables
+        items = getOption('items');
+        slideBy = getOption('slideBy');
+        disable = getOption('disable');
+        if (hasRightDeadZone) { needContainerTransform = true; }
+        freeze = getFreeze();
+
+        if (items !== itemsTem) {
+          if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
+          // check index before transform in case
+          // slider reach the right edge then items become bigger
+          updateIndex();
+        }
+
+        if (disable !== disableTem) {
+          disableSlider(disable);
+        }
+        
+        if (freeze !== freezeTem && !disable) {
+          // reset container transforms
+          if (freeze) {
+            doContainerTransform(getContainerTransformValue(getStartIndex(0)));
+          } else {
+            needContainerTransform = true;
+          }
+
+          toggleSlideDisplayAndEdgePadding();
+        }
+        
+        if (breakpointZoneTem !== breakpointZone) {
+          speed = getOption('speed');
+
+          fixedWidth = getOption('fixedWidth');
+          if (fixedWidth !== fixedWidthTem) {
+            needContainerTransform = true;
+          }
+
+          autoHeight = getOption('autoHeight');
+          if (autoHeight !== autoHeightTem) {
+            if (!autoHeight) { innerWrapper.style.height = ''; }
+          }
+        }
+
+        arrowKeys = freeze ? false : getOption('arrowKeys');
+        if (arrowKeys !== arrowKeysTem) {
+          arrowKeys ?
+            addEvents(doc, docmentKeydownEvent) :
+            removeEvents(doc, docmentKeydownEvent);
+        }
+
+        if (hasControls) {
+          var controlsTem = controls,
+              controlsTextTem = controlsText;
+          controls = freeze ? false : getOption('controls');
+          controlsText = getOption('controlsText');
+
+          if (controls !== controlsTem) {
+            controls ?
+              showElement(controlsContainer) :
+              hideElement(controlsContainer); 
+          }
+          if (controlsText !== controlsTextTem) {
+            prevButton.innerHTML = controlsText[0];
+            nextButton.innerHTML = controlsText[1];
+          }
+        }
+        if (hasNav) {
+          var navTem = nav;
+          nav = freeze ? false : getOption('nav');
+
+          if (nav !== navTem) {
+            if (nav) {
+              showElement(navContainer);
+              updateNavVisibility();
+            } else {
+              hideElement(navContainer);
+            }
+          }
+        }
+        if (hasTouch) {
+          var touchTem = touch;
+          touch = freeze ? false : getOption('touch');
+
+          if (touch !== touchTem && carousel) {
+            touch ?
+              addEvents(container, touchEvents) :
+              removeEvents(container, touchEvents);
+          }
+        }
+        if (hasMouseDrag) {
+          var mouseDragTem = mouseDrag;
+          mouseDrag = freeze ? false : getOption('mouseDrag');
+
+          if (mouseDrag !== mouseDragTem && carousel) {
+            mouseDrag ?
+              addEvents(container, dragEvents) :
+              removeEvents(container, dragEvents);
+          }
+        }
+        if (hasAutoplay) {
+          var autoplayTem = autoplay,
+              autoplayHoverPauseTem = autoplayHoverPause,
+              autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
+              autoplayTextTem = autoplayText;
+
+          if (freeze) {
+            autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+          } else {
+            autoplay = getOption('autoplay');
+            
+            if (autoplay) {
+              autoplayHoverPause = getOption('autoplayHoverPause');
+              autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
+            } else {
+              autoplayHoverPause = autoplayResetOnVisibility = false;
+            }
+          }
+          autoplayText = getOption('autoplayText');
+          autoplayTimeout = getOption('autoplayTimeout');
+
+          if (autoplay !== autoplayTem) {
+            if (autoplay) {
+              if (autoplayButton) { showElement(autoplayButton); }
+              if (!animating && !autoplayUserPaused) { startAutoplay(); }
+            } else {
+              if (autoplayButton) { hideElement(autoplayButton); }
+              if (animating) { stopAutoplay(); }
+            }
+          }
+          if (autoplayHoverPause !== autoplayHoverPauseTem) {
+            autoplayHoverPause ?
+              addEvents(container, hoverEvents) :
+              removeEvents(container, hoverEvents);
+          }
+          if (autoplayResetOnVisibility !== autoplayResetOnVisibilityTem) {
+            autoplayResetOnVisibility ?
+              addEvents(doc, visibilityEvent) :
+              removeEvents(doc, visibilityEvent);
+          }
+          if (autoplayButton && autoplayText !== autoplayTextTem) {
+            var i = autoplay ? 1 : 0,
+                html = autoplayButton.innerHTML,
+                len = html.length - autoplayTextTem[i].length;
+            if (html.substring(len) === autoplayTextTem[i]) {
+              autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
+            }
+          }
+        }
+
+        // non-meduaqueries: IE8
+        // ## update inner wrapper, container, slides if needed
+        // set inline styles for inner wrapper & container
+        // insert stylesheet (one line) for slides only (since slides are many)
+        if (!CSSMQ) {
+          // inner wrapper styles
+          if (!freeze && (edgePadding !== edgePaddingTem || gutter !== gutterTem)) {
+            innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+          }
+
+          if (horizontal && !fixedWidth) {
+            // container styles
+            if (carousel) {
+              container.style.width = getContainerWidth(false, null, items);
+            }
+
+            // slide styles
+            var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
+                      getSlideGutterStyle(gutter);
+
+            // remove the last line and
+            // add new styles
+            removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
+            addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
+          }
+
+          if (!fixedWidth) { needContainerTransform = true; }
+        }
+
+        if (index !== indexTem && !disable) { 
+          events.emit('indexChanged', info());
           needContainerTransform = true;
         }
 
-        toggleSlideDisplayAndEdgePadding();
-      }
-      
-      if (breakpointZoneTem !== breakpointZone) {
-        speed = getOption('speed');
-
-        fixedWidth = getOption('fixedWidth');
-        if (fixedWidth !== fixedWidthTem) {
-          needContainerTransform = true;
-        }
-
-        autoHeight = getOption('autoHeight');
-        if (autoHeight !== autoHeightTem) {
-          if (!autoHeight) { innerWrapper.style.height = ''; }
+        // items is not updated in autoWidth slider
+        if (items !== itemsTem || autoWidth) { 
+          additionalUpdates();
+          updateSlidePosition();
         }
       }
 
-      arrowKeys = freeze ? false : getOption('arrowKeys');
-      if (arrowKeys !== arrowKeysTem) {
-        arrowKeys ?
-          addEvents(doc, docmentKeydownEvent) :
-          removeEvents(doc, docmentKeydownEvent);
-      }
+      if (!disable) {
+        // auto height
+        if (autoHeight || !carousel) { runAutoHeight(); }
 
-      if (hasControls) {
-        var controlsTem = controls,
-            controlsTextTem = controlsText;
-        controls = freeze ? false : getOption('controls');
-        controlsText = getOption('controlsText');
-
-        if (controls !== controlsTem) {
-          controls ?
-            showElement(controlsContainer) :
-            hideElement(controlsContainer); 
-        }
-        if (controlsText !== controlsTextTem) {
-          prevButton.innerHTML = controlsText[0];
-          nextButton.innerHTML = controlsText[1];
-        }
-      }
-      if (hasNav) {
-        var navTem = nav;
-        nav = freeze ? false : getOption('nav');
-
-        if (nav !== navTem) {
-          if (nav) {
-            showElement(navContainer);
-            updateNavVisibility();
-          } else {
-            hideElement(navContainer);
-          }
-        }
-      }
-      if (hasTouch) {
-        var touchTem = touch;
-        touch = freeze ? false : getOption('touch');
-
-        if (touch !== touchTem && carousel) {
-          touch ?
-            addEvents(container, touchEvents) :
-            removeEvents(container, touchEvents);
-        }
-      }
-      if (hasMouseDrag) {
-        var mouseDragTem = mouseDrag;
-        mouseDrag = freeze ? false : getOption('mouseDrag');
-
-        if (mouseDrag !== mouseDragTem && carousel) {
-          mouseDrag ?
-            addEvents(container, dragEvents) :
-            removeEvents(container, dragEvents);
-        }
-      }
-      if (hasAutoplay) {
-        var autoplayTem = autoplay,
-            autoplayHoverPauseTem = autoplayHoverPause,
-            autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
-            autoplayTextTem = autoplayText;
-
-        if (freeze) {
-          autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
-        } else {
-          autoplay = getOption('autoplay');
-          
-          if (autoplay) {
-            autoplayHoverPause = getOption('autoplayHoverPause');
-            autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
-          } else {
-            autoplayHoverPause = autoplayResetOnVisibility = false;
-          }
-        }
-        autoplayText = getOption('autoplayText');
-        autoplayTimeout = getOption('autoplayTimeout');
-
-        if (autoplay !== autoplayTem) {
-          if (autoplay) {
-            if (autoplayButton) { showElement(autoplayButton); }
-            if (!animating && !autoplayUserPaused) { startAutoplay(); }
-          } else {
-            if (autoplayButton) { hideElement(autoplayButton); }
-            if (animating) { stopAutoplay(); }
-          }
-        }
-        if (autoplayHoverPause !== autoplayHoverPauseTem) {
-          autoplayHoverPause ?
-            addEvents(container, hoverEvents) :
-            removeEvents(container, hoverEvents);
-        }
-        if (autoplayResetOnVisibility !== autoplayResetOnVisibilityTem) {
-          autoplayResetOnVisibility ?
-            addEvents(doc, visibilityEvent) :
-            removeEvents(doc, visibilityEvent);
-        }
-        if (autoplayButton && autoplayText !== autoplayTextTem) {
-          var i = autoplay ? 1 : 0,
-              html = autoplayButton.innerHTML,
-              len = html.length - autoplayTextTem[i].length;
-          if (html.substring(len) === autoplayTextTem[i]) {
-            autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
-          }
+        if (needContainerTransform) {
+          doContainerTransformSilent();
+          indexCached = index;
         }
       }
 
-      // non-meduaqueries: IE8
-      // ## update inner wrapper, container, slides if needed
-      // set inline styles for inner wrapper & container
-      // insert stylesheet (one line) for slides only (since slides are many)
-      if (!CSSMQ) {
-        // inner wrapper styles
-        if (!freeze && (edgePadding !== edgePaddingTem || gutter !== gutterTem)) {
-          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
-        }
-
-        if (horizontal && !fixedWidth) {
-          // container styles
-          if (carousel) {
-            container.style.width = getContainerWidth(false, null, items);
-          }
-
-          // slide styles
-          var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
-                    getSlideGutterStyle(gutter);
-
-          // remove the last line and
-          // add new styles
-          removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
-          addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
-        }
-
-        if (!fixedWidth) { needContainerTransform = true; }
-      }
-
-      if (index !== indexTem && !disable) { 
-        events.emit('indexChanged', info());
-        needContainerTransform = true;
-      }
-
-      // items is not updated in autoWidth slider
-      if (items !== itemsTem || autoWidth) { 
-        additionalUpdates();
-        updateSlidePosition();
-      }
-    }
-
-    if (!disable) {
-      // auto height
-      if (autoHeight || !carousel) { runAutoHeight(); }
-
-      if (needContainerTransform) {
-        doContainerTransformSilent();
-        indexCached = index;
-      }
-    }
-
-    if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointEnd', info(e)); }
+      if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointEnd', info(e)); }
+    // fixed width / auto width / vertical slides
+    // } else {
+    //   if (fixedWidth) {
+    //     viewport = getViewportWidth();
+    //   }
+    // }
   }
 
 

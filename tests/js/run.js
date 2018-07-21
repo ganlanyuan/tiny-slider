@@ -3,6 +3,7 @@
 for (var i in options) {
   var item = options[i];
   item.container = '#' + i;
+  item.swipeAngle = false;
   if (!item.speed) { item.speed = speed; }
   
   if (doc.querySelector(item.container)) {
