@@ -623,43 +623,56 @@ var tns = function(options) {
     return;
    }
 
-  // update responsive
-  // from: { 
-  //    300: 2, 
-  //    800: {
-  //      loop: false
-  //    }
-  // }
-  // to: {
-  //    300: { 
-  //      items: 2 
-  //    }, 
-  //    800: {
-  //      loop: false
-  //    }
-  // }
-  if (options.responsive) {
-    var resTem = {}, res = options.responsive;
-    for(var key in res) {
-      var val = res[key];
-      resTem[key] = typeof val === 'number' ? {items: val} :  val;
-    }
+  // update options
+  var responsive = options.responsive,
+      nested = options.nested,
+      carousel = options.mode === 'carousel' ? true : false;
 
-    options.responsive = resTem;
-    resTem = null;
+  if (responsive) {
+    // update responsive
+    // from: { 
+    //    300: 2
+    // }
+    // to: {
+    //    300: { 
+    //      items: 2 
+    //    } 
+    // }
+    var responsiveTem = {};
+    for (var key in responsive) {
+      var val = responsive[key];
+      responsiveTem[key] = typeof val === 'number' ? {items: val} :  val;
+    }
+    responsive = responsiveTem;
+    responsiveTem = null;
 
     // apply responsive[0] to options and remove it
-    if (0 in options.responsive) {
-      options = extend(options, options.responsive[0]);
-      delete options.responsive[0];
+    if (0 in responsive) {
+      options = extend(options, responsive[0]);
+      delete responsive[0];
     }
   }
 
-  // === define and set variables ===
-  var carousel = options.mode === 'carousel' ? true : false;
+  // update options
+  function updateOptions (obj) {
+    for (var key in obj) {
+      if (!carousel) {
+        if (key === 'slideBy') { obj[key] = 'page'; }
+        if (key === 'edgePadding') { obj[key] = false; }
+      }
+      if (nested === 'outer' && key === 'autoHeight') { obj[key] = true; }
 
+      // update responsive options
+      if (key === 'responsive') { updateOptions(obj[key]); }
+    }
+  }
+  if (!carousel || nested === 'outer') { updateOptions(options); }
+
+
+  // === define and set variables ===
   if (!carousel) {
     options.axis = 'horizontal';
+    options.slideBy = 'page';
     options.edgePadding = false;
 
     var animateIn = options.animateIn,
@@ -676,20 +689,18 @@ var tns = function(options) {
       containerHTML = container.outerHTML,
       slideItems = container.children,
       slideCount = slideItems.length,
-      responsive = options.responsive,
       breakpointZone = 0,
       windowWidth = getWindowWidth(),
       isOn;
 
   // fixedWidth: viewport > rightBoundary > indexMax
-  var nested = options.nested,
-      autoWidth = options.autoWidth,
+  var autoWidth = options.autoWidth,
       fixedWidth = getOption('fixedWidth'),
       edgePadding = getOption('edgePadding'),
       gutter = getOption('gutter'),
       viewport = getViewportWidth(),
       items = !autoWidth ? Math.floor(getOption('items')) : 1,
-      slideBy = getOption('slideBy') === 'page' ? items : getOption('slideBy'),
+      slideBy = getOption('slideBy'),
       viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
       arrowKeys = getOption('arrowKeys'),
       speed = getOption('speed'),
@@ -945,38 +956,27 @@ var tns = function(options) {
 
   function getOption (item, viewport) {
     viewport = viewport ? viewport : windowWidth;
-    
-    var obj = {
-          slideBy: 'page',
-          edgePadding: false
-        },
-        result;
 
-    if (!carousel && item in obj) {
-      result = obj[item];
+    if (item === 'items' && fixedWidth) {
+      return Math.floor(viewport / (fixedWidth + gutter));
+
     } else {
-      if (item === 'items' && fixedWidth) {
-        result = Math.floor(viewport / (fixedWidth + gutter));
-      } else if (item === 'autoHeight' && nested === 'outer') {
-        result = true;
-      } else {
-        result = options[item];
+      var result = options[item];
 
-        if (responsive) {
-          for (var bp in responsive) {
-            // bp: convert string to number
-            if (viewport >= parseInt(bp)) {
-              if (item in responsive[bp]) { result = responsive[bp][item]; }
-            }
+      if (responsive) {
+        for (var bp in responsive) {
+          // bp: convert string to number
+          if (viewport >= parseInt(bp)) {
+            if (item in responsive[bp]) { result = responsive[bp][item]; }
           }
         }
       }
+
+      if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
+      if (!carousel && (item === 'slideBy' || item === 'items')) { result = Math.floor(result); }
+
+      return result;
     }
-
-    if (item === 'slideBy' && result === 'page') { result = getOption('items'); }
-    if (!carousel && (item === 'slideBy' || item === 'items')) { result = Math.floor(result); }
-
-    return result;
   }
 
   function getSlideMarginLeft (i) {
