@@ -1484,7 +1484,7 @@ var tns = function(options) {
         resizeTasks();
         events.emit('innerLoaded', info());
       });
-    } else {
+    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
       addEvents(win, {'resize': onResize});
     }
 
@@ -1512,7 +1512,9 @@ var tns = function(options) {
     sheet.disabled = true;
 
     // remove win event listeners
-    removeEvents(win, {'resize': onResize});
+    if (nested !== 'inner' && (responsive || fixedWidth || autoWidth || !horizontal)) {
+      removeEvents(win, {'resize': onResize});
+    }
 
     // remove arrowKeys eventlistener
     if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
@@ -1802,8 +1804,6 @@ var tns = function(options) {
       if (items !== itemsTem || autoWidth) { 
         additionalUpdates();
         updateSlidePosition();
-
-        if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
     }
 

@@ -42,7 +42,6 @@ import { hasAttr } from './helpers/hasAttr.js';
 import { getAttr } from './helpers/getAttr.js';
 import { setAttrs } from './helpers/setAttrs.js';
 import { removeAttrs } from './helpers/removeAttrs.js';
-// import { removeElementStyles } from './helpers/removeElementStyles.js';
 import { arrayFromNodeList } from './helpers/arrayFromNodeList.js';
 import { hideElement } from './helpers/hideElement.js';
 import { showElement } from './helpers/showElement.js';
@@ -1051,7 +1050,7 @@ export var tns = function(options) {
         resizeTasks();
         events.emit('innerLoaded', info());
       });
-    } else {
+    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
       addEvents(win, {'resize': onResize});
     }
 
@@ -1079,7 +1078,9 @@ export var tns = function(options) {
     sheet.disabled = true;
 
     // remove win event listeners
-    removeEvents(win, {'resize': onResize});
+    if (nested !== 'inner' && (responsive || fixedWidth || autoWidth || !horizontal)) {
+      removeEvents(win, {'resize': onResize});
+    }
 
     // remove arrowKeys eventlistener
     if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
@@ -1369,8 +1370,6 @@ export var tns = function(options) {
       if (items !== itemsTem || autoWidth) { 
         additionalUpdates();
         updateSlidePosition();
-
-        if (navigator.msMaxTouchPoints) { setSnapInterval(); }
       }
     }
 
