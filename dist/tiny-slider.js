@@ -736,6 +736,7 @@ var tns = function(options) {
       newContainerClasses = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
+      disabled,
       freezable = options.freezable,
       freeze = !autoWidth ? getFreeze() : null,
       frozen,
@@ -1495,14 +1496,16 @@ var tns = function(options) {
     }
 
     if (!autoWidth) { lazyLoad(); }
-    toggleSlideDisplayAndEdgePadding();
+
+    if (disable) {
+      disableSlider();
+    } else if (freeze) {
+      freezeSlider();
+    }
 
     events.on('indexChanged', additionalUpdates);
-
     if (typeof onInit === 'function') { onInit(info()); }
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
-
-    if (disable) { disableSlider(true); }
 
     isOn = true;
   }
@@ -1632,18 +1635,23 @@ var tns = function(options) {
         }
 
         if (disable !== disableTem) {
-          disableSlider(disable);
+          if (disable) {
+            disableSlider();
+          } else {
+            enableSlider();
+          }
         }
         
-        if (freeze !== freezeTem && !disable) {
-          // reset container transforms
+        if (freeze !== freezeTem) {
           if (freeze) {
-            doContainerTransform(getContainerTransformValue(getStartIndex(0)));
-          } else {
+            if (!disabled && !frozen) {
+              doContainerTransform(getContainerTransformValue(getStartIndex(0)));
+              freezeSlider();
+            }
+          } else if (frozen) {
+            unfreezeSlider();
             needContainerTransform = true;
           }
-
-          toggleSlideDisplayAndEdgePadding();
         }
         
         if (breakpointZoneTem !== breakpointZone) {
@@ -1901,98 +1909,98 @@ var tns = function(options) {
       };
   })();
 
-  function toggleSlideDisplayAndEdgePadding () {
-    var str = 'tns-transparent';
+  function freezeSlider () {
+    // remove edge padding from inner wrapper
+    if (edgePadding) { innerWrapper.style.margin = '0px'; }
 
-    if (freeze) {
-      if (!frozen) {
-        // remove edge padding from inner wrapper
-        if (edgePadding) { innerWrapper.style.margin = '0px'; }
-
-        // add class tns-transparent to cloned slides
-        if (cloneCount) {
-          for (var i = cloneCount; i--;) {
-            if (carousel) { addClass(slideItems[i], str); }
-            addClass(slideItems[slideCountNew - i - 1], str);
-          }
-        }
-
-        frozen = true;
+    // add class tns-transparent to cloned slides
+    if (cloneCount) {
+      var str = 'tns-transparent';
+      for (var i = cloneCount; i--;) {
+        if (carousel) { addClass(slideItems[i], str); }
+        addClass(slideItems[slideCountNew - i - 1], str);
       }
-    } else if (frozen) {
-      // restore edge padding for inner wrapper
-      // for mordern browsers
-      if (edgePadding && CSSMQ) { innerWrapper.style.margin = ''; }
-
-      // remove class tns-transparent to cloned slides
-      if (cloneCount) {
-        for (var i = cloneCount; i--;) {
-          if (carousel) { removeClass(slideItems[i], str); }
-          removeClass(slideItems[slideCountNew - i - 1], str);
-        }
-      }
-
-      frozen = false;
     }
+
+    frozen = true;
   }
 
-  function disableSlider (disable) {
-    var len = slideItems.length;
-    
-    if (disable) {
-      sheet.disabled = true;
-      container.className = container.className.replace(newContainerClasses.substring(1), '');
-      removeAttrs(container, ['style']);
-      if (loop) {
-        for (var j = cloneCount; j--;) {
-          if (carousel) { hideElement(slideItems[j]); }
-          hideElement(slideItems[len - j - 1]);
-        }
-      }
+  function unfreezeSlider () {
+    // restore edge padding for inner wrapper
+    // for mordern browsers
+    if (edgePadding && CSSMQ) { innerWrapper.style.margin = ''; }
 
-      // vertical slider
-      if (!horizontal || !carousel) { removeAttrs(innerWrapper, ['style']); }
-
-      // gallery
-      if (!carousel) { 
-        for (var i = index, l = index + slideCount; i < l; i++) {
-          var item = slideItems[i];
-          removeAttrs(item, ['style']);
-          removeClass(item, animateIn);
-          removeClass(item, animateNormal);
-        }
-      }
-    } else {
-      sheet.disabled = false;
-      container.className += newContainerClasses;
-
-      // vertical slider: get offsetTops before container transform
-      if (!horizontal || autoWidth) {
-        getSlidePositions();
-        if (autoWidth) {
-          rightBoundary = getRightBoundary();
-          indexMax = getIndexMax();
-        }
-      }
-
-      doContainerTransformSilent();
-      if (loop) {
-        for (var j = cloneCount; j--;) {
-          if (carousel) { showElement(slideItems[j]); }
-          showElement(slideItems[len - j - 1]);
-        }
-      }
-
-      // gallery
-      if (!carousel) { 
-        for (var i = index, l = index + slideCount; i < l; i++) {
-          var item = slideItems[i],
-              classN = i < index + items ? animateIn : animateNormal;
-          item.style.left = (i - index) * 100 / items + '%';
-          addClass(item, classN);
-        }
+    // remove class tns-transparent to cloned slides
+    if (cloneCount) {
+      var str = 'tns-transparent';
+      for (var i = cloneCount; i--;) {
+        if (carousel) { removeClass(slideItems[i], str); }
+        removeClass(slideItems[slideCountNew - i - 1], str);
       }
     }
+
+    frozen = false;
+  }
+
+  function disableSlider () {
+    sheet.disabled = true;
+    container.className = container.className.replace(newContainerClasses.substring(1), '');
+    removeAttrs(container, ['style']);
+    if (loop) {
+      for (var j = cloneCount; j--;) {
+        if (carousel) { hideElement(slideItems[j]); }
+        hideElement(slideItems[slideCountNew - j - 1]);
+      }
+    }
+
+    // vertical slider
+    if (!horizontal || !carousel) { removeAttrs(innerWrapper, ['style']); }
+
+    // gallery
+    if (!carousel) { 
+      for (var i = index, l = index + slideCount; i < l; i++) {
+        var item = slideItems[i];
+        removeAttrs(item, ['style']);
+        removeClass(item, animateIn);
+        removeClass(item, animateNormal);
+      }
+    }
+
+    disabled = true;
+  }
+
+  function enableSlider () {
+    sheet.disabled = false;
+    container.className += newContainerClasses;
+
+    // vertical slider: get offsetTops before container transform
+    if (!horizontal || autoWidth) {
+      getSlidePositions();
+      if (autoWidth) {
+        rightBoundary = getRightBoundary();
+        indexMax = getIndexMax();
+      }
+    }
+
+    doContainerTransformSilent();
+    if (loop) {
+      for (var j = cloneCount; j--;) {
+        if (carousel) { showElement(slideItems[j]); }
+        showElement(slideItems[slideCountNew - j - 1]);
+      }
+    }
+
+    // gallery
+    if (!carousel) { 
+      for (var i = index, l = index + slideCount; i < l; i++) {
+        var item = slideItems[i],
+            classN = i < index + items ? animateIn : animateNormal;
+        item.style.left = (i - index) * 100 / items + '%';
+        addClass(item, classN);
+      }
+    }
+
+    disabled = false;
   }
 
   function lazyLoad () {
