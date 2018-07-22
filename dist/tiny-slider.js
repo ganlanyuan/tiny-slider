@@ -1840,19 +1840,14 @@ var tns = function(options) {
 
   // === INITIALIZATION FUNCTIONS === //
   function getFreeze () {
-    if (disable) {
-      return true;
-    } else if (!freezable) {
-      return false;
-    } else if (!fixedWidth && !autoWidth) {
-      return slideCount <= items;
+    if (!freezable) { return false; }
+    if (!fixedWidth && !autoWidth) { return slideCount <= items; }
+
+    if (loop) {
+      var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
+      return width - gutter <= viewport;
     } else {
-      if (loop) {
-        var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
-        return width - gutter <= viewport;
-      } else {
-        return !rightBoundary;
-      }
+      return !rightBoundary;
     }
   }
 
