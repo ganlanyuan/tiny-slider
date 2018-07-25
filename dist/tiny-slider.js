@@ -629,28 +629,26 @@ var tns = function(options) {
       carousel = options.mode === 'carousel' ? true : false;
 
   if (responsive) {
-    // update responsive
-    // from: { 
-    //    300: 2
-    // }
-    // to: {
-    //    300: { 
-    //      items: 2 
-    //    } 
-    // }
-    var responsiveTem = {};
-    for (var key in responsive) {
-      var val = responsive[key];
-      responsiveTem[key] = typeof val === 'number' ? {items: val} :  val;
-    }
-    responsive = responsiveTem;
-    responsiveTem = null;
-
     // apply responsive[0] to options and remove it
     if (0 in responsive) {
       options = extend(options, responsive[0]);
       delete responsive[0];
     }
+
+    var responsiveTem = {};
+    for (var key in responsive) {
+      var val = responsive[key];
+      // update responsive
+      // from: 300: 2
+      // to: 
+      //   300: { 
+      //     items: 2 
+      //   } 
+      val = typeof val === 'number' ? {items: val} : val;
+      responsiveTem[key] = val;
+    }
+    responsive = responsiveTem;
+    responsiveTem = null;
   }
 
   // update options
@@ -689,9 +687,10 @@ var tns = function(options) {
       containerHTML = container.outerHTML,
       slideItems = container.children,
       slideCount = slideItems.length,
-      breakpointZone = 0,
+      breakpointZone,
       windowWidth = getWindowWidth(),
       isOn;
+  if (responsive) { setBreakpointZone(); }
 
   // fixedWidth: viewport > rightBoundary > indexMax
   var autoWidth = options.autoWidth,
@@ -721,6 +720,27 @@ var tns = function(options) {
       transformPrefix = '',
       transformPostfix = '',
       // index
+      getIndexMax = (function () {
+        if (fixedWidth) {
+          return function() { return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1; };
+        } else if (autoWidth) {
+          return function() {
+            // var i = slideCountNew - 1, result = i;
+            // while (slidePositions[i] > - rightBoundary) {
+            //   i--;
+            //   result = i;
+            // }
+            for (var i = slideCountNew, result = i - 1; i--;) {
+              if (slidePositions[i] > - rightBoundary) { result = i; }
+            }
+            return result;
+          };
+        } else {
+          return function() {
+            return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1; // *?
+          };
+        }
+      })(),
       index = getStartIndex(getOption('startIndex')),
       indexCached = index,
       indexMin = 0,
@@ -736,10 +756,10 @@ var tns = function(options) {
       newContainerClasses = ' tns-slider tns-' + options.mode,
       slideId = container.id || getSlideId(),
       disable = getOption('disable'),
-      disabled,
+      disabled = false,
       freezable = options.freezable,
-      freeze = !autoWidth ? getFreeze() : null,
-      frozen,
+      freeze = freezable && !autoWidth ? getFreeze() : false,
+      frozen = false,
       controlsEvents = {
         'click': onControlsClick,
         'keydown': onControlsKeydown
@@ -784,6 +804,7 @@ var tns = function(options) {
     var controls = getOption('controls'),
         controlsText = getOption('controlsText'),
         controlsContainer = options.controlsContainer,
+        controlsContainerHTML = options.controlsContainer ? options.controlsContainer.outerHTML : '',
         prevButton = options.prevButton,
         nextButton = options.nextButton,
         prevIsButton,
@@ -794,6 +815,7 @@ var tns = function(options) {
   if (hasNav) {
     var nav = getOption('nav'),
         navContainer = options.navContainer,
+        navContainerHTML = options.navContainer ? options.navContainer.outerHTML : '',
         navItems,
         visibleNavIndexes = [],
         visibleNavIndexesCached = visibleNavIndexes,
@@ -811,6 +833,7 @@ var tns = function(options) {
         autoplayText = getOption('autoplayText'),
         autoplayHoverPause = getOption('autoplayHoverPause'),
         autoplayButton = options.autoplayButton,
+        autoplayButtonHTML = options.autoplayButton ? options.autoplayButton.outerHTML : '',
         autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
         autoplayHtmlStrings = ['<span class=\'tns-visually-hidden\'>', ' animation</span>'],
         autoplayTimer,
@@ -844,9 +867,7 @@ var tns = function(options) {
   }
 
   // disable slider when slidecount <= items
-  if (freeze) {
-    controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
-  }
+  resetVariblesWhenDisable(disable || freeze);
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
@@ -865,21 +886,9 @@ var tns = function(options) {
   sliderInit();
 
   // === COMMON FUNCTIONS === //
-  function getIndexMax () {
-    if (!fixedWidth && !autoWidth) {
-      return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1;
-    } else {
-      if (fixedWidth) {
-        return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1;
-      } else {
-        var i = slideCountNew - 1,
-            result = i;
-        while (slidePositions[i] > - rightBoundary) {
-          i--;
-          result = i;
-        }
-        return result;
-      }
+  function resetVariblesWhenDisable (condition) {
+    if (condition) {
+      controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
     }
   }
 
@@ -955,8 +964,12 @@ var tns = function(options) {
     }
   }
 
-  function getOption (item, viewport) {
-    viewport = viewport ? viewport : windowWidth;
+  // get option:
+  // fixed width: viewport, fixedWidth, gutter => items
+  // others: window width => all variables
+  // all: items => slideBy
+  function getOption (item, ww) {
+    if (ww == null) { ww = windowWidth; }
 
     if (item === 'items' && fixedWidth) {
       return Math.floor(viewport / (fixedWidth + gutter));
@@ -967,7 +980,7 @@ var tns = function(options) {
       if (responsive) {
         for (var bp in responsive) {
           // bp: convert string to number
-          if (viewport >= parseInt(bp)) {
+          if (ww >= parseInt(bp)) {
             if (item in responsive[bp]) { result = responsive[bp][item]; }
           }
         }
@@ -1170,7 +1183,7 @@ var tns = function(options) {
             if (autoWidth) {
               items = getOption('items');
               rightBoundary = getRightBoundary();
-              freeze = getFreeze();
+              if (freezable) { freeze = getFreeze(); }
               indexMax = getIndexMax();
 
               if (freeze) {
@@ -1345,7 +1358,6 @@ var tns = function(options) {
   }
 
   function initUI () {
-
     // == autoplayInit ==
     if (hasAutoplay) {
       var txt = autoplay ? 'stop' : 'start';
@@ -1361,11 +1373,7 @@ var tns = function(options) {
         addEvents(autoplayButton, {'click': toggleAutoplay});
       }
 
-      if (!autoplay) {
-        if (autoplayButton) {
-          hideElement(autoplayButton);
-        }
-      } else {
+      if (autoplay) {
         startAutoplay();
         if (autoplayHoverPause) { addEvents(container, hoverEvents); }
         if (autoplayResetOnVisibility) { addEvents(container, visibilityEvent); }
@@ -1426,8 +1434,6 @@ var tns = function(options) {
 
       // add events
       addEvents(navContainer, navEvents);
-
-      if (!nav) { hideElement(navContainer); }
     }
 
 
@@ -1470,9 +1476,10 @@ var tns = function(options) {
         addEvents(prevButton, controlsEvents);
         addEvents(nextButton, controlsEvents);
       }
-
-      if (!controls) { hideElement(controlsContainer); }
     }
+
+    // hide tools if needed
+    disableUI();
 
 
     if (touch) { addEvents(container, touchEvents); }
@@ -1515,46 +1522,25 @@ var tns = function(options) {
     sheet.disabled = true;
 
     // remove win event listeners
-    if (nested !== 'inner' && (responsive || fixedWidth || autoWidth || !horizontal)) {
-      removeEvents(win, {'resize': onResize});
-    }
+    removeEvents(win, {'resize': onResize});
 
-    // remove arrowKeys eventlistener
+    // remove arrowKeys event listener
     if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
 
-
     // controls
-    if (controls) {
-      removeEvents(controlsContainer, controlsEvents);
-      if (options.controlsContainer) {
-        removeAttrs(controlsContainer, ['aria-label', 'tabindex']);
-        removeAttrs(controlsContainer.children, ['aria-controls', 'aria-disabled', 'tabindex']);
-      }
-      controlsContainer = prevButton = nextButton = null;
-    }
+    if (controlsContainer) { removeEvents(controlsContainer, controlsEvents); }
+    if (controlsContainerHTML) { controlsContainer.outerHTML = controlsContainerHTML; }
 
     // nav
-    if (nav) {
-      removeEvents(navContainer, navEvents);
-      if (options.navContainer) {
-        removeAttrs(navContainer, ['aria-label']);
-        removeAttrs(navItems, ['aria-selected', 'aria-controls', 'tabindex']);
-      }
-      navContainer = navItems = null;
-    }
+    if (navContainer) { removeEvents(navContainer, navEvents); }
+    if (navContainerHTML) { navContainer.outerHTML = navContainerHTML; }
 
-    // auto
-    if (autoplay) {
-      clearInterval(autoplayTimer);
-      if (autoplayButton) {
-        removeEvents(autoplayButton, {'click': toggleAutoplay});
-      }
-      removeEvents(container, hoverEvents);
-      removeEvents(container, visibilityEvent);
-      if (options.autoplayButton) {
-        removeAttrs(autoplayButton, ['data-action']);
-      }
-    }
+    // autoplay
+    removeEvents(container, hoverEvents);
+    removeEvents(container, visibilityEvent);
+    if (autoplayButton) { removeEvents(autoplayButton, {'click': toggleAutoplay}); }
+    if (autoplay) { clearInterval(autoplayTimer); }
+    if (autoplayButtonHTML) { autoplayButton.outerHTML = autoplayButtonHTML; }
 
     // container
     if (carousel && TRANSITIONEND) {
@@ -1564,19 +1550,21 @@ var tns = function(options) {
     }
     if (touch) { removeEvents(container, touchEvents); }
     if (mouseDrag) { removeEvents(container, dragEvents); }
+    outerWrapper.outerHTML = containerHTML;
+    // outerWrapper.insertAdjacentHTML('beforebegin', containerHTML);
+    // outerWrapper.remove();
 
-    // switch back to the original HTML
-    outerWrapper.insertAdjacentHTML('beforebegin', containerHTML);
-    outerWrapper.remove();
+    // reset variables
+    animateIn = animateOut = animateDelay = animateNormal = horizontal = outerWrapper = innerWrapper = container = containerParent = containerHTML = slideItems = slideCount = breakpointZone = windowWidth = autoWidth = fixedWidth = edgePadding = gutter = viewport = items = slideBy = viewportMax = arrowKeys = speed = rewind = loop = autoHeight = sheet = lazyload = slidePositions = slideItemsOut = cloneCount = slideCountNew = hasRightDeadZone = rightBoundary = updateIndexBeforeTransform = transformAttr = transformPrefix = transformPostfix = getIndexMax = index = indexCached = indexMin = indexMax = resizeTimer = swipeAngle = moveDirectionExpected = running = onInit = events = newContainerClasses = slideId = disable = disabled = freezable = freeze = frozen = controlsEvents = navEvents = hoverEvents = visibilityEvent = docmentKeydownEvent = touchEvents = dragEvents = hasControls = hasNav = navAsThumbnails = hasAutoplay = hasTouch = hasMouseDrag = slideActiveClass = imgCompleteClass = imgEvents = imgsComplete = controls = controlsText = controlsContainer = controlsContainerHTML = prevButton = nextButton = prevIsButton = nextIsButton = nav = navContainer = navContainerHTML = navItems = visibleNavIndexes = visibleNavIndexesCached = navClicked = navCurrentIndex = navCurrentIndexCached = navActiveClass = autoplay = autoplayTimeout = autoplayDirection = autoplayText = autoplayHoverPause = autoplayButton = autoplayButtonHTML = autoplayResetOnVisibility = autoplayHtmlStrings = autoplayTimer = animating = autoplayHoverPaused = autoplayUserPaused = autoplayVisibilityPaused = initPosition = lastPosition = translateInit = disX = disY = panStart = rafIndex = getDist = touch = mouseDrag = null;
+    // check variables
+    // [animateIn, animateOut, animateDelay, animateNormal, horizontal, outerWrapper, innerWrapper, container, containerParent, containerHTML, slideItems, slideCount, breakpointZone, windowWidth, autoWidth, fixedWidth, edgePadding, gutter, viewport, items, slideBy, viewportMax, arrowKeys, speed, rewind, loop, autoHeight, sheet, lazyload, slidePositions, slideItemsOut, cloneCount, slideCountNew, hasRightDeadZone, rightBoundary, updateIndexBeforeTransform, transformAttr, transformPrefix, transformPostfix, getIndexMax, index, indexCached, indexMin, indexMax, resizeTimer, swipeAngle, moveDirectionExpected, running, onInit, events, newContainerClasses, slideId, disable, disabled, freezable, freeze, frozen, controlsEvents, navEvents, hoverEvents, visibilityEvent, docmentKeydownEvent, touchEvents, dragEvents, hasControls, hasNav, navAsThumbnails, hasAutoplay, hasTouch, hasMouseDrag, slideActiveClass, imgCompleteClass, imgEvents, imgsComplete, controls, controlsText, controlsContainer, controlsContainerHTML, prevButton, nextButton, prevIsButton, nextIsButton, nav, navContainer, navContainerHTML, navItems, visibleNavIndexes, visibleNavIndexesCached, navClicked, navCurrentIndex, navCurrentIndexCached, navActiveClass, autoplay, autoplayTimeout, autoplayDirection, autoplayText, autoplayHoverPause, autoplayButton, autoplayButtonHTML, autoplayResetOnVisibility, autoplayHtmlStrings, autoplayTimer, animating, autoplayHoverPaused, autoplayUserPaused, autoplayVisibilityPaused, initPosition, lastPosition, translateInit, disX, disY, panStart, rafIndex, getDist, touch, mouseDrag ].forEach(function(item) { if (item !== null) { console.log(item); } });
 
-    slideItems = slideId = slideCount = slideCountNew = cloneCount = 
-    outerWrapper = innerWrapper = container =
-    index = indexCached = items = slideBy = navCurrentIndex = navCurrentIndexCached = hasControls = visibleNavIndexes = visibleNavIndexesCached = 
     this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
     this.isOn = isOn = false;
   }
 
 // === ON RESIZE ===
+  // responsive || fixedWidth || autoWidth || !horizontal
   function onResize (e) {
     raf(function(){ resizeTasks(getEvent(e)); });
   }
@@ -1586,53 +1574,65 @@ var tns = function(options) {
     if (nested === 'outer') { events.emit('outerResized', info(e)); }
     windowWidth = getWindowWidth();
 
-    // if (responsive) {
-      var breakpointZoneTem = breakpointZone,
-          edgePaddingTem = edgePadding,
-          gutterTem = gutter,
-          indexTem = index, 
-          itemsTem = items,
-          freezeTem = freeze,
-          needContainerTransform = false;
+    var bpChanged,
+        indChanged,
+        itemsChanged,
+        fixedWidthTem = fixedWidth,
+        itemsTem = items,
+        disableTem = disable,
+        freezeTem = freeze,
+        arrowKeysTem = arrowKeys,
+        autoHeightTem = autoHeight,
+        controlsTem = controls,
+        controlsTextTem = controlsText,
+        navTem = nav,
+        touchTem = touch,
+        mouseDragTem = mouseDrag,
+        autoplayTem = autoplay,
+        autoplayHoverPauseTem = autoplayHoverPause,
+        autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
+        autoplayTextTem = autoplayText,
+        indexTem = index,
+        breakpointZoneTem = breakpointZone,
+        needContainerTransform = false;
 
-      edgePadding = getOption('edgePadding');
-      gutter = getOption('gutter');
-      viewport = getViewportWidth();
-      if (responsive) { setBreakpointZone(); }
-      if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointStart', info(e)); }
-      if ((!horizontal || autoWidth) && !disable) {
-        getSlidePositions();
-        if (!horizontal) {
-          updateContentWrapperHeight();
-          needContainerTransform = true;
-        }
-      }
-      if (fixedWidth || autoWidth) {
-        rightBoundary = getRightBoundary();
-        indexMax = getIndexMax();
-      }
+    if (!CSSMQ) {
+      var gutterTem = gutter,
+          edgePaddingTem = edgePadding;
+    }
 
-      // things do when breakpoint zone change
-      if (breakpointZoneTem !== breakpointZone || fixedWidth || autoWidth) {
-        var slideByTem = slideBy,
-            arrowKeysTem = arrowKeys,
-            autoHeightTem = autoHeight,
-            fixedWidthTem = fixedWidth,
-            disableTem = disable;
+    // get option:
+    // fixed width: viewport, fixedWidth, gutter => items
+    // others: window width => all variables
+    // all: items => slideBy
+    fixedWidth = getOption('fixedWidth');
+    edgePadding = getOption('edgePadding');
+    gutter = getOption('gutter');
+    disable = getOption('disable');
+    slideBy = getOption('slideBy');
+    speed = getOption('speed');
+    autoHeight = getOption('autoHeight');
+    arrowKeys = getOption('arrowKeys');
+    controls = getOption('controls');
+    controlsText = getOption('controlsText');
+    nav = getOption('nav');
+    touch = getOption('touch');
+    mouseDrag = getOption('mouseDrag');
+    autoplay = getOption('autoplay');
+    autoplayText = getOption('autoplayText');
+    autoplayTimeout = getOption('autoplayTimeout');
+    autoplayHoverPause = getOption('autoplayHoverPause');
+    autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
+    // update options
+    resetVariblesWhenDisable(disable);
 
-        // update variables
-        items = getOption('items');
-        slideBy = getOption('slideBy');
-        disable = getOption('disable');
-        if (hasRightDeadZone) { needContainerTransform = true; }
-        freeze = getFreeze();
+    if (responsive) {
+      setBreakpointZone();
+      bpChanged = breakpointZoneTem !== breakpointZone;
+      // if (hasRightDeadZone) { needContainerTransform = true; } // *?
 
-        if (items !== itemsTem) {
-          if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
-          // check index before transform in case
-          // slider reach the right edge then items become bigger
-          updateIndex();
-        }
+      if (bpChanged) {
+        events.emit('newBreakpointStart', info(e));
 
         if (disable !== disableTem) {
           if (disable) {
@@ -1641,197 +1641,167 @@ var tns = function(options) {
             enableSlider();
           }
         }
-        
-        if (freeze !== freezeTem) {
-          if (freeze) {
-            if (!disabled && !frozen) {
-              doContainerTransform(getContainerTransformValue(getStartIndex(0)));
-              freezeSlider();
-            }
-          } else if (frozen) {
-            unfreezeSlider();
-            needContainerTransform = true;
-          }
-        }
-        
-        if (breakpointZoneTem !== breakpointZone) {
-          speed = getOption('speed');
 
-          fixedWidth = getOption('fixedWidth');
-          if (fixedWidth !== fixedWidthTem) {
-            needContainerTransform = true;
-          }
+        if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
+      }
+    }
 
-          autoHeight = getOption('autoHeight');
-          if (autoHeight !== autoHeightTem) {
-            if (!autoHeight) { innerWrapper.style.height = ''; }
-          }
-        }
+    viewport = getViewportWidth(); // <= edgePadding, gutter
+    if ((!horizontal || autoWidth) && !disable) {
+      getSlidePositions();
+      if (!horizontal) {
+        updateContentWrapperHeight(); // <= getSlidePositions ?
+        needContainerTransform = true;
+      }
+    }
+    if (fixedWidth || autoWidth) {
+      rightBoundary = getRightBoundary(); // autoWidth: <= viewport, slidePositions, gutter
+                                          // fixedWidth: <= viewport, fixedWidth, gutter
+      indexMax = getIndexMax(); // autoWidth: <= rightBoundary, slidePositions
+                                // fixedWidth: <= rightBoundary, fixedWidth, gutter
+    }
 
-        arrowKeys = freeze ? false : getOption('arrowKeys');
-        if (arrowKeys !== arrowKeysTem) {
-          arrowKeys ?
-            addEvents(doc, docmentKeydownEvent) :
-            removeEvents(doc, docmentKeydownEvent);
-        }
+    if (bpChanged || fixedWidth) {
+      items = getOption('items');
+      itemsChanged = items !== itemsTem;
 
-        if (hasControls) {
-          var controlsTem = controls,
-              controlsTextTem = controlsText;
-          controls = freeze ? false : getOption('controls');
-          controlsText = getOption('controlsText');
+      if (itemsChanged) {
+        if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
+        // check index before transform in case
+        // slider reach the right edge then items become bigger
+        updateIndex();
+      }
 
-          if (controls !== controlsTem) {
-            controls ?
-              showElement(controlsContainer) :
-              hideElement(controlsContainer); 
-          }
-          if (controlsText !== controlsTextTem) {
-            prevButton.innerHTML = controlsText[0];
-            nextButton.innerHTML = controlsText[1];
-          }
-        }
-        if (hasNav) {
-          var navTem = nav;
-          nav = freeze ? false : getOption('nav');
+    }
 
-          if (nav !== navTem) {
-            if (nav) {
-              showElement(navContainer);
-              updateNavVisibility();
-            } else {
-              hideElement(navContainer);
-            }
-          }
-        }
-        if (hasTouch) {
-          var touchTem = touch;
-          touch = freeze ? false : getOption('touch');
+    if (freezable && (bpChanged || fixedWidth || autoWidth)) {
+      freeze = getFreeze(); // <= autoWidth: slidePositions, gutter, viewport, rightBoundary
+                            // <= fixedWidth: fixedWidth, gutter, rightBoundary
+                            // <= others: items
 
-          if (touch !== touchTem && carousel) {
-            touch ?
-              addEvents(container, touchEvents) :
-              removeEvents(container, touchEvents);
-          }
-        }
-        if (hasMouseDrag) {
-          var mouseDragTem = mouseDrag;
-          mouseDrag = freeze ? false : getOption('mouseDrag');
-
-          if (mouseDrag !== mouseDragTem && carousel) {
-            mouseDrag ?
-              addEvents(container, dragEvents) :
-              removeEvents(container, dragEvents);
-          }
-        }
-        if (hasAutoplay) {
-          var autoplayTem = autoplay,
-              autoplayHoverPauseTem = autoplayHoverPause,
-              autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
-              autoplayTextTem = autoplayText;
-
-          if (freeze) {
-            autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
-          } else {
-            autoplay = getOption('autoplay');
-            
-            if (autoplay) {
-              autoplayHoverPause = getOption('autoplayHoverPause');
-              autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
-            } else {
-              autoplayHoverPause = autoplayResetOnVisibility = false;
-            }
-          }
-          autoplayText = getOption('autoplayText');
-          autoplayTimeout = getOption('autoplayTimeout');
-
-          if (autoplay !== autoplayTem) {
-            if (autoplay) {
-              if (autoplayButton) { showElement(autoplayButton); }
-              if (!animating && !autoplayUserPaused) { startAutoplay(); }
-            } else {
-              if (autoplayButton) { hideElement(autoplayButton); }
-              if (animating) { stopAutoplay(); }
-            }
-          }
-          if (autoplayHoverPause !== autoplayHoverPauseTem) {
-            autoplayHoverPause ?
-              addEvents(container, hoverEvents) :
-              removeEvents(container, hoverEvents);
-          }
-          if (autoplayResetOnVisibility !== autoplayResetOnVisibilityTem) {
-            autoplayResetOnVisibility ?
-              addEvents(doc, visibilityEvent) :
-              removeEvents(doc, visibilityEvent);
-          }
-          if (autoplayButton && autoplayText !== autoplayTextTem) {
-            var i = autoplay ? 1 : 0,
-                html = autoplayButton.innerHTML,
-                len = html.length - autoplayTextTem[i].length;
-            if (html.substring(len) === autoplayTextTem[i]) {
-              autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
-            }
-          }
-        }
-
-        // non-meduaqueries: IE8
-        // ## update inner wrapper, container, slides if needed
-        // set inline styles for inner wrapper & container
-        // insert stylesheet (one line) for slides only (since slides are many)
-        if (!CSSMQ) {
-          // inner wrapper styles
-          if (!freeze && (edgePadding !== edgePaddingTem || gutter !== gutterTem)) {
-            innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
-          }
-
-          if (horizontal && !fixedWidth) {
-            // container styles
-            if (carousel) {
-              container.style.width = getContainerWidth(false, null, items);
-            }
-
-            // slide styles
-            var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
-                      getSlideGutterStyle(gutter);
-
-            // remove the last line and
-            // add new styles
-            removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
-            addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
-          }
-
-          if (!fixedWidth) { needContainerTransform = true; }
-        }
-
-        if (index !== indexTem && !disable) { 
-          events.emit('indexChanged', info());
+      if (freeze !== freezeTem) {
+        if (freeze) {
+          doContainerTransform(getContainerTransformValue(getStartIndex(0)));
+          freezeSlider();
+        } else {
+          unfreezeSlider();
           needContainerTransform = true;
         }
+      }
+    }
 
-        // items is not updated in autoWidth slider
-        if (items !== itemsTem || autoWidth) { 
-          additionalUpdates();
-          updateSlidePosition();
+    resetVariblesWhenDisable(disable || freeze); // controls, nav, touch, mouseDrag, arrowKeys, autoplay, autoplayHoverPause, autoplayResetOnVisibility
+    if (!autoplay) { autoplayHoverPause = autoplayResetOnVisibility = false; }
+
+    if (autoHeight !== autoHeightTem) {
+      if (!autoHeight) { innerWrapper.style.height = ''; }
+    }
+    if (arrowKeys !== arrowKeysTem) {
+      arrowKeys ?
+        addEvents(doc, docmentKeydownEvent) :
+        removeEvents(doc, docmentKeydownEvent);
+    }
+    if (controls !== controlsTem) {
+      controls ?
+        showElement(controlsContainer) :
+        hideElement(controlsContainer); 
+    }
+    if (controlsText !== controlsTextTem) {
+      prevButton.innerHTML = controlsText[0];
+      nextButton.innerHTML = controlsText[1];
+    }
+    if (nav !== navTem) {
+      if (nav) {
+        showElement(navContainer);
+        updateNavVisibility();
+      } else {
+        hideElement(navContainer);
+      }
+    }
+    if (touch !== touchTem) {
+      touch ?
+        addEvents(container, touchEvents) :
+        removeEvents(container, touchEvents);
+    }
+    if (mouseDrag !== mouseDragTem) {
+      mouseDrag ?
+        addEvents(container, dragEvents) :
+        removeEvents(container, dragEvents);
+    }
+    if (autoplay !== autoplayTem) {
+      if (autoplay) {
+        if (autoplayButton) { showElement(autoplayButton); }
+        if (!animating && !autoplayUserPaused) { startAutoplay(); }
+      } else {
+        if (autoplayButton) { hideElement(autoplayButton); }
+        if (animating) { stopAutoplay(); }
+      }
+    }
+    if (autoplayButton && autoplayText !== autoplayTextTem) {
+      var i = autoplay ? 1 : 0,
+          html = autoplayButton.innerHTML,
+          len = html.length - autoplayTextTem[i].length;
+      if (html.substring(len) === autoplayTextTem[i]) {
+        autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
+      }
+    }
+    if (autoplayHoverPause !== autoplayHoverPauseTem) {
+      autoplayHoverPause ?
+        addEvents(container, hoverEvents) :
+        removeEvents(container, hoverEvents);
+    }
+    if (autoplayResetOnVisibility !== autoplayResetOnVisibilityTem) {
+      autoplayResetOnVisibility ?
+        addEvents(doc, visibilityEvent) :
+        removeEvents(doc, visibilityEvent);
+    }
+
+    indChanged = index !== indexTem;
+    if (indChanged) { 
+      events.emit('indexChanged', info());
+      needContainerTransform = true;
+    }
+
+    if (itemsChanged) {
+      if (!indChanged) { additionalUpdates(); }
+      if (!carousel) { updateGallerySlidePositions(); }
+    }
+
+    if (!disable && !freeze) {
+      // non-meduaqueries: IE8
+      if (!CSSMQ && bpChanged) {
+        // inner wrapper styles
+        if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
+          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+        }
+
+        if (horizontal) {
+          // container styles
+          if (carousel) {
+            container.style.width = getContainerWidth(fixedWidth, gutter, items);
+          }
+
+          // slide styles
+          var str = getSlideWidthStyle(fixedWidth, gutter, items) + 
+                    getSlideGutterStyle(gutter);
+
+          // remove the last line and
+          // add new styles
+          removeCSSRule(sheet, getCssRulesLength(sheet) - 1);
+          addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet));
         }
       }
 
-      if (!disable) {
-        // auto height
-        if (autoHeight || !carousel) { runAutoHeight(); }
+      // auto height
+      if (autoHeight || !carousel) { runAutoHeight(); }
 
-        if (needContainerTransform) {
-          doContainerTransformSilent();
-          indexCached = index;
-        }
+      if (needContainerTransform) {
+        doContainerTransformSilent();
+        indexCached = index;
       }
+    }
 
-      if (breakpointZoneTem !== breakpointZone) { events.emit('newBreakpointEnd', info(e)); }
-    // fixed width / auto width / vertical slides
-    // } else {
-    //   if (fixedWidth) {
-    //     viewport = getViewportWidth();
-    //   }
-    // }
+    if (bpChanged) { events.emit('newBreakpointEnd', info(e)); }
   }
 
 
@@ -1840,7 +1810,6 @@ var tns = function(options) {
 
   // === INITIALIZATION FUNCTIONS === //
   function getFreeze () {
-    if (!freezable) { return false; }
     if (!fixedWidth && !autoWidth) { return slideCount <= items; }
 
     if (loop) {
@@ -1853,11 +1822,9 @@ var tns = function(options) {
 
   function setBreakpointZone () {
     breakpointZone = 0;
-    var i = 0;
     for (var bp in responsive) {
-      // bp: convert string to number
-      if (windowWidth >= parseInt(bp)) { breakpointZone = i + 1; }
-      i++;
+      bp = parseInt(bp); // convert string to number
+      if (windowWidth >= bp) { breakpointZone = bp; }
     }
   }
 
@@ -1904,7 +1871,21 @@ var tns = function(options) {
       };
   })();
 
+  function disableUI () {
+    if (!autoplay && autoplayButton) { hideElement(autoplayButton); }
+    if (!nav && navContainer) { hideElement(navContainer); }
+    if (!controls && controlsContainer) { hideElement(controlsContainer); }
+  }
+
+  function enableUI () {
+    if (autoplay && autoplayButton) { showElement(autoplayButton); }
+    if (nav && navContainer) { showElement(navContainer); }
+    if (controls && controlsContainer) { showElement(controlsContainer); }
+  }
+
   function freezeSlider () {
+    if (frozen) { return; }
+
     // remove edge padding from inner wrapper
     if (edgePadding) { innerWrapper.style.margin = '0px'; }
 
@@ -1917,10 +1898,15 @@ var tns = function(options) {
       }
     }
 
+    // update tools
+    disableUI();
+
     frozen = true;
   }
 
   function unfreezeSlider () {
+    if (!frozen) { return; }
+
     // restore edge padding for inner wrapper
     // for mordern browsers
     if (edgePadding && CSSMQ) { innerWrapper.style.margin = ''; }
@@ -1934,10 +1920,15 @@ var tns = function(options) {
       }
     }
 
+    // update tools
+    enableUI();
+
     frozen = false;
   }
 
   function disableSlider () {
+    if (disabled) { return; }
+
     sheet.disabled = true;
     container.className = container.className.replace(newContainerClasses.substring(1), '');
     removeAttrs(container, ['style']);
@@ -1961,10 +1952,15 @@ var tns = function(options) {
       }
     }
 
+    // update tools
+    disableUI();
+
     disabled = true;
   }
 
   function enableSlider () {
+    if (!disabled) { return; }
+
     sheet.disabled = false;
     container.className += newContainerClasses;
 
@@ -1994,6 +1990,9 @@ var tns = function(options) {
         addClass(item, classN);
       }
     }
+
+    // update tools
+    enableUI();
 
     disabled = false;
   }
@@ -2155,36 +2154,34 @@ var tns = function(options) {
   }
 
   // gallery: update slide position
-  function updateSlidePosition () {
-    if (!carousel) { 
-      var l = index + Math.min(slideCount, items);
-      for (var i = slideCountNew; i--;) {
-        var item = slideItems[i];
+  function updateGallerySlidePositions () {
+    var l = index + Math.min(slideCount, items);
+    for (var i = slideCountNew; i--;) {
+      var item = slideItems[i];
 
-        if (i >= index && i < l) {
-          // add transitions to visible slides when adjusting their positions
-          addClass(item, 'tns-moving');
+      if (i >= index && i < l) {
+        // add transitions to visible slides when adjusting their positions
+        addClass(item, 'tns-moving');
 
-          item.style.left = (i - index) * 100 / items + '%';
-          addClass(item, animateIn);
-          removeClass(item, animateNormal);
-        } else if (item.style.left) {
-          item.style.left = '';
-          addClass(item, animateNormal);
-          removeClass(item, animateIn);
-        }
-
-        // remove outlet animation
-        removeClass(item, animateOut);
+        item.style.left = (i - index) * 100 / items + '%';
+        addClass(item, animateIn);
+        removeClass(item, animateNormal);
+      } else if (item.style.left) {
+        item.style.left = '';
+        addClass(item, animateNormal);
+        removeClass(item, animateIn);
       }
 
-      // removing '.tns-moving'
-      setTimeout(function() {
-        forEachNodeList(slideItems, function(el) {
-          removeClass(el, 'tns-moving');
-        });
-      }, 300);
+      // remove outlet animation
+      removeClass(item, animateOut);
     }
+
+    // removing '.tns-moving'
+    setTimeout(function() {
+      forEachNodeList(slideItems, function(el) {
+        removeClass(el, 'tns-moving');
+      });
+    }, 300);
   }
 
   // set tabindex & aria-selected on Nav
@@ -2262,12 +2259,12 @@ var tns = function(options) {
     if (TRANSITIONDURATION) { el.style[TRANSITIONDURATION] = str; }
   }
 
-  function getFixedSliderWidth () {
+  function getSliderWidth () {
     return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter: slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
   }
 
   function getRightBoundary () {
-    var result = - (getFixedSliderWidth() - viewport);
+    var result = - (getSliderWidth() - viewport);
     if (result > 0) { result = 0; }
     return result;
   }
