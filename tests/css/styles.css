@@ -30,6 +30,7 @@ a:focus {
 }
 img { max-width: 100%; }
 img:not(.tns-lazy-img), .lazyload img { height: auto; }
+[class*="autoWidth"] img { max-width: none; }
 .img {
   font-size: 100px;
   font-weight: 100;
@@ -123,10 +124,8 @@ img:not(.tns-lazy-img), .lazyload img { height: auto; }
   background: none;
   border-color: #000;
 }
-.thumbnails img {
-  width: 50px;
-  vertical-align: bottom;
-}
+.thumbnails li { width: 50px; }
+.thumbnails img { vertical-align: bottom; height: auto; max-height: 50px; }
 .controls { text-align: center; }
 .controls li {
   display: block;

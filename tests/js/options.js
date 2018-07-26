@@ -275,7 +275,7 @@ var options = {
     controlsContainer: '#customize-controls',
     navContainer: '#customize-thumbnails',
     navAsThumbnails: true,
-    autoplay: true,
+    // autoplay: true,
     autoplayTimeout: 1000,
     autoplayButton: '#customize-toggle',
   },
