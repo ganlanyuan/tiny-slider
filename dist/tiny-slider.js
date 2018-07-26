@@ -582,23 +582,17 @@ var tns = function(options) {
     }
   }
 
-  function getSetConstant (name, value) {
-    return tnsStorage[name] ? 
-        checkStorageValue(tnsStorage[name]) :
-        setLocalStorage(tnsStorage, name, value, localStorageAccess);
-  }
-
-  var CALC = getSetConstant('tC', calc()),
-      PERCENTAGELAYOUT = getSetConstant('tPL', percentageLayout()),
-      CSSMQ = getSetConstant('tMQ', mediaquerySupport()),
-      TRANSFORM = getSetConstant('tTf', whichProperty('transform')),
-      HAS3DTRANSFORMS = getSetConstant('t3D', has3DTransforms(TRANSFORM)),
-      TRANSITIONDURATION = getSetConstant('tTDu', whichProperty('transitionDuration')),
-      TRANSITIONDELAY = getSetConstant('tTDe', whichProperty('transitionDelay')),
-      ANIMATIONDURATION = getSetConstant('tADu', whichProperty('animationDuration')),
-      ANIMATIONDELAY = getSetConstant('tADe', whichProperty('animationDelay')),
-      TRANSITIONEND = getSetConstant('tTE', getEndProperty(TRANSITIONDURATION, 'Transition')),
-      ANIMATIONEND = getSetConstant('tAE', getEndProperty(ANIMATIONDURATION, 'Animation'));
+  var CALC = tnsStorage['tC'] ? checkStorageValue(tnsStorage['tC']) : setLocalStorage(tnsStorage, 'tC', calc(), localStorageAccess),
+      PERCENTAGELAYOUT = tnsStorage['tPL'] ? checkStorageValue(tnsStorage['tPL']) : setLocalStorage(tnsStorage, 'tPL', percentageLayout(), localStorageAccess),
+      CSSMQ = tnsStorage['tMQ'] ? checkStorageValue(tnsStorage['tMQ']) : setLocalStorage(tnsStorage, 'tMQ', mediaquerySupport(), localStorageAccess),
+      TRANSFORM = tnsStorage['tTf'] ? checkStorageValue(tnsStorage['tTf']) : setLocalStorage(tnsStorage, 'tTf', whichProperty('transform'), localStorageAccess),
+      HAS3DTRANSFORMS = tnsStorage['t3D'] ? checkStorageValue(tnsStorage['t3D']) : setLocalStorage(tnsStorage, 't3D', has3DTransforms(TRANSFORM), localStorageAccess),
+      TRANSITIONDURATION = tnsStorage['tTDu'] ? checkStorageValue(tnsStorage['tTDu']) : setLocalStorage(tnsStorage, 'tTDu', whichProperty('transitionDuration'), localStorageAccess),
+      TRANSITIONDELAY = tnsStorage['tTDe'] ? checkStorageValue(tnsStorage['tTDe']) : setLocalStorage(tnsStorage, 'tTDe', whichProperty('transitionDelay'), localStorageAccess),
+      ANIMATIONDURATION = tnsStorage['tADu'] ? checkStorageValue(tnsStorage['tADu']) : setLocalStorage(tnsStorage, 'tADu', whichProperty('animationDuration'), localStorageAccess),
+      ANIMATIONDELAY = tnsStorage['tADe'] ? checkStorageValue(tnsStorage['tADe']) : setLocalStorage(tnsStorage, 'tADe', whichProperty('animationDelay'), localStorageAccess),
+      TRANSITIONEND = tnsStorage['tTE'] ? checkStorageValue(tnsStorage['tTE']) : setLocalStorage(tnsStorage, 'tTE', getEndProperty(TRANSITIONDURATION, 'Transition'), localStorageAccess),
+      ANIMATIONEND = tnsStorage['tAE'] ? checkStorageValue(tnsStorage['tAE']) : setLocalStorage(tnsStorage, 'tAE', getEndProperty(ANIMATIONDURATION, 'Animation'), localStorageAccess);
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
@@ -725,11 +719,6 @@ var tns = function(options) {
           return function() { return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1; };
         } else if (autoWidth) {
           return function() {
-            // var i = slideCountNew - 1, result = i;
-            // while (slidePositions[i] > - rightBoundary) {
-            //   i--;
-            //   result = i;
-            // }
             for (var i = slideCountNew, result = i - 1; i--;) {
               if (slidePositions[i] > - rightBoundary) { result = i; }
             }
@@ -737,7 +726,7 @@ var tns = function(options) {
           };
         } else {
           return function() {
-            return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(getOption('items'))) : slideCountNew - 1; // *?
+            return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(items)) : slideCountNew - 1;
           };
         }
       })(),
@@ -1181,10 +1170,10 @@ var tns = function(options) {
             lazyLoad();
 
             if (autoWidth) {
-              items = getOption('items');
+              // items = getOption('items');
               rightBoundary = getRightBoundary();
               if (freezable) { freeze = getFreeze(); }
-              indexMax = getIndexMax();
+              indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
 
               if (freeze) {
                 controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
@@ -1192,9 +1181,11 @@ var tns = function(options) {
 
               // update slider UI
               initUI();
+
+            } else {
+              updateContentWrapperHeight();
             }
 
-            if (!horizontal) { updateContentWrapperHeight(); }
           }
 
           // set container transform property
@@ -1633,16 +1624,6 @@ var tns = function(options) {
 
       if (bpChanged) {
         events.emit('newBreakpointStart', info(e));
-
-        if (disable !== disableTem) {
-          if (disable) {
-            disableSlider();
-          } else {
-            enableSlider();
-          }
-        }
-
-        if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
       }
     }
 
@@ -1650,7 +1631,7 @@ var tns = function(options) {
     if ((!horizontal || autoWidth) && !disable) {
       getSlidePositions();
       if (!horizontal) {
-        updateContentWrapperHeight(); // <= getSlidePositions ?
+        updateContentWrapperHeight(); // <= getSlidePositions
         needContainerTransform = true;
       }
     }
@@ -1666,12 +1647,23 @@ var tns = function(options) {
       itemsChanged = items !== itemsTem;
 
       if (itemsChanged) {
-        if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); }
+        if (!fixedWidth && !autoWidth) { indexMax = getIndexMax(); } // <= items
         // check index before transform in case
         // slider reach the right edge then items become bigger
         updateIndex();
       }
+    }
+    
+    if (bpChanged) {
+      if (disable !== disableTem) {
+        if (disable) {
+          disableSlider();
+        } else {
+          enableSlider(); // <= slidePositions, rightBoundary, indexMax
+        }
+      }
 
+      if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
     }
 
     if (freezable && (bpChanged || fixedWidth || autoWidth)) {
@@ -1963,17 +1955,8 @@ var tns = function(options) {
 
     sheet.disabled = false;
     container.className += newContainerClasses;
-
-    // vertical slider: get offsetTops before container transform
-    if (!horizontal || autoWidth) {
-      getSlidePositions();
-      if (autoWidth) {
-        rightBoundary = getRightBoundary();
-        indexMax = getIndexMax();
-      }
-    }
-
     doContainerTransformSilent();
+
     if (loop) {
       for (var j = cloneCount; j--;) {
         if (carousel) { showElement(slideItems[j]); }
