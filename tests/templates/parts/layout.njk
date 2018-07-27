@@ -327,6 +327,12 @@
 {% endblock %}
 
 <script>
+{%- if mobile %}
+  var fwSmall = 100, fw = 200;
+{% else %}
+  var fwSmall = 300, fw = 500;
+{% endif -%}
+
   var isTestPage,
       initFns = {},
       doc = document,

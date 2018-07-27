@@ -17,7 +17,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <link rel="stylesheet" href="css/prism.css">
     <link rel="stylesheet" href="../dist/tiny-slider.css">
     <link rel="stylesheet" href="css/styles.css"><!--[if (IE 8)&!(IEMobile)]>
   <script src="../dist/tiny-slider.helper.ie8.js"></script>
@@ -25,7 +24,8 @@
 
     <script src="../dist/tiny-slider.js"></script>
   </head>
-  <body data-speed="400" data-page="demos">
+  <body data-speed="0" data-page="tests">
+    <div class="test-results"></div>
     <div class="nav">
       <div class="nav-toggle-handle">
         menu
@@ -33,9 +33,6 @@
       <ul>
         <li>
           <a href="#base_wrapper">base</a>
-        </li>
-        <li>
-          <a href="#start-index_wrapper">start-index</a>
         </li>
         <li>
           <a href="#non-loop_wrapper">non-loop</a>
@@ -47,22 +44,25 @@
           <a href="#fixedWidth_wrapper">fixedWidth</a>
         </li>
         <li>
+          <a href="#fixedWidth-gutter_wrapper">fixedWidth-gutter</a>
+        </li>
+        <li>
           <a href="#fixedWidth-edgePadding_wrapper">fixedWidth-edgePadding</a>
         </li>
         <li>
-          <a href="#autoWidth_wrapper">autoWidth</a>
-        </li>
-        <li>
-          <a href="#autoWidth-non-loop_wrapper">autoWidth-non-loop</a>
-        </li>
-        <li>
-          <a href="#autoWidth-lazyload_wrapper">autoWidth-lazyload</a>
+          <a href="#fixedWidth-edgePadding-gutter_wrapper">fixedWidth-edgePadding-gutter</a>
         </li>
         <li>
           <a href="#vertical_wrapper">vertical</a>
         </li>
         <li>
-          <a href="#responsive_wrapper">responsive</a>
+          <a href="#vertical-gutter_wrapper">vertical-gutter</a>
+        </li>
+        <li>
+          <a href="#vertical-edgePadding_wrapper">vertical-edgePadding</a>
+        </li>
+        <li>
+          <a href="#vertical-edgePadding-gutter_wrapper">vertical-edgePadding-gutter</a>
         </li>
         <li>
           <a href="#mouse-drag_wrapper">mouse-drag</a>
@@ -77,6 +77,15 @@
           <a href="#edgePadding_wrapper">edgePadding</a>
         </li>
         <li>
+          <a href="#edgePadding-gutter_wrapper">edgePadding-gutter</a>
+        </li>
+        <li>
+          <a href="#few-items_wrapper">few-items</a>
+        </li>
+        <li>
+          <a href="#slide-by-page_wrapper">slide-by-page</a>
+        </li>
+        <li>
           <a href="#arrowKeys_wrapper">arrowKeys</a>
         </li>
         <li>
@@ -84,6 +93,9 @@
         </li>
         <li>
           <a href="#animation1_wrapper">animation1</a>
+        </li>
+        <li>
+          <a href="#animation2_wrapper">animation2</a>
         </li>
         <li>
           <a href="#lazyload_wrapper">lazyload</a>
@@ -108,69 +120,6 @@
           Go to slide: <input type="text" value="3"> <button class="button">Go</button>
         </div>
         <div class="base" id="base">
-          <div class="item">
-            <div class="img img-1">
-              <a href="">0</a>
-            </div>
-            <p>
-              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-2">
-              <a href="">1</a>
-            </div>
-            <p>
-              Corrupti, libero minima nihil expedita officiis? Quo.
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-3">
-              <a href="">2</a>
-            </div>
-            <p>
-              Alias rem, ab impedit recusandae repellat tempore.
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-4">
-              <a href="">3</a>
-            </div>
-            <p>
-              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-5">
-              <a href="">4</a>
-            </div>
-            <p>
-              Nisi harum earum consectetur laudantium iusto, laboriosam.
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-6">
-              <a href="">5</a>
-            </div>
-            <p>
-              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
-            </p>
-          </div>
-          <div class="item">
-            <div class="img img-7">
-              <a href="">6</a>
-            </div>
-            <p>
-              Omnis dolorum eum blanditiis, ratione voluptates quod.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div id="start-index_wrapper">
-        <h2>
-          Start-index
-        </h2>
-        <div class="start-index" id="start-index">
           <div class="item">
             <div class="img img-1">
               <a href="">0</a>
@@ -418,6 +367,69 @@
           </div>
         </div>
       </div>
+      <div id="fixedWidth-gutter_wrapper">
+        <h2>
+          Fixedwidth-gutter
+        </h2>
+        <div class="fixedWidth-gutter" id="fixedWidth-gutter">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+            <p>
+              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+            <p>
+              Corrupti, libero minima nihil expedita officiis? Quo.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+            <p>
+              Alias rem, ab impedit recusandae repellat tempore.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+            <p>
+              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+            <p>
+              Nisi harum earum consectetur laudantium iusto, laboriosam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+            <p>
+              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+            <p>
+              Omnis dolorum eum blanditiis, ratione voluptates quod.
+            </p>
+          </div>
+        </div>
+      </div>
       <div id="fixedWidth-edgePadding_wrapper">
         <h2>
           Fixedwidth-edgepadding
@@ -481,137 +493,11 @@
           </div>
         </div>
       </div>
-      <div id="autoWidth_wrapper">
+      <div id="fixedWidth-edgePadding-gutter_wrapper">
         <h2>
-          Autowidth
+          Fixedwidth-edgepadding-gutter
         </h2>
-        <div class="autoWidth" id="autoWidth">
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/993239/600x320" width="600" height="320" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1673600/500x300" width="500" height="300" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1513994/200x310" width="200" height="310" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/502925/400x330" width="400" height="330" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1891993/640x300" width="640" height="300" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1103088/360x240" width="360" height="240" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/548245/460x280" width="460" height="280" alt="">
-          </div>
-        </div>
-      </div>
-      <div id="autoWidth-non-loop_wrapper">
-        <h2>
-          Autowidth-non-loop
-        </h2>
-        <div class="autoWidth-non-loop" id="autoWidth-non-loop">
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/993239/600x320" width="600" height="320" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1673600/500x300" width="500" height="300" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1513994/200x310" width="200" height="310" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/502925/400x330" width="400" height="330" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1891993/640x300" width="640" height="300" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/1103088/360x240" width="360" height="240" alt="">
-          </div>
-          <div class="item">
-            <img src="https://source.unsplash.com/collection/548245/460x280" width="460" height="280" alt="">
-          </div>
-        </div>
-      </div>
-      <div id="autoWidth-lazyload_wrapper">
-        <h2>
-          Autowidth-lazyload
-        </h2>
-        <div class="autoWidth-lazyload" id="autoWidth-lazyload">
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/993239/600x320" width="600" height="320" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/1673600/500x300" width="500" height="300" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/1513994/200x310" width="200" height="310" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/502925/400x330" width="400" height="330" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/1891993/640x300" width="640" height="300" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/1103088/360x240" width="360" height="240" alt="">
-          </div>
-          <div class="item">
-            <img class="tns-lazy-img" src="data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" data-src="https://source.unsplash.com/collection/548245/460x280" width="460" height="280" alt="">
-          </div>
-        </div>
-      </div>
-      <div id="vertical_wrapper">
-        <h2>
-          Vertical
-        </h2>
-        <div class="vertical" id="vertical">
-          <div class="item">
-            <div class="img img-1">
-              <a href="">0</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-2">
-              <a href="">1</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-3">
-              <a href="">2</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-4">
-              <a href="">3</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-5">
-              <a href="">4</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-6">
-              <a href="">5</a>
-            </div>
-          </div>
-          <div class="item">
-            <div class="img img-7">
-              <a href="">6</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="responsive_wrapper">
-        <h2>
-          Responsive
-        </h2>
-        <div class="responsive" id="responsive">
+        <div class="fixedWidth-edgePadding-gutter" id="fixedWidth-edgePadding-gutter">
           <div class="item">
             <div class="img img-1">
               <a href="">0</a>
@@ -667,6 +553,174 @@
             <p>
               Omnis dolorum eum blanditiis, ratione voluptates quod.
             </p>
+          </div>
+        </div>
+      </div>
+      <div id="vertical_wrapper">
+        <h2>
+          Vertical
+        </h2>
+        <div class="vertical" id="vertical">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="vertical-gutter_wrapper">
+        <h2>
+          Vertical-gutter
+        </h2>
+        <div class="vertical-gutter" id="vertical-gutter">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="vertical-edgePadding_wrapper">
+        <h2>
+          Vertical-edgepadding
+        </h2>
+        <div class="vertical-edgePadding" id="vertical-edgePadding">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="vertical-edgePadding-gutter_wrapper">
+        <h2>
+          Vertical-edgepadding-gutter
+        </h2>
+        <div class="vertical-edgePadding-gutter" id="vertical-edgePadding-gutter">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
           </div>
         </div>
       </div>
@@ -922,6 +976,195 @@
           </div>
         </div>
       </div>
+      <div id="edgePadding-gutter_wrapper">
+        <h2>
+          Edgepadding-gutter
+        </h2>
+        <div class="edgePadding-gutter" id="edgePadding-gutter">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+            <p>
+              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+            <p>
+              Corrupti, libero minima nihil expedita officiis? Quo.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+            <p>
+              Alias rem, ab impedit recusandae repellat tempore.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+            <p>
+              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+            <p>
+              Nisi harum earum consectetur laudantium iusto, laboriosam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+            <p>
+              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+            <p>
+              Omnis dolorum eum blanditiis, ratione voluptates quod.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div id="few-items_wrapper">
+        <h2>
+          Few-items
+        </h2>
+        <div class="few-items" id="few-items">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+            <p>
+              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+            <p>
+              Corrupti, libero minima nihil expedita officiis? Quo.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+            <p>
+              Alias rem, ab impedit recusandae repellat tempore.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+            <p>
+              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+            <p>
+              Nisi harum earum consectetur laudantium iusto, laboriosam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+            <p>
+              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+            <p>
+              Omnis dolorum eum blanditiis, ratione voluptates quod.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div id="slide-by-page_wrapper">
+        <h2>
+          Slide-by-page
+        </h2>
+        <div class="slide-by-page" id="slide-by-page">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+            <p>
+              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+            <p>
+              Corrupti, libero minima nihil expedita officiis? Quo.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+            <p>
+              Alias rem, ab impedit recusandae repellat tempore.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+            <p>
+              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+            <p>
+              Nisi harum earum consectetur laudantium iusto, laboriosam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+            <p>
+              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+            <p>
+              Omnis dolorum eum blanditiis, ratione voluptates quod.
+            </p>
+          </div>
+        </div>
+      </div>
       <div id="arrowKeys_wrapper">
         <h2>
           Arrowkeys
@@ -1053,6 +1296,69 @@
           Animation1
         </h2>
         <div class="animation1" id="animation1">
+          <div class="item">
+            <div class="img img-1">
+              <a href="">0</a>
+            </div>
+            <p>
+              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2">
+              <a href="">1</a>
+            </div>
+            <p>
+              Corrupti, libero minima nihil expedita officiis? Quo.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-3">
+              <a href="">2</a>
+            </div>
+            <p>
+              Alias rem, ab impedit recusandae repellat tempore.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-4">
+              <a href="">3</a>
+            </div>
+            <p>
+              Nisi inventore quo delectus perspiciatis voluptatibus, quae.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-5">
+              <a href="">4</a>
+            </div>
+            <p>
+              Nisi harum earum consectetur laudantium iusto, laboriosam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-6">
+              <a href="">5</a>
+            </div>
+            <p>
+              Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.
+            </p>
+          </div>
+          <div class="item">
+            <div class="img img-7">
+              <a href="">6</a>
+            </div>
+            <p>
+              Omnis dolorum eum blanditiis, ratione voluptates quod.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div id="animation2_wrapper">
+        <h2>
+          Animation2
+        </h2>
+        <div class="animation2" id="animation2">
           <div class="item">
             <div class="img img-1">
               <a href="">0</a>
@@ -1449,7 +1755,7 @@
     </script> 
     <script>
 
-    var fwSmall = 300, fw = 500;
+    var fwSmall = 100, fw = 200;
     var isTestPage,
       initFns = {},
       doc = document,
@@ -1461,8 +1767,38 @@
       edgepadding = 50,
       gutter = 10;
     </script> 
-    <script src="js/options.js"></script> 
-    <script src="js/prism.js"></script> 
+    <script src="js/options.js"></script> <!--[if (IE 8)&!(IEMobile)]>
+<script>
+  if (Object.defineProperty 
+    && Object.getOwnPropertyDescriptor 
+    && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") 
+    && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function() {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+      Object.defineProperty(Element.prototype, "textContent",
+       {
+         get: function() {
+           return innerText.get.call(this);
+         },
+         set: function(s) {
+           return innerText.set.call(this, s);
+         }
+       }
+     );
+    })();
+  }
+</script>
+<![endif]-->
+     
+    <script>
+
+    isTestPage = true;
+    </script> 
+    <script src="js/imagesloaded.pkgd.min.js"></script> 
+    <script src="js/es6-promise.auto.min.js"></script> 
+    <script src="js/helpers.js"></script> 
+    <script src="../node_modules/babel-polyfill/dist/polyfill.min.js"></script> 
+    <script src="js/tests-async-es5.js"></script> 
     <script src="js/run.js"></script>
   </body>
 </html>
