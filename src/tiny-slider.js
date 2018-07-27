@@ -162,11 +162,13 @@ export var tns = function(options) {
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
-      list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'];
+      list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'], optionsElements = {};
   for (var i = list.length; i--;) {
     var item = list[i];
     if (typeof options[item] === 'string') {
-      var el = doc.querySelector(options[item]);
+      var str = options[item],
+          el = doc.querySelector(str);
+      optionsElements[item] = str;
 
       if (el && el.nodeName) {
         options[item] = el;
@@ -2525,7 +2527,9 @@ export var tns = function(options) {
     isOn: isOn,
     updateSliderHeight: updateInnerWrapperHeight,
     refresh: initSliderTransform,
-    rebuild: function() { return tns(options); },
-    destroy: destroy
+    destroy: destroy,
+    rebuild: function() {
+      return tns(extend(options, optionsElements));
+    }
   };
 };
