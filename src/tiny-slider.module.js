@@ -633,42 +633,7 @@ export var tns = function(options) {
   }
 
   function sliderInit () {
-    var classOuter = 'tns-outer',
-        classInner = 'tns-inner',
-        hasGutter = hasOption('gutter');
-
-    outerWrapper.className = classOuter;
-    innerWrapper.className = classInner;
-    innerWrapper.id = slideId + '-iw';
-    if (autoHeight) { innerWrapper.className += ' tns-ah'; }
-
-    // set container properties
-    if (container.id === '') { container.id = slideId; }
-    newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
-    newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
-    if (carousel) { newContainerClasses += ' tns-' + options.axis; }
-    container.className += newContainerClasses;
-
-    // add constrain layer for carousel
-    if (carousel) {
-      var middleWrapper = doc.createElement('div');
-      middleWrapper.className = 'tns-ovh';
-
-      outerWrapper.appendChild(middleWrapper);
-      middleWrapper.appendChild(innerWrapper);
-    } else {
-      outerWrapper.appendChild(innerWrapper);
-    }
-
-    containerParent.insertBefore(outerWrapper, container);
-    innerWrapper.appendChild(container);
-
-    // add events
-    if (carousel && TRANSITIONEND) {
-      var eve = {};
-      eve[TRANSITIONEND] = onTransitionEnd;
-      addEvents(container, eve);
-    }
+    initStructure();
 
     // add id, class, aria attributes 
     // before clone slides
@@ -708,6 +673,85 @@ export var tns = function(options) {
       slideItems = container.children;
     }
 
+    initSliderTransform();
+    initSheet();
+    if (!autoWidth) { initUI(); }
+    if (responsive) { setBreakpointZone(); }
+
+    // add events
+    if (carousel && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      addEvents(container, eve);
+    }
+
+    if (touch) { addEvents(container, touchEvents); }
+    if (mouseDrag) { addEvents(container, dragEvents); }
+    if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
+
+    if (nested === 'inner') {
+      events.on('outerResized', function () {
+        resizeTasks();
+        events.emit('innerLoaded', info());
+      });
+    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
+      addEvents(win, {'resize': onResize});
+    }
+
+    if (nested === 'outer') {
+      events.on('innerLoaded', runAutoHeight);
+    } else if ((autoHeight || !carousel) && !disable) {
+      runAutoHeight();
+    }
+
+    if (!autoWidth) { lazyLoad(); }
+
+    if (disable) {
+      disableSlider();
+    } else if (freeze) {
+      freezeSlider();
+    }
+
+    events.on('indexChanged', additionalUpdates);
+    if (typeof onInit === 'function') { onInit(info()); }
+    if (nested === 'inner') { events.emit('innerLoaded', info()); }
+
+    isOn = true;
+  }
+
+  function initStructure () {
+    var classOuter = 'tns-outer',
+        classInner = 'tns-inner',
+        hasGutter = hasOption('gutter');
+
+    outerWrapper.className = classOuter;
+    innerWrapper.className = classInner;
+    innerWrapper.id = slideId + '-iw';
+    if (autoHeight) { innerWrapper.className += ' tns-ah'; }
+
+    // set container properties
+    if (container.id === '') { container.id = slideId; }
+    newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
+    newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
+    if (carousel) { newContainerClasses += ' tns-' + options.axis; }
+    container.className += newContainerClasses;
+
+    // add constrain layer for carousel
+    if (carousel) {
+      var middleWrapper = doc.createElement('div');
+      middleWrapper.className = 'tns-ovh';
+
+      outerWrapper.appendChild(middleWrapper);
+      middleWrapper.appendChild(innerWrapper);
+    } else {
+      outerWrapper.appendChild(innerWrapper);
+    }
+
+    containerParent.insertBefore(outerWrapper, container);
+    innerWrapper.appendChild(container);
+  }
+
+  function initSliderTransform () {
     // ## images loaded/failed
     if (hasOption('autoHeight') || !carousel || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
@@ -751,7 +795,6 @@ export var tns = function(options) {
             } else {
               updateContentWrapperHeight();
             }
-
           }
 
           // set container transform property
@@ -761,12 +804,7 @@ export var tns = function(options) {
         }
       }); });
     }
-
     if (carousel && horizontal && !autoWidth) { doContainerTransformSilent(); }
-
-    initSheet();
-    if (!autoWidth) { initUI(); }
-    if (responsive) { setBreakpointZone(); }
   }
 
   function initSheet () {
@@ -1039,39 +1077,6 @@ export var tns = function(options) {
     disableUI();
 
 
-    if (touch) { addEvents(container, touchEvents); }
-    if (mouseDrag) { addEvents(container, dragEvents); }
-    if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
-
-
-    if (nested === 'inner') {
-      events.on('outerResized', function () {
-        resizeTasks();
-        events.emit('innerLoaded', info());
-      });
-    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
-      addEvents(win, {'resize': onResize});
-    }
-
-    if (nested === 'outer') {
-      events.on('innerLoaded', runAutoHeight);
-    } else if ((autoHeight || !carousel) && !disable) {
-      runAutoHeight();
-    }
-
-    if (!autoWidth) { lazyLoad(); }
-
-    if (disable) {
-      disableSlider();
-    } else if (freeze) {
-      freezeSlider();
-    }
-
-    events.on('indexChanged', additionalUpdates);
-    if (typeof onInit === 'function') { onInit(info()); }
-    if (nested === 'inner') { events.emit('innerLoaded', info()); }
-
-    isOn = true;
   }
 
   function destroy () {
@@ -2519,9 +2524,8 @@ export var tns = function(options) {
     pause: pause,
     isOn: isOn,
     updateSliderHeight: updateInnerWrapperHeight,
-    rebuild: function() {
-      return tns(options);
-    },
+    refresh: initSliderTransform,
+    rebuild: function() { return tns(options); },
     destroy: destroy
   };
 };
