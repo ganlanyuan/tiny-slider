@@ -56,10 +56,10 @@ var options = {
     // items: 3,
     loop: false,
     responsive: {
-      500: {
+      350: {
         items: 2
       },
-      900: {
+      500: {
         items: 3
       }
     },
@@ -121,12 +121,12 @@ var options = {
     items: 2,
     controls: false,
     responsive: {
-      600: {
+      350: {
         items: 3,
         controls: true,
         edgePadding: 30,
       },
-      900: {
+      500: {
         items: 4
       }
     },
@@ -136,11 +136,11 @@ var options = {
     gutter: 10,
     slideBy: 1,
     responsive: {
-      600: {
+      350: {
         items: 2,
         edgePadding: 20,
       },
-      900: {
+      500: {
         items: 3,
         gutter: 0,
         edgePadding: 40,
@@ -150,15 +150,15 @@ var options = {
   }, 
   'responsive2': {
     items: 3,
-    autoplayTimeout: 500,
+    autoplayTimeout: 350,
     responsive: {
-      600: {
+      350: {
         controls: false,
         autoplay: true,
         autoplayTimeout: 1000,
         autoplayHoverPause: true,
       },
-      900: {
+      500: {
         nav: false,
         controls: true,
         autoplay: false,
@@ -169,11 +169,11 @@ var options = {
     items: 3,
     autoplay: true,
     responsive: {
-      600: {
+      350: {
         controlsText: ['&lt;', '&gt;'],
         autoplayText: ['&gt;', '||'],
       },
-      900: {
+      500: {
         controlsText: ['prev', 'next'],
         autoplayText: ['start', 'stop'],
       }
@@ -182,12 +182,12 @@ var options = {
   'responsive4': {
     items: 3,
     responsive: {
-      600: {
+      350: {
         touch: false,
         mouseDrag: false,
         arrowKeys: false,
       },
-      900: {
+      500: {
         touch: true,
         mouseDrag: true,
         arrowKeys: true,
@@ -198,7 +198,7 @@ var options = {
     fixedWidth: fwSmall,
     autoHeight: false,
     responsive: {
-      600: {
+      350: {
         autoHeight: true,
         fixedWidth: fw,
       }
@@ -221,7 +221,7 @@ var options = {
     speed: 300,
     autoplay: true,
     autoplayHoverPause: true,
-    autoplayTimeout: 1500,
+    autoplayTimeout: 3500,
     autoplayText: ['▶', '❚❚'],
     // autoplayButtonOutput: false,
   }, 
@@ -275,7 +275,7 @@ var options = {
     controlsContainer: '#customize-controls',
     navContainer: '#customize-thumbnails',
     navAsThumbnails: true,
-    // autoplay: true,
+    autoplay: true,
     autoplayTimeout: 1000,
     autoplayButton: '#customize-toggle',
   },

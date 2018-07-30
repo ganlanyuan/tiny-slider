@@ -177,7 +177,7 @@
           {% endfor %}
 
         {# auto height #}
-        {% elif slide === 'autoHeight' %}
+        {% elif slide === 'autoHeight' or slide === 'responsive5' %}
           {% set hs = [500, 700, 600, 800, 500, 600, 800] %}
           {% for i in range(1, 6) %}
             <div>
@@ -328,9 +328,9 @@
 
 <script>
 {%- if mobile %}
-  var fwSmall = 100, fw = 200;
+  var fwSmall = 100, fw = 200, prefix = "-mobile";
 {% else %}
-  var fwSmall = 300, fw = 500;
+  var fwSmall = 300, fw = 500, prefix = "";
 {% endif -%}
 
   var isTestPage,

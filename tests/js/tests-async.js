@@ -430,7 +430,7 @@ function testRewind () {
 
 function testFixedWidth () {
   var id = 'fixedWidth',
-      fixedWidth = 300,
+      fixedWidth = fwSmall,
       slider = sliders[id],
       info = slider.getInfo();
 
@@ -483,7 +483,7 @@ function testFixedWidthGutter () {
 
   runTest('Slides: gutter', function() {
     var slideItems = info.slideItems;
-    return compare2Nums(slideItems[0].clientWidth, 310);
+    return compare2Nums(slideItems[0].clientWidth, fwSmall + gutter);
   });
 }
 
@@ -743,7 +743,7 @@ function testResponsive1 () {
       newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[0]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = id + '.html';
+  newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsive1Tests, false);
@@ -872,7 +872,7 @@ function testResponsive2 () {
       newWindow = document.createElement('iframe');
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = id + '.html';
+  newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsive2Tests, false);
@@ -984,7 +984,7 @@ function testResponsive3() {
 
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = id + '.html';
+  newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsive3Tests, false);
@@ -1085,7 +1085,7 @@ function testResponsive4 () {
   // var newWindow = document.createElement('iframe');
   // newWindow.setAttribute('frameBorder', '0');
   // newWindow.style.cssText = 'width: ' + (Number(bps[1]) + 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  // newWindow.src = id + '.html';
+  // newWindow.src = id + prefix + '.html';
 
   // if (newWindow.addEventListener) {
   //   newWindow.addEventListener('load', responsive4Tests, false);
@@ -1188,7 +1188,7 @@ function testResponsive5 () {
 
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (Number(bps[0]) - 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = id + '.html';
+  newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsive5Tests, false);
@@ -1209,9 +1209,7 @@ function testResponsive5 () {
           doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           wrapper = doc.querySelector('#' + id + '-iw'),
           container = doc.querySelector('#' + id),
-          slideItems = container.children,
-          cloneCount = (slideItems.length - 7) / 2,
-          first = slideItems[cloneCount];
+          first = container.querySelector('#' + id + '-item0');
 
       assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
         wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
@@ -1275,7 +1273,7 @@ function testResponsive6 () {
 
   newWindow.setAttribute('frameBorder', '0');
   newWindow.style.cssText = 'width: ' + (slideWidth + edgepadding * 2 - gutter) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
-  newWindow.src = id + '.html';
+  newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
     newWindow.addEventListener('load', responsive6Tests, false);

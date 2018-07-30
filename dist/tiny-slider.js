@@ -963,7 +963,7 @@ var tns = function(options) {
     if (ww == null) { ww = windowWidth; }
 
     if (item === 'items' && fixedWidth) {
-      return Math.floor(viewport / (fixedWidth + gutter));
+      return Math.floor(viewport / (fixedWidth + gutter)) || 1;
 
     } else {
       var result = options[item];
