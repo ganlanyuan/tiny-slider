@@ -3,8 +3,8 @@
 ![version](https://img.shields.io/badge/Version-2.8.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
-[Tests](http://ganlanyuan.github.io/tiny-slider/tests/tests.html)
-(Can be tested on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)   
+[Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)   
+[Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests-mobile.html)  (running on Android Browser 4.2+)    
 Note: some features may need a manual test.  
 
 *Previous versions*:
@@ -323,11 +323,18 @@ slider.events.off('transitionEnd', customizedFunction);
 ```
 
 ## Browser Support
+**Desktop:**  
 Firefox 8+ ✓  
 Chrome 15+ ✓  (Should works on _Chrome 4-14_ as well, but I couldn't test it.)  
 Safari 4+ ✓  
 Opera 12.1+ ✓   
 IE 8+ ✓  
+
+**Mobile:**  
+Android Browser 4.2+ ✓  
+Chrome Mobile 67+ ✓  
+Firefox Mobile 28+ ✓   
+Maxthon 4+ ✓
 
 ## Support
 <a href="https://www.browserstack.com/" target="_blank"><img src="logos/browserstack.svg" alt="Browser Stack" width="170"></a><br>Live tests and Automated Tests <br>
