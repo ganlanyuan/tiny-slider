@@ -1109,8 +1109,8 @@ var tns = function(options) {
       slideItems = container.children;
     }
 
-    initSliderTransform();
     initSheet();
+    initSliderTransform();
     if (!autoWidth) { initUI(); }
     if (responsive) { setBreakpointZone(); }
 
@@ -2250,17 +2250,21 @@ var tns = function(options) {
   }
 
   function getSliderWidth () {
-    return fixedWidth ? (fixedWidth + gutter) * slideCountNew - gutter: slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width - gutter;
+    var width = fixedWidth ? (fixedWidth + gutter) * slideCountNew :
+        slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width;
+    return width - gutter; 
   }
 
   function getRightBoundary () {
-    var result = - (getSliderWidth() - viewport);
+    var result = viewport - getSliderWidth();
+    if (edgePadding) { result += edgePadding - gutter; }
     if (result > 0) { result = 0; }
     return result;
   }
 
   function getContainerTransformValue (num) {
     if (num == null) { num = index; }
+
     var val;
     if (horizontal && !autoWidth) {
       if (fixedWidth) {
@@ -2274,8 +2278,22 @@ var tns = function(options) {
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
+    if (horizontal && !loop && edgePadding) {
+      var gap = edgePadding;
+
+      if (!autoWidth && !fixedWidth) {
+        gap = TRANSFORM ? gap * 100 / (viewport * slideCountNew / items) : gap / viewport;
+      }
+
+      if (num <= 0) {
+        val -= gap;
+      } else if (num >= indexMax && !autoWidth && !fixedWidth) {
+        val += gap;
+      }
+    }
 
     val += (horizontal && !autoWidth && !fixedWidth) ? '%' : 'px';
+
     return val;
   }
 
