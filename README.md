@@ -281,11 +281,11 @@ Programmatically stop slider autoplay when `autoplay: true`.
 slider.pause();
 ```
 
-<!-- #### updateSliderHeight
+#### updateSliderHeight
 Manually adjust slider height when `autoHeight` is `true`.
 ```javascript
 slider.updateSliderHeight();
-``` -->
+```
 
 #### destroy
 Destroy the slider.
@@ -301,7 +301,7 @@ slider = slider.rebuild();
 ```
 
 ## Custom Events
-Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `touchStart`, `touchMove`, `touchEnd`, `dragStart`, `dragMove` and `dragEnd`.
+Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `newBreakpointStart`, `newBreakpointEnd`, `touchStart`, `touchMove`, `touchEnd`, `dragStart`, `dragMove` and `dragEnd`.
 ```javascript
 var customizedFunction = function (info) {
   // direct access to info object
