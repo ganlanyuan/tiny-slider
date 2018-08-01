@@ -207,8 +207,10 @@ The slider returns a slider object with some properties and methods once it's in
   play: play(),
   pause: pause(),
   isOn: isOn, // Boolean
-  rebuild: rebuild(),
-  destroy: destroy()
+  updateSliderHeight: updateInnerWrapperHeight(),
+  refresh: initSliderTransform(),
+  destroy: destroy(),
+  rebuild: rebuild()
 }
 ```
 To get the slider information, you can either use the `getInfo()` method or subscribe to an Event. Both return an Object:   
