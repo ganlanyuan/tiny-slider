@@ -466,7 +466,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// Version: 2.8.2
+// Version: 2.8.3
 
 // helper functions
 if (!Object.keys) {
