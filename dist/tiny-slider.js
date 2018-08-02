@@ -2278,19 +2278,20 @@ var tns = function(options) {
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
-    if (horizontal && !loop && edgePadding) {
-      var gap = edgePadding;
+    // // remove edge padding for non-loop
+    // if (horizontal && !loop && edgePadding) {
+    //   var gap = edgePadding;
 
-      if (!autoWidth && !fixedWidth) {
-        gap = TRANSFORM ? gap * 100 / (viewport * slideCountNew / items) : gap / viewport;
-      }
+    //   if (!autoWidth && !fixedWidth) {
+    //     gap = TRANSFORM ? gap * 100 / (viewport * slideCountNew / items) : gap / viewport;
+    //   }
 
-      if (num <= 0) {
-        val -= gap;
-      } else if (num >= indexMax && !autoWidth && !fixedWidth) {
-        val += gap;
-      }
-    }
+    //   if (num <= 0) {
+    //     val -= gap;
+    //   } else if (num >= indexMax && !autoWidth && !fixedWidth) {
+    //     val += gap;
+    //   }
+    // }
 
     val += (horizontal && !autoWidth && !fixedWidth) ? '%' : 'px';
 

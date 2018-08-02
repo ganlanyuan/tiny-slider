@@ -1438,19 +1438,12 @@ function testResponsive6() {
               viewport = wrapper.clientWidth;
               assertionEdgePadding = child0.getBoundingClientRect().left === edgepadding && child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
 
-              // go to the second slide
-              nextButton.click();
+              // resize window
+              newWindow.style.width = slideWidth * 2 + 100 + 'px';
               _context7.next = 7;
               return wait(1000);
 
             case 7:
-
-              // resize window
-              newWindow.style.width = slideWidth * 2 + 100 + 'px';
-              _context7.next = 10;
-              return wait(1000);
-
-            case 10:
               if (assertionEdgePadding) {
                 assertionEdgePadding = child0.getBoundingClientRect().left === 0;
               }
@@ -1458,13 +1451,13 @@ function testResponsive6() {
 
               // resize window
               newWindow.style.width = slideWidth + edgepadding * 2 - gutter + 'px';
-              _context7.next = 15;
+              _context7.next = 12;
               return wait(1000);
 
-            case 15:
+            case 12:
               if (assertionEdgePadding) {
                 viewport = wrapper.clientWidth;
-                assertionEdgePadding = child1.getBoundingClientRect().left === edgepadding + gutter && child1.getBoundingClientRect().right === viewport - (edgepadding - gutter * 2);
+                assertionEdgePadding = child0.getBoundingClientRect().left === edgepadding && child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
               }
               if (assertionControlsNav) {
                 assertionControlsNav = getComputedStyle(controls, null).display !== 'none' && getComputedStyle(nav, null).display !== 'none';
@@ -1472,28 +1465,28 @@ function testResponsive6() {
 
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
-              _context7.next = 25;
+              _context7.next = 22;
               break;
 
-            case 21:
-              _context7.prev = 21;
+            case 18:
+              _context7.prev = 18;
               _context7.t0 = _context7['catch'](0);
 
               updateTest(testEdgePaddingT, assertionEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav);
 
-            case 25:
-              _context7.prev = 25;
+            case 22:
+              _context7.prev = 22;
 
               document.body.removeChild(newWindow);
-              return _context7.finish(25);
+              return _context7.finish(22);
 
-            case 28:
+            case 25:
             case 'end':
               return _context7.stop();
           }
         }
-      }, _callee7, this, [[0, 21, 25, 28]]);
+      }, _callee7, this, [[0, 18, 22, 25]]);
     }));
 
     return function responsive6Tests() {

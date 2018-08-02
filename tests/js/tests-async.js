@@ -1300,7 +1300,6 @@ function testResponsive6 () {
           nav = wrapper.querySelector('.tns-nav'),
           child0 = container.children[0],
           child1 = container.children[1],
-          // child2 = container.children[2],
           childL = container.children[container.children.length - 1],
           prevButton = controls.children[0],
           nextButton = controls.children[1],
@@ -1310,10 +1309,6 @@ function testResponsive6 () {
       assertionEdgePadding = 
         child0.getBoundingClientRect().left === edgepadding &&
         child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
-
-      // go to the second slide
-      nextButton.click();
-      await wait(1000);
 
       // resize window
       newWindow.style.width = (slideWidth * 2 + 100) + 'px';
@@ -1331,8 +1326,8 @@ function testResponsive6 () {
       if (assertionEdgePadding) {
         viewport = wrapper.clientWidth;
         assertionEdgePadding = 
-          child1.getBoundingClientRect().left === edgepadding + gutter &&
-          child1.getBoundingClientRect().right === viewport - (edgepadding - gutter * 2);
+          child0.getBoundingClientRect().left === edgepadding &&
+          child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
       }
       if (assertionControlsNav) {
         assertionControlsNav = 
