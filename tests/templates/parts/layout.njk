@@ -20,14 +20,10 @@
 
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
-
-  <!--[if (IE 8)&!(IEMobile)]>
-  <script src="../dist/tiny-slider.helper.ie8.js"></script>
-  <![endif]-->
+  <!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
   <script src="../dist/tiny-slider.js"></script>
 </head>
-<body data-speed="{{ 400 if page === 'demos' else 0 }}" data-page="{{ page }}">
-
+<body>
 {% if page.indexOf('responsive') >= 0 %}
   {% set sliders = [page] %}
 {% elif page === 'demos' %}
@@ -85,7 +81,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = ['base'] %} #}
+  {# {% set sliders = ['fixedWidth'] %} #}
 {% endif %}
 
 {% set titles = [
@@ -327,20 +323,22 @@
 {% endblock %}
 
 <script>
-{%- if mobile %}
-  var fwSmall = 100, fw = 200, prefix = "-mobile";
-{% else %}
-  var fwSmall = 300, fw = 500, prefix = "";
-{% endif -%}
-
-  var isTestPage,
-      initFns = {},
+  var mobile = {{ 'true' if mobile else 'false' }},
+      isTestPage = {{ 'true' if page === 'tests' else 'false'}},
+      isDemoPage = {{ 'true' if page === 'demos' else 'false'}},
+      prefix = "{{ '-mobile' if mobile else '' }}",
+      classIn = "{{ 'jello' if page === 'demos' else 'tns-fadeIn' }}",
+      classOut = "{{ 'rollOut' if page === 'demos' else 'tns-fadeOut' }}",
+      speed = {{ 400 if page === 'demos' else 0 }},
       doc = document,
-      isDemoPage = doc.body.getAttribute('data-page') === 'demos',
-      classIn = (doc.body.getAttribute('data-page') === 'demos') ? 'jello' : 'tns-fadeIn',
-      classOut = (doc.body.getAttribute('data-page') === 'demos') ? 'rollOut' : 'tns-fadeOut',
+      win = window,
+      ww = win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth,
+      sm = 400,
+      md = 900,
+      lg = 1400,
+      fw = ww < sm ? 150 : ww >= sm && ww < md ? 200 : ww >= md && ww < lg ? 300 : 400,
+      initFns = {},
       sliders = new Object(),
-      speed = Number(document.body.getAttribute('data-speed')),
       edgepadding = 50,
       gutter = 10;
 </script>

@@ -18,13 +18,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link rel="stylesheet" href="../dist/tiny-slider.css">
-    <link rel="stylesheet" href="css/styles.css"><!--[if (IE 8)&!(IEMobile)]>
-  <script src="../dist/tiny-slider.helper.ie8.js"></script>
-  <![endif]-->
+    <link rel="stylesheet" href="css/styles.css"><!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
 
     <script src="../dist/tiny-slider.js"></script>
   </head>
-  <body data-speed="0" data-page="responsive3">
+  <body>
     <div class="slider-container">
       <div id="responsive3_wrapper">
         <h2>
@@ -91,15 +89,22 @@
       </div>
     </div>
     <script>
-    var fwSmall = 100, fw = 200, prefix = "-mobile";
-    var isTestPage,
-      initFns = {},
+    var mobile = true,
+      isTestPage = false,
+      isDemoPage = false,
+      prefix = "-mobile",
+      classIn = "tns-fadeIn",
+      classOut = "tns-fadeOut",
+      speed = 0,
       doc = document,
-      isDemoPage = doc.body.getAttribute('data-page') === 'demos',
-      classIn = (doc.body.getAttribute('data-page') === 'demos') ? 'jello' : 'tns-fadeIn',
-      classOut = (doc.body.getAttribute('data-page') === 'demos') ? 'rollOut' : 'tns-fadeOut',
+      win = window,
+      ww = win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth,
+      sm = 400,
+      md = 900,
+      lg = 1400,
+      fw = ww < sm ? 150 : ww >= sm && ww < md ? 200 : ww >= md && ww < lg ? 300 : 400,
+      initFns = {},
       sliders = new Object(),
-      speed = Number(document.body.getAttribute('data-speed')),
       edgepadding = 50,
       gutter = 10;
     </script> 

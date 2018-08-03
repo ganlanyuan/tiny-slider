@@ -76,23 +76,23 @@ var options = {
   }, 
   'fixedWidth': {
     container: '',
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
   }, 
   'fixedWidth-gutter': {
     container: '',
     gutter: gutter,
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
   }, 
   'fixedWidth-edgePadding': {
     container: '',
     edgePadding: edgepadding,
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
   }, 
   'fixedWidth-edgePadding-gutter': {
     container: '',
     gutter: gutter,
     edgePadding: edgepadding,
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
     slideBy: 2,
     loop: false,
     arrowKeys: true,
@@ -195,17 +195,17 @@ var options = {
     },
   },
   'responsive5': {
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
     autoHeight: false,
     responsive: {
       350: {
         autoHeight: true,
-        fixedWidth: fw,
+        fixedWidth: fw + 100,
       }
     },
   },
   'responsive6': {
-    fixedWidth: fwSmall,
+    fixedWidth: fw,
     edgePadding: edgepadding,
     gutter: gutter,
     loop: false,

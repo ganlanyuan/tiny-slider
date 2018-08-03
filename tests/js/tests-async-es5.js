@@ -762,7 +762,7 @@ function testRewind() {
 
 function testFixedWidth() {
   var id = 'fixedWidth',
-      fixedWidth = fwSmall,
+      fixedWidth = fw,
       slider = sliders[id],
       info = slider.getInfo();
 
@@ -792,7 +792,7 @@ function testFixedWidthGutter() {
 
   runTest('Slides: gutter', function () {
     var slideItems = info.slideItems;
-    return compare2Nums(slideItems[0].clientWidth, fwSmall + gutter);
+    return compare2Nums(slideItems[0].clientWidth, fw + gutter);
   });
 }
 
