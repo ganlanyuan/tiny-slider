@@ -482,7 +482,7 @@ IE 8+ ✓
 
 **Mobile:**  
 Android Browser 4.2+ ✓  
-Chrome Mobile 67+ ✓  
+Chrome Mobile 63+ ✓  
 Firefox Mobile 28+ ✓   
 Maxthon 4+ ✓
 
