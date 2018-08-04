@@ -81,7 +81,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = ['vertical'] %} #}
+  {# {% set sliders = [] %} #}
 {% endif %}
 
 {% set titles = [
@@ -97,20 +97,11 @@
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
 ] %}
 
-{% set collectionId = [
-  "993239",
-  "1673600",
-  "1513994",
-  "502925",
-  "1891993",
-  "1103088",
-  "548245",
-  "539469",
-  "end"
-] %}
+{% set collectionId = ["", "", "", "", "", "", "", "", "", "", "", ""
+  ] if mobile else ["993239", "1673600", "1513994", "502925", "1891993", "1103088", "548245", "539469", "end"] %}
 
 {% set imgPlaceholder = 'data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==' %}
-{% set baseurl = 'https://source.unsplash.com/collection/' %}
+{% set baseurl = 'http://via.placeholder.com/' if mobile else 'https://source.unsplash.com/collection/' %}
 
 {% block main %}
   {# test results #}
@@ -174,10 +165,11 @@
 
         {# auto height #}
         {% elif slide === 'autoHeight' or slide === 'responsive5' %}
+          {% set w = 700 if mobile else 1600 %}
           {% set hs = [500, 700, 600, 800, 500, 600, 800] %}
           {% for i in range(1, 6) %}
             <div>
-              <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/1400x{{ hs[i-1] }}" alt=""></div>
+              <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/{{ w }}x{{ hs[i-1] }}" alt="" width="{{ w }}" height="{{ hs[i-1] }}"></div>
               <p>{{ titles[i] }}</p>
             </div>
           {% endfor %}

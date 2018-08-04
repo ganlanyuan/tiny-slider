@@ -6,8 +6,9 @@ if (!Object.keys) Object.keys = function(o) {
   return k;
 }
 
-var resultsDiv = doc.querySelector('.test-results'),
-    windowWidth = (document.documentElement || document.body.parentNode || document.body).clientWidth,
+var body = doc.body,
+    resultsDiv = doc.querySelector('.test-results'),
+    windowWidth = (doc.documentElement || doc.body.parentNode || doc.body).clientWidth,
     multiplyer = 100,
     edgePadding = 50,
     gutter = 10,
@@ -15,9 +16,8 @@ var resultsDiv = doc.querySelector('.test-results'),
     tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex',
     canFireKeydown;
 
-document.onkeydown = function(e) {
+doc.onkeydown = function(e) {
   e = e || window.event;
-  var body = document.body;
   if (e.ctrlKey === true && e.keyCode === 192) {
     if (body.getAttribute('data-fire-keyevent') !== 'true') {
       body.setAttribute('data-fire-keyevent', 'true');
@@ -25,8 +25,8 @@ document.onkeydown = function(e) {
   }
 };
 
-fire(document, 'keydown', {'ctrlKey': true, 'keyCode': 192});
-canFireKeydown = (document.body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
+fire(doc, 'keydown', {'ctrlKey': true, 'keyCode': 192});
+canFireKeydown = (body.getAttribute('data-fire-keyevent') === 'true') ? true : false;
 
 
 
@@ -596,19 +596,23 @@ function testVertical () {
     return containsClasses(info.container, ['tns-slider', 'tns-carousel', 'tns-vertical']);
   });
 
-  runTest('Slides: width', function() {
+  runTest('The 1st visible slide should occupy the full viewport width', function() {
     var slideItems = info.slideItems;
 
     return compare2Nums(slideItems[0].getBoundingClientRect().left, 0) &&
       compare2Nums(slideItems[0].getBoundingClientRect().right, windowWidth);
   });
 
-  runTest('Slides: position', function() {
+  runTest('Slides: position', async function() {
+    await wait(100);
     return checkPositionEdgePadding(id, true);
   });
 
   var controlsClick = addTest('slides: click functions');
-  checkControlsClick(controlsClick, id, 11, 'top');
+  (async function() {
+    await wait(500);
+    checkControlsClick(controlsClick, id, 11, 'top');
+  })();
 }
 
 
@@ -636,7 +640,8 @@ function testVerticalGutter () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slides: position, gutter', function() {
+  runTest('Slides: position, gutter', async function() {
+    await wait(500);
     var slideItems = info.slideItems,
         cloneCount = info.cloneCount,
         firstRect = slideItems[cloneCount].getBoundingClientRect(),
@@ -675,7 +680,8 @@ function testVerticalEdgePadding () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slides: position, edge padding', function() {
+  runTest('Slides: position, edge padding', async function() {
+    await wait(500);
     return checkPositionEdgePadding(id, true);
   });
 }
@@ -705,7 +711,8 @@ function testVerticalEdgePaddingGutter () {
       info = slider.getInfo();
 
   addTitle(id);
-  runTest('Slides: position, edge padding', function() {
+  runTest('Slides: position, edge padding', async function() {
+    await wait(500);
     return checkPositionEdgePadding(id, true);
   });
 }
@@ -755,7 +762,7 @@ function testResponsive1 () {
     }
   }
 
-  document.body.appendChild(newWindow);
+  body.appendChild(newWindow);
 
   async function responsive1Tests () {
     try {
@@ -836,7 +843,7 @@ function testResponsive1 () {
       testGutter.className = 'item-notsure';
       testEdgePadding.className = 'item-notsure';
     } finally {
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -884,7 +891,7 @@ function testResponsive2 () {
     }
   }
 
-  document.body.appendChild(newWindow);
+  body.appendChild(newWindow);
 
   async function responsive2Tests () {
     try {
@@ -947,7 +954,7 @@ function testResponsive2 () {
       testNavT.className = 'item-notsure';
       testAutoplayT.className = 'item-notsure';
     } finally {
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -996,7 +1003,7 @@ function testResponsive3() {
     }
   }
 
-  document.body.appendChild(newWindow);
+  body.appendChild(newWindow);
 
   async function responsive3Tests () {
     try {
@@ -1044,7 +1051,7 @@ function testResponsive3() {
       testControlsT.className = 'item-notsure';
       testAutoplayT.className = 'item-notsure';
     } finally {
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -1097,7 +1104,7 @@ function testResponsive4 () {
   //   }
   // }
 
-  // document.body.appendChild(newWindow);
+  // body.appendChild(newWindow);
 
   function responsive4Tests () {
     if (canFireKeydown) {
@@ -1147,11 +1154,11 @@ function testResponsive4 () {
         });
       }).then(function() {
         updateTest(testArrowKeysT, assertionArrowKeys);
-        document.body.removeChild(newWindow);
+        body.removeChild(newWindow);
       });
     } else {
       testArrowKeysT.className = 'item-notsure';
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -1200,7 +1207,7 @@ function testResponsive5 () {
     }
   }
 
-  document.body.appendChild(newWindow);
+  body.appendChild(newWindow);
 
   async function responsive5Tests () {
     try {
@@ -1214,6 +1221,9 @@ function testResponsive5 () {
       assertionFixedWidth = first.clientWidth === options[id].fixedWidth &&
         wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
       assertionAutoHeight = wrapper.style.height === '';
+      // var div = doc.createElement('div');
+      // body.appendChild(div);
+      // div.innerHTML += assertionFixedWidth + ', ' + assertionAutoHeight;
       // console.log(assertionFixedWidth, assertionAutoHeight);
 
       // resize window
@@ -1234,7 +1244,7 @@ function testResponsive5 () {
       testFixedWidthT.className = 'item-notsure';
       testAutoHeightT.className = 'item-notsure';
     } finally {
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -1285,7 +1295,7 @@ function testResponsive6 () {
     }
   }
 
-  document.body.appendChild(newWindow);
+  body.appendChild(newWindow);
 
   async function responsive6Tests () {
     try {
@@ -1341,7 +1351,7 @@ function testResponsive6 () {
       updateTest(testEdgePaddingT, assertionEdgePadding);
       updateTest(testControlsNavT, assertionControlsNav);
     } finally {
-      document.body.removeChild(newWindow);
+      body.removeChild(newWindow);
     }
   }
 }
@@ -1980,7 +1990,7 @@ function testAutoHeight () {
     assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
 
     nextButton.click();
-    await wait(500);
+    await wait(1000);
     if (assertion || assertion === null) {
       assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
     }
@@ -2311,12 +2321,6 @@ initFns = {
   'fixedWidth-gutter': waitFn(testFixedWidthGutter),
   'fixedWidth-edgePadding': waitFn(testFixedWidthEdgePadding),
   'fixedWidth-edgePadding-gutter': waitFn(testFixedWidthEdgePaddingGutter),
-  'responsive1': waitFn(testResponsive1),
-  'responsive2': waitFn(testResponsive2),
-  'responsive3': waitFn(testResponsive3),
-  'responsive4': waitFn(testResponsive4),
-  'responsive5': waitFn(testResponsive5),
-  'responsive6': waitFn(testResponsive6),
   'arrowKeys': waitFn(testArrowKeys),
   'autoplay': waitFn(testAutoplay),
   'vertical': waitFn(testVertical),
@@ -2329,14 +2333,14 @@ initFns = {
   'customize': waitFn(testCustomize),
   'autoHeight': waitFn(testAutoHeight),
   'nested': waitFn(testNested),
+  'responsive1': waitFn(testResponsive1),
+  'responsive2': waitFn(testResponsive2),
+  'responsive3': waitFn(testResponsive3),
+  'responsive4': waitFn(testResponsive4),
+  'responsive5': waitFn(testResponsive5),
+  'responsive6': waitFn(testResponsive6),
 };
 
 // Chrome 33:
 // responsive5
 // responsive6
-// vertical
-// vertical-gutter
-// vertical-edgepadding
-// vertical-edgepadding-gutter
-// x responsive3
-// x animation1
