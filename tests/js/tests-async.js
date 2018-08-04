@@ -584,15 +584,15 @@ function testVertical () {
 
   addTitle(id);
 
-  runTest('Outer wrapper: classes', function() {
+  runTest('Outer wrapper should has class: tns-ovh', function() {
     return containsClasses(info.container.parentNode.parentNode, ['tns-ovh']);
   });
 
-  runTest('Inner wrapper: classes', function() {
+  runTest('Inner wrapper should has class: tns-inner', function() {
     return containsClasses(info.container.parentNode, ['tns-inner']);
   });
 
-  runTest('Container: classes', function() {
+  runTest('Container should has classes: tns-slider, tns-carousel, tns-vertical', function() {
     return containsClasses(info.container, ['tns-slider', 'tns-carousel', 'tns-vertical']);
   });
 
@@ -2330,3 +2330,13 @@ initFns = {
   'autoHeight': waitFn(testAutoHeight),
   'nested': waitFn(testNested),
 };
+
+// Chrome 33:
+// responsive5
+// responsive6
+// vertical
+// vertical-gutter
+// vertical-edgepadding
+// vertical-edgepadding-gutter
+// x responsive3
+// x animation1
