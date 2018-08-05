@@ -1,11 +1,3 @@
-if (!Object.keys) Object.keys = function(o) {
-  if (o !== Object(o))
-    throw new TypeError('Object.keys called on a non-object');
-  var k=[],p;
-  for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
-  return k;
-}
-
 var body = doc.body,
     resultsDiv = doc.querySelector('.test-results'),
     windowWidth = (doc.documentElement || doc.body.parentNode || doc.body).clientWidth,
@@ -1969,32 +1961,55 @@ function testAutoHeight () {
 
   addTitle(id);
 
-  var test1 = addTest('Slide: init'),
-      test2 = addTest('Slide: click');
+  var testClass = addTest('InnerWrapper should has class "tns-ah"'),
+      testHeight1 = addTest('Slider height should be the same as the maximum heights of visible slides in initialization'),
+      testHeight2 = addTest('Slider height should be the same as the maximum heights of visible slides after clicking prev/next buttons'),
+      comment = '';
 
   imagesLoaded(info.container, async function() {
+    await wait(300);
     var assertion,
         wrapper = info.container.parentNode,
         slideItems = info.slideItems,
         nextButton = info.nextButton;
 
-    assertion = containsClasses(wrapper, ['tns-ah']) &&
-      compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+    assertion = containsClasses(wrapper, ['tns-ah']);
+    if (!assertion) {
+      comment = 'innerWrapper contains class "tns-ah": ' + containsClasses(wrapper, ['tns-ah']);
+    }
 
-    updateTest(test1, assertion);
+    updateTest(testClass, assertion, comment);
 
-    assertion = null;
+    assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+    if (!assertion) {
+      comment = 'Init: innerWrapper height:' + wrapper.clientHeight +
+        ' | slide height: ' + slideItems[info.index].clientHeight + 
+        ' | index: ' + info.index;
+    }
+
+    updateTest(testHeight1, assertion, comment);
 
     nextButton.click();
     await wait(500);
     assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+    if (!assertion) {
+      comment = 'Click1: innerWrapper height:' + wrapper.clientHeight +
+        ' | slide height: ' + slideItems[info.index].clientHeight + 
+        ' | index: ' + info.index;
+    }
 
     nextButton.click();
-    await wait(1000);
-    if (assertion || assertion === null) {
+    await wait(500);
+    if (assertion) {
       assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+      if (!assertion) {
+        comment = '\nClick2: innerWrapper height:' + wrapper.clientHeight +
+          ' | slide height: ' + slideItems[info.index].clientHeight + 
+          ' | index: ' + info.index;
+      }
     }
-    updateTest(test2, assertion);
+
+    updateTest(testHeight2, assertion, comment);
   });
 }
 
@@ -2103,17 +2118,25 @@ function addTest (str, postfix) {
   return test;
 }
 
-function updateTest (test, assertion) {
+function updateTest (test, assertion, str) {
   switch(assertion) {
     case true:
       test.className = 'item-success';
       break;
     case false:
       test.className = 'item-fail';
+      if (str) { addComment(test, str); }
       break;
     default:
       test.className = 'item-notsure';
   }
+}
+
+function addComment (test, str) {
+  var comment = doc.createElement('div');
+  comment.innerHTML = str;
+  comment.className = 'item-comment';
+  test.nextElementSibling ? resultsDiv.insertBefore(comment, test.nextElementSibling) : resultsDiv.appendChild(comment);
 }
 
 function runTest (str, fn) {

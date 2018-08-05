@@ -81,7 +81,7 @@
     'autoHeight',
     'nested'
   ] %}
-  {# {% set sliders = [] %} #}
+  {# {% set sliders = ['autoHeight'] %} #}
 {% endif %}
 
 {% set titles = [
@@ -101,7 +101,7 @@
   ] if mobile else ["993239", "1673600", "1513994", "502925", "1891993", "1103088", "548245", "539469", "end"] %}
 
 {% set imgPlaceholder = 'data:image/gif;base64,R0lGODlhAQABAPAAAMzMzAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==' %}
-{% set baseurl = 'http://via.placeholder.com/' if mobile else 'https://source.unsplash.com/collection/' %}
+{% set baseurl = 'https://via.placeholder.com' if mobile else 'https://source.unsplash.com/collection/' %}
 
 {% block main %}
   {# test results #}

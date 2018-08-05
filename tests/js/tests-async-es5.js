@@ -697,15 +697,6 @@ var testAutoplayFn = function () {
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
-if (!Object.keys) Object.keys = function (o) {
-  if (o !== Object(o)) throw new TypeError('Object.keys called on a non-object');
-  var k = [],
-      p;
-  for (p in o) {
-    if (Object.prototype.hasOwnProperty.call(o, p)) k.push(p);
-  }return k;
-};
-
 var body = doc.body,
     resultsDiv = doc.querySelector('.test-results'),
     windowWidth = (doc.documentElement || doc.body.parentNode || doc.body).clientWidth,
@@ -1762,8 +1753,10 @@ function testAutoHeight() {
 
   addTitle(id);
 
-  var test1 = addTest('Slide: init'),
-      test2 = addTest('Slide: click');
+  var testClass = addTest('InnerWrapper should has class "tns-ah"'),
+      testHeight1 = addTest('Slider height should be the same as the maximum heights of visible slides in initialization'),
+      testHeight2 = addTest('Slider height should be the same as the maximum heights of visible slides after clicking prev/next buttons'),
+      comment = '';
 
   imagesLoaded(info.container, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
     var assertion, wrapper, slideItems, nextButton;
@@ -1771,33 +1764,52 @@ function testAutoHeight() {
       while (1) {
         switch (_context17.prev = _context17.next) {
           case 0:
+            _context17.next = 2;
+            return wait(300);
+
+          case 2:
             wrapper = info.container.parentNode, slideItems = info.slideItems, nextButton = info.nextButton;
 
 
-            assertion = containsClasses(wrapper, ['tns-ah']) && compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+            assertion = containsClasses(wrapper, ['tns-ah']);
+            if (!assertion) {
+              comment = 'innerWrapper contains class "tns-ah": ' + containsClasses(wrapper, ['tns-ah']);
+            }
 
-            updateTest(test1, assertion);
+            updateTest(testClass, assertion, comment);
 
-            assertion = null;
+            assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
+            if (!assertion) {
+              comment = 'Init: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
+            }
+
+            updateTest(testHeight1, assertion, comment);
 
             nextButton.click();
-            _context17.next = 7;
+            _context17.next = 12;
             return wait(500);
 
-          case 7:
+          case 12:
             assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+            if (!assertion) {
+              comment = 'Click1: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
+            }
 
             nextButton.click();
-            _context17.next = 11;
-            return wait(1000);
+            _context17.next = 17;
+            return wait(500);
 
-          case 11:
-            if (assertion || assertion === null) {
+          case 17:
+            if (assertion) {
               assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
+              if (!assertion) {
+                comment = '\nClick2: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
+              }
             }
-            updateTest(test2, assertion);
 
-          case 13:
+            updateTest(testHeight2, assertion, comment);
+
+          case 19:
           case 'end':
             return _context17.stop();
         }
@@ -1873,17 +1885,27 @@ function addTest(str, postfix) {
   return test;
 }
 
-function updateTest(test, assertion) {
+function updateTest(test, assertion, str) {
   switch (assertion) {
     case true:
       test.className = 'item-success';
       break;
     case false:
       test.className = 'item-fail';
+      if (str) {
+        addComment(test, str);
+      }
       break;
     default:
       test.className = 'item-notsure';
   }
+}
+
+function addComment(test, str) {
+  var comment = doc.createElement('div');
+  comment.innerHTML = str;
+  comment.className = 'item-comment';
+  test.nextElementSibling ? resultsDiv.insertBefore(comment, test.nextElementSibling) : resultsDiv.appendChild(comment);
 }
 
 function runTest(str, fn) {
