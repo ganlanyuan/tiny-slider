@@ -325,14 +325,18 @@
       doc = document,
       win = window,
       ww = win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth,
+      fwArr = [150, 200, 300, 400],
       sm = 400,
       md = 900,
       lg = 1400,
-      fw = ww < sm ? 150 : ww >= sm && ww < md ? 200 : ww >= md && ww < lg ? 300 : 400,
+      fw = ww < sm ? fwArr[0] : ww >= sm && ww < md ? fwArr[1] : ww >= md && ww < lg ? fwArr[2] : fwArr[3],
       initFns = {},
       sliders = new Object(),
       edgepadding = 50,
       gutter = 10;
+  window.addEventListener('resize', function() {
+    fw = ww < sm ? fwArr[0] : ww >= sm && ww < md ? fwArr[1] : ww >= md && ww < lg ? fwArr[2] : fwArr[3];
+  });
 </script>
 <script src="js/options.js"></script>
 

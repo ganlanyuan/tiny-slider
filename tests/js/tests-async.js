@@ -1266,7 +1266,6 @@ function testResponsive6 () {
       fixedWidth = opt.fixedWidth,
       gutter = opt.gutter,
       slideWidth = fixedWidth + gutter;
-      console.log(fixedWidth);
 
   addTitle(id + ': fixedWidth width few items');
 
