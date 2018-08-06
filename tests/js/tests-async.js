@@ -1266,6 +1266,7 @@ function testResponsive6 () {
       fixedWidth = opt.fixedWidth,
       gutter = opt.gutter,
       slideWidth = fixedWidth + gutter;
+      console.log(fixedWidth);
 
   addTitle(id + ': fixedWidth width few items');
 
@@ -1293,7 +1294,8 @@ function testResponsive6 () {
     try {
       var assertionEdgePadding,
           assertionControlsNav,
-          assertionControlsClick,
+          commentEdgePadding,
+          commentControlsNav,
           doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
           wrapper = doc.querySelector('#' + id + '_wrapper'),
           innerWrapper = doc.querySelector('#' + id + '-iw'),
@@ -1305,43 +1307,64 @@ function testResponsive6 () {
           childL = container.children[container.children.length - 1],
           prevButton = controls.children[0],
           nextButton = controls.children[1],
-          viewport;
+          viewport,
+          controlsDisplay,
+          navDisplay,
+          left,
+          right;
 
       viewport = wrapper.clientWidth;
-      assertionEdgePadding = 
-        child0.getBoundingClientRect().left === edgepadding &&
-        child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
+      left = child0.getBoundingClientRect().left;
+      right = child0.getBoundingClientRect().right;
+      assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
+      if (!assertionEdgePadding) {
+        commentEdgePadding = 'init >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+      }
 
       // resize window
       newWindow.style.width = (slideWidth * 2 + 100) + 'px';
       await wait(1000);
       if (assertionEdgePadding) {
-        assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+        left = child0.getBoundingClientRect().left;
+        assertionEdgePadding = left === 0;
+        if (!assertionEdgePadding) {
+          commentEdgePadding += 'frozen >> edgePadding: child0 left - ' + left + ' | 0, viewport - ' + viewport;
+        }
       }
-      assertionControlsNav = 
-        getComputedStyle(controls, null).display === 'none' &&
-        getComputedStyle(nav, null).display === 'none';
+
+      controlsDisplay = getComputedStyle(controls, null).display;
+      navDisplay = getComputedStyle(nav, null).display;
+      assertionControlsNav = controlsDisplay === 'none' && navDisplay === 'none';
+      if (!assertionControlsNav) {
+        commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
+      }
 
       // resize window
       newWindow.style.width = (slideWidth + edgepadding * 2 - gutter) + 'px';
       await wait(1000);
       if (assertionEdgePadding) {
         viewport = wrapper.clientWidth;
-        assertionEdgePadding = 
-          child0.getBoundingClientRect().left === edgepadding &&
-          child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
+        left = child0.getBoundingClientRect().left;
+        right = child0.getBoundingClientRect().right;
+        assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
+        if (!assertionEdgePadding) {
+          commentEdgePadding = 'active >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+        }
       }
       if (assertionControlsNav) {
-        assertionControlsNav = 
-          getComputedStyle(controls, null).display !== 'none' &&
-          getComputedStyle(nav, null).display !== 'none';
+        controlsDisplay = getComputedStyle(controls, null).display;
+        navDisplay = getComputedStyle(nav, null).display;
+        assertionControlsNav = controlsDisplay !== 'none' && navDisplay !== 'none';
+        if (!assertionControlsNav) {
+          commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport
+        }
       }
 
-      updateTest(testEdgePaddingT, assertionEdgePadding);
-      updateTest(testControlsNavT, assertionControlsNav);
+      updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
+      updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
     } catch(e) {
-      updateTest(testEdgePaddingT, assertionEdgePadding);
-      updateTest(testControlsNavT, assertionControlsNav);
+      updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
+      updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
     } finally {
       body.removeChild(newWindow);
     }

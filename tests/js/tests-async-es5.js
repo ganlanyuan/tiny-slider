@@ -1492,7 +1492,7 @@ function testResponsive5() {
 function testResponsive6() {
   var responsive6Tests = function () {
     var _ref12 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12() {
-      var assertionEdgePadding, assertionControlsNav, assertionControlsClick, doc, wrapper, innerWrapper, container, controls, nav, child0, child1, childL, prevButton, nextButton, viewport;
+      var assertionEdgePadding, assertionControlsNav, commentEdgePadding, commentControlsNav, doc, wrapper, innerWrapper, container, controls, nav, child0, child1, childL, prevButton, nextButton, viewport, controlsDisplay, navDisplay, left, right;
       return regeneratorRuntime.wrap(function _callee12$(_context12) {
         while (1) {
           switch (_context12.prev = _context12.next) {
@@ -1502,57 +1502,82 @@ function testResponsive6() {
 
 
               viewport = wrapper.clientWidth;
-              assertionEdgePadding = child0.getBoundingClientRect().left === edgepadding && child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
+              left = child0.getBoundingClientRect().left;
+              right = child0.getBoundingClientRect().right;
+              assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
+              if (!assertionEdgePadding) {
+                commentEdgePadding = 'init >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+              }
 
               // resize window
               newWindow.style.width = slideWidth * 2 + 100 + 'px';
-              _context12.next = 7;
+              _context12.next = 10;
               return wait(1000);
 
-            case 7:
+            case 10:
               if (assertionEdgePadding) {
-                assertionEdgePadding = child0.getBoundingClientRect().left === 0;
+                left = child0.getBoundingClientRect().left;
+                assertionEdgePadding = left === 0;
+                if (!assertionEdgePadding) {
+                  commentEdgePadding += 'frozen >> edgePadding: child0 left - ' + left + ' | 0, viewport - ' + viewport;
+                }
               }
-              assertionControlsNav = getComputedStyle(controls, null).display === 'none' && getComputedStyle(nav, null).display === 'none';
+
+              controlsDisplay = getComputedStyle(controls, null).display;
+              navDisplay = getComputedStyle(nav, null).display;
+              assertionControlsNav = controlsDisplay === 'none' && navDisplay === 'none';
+              if (!assertionControlsNav) {
+                commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
+              }
 
               // resize window
               newWindow.style.width = slideWidth + edgepadding * 2 - gutter + 'px';
-              _context12.next = 12;
+              _context12.next = 18;
               return wait(1000);
 
-            case 12:
+            case 18:
               if (assertionEdgePadding) {
                 viewport = wrapper.clientWidth;
-                assertionEdgePadding = child0.getBoundingClientRect().left === edgepadding && child0.getBoundingClientRect().right === viewport - (edgepadding - gutter);
+                left = child0.getBoundingClientRect().left;
+                right = child0.getBoundingClientRect().right;
+                assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
+                if (!assertionEdgePadding) {
+                  commentEdgePadding = 'active >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+                }
               }
               if (assertionControlsNav) {
-                assertionControlsNav = getComputedStyle(controls, null).display !== 'none' && getComputedStyle(nav, null).display !== 'none';
+                controlsDisplay = getComputedStyle(controls, null).display;
+                navDisplay = getComputedStyle(nav, null).display;
+                assertionControlsNav = controlsDisplay !== 'none' && navDisplay !== 'none';
+                if (!assertionControlsNav) {
+                  commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport;
+                }
               }
 
-              updateTest(testEdgePaddingT, assertionEdgePadding);
-              updateTest(testControlsNavT, assertionControlsNav);
-              _context12.next = 22;
+              updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
+              updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
+              _context12.next = 28;
               break;
 
-            case 18:
-              _context12.prev = 18;
+            case 24:
+              _context12.prev = 24;
               _context12.t0 = _context12['catch'](0);
 
-              updateTest(testEdgePaddingT, assertionEdgePadding);
-              updateTest(testControlsNavT, assertionControlsNav);
+              updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
+              updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
 
-            case 22:
-              _context12.prev = 22;
+            case 28:
+              _context12.prev = 28;
 
               body.removeChild(newWindow);
-              return _context12.finish(22);
+              return _context12.finish(28);
 
-            case 25:
+            case 31:
             case 'end':
               return _context12.stop();
           }
         }
-      }, _callee12, this, [[0, 18, 22, 25]]);
+      }, _callee12, this, [[0, 24, 28, 31]]);
     }));
 
     return function responsive6Tests() {
@@ -1565,6 +1590,7 @@ function testResponsive6() {
       fixedWidth = opt.fixedWidth,
       gutter = opt.gutter,
       slideWidth = fixedWidth + gutter;
+  console.log(fixedWidth);
 
   addTitle(id + ': fixedWidth width few items');
 

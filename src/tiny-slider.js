@@ -268,6 +268,16 @@ export var tns = function(options) {
       rewind = options.rewind,
       loop = rewind ? false : options.loop,
       autoHeight = getOption('autoHeight'),
+      controls = getOption('controls'),
+      controlsText = getOption('controlsText'),
+      nav = getOption('nav'),
+      touch = getOption('touch'),
+      mouseDrag = getOption('mouseDrag'),
+      autoplay = getOption('autoplay'),
+      autoplayTimeout = getOption('autoplayTimeout'),
+      autoplayText = getOption('autoplayText'),
+      autoplayHoverPause = getOption('autoplayHoverPause'),
+      autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
       slidePositions, // collection of slide positions
@@ -358,9 +368,7 @@ export var tns = function(options) {
 
   // controls
   if (hasControls) {
-    var controls = getOption('controls'),
-        controlsText = getOption('controlsText'),
-        controlsContainer = options.controlsContainer,
+    var controlsContainer = options.controlsContainer,
         controlsContainerHTML = options.controlsContainer ? options.controlsContainer.outerHTML : '',
         prevButton = options.prevButton,
         nextButton = options.nextButton,
@@ -370,8 +378,7 @@ export var tns = function(options) {
 
   // nav
   if (hasNav) {
-    var nav = getOption('nav'),
-        navContainer = options.navContainer,
+    var navContainer = options.navContainer,
         navContainerHTML = options.navContainer ? options.navContainer.outerHTML : '',
         navItems,
         visibleNavIndexes = [],
@@ -384,14 +391,9 @@ export var tns = function(options) {
 
   // autoplay
   if (hasAutoplay) {
-    var autoplay = getOption('autoplay'),
-        autoplayTimeout = getOption('autoplayTimeout'),
-        autoplayDirection = options.autoplayDirection === 'forward' ? 1 : -1,
-        autoplayText = getOption('autoplayText'),
-        autoplayHoverPause = getOption('autoplayHoverPause'),
+    var autoplayDirection = options.autoplayDirection === 'forward' ? 1 : -1,
         autoplayButton = options.autoplayButton,
         autoplayButtonHTML = options.autoplayButton ? options.autoplayButton.outerHTML : '',
-        autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
         autoplayHtmlStrings = ['<span class=\'tns-visually-hidden\'>', ' animation</span>'],
         autoplayTimer,
         animating,
@@ -413,16 +415,6 @@ export var tns = function(options) {
           function(a, b) { return a.y - b.y; };
   }
   
-  // touch
-  if (hasTouch) {
-    var touch = getOption('touch');
-  }
-
-  // mouse drag
-  if (hasMouseDrag) {
-    var mouseDrag = getOption('mouseDrag');
-  }
-
   // disable slider when slidecount <= items
   resetVariblesWhenDisable(disable || freeze);
 
@@ -504,8 +496,7 @@ export var tns = function(options) {
   }
 
   function getViewportWidth () {
-    var width = getClientWidth(containerParent);
-    return edgePadding ? width - (edgePadding * 2 - gutter) : width;
+    return getClientWidth(containerParent) - (edgePadding * 2 - gutter);
   }
 
   function hasOption (item) {
@@ -1137,68 +1128,73 @@ export var tns = function(options) {
     if (!isOn) { return; }
     if (nested === 'outer') { events.emit('outerResized', info(e)); }
     windowWidth = getWindowWidth();
-
     var bpChanged,
-        indChanged,
+        breakpointZoneTem = breakpointZone,
+        needContainerTransform = false;
+
+    if (responsive) {
+      setBreakpointZone();
+      bpChanged = breakpointZoneTem !== breakpointZone;
+      // if (hasRightDeadZone) { needContainerTransform = true; } // *?
+      if (bpChanged) { events.emit('newBreakpointStart', info(e)); }
+    }
+
+    var indChanged,
         itemsChanged,
-        fixedWidthTem = fixedWidth,
         itemsTem = items,
         disableTem = disable,
         freezeTem = freeze,
         arrowKeysTem = arrowKeys,
-        autoHeightTem = autoHeight,
         controlsTem = controls,
-        controlsTextTem = controlsText,
         navTem = nav,
         touchTem = touch,
         mouseDragTem = mouseDrag,
         autoplayTem = autoplay,
         autoplayHoverPauseTem = autoplayHoverPause,
         autoplayResetOnVisibilityTem = autoplayResetOnVisibility,
-        autoplayTextTem = autoplayText,
-        indexTem = index,
-        breakpointZoneTem = breakpointZone,
-        needContainerTransform = false;
+        indexTem = index;
 
-    if (!CSSMQ) {
-      var gutterTem = gutter,
-          edgePaddingTem = edgePadding;
+    if (bpChanged) {
+      var fixedWidthTem = fixedWidth,
+          autoHeightTem = autoHeight,
+          controlsTextTem = controlsText,
+          autoplayTextTem = autoplayText;
+
+      if (!CSSMQ) {
+        var gutterTem = gutter,
+            edgePaddingTem = edgePadding;
+      }
     }
 
     // get option:
     // fixed width: viewport, fixedWidth, gutter => items
     // others: window width => all variables
     // all: items => slideBy
-    fixedWidth = getOption('fixedWidth');
-    edgePadding = getOption('edgePadding');
-    gutter = getOption('gutter');
-    disable = getOption('disable');
-    slideBy = getOption('slideBy');
-    speed = getOption('speed');
-    autoHeight = getOption('autoHeight');
     arrowKeys = getOption('arrowKeys');
     controls = getOption('controls');
-    controlsText = getOption('controlsText');
     nav = getOption('nav');
     touch = getOption('touch');
     mouseDrag = getOption('mouseDrag');
     autoplay = getOption('autoplay');
-    autoplayText = getOption('autoplayText');
-    autoplayTimeout = getOption('autoplayTimeout');
     autoplayHoverPause = getOption('autoplayHoverPause');
     autoplayResetOnVisibility = getOption('autoplayResetOnVisibility');
-    // update options
-    resetVariblesWhenDisable(disable);
 
-    if (responsive) {
-      setBreakpointZone();
-      bpChanged = breakpointZoneTem !== breakpointZone;
-      // if (hasRightDeadZone) { needContainerTransform = true; } // *?
+    if (bpChanged) {
+      disable = getOption('disable');
+      fixedWidth = getOption('fixedWidth');
+      speed = getOption('speed');
+      autoHeight = getOption('autoHeight');
+      controlsText = getOption('controlsText');
+      autoplayText = getOption('autoplayText');
+      autoplayTimeout = getOption('autoplayTimeout');
 
-      if (bpChanged) {
-        events.emit('newBreakpointStart', info(e));
+      if (!CSSMQ) {
+        edgePadding = getOption('edgePadding');
+        gutter = getOption('gutter');
       }
     }
+    // update options
+    resetVariblesWhenDisable(disable);
 
     viewport = getViewportWidth(); // <= edgePadding, gutter
     if ((!horizontal || autoWidth) && !disable) {
@@ -1217,6 +1213,7 @@ export var tns = function(options) {
 
     if (bpChanged || fixedWidth) {
       items = getOption('items');
+      slideBy = getOption('slideBy');
       itemsChanged = items !== itemsTem;
 
       if (itemsChanged) {
@@ -1235,8 +1232,6 @@ export var tns = function(options) {
           enableSlider(); // <= slidePositions, rightBoundary, indexMax
         }
       }
-
-      if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
     }
 
     if (freezable && (bpChanged || fixedWidth || autoWidth)) {
@@ -1258,9 +1253,6 @@ export var tns = function(options) {
     resetVariblesWhenDisable(disable || freeze); // controls, nav, touch, mouseDrag, arrowKeys, autoplay, autoplayHoverPause, autoplayResetOnVisibility
     if (!autoplay) { autoplayHoverPause = autoplayResetOnVisibility = false; }
 
-    if (autoHeight !== autoHeightTem) {
-      if (!autoHeight) { innerWrapper.style.height = ''; }
-    }
     if (arrowKeys !== arrowKeysTem) {
       arrowKeys ?
         addEvents(doc, docmentKeydownEvent) :
@@ -1270,10 +1262,6 @@ export var tns = function(options) {
       controls ?
         showElement(controlsContainer) :
         hideElement(controlsContainer); 
-    }
-    if (controlsText !== controlsTextTem) {
-      prevButton.innerHTML = controlsText[0];
-      nextButton.innerHTML = controlsText[1];
     }
     if (nav !== navTem) {
       if (nav) {
@@ -1302,14 +1290,6 @@ export var tns = function(options) {
         if (animating) { stopAutoplay(); }
       }
     }
-    if (autoplayButton && autoplayText !== autoplayTextTem) {
-      var i = autoplay ? 1 : 0,
-          html = autoplayButton.innerHTML,
-          len = html.length - autoplayTextTem[i].length;
-      if (html.substring(len) === autoplayTextTem[i]) {
-        autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
-      }
-    }
     if (autoplayHoverPause !== autoplayHoverPauseTem) {
       autoplayHoverPause ?
         addEvents(container, hoverEvents) :
@@ -1319,6 +1299,28 @@ export var tns = function(options) {
       autoplayResetOnVisibility ?
         addEvents(doc, visibilityEvent) :
         removeEvents(doc, visibilityEvent);
+    }
+
+    if (bpChanged) {
+      if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
+
+      if (autoHeight !== autoHeightTem) {
+        if (!autoHeight) { innerWrapper.style.height = ''; }
+      }
+
+      if (controls && controlsText !== controlsTextTem) {
+        prevButton.innerHTML = controlsText[0];
+        nextButton.innerHTML = controlsText[1];
+      }
+
+      if (autoplayButton && autoplayText !== autoplayTextTem) {
+        var i = autoplay ? 1 : 0,
+            html = autoplayButton.innerHTML,
+            len = html.length - autoplayTextTem[i].length;
+        if (html.substring(len) === autoplayTextTem[i]) {
+          autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
+        }
+      }
     }
 
     indChanged = index !== indexTem;
@@ -1334,7 +1336,7 @@ export var tns = function(options) {
 
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
-      if (!CSSMQ && bpChanged) {
+      if (bpChanged && !CSSMQ) {
         // inner wrapper styles
         if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
@@ -1377,11 +1379,11 @@ export var tns = function(options) {
   function getFreeze () {
     if (!fixedWidth && !autoWidth) { return slideCount <= items; }
 
-    if (loop) {
-      var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount];
-      return width - gutter <= viewport;
+    if (fixedWidth) {
+      return (fixedWidth + gutter) * slideCount <= viewport + edgePadding * 2;
     } else {
-      return !rightBoundary;
+      var width = loop ? slidePositions[slideCount] : getSliderWidth();
+      return width <= viewport + edgePadding * 2;
     }
   }
 
@@ -1816,13 +1818,12 @@ export var tns = function(options) {
   }
 
   function getSliderWidth () {
-    var width = fixedWidth ? (fixedWidth + gutter) * slideCountNew :
+    return fixedWidth ? (fixedWidth + gutter) * slideCountNew :
         slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width;
-    return width - gutter; 
   }
 
   function getRightBoundary () {
-    var result = viewport - getSliderWidth();
+    var result = viewport - (getSliderWidth() - gutter);
     if (edgePadding) { result += edgePadding - gutter; }
     if (result > 0) { result = 0; }
     return result;
