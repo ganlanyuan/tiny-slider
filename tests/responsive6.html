@@ -59,18 +59,17 @@
       doc = document,
       win = window,
       ww = win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth,
-      fwArr = [150, 200, 300, 400],
-      sm = 400,
-      md = 900,
-      lg = 1400,
-      fw = ww < sm ? fwArr[0] : ww >= sm && ww < md ? fwArr[1] : ww >= md && ww < lg ? fwArr[2] : fwArr[3],
+      fw = getFW(ww),
       initFns = {},
       sliders = new Object(),
       edgepadding = 50,
       gutter = 10;
-    window.addEventListener('resize', function() {
-    fw = ww < sm ? fwArr[0] : ww >= sm && ww < md ? fwArr[1] : ww >= md && ww < lg ? fwArr[2] : fwArr[3];
-    });
+
+    function getFW (width) {
+    var sm = 400, md = 900, lg = 1400;
+    return width < sm ? 150 : width >= sm && width < md ? 200 : width >= md && width < lg ? 300 : 400;
+    }
+    window.addEventListener('resize', function() { fw = getFW(ww); });
     </script> 
     <script src="js/options.js"></script> 
     <script src="js/run.js"></script>

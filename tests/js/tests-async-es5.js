@@ -1399,7 +1399,7 @@ function testResponsive4() {
 function testResponsive5() {
   var responsive5Tests = function () {
     var _ref11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11() {
-      var assertionFixedWidth, assertionAutoHeight, doc, wrapper, container, first;
+      var assertionFixedWidth, assertionAutoHeight, commentFixedWidth, commentAutoHeight, doc, wrapper, container, first;
       return regeneratorRuntime.wrap(function _callee11$(_context11) {
         while (1) {
           switch (_context11.prev = _context11.next) {
@@ -1408,51 +1408,59 @@ function testResponsive5() {
               doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), first = container.querySelector('#' + id + '-item0');
 
 
-              assertionFixedWidth = first.clientWidth === options[id].fixedWidth && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+              assertionFixedWidth = first.clientWidth === getFW(windowWidth) && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
               assertionAutoHeight = wrapper.style.height === '';
-              // var div = doc.createElement('div');
-              // body.appendChild(div);
-              // div.innerHTML += assertionFixedWidth + ', ' + assertionAutoHeight;
-              // console.log(assertionFixedWidth, assertionAutoHeight);
+              if (!assertionFixedWidth) {
+                commentFixedWidth = 'FixedWidth 1 >> first element width: ' + first.clientWidth + ' | ' + getFW(windowWidth) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
+              }
+              if (!assertionAutoHeight) {
+                commentAutoHeight = 'AutoHeight 1 >> wrapper height: ' + wrapper.style.height + '(should be empty)' + ', viewport width: ' + windowWidth;
+              }
 
               // resize window
-              newWindow.style.width = Number(bps[0]) + 20 + 'px';
-              _context11.next = 7;
+              windowWidth = Number(bps[0]) + 20;
+              newWindow.style.width = windowWidth + 'px';
+              _context11.next = 10;
               return wait(2000);
 
-            case 7:
+            case 10:
               if (assertionFixedWidth) {
-                assertionFixedWidth = first.clientWidth === responsive[bps[0]].fixedWidth && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+                assertionFixedWidth = first.clientWidth === getFW(windowWidth) + 100 && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+                if (!assertionFixedWidth) {
+                  commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
+                }
               }
               if (assertionAutoHeight) {
                 assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
+                if (!assertionAutoHeight) {
+                  commentAutoHeight = 'AutoHeight 2 >> wrapper height: ' + wrapper.style.height + ' | first element height: ' + first.clientHeight + 'px' + ', viewport width: ' + windowWidth;
+                }
               }
-              // console.log(assertionFixedWidth, assertionAutoHeight);
 
-              updateTest(testFixedWidthT, assertionFixedWidth);
-              updateTest(testAutoHeightT, assertionAutoHeight);
-              _context11.next = 17;
+              updateTest(testFixedWidthT, assertionFixedWidth, commentFixedWidth);
+              updateTest(testAutoHeightT, assertionAutoHeight, commentAutoHeight);
+              _context11.next = 20;
               break;
 
-            case 13:
-              _context11.prev = 13;
+            case 16:
+              _context11.prev = 16;
               _context11.t0 = _context11['catch'](0);
 
               testFixedWidthT.className = 'item-notsure';
               testAutoHeightT.className = 'item-notsure';
 
-            case 17:
-              _context11.prev = 17;
+            case 20:
+              _context11.prev = 20;
 
               body.removeChild(newWindow);
-              return _context11.finish(17);
+              return _context11.finish(20);
 
-            case 20:
+            case 23:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, this, [[0, 13, 17, 20]]);
+      }, _callee11, this, [[0, 16, 20, 23]]);
     }));
 
     return function responsive5Tests() {
@@ -1470,10 +1478,11 @@ function testResponsive5() {
 
   var testFixedWidthT = addTest('fixedWidth'),
       testAutoHeightT = addTest('auto height'),
-      newWindow = document.createElement('iframe');
+      newWindow = document.createElement('iframe'),
+      windowWidth = Number(bps[0]) - 20;
 
   newWindow.setAttribute('frameBorder', '0');
-  newWindow.style.cssText = 'width: ' + (Number(bps[0]) - 20) + 'px; height: 1000px; border-width: 0; overflow: hidden;';
+  newWindow.style.cssText = 'width: ' + windowWidth + 'px; height: 1000px; border-width: 0; overflow: hidden;';
   newWindow.src = id + prefix + '.html';
 
   if (newWindow.addEventListener) {
@@ -1502,11 +1511,11 @@ function testResponsive6() {
 
 
               viewport = wrapper.clientWidth;
-              left = child0.getBoundingClientRect().left;
-              right = child0.getBoundingClientRect().right;
+              left = innerWrapper.getBoundingClientRect().left;
+              right = innerWrapper.getBoundingClientRect().right;
               assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
               if (!assertionEdgePadding) {
-                commentEdgePadding = 'init >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+                commentEdgePadding = 'init >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
               }
 
               // resize window
@@ -1538,11 +1547,11 @@ function testResponsive6() {
             case 18:
               if (assertionEdgePadding) {
                 viewport = wrapper.clientWidth;
-                left = child0.getBoundingClientRect().left;
-                right = child0.getBoundingClientRect().right;
+                left = innerWrapper.getBoundingClientRect().left;
+                right = innerWrapper.getBoundingClientRect().right;
                 assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
                 if (!assertionEdgePadding) {
-                  commentEdgePadding = 'active >> edgePadding: child0 left - ' + left + ' | ' + edgepadding + ', child0 right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+                  commentEdgePadding = 'active >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
                 }
               }
               if (assertionControlsNav) {
