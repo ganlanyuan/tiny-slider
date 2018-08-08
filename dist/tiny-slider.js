@@ -2983,7 +2983,7 @@ var tns = function(options) {
   }
 
   return {
-    version: '2.8.3',
+    version: '2.8.4',
     getInfo: info,
     events: events,
     goTo: goTo,
