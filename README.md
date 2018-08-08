@@ -349,6 +349,7 @@ NOTE: `fixedWidth` can only be changed to other positive integers. It can't be c
 The slider returns a slider object with some properties and methods once it's initialized:
 ```javascript
 {
+  version: version, // tiny-slider version
   getInfo: info(),
   events: events, // Object
   goTo: goTo(),

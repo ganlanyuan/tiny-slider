@@ -1,5 +1,3 @@
-// Version: 2.8.3
-
 // helper functions
 if (!Object.keys) {
     Object.keys = function (object) {
@@ -2551,6 +2549,7 @@ export var tns = function(options) {
   }
 
   return {
+    version: '2.8.3',
     getInfo: info,
     events: events,
     goTo: goTo,
