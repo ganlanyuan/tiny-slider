@@ -1153,6 +1153,7 @@ var tns = function(options) {
 
     outerWrapper.className = classOuter;
     innerWrapper.className = classInner;
+    outerWrapper.id = slideId + '-ow';
     innerWrapper.id = slideId + '-iw';
     if (autoHeight) { innerWrapper.className += ' tns-ah'; }
 
