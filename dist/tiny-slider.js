@@ -1180,7 +1180,7 @@ var tns = function(options) {
 
   function initSliderTransform () {
     // ## images loaded/failed
-    if (hasOption('autoHeight') || !carousel || autoWidth || !horizontal) {
+    if (hasOption('autoHeight') || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
       // add complete class if all images are loaded/failed
@@ -1200,35 +1200,45 @@ var tns = function(options) {
         // set imgsComplete to true
         imgsComplete = true;
 
-        // run Fn()s which are rely on image loading
-        if (!disable) {
-          if (!horizontal || autoWidth) {
-            getSlidePositions();
-            lazyLoad();
+        // check styles application
+        (function checkStylesApplication() {
+          slideItems[index - 1].getBoundingClientRect().right.toFixed(2) === slideItems[index].getBoundingClientRect().left.toFixed(2) ?
+          temp() :
+          setTimeout(function(){ checkStylesApplication(); }, 16);
+        })();
 
-            if (autoWidth) {
-              // items = getOption('items');
-              rightBoundary = getRightBoundary();
-              if (freezable) { freeze = getFreeze(); }
-              indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
+        function temp () {
+          // run Fn()s which are rely on image loading
+          if (!disable) {
+            if (!horizontal || autoWidth) {
+              getSlidePositions();
+              lazyLoad();
 
-              if (freeze) {
-                controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+              if (autoWidth) {
+                // items = getOption('items');
+                rightBoundary = getRightBoundary();
+                if (freezable) { freeze = getFreeze(); }
+                indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
+
+                if (freeze) {
+                  controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+                }
+
+                // update slider UI
+                initUI();
+
+              } else {
+                updateContentWrapperHeight();
               }
+            }
 
-              // update slider UI
-              initUI();
-
-            } else {
-              updateContentWrapperHeight();
+            // set container transform property
+            if (carousel) {
+              doContainerTransformSilent();
             }
           }
-
-          // set container transform property
-          if (carousel) {
-            doContainerTransformSilent();
-          }
         }
+
       }); });
     }
     if (carousel && horizontal && !autoWidth) { doContainerTransformSilent(); }
@@ -2108,11 +2118,13 @@ var tns = function(options) {
   // (init) => slidePositions
   function getSlidePositions () {
     slidePositions = [0];
-    var attr = horizontal ? 'left' : 'top',
-        first = slideItems[0].getBoundingClientRect()[attr],
+    var attr = horizontal ? 'offsetLeft' : 'offsetTop',
+        first = slideItems[0][attr],
+        // first = slideItems[0].getBoundingClientRect()[attr],
         position;
     for (var i = 1; i < slideCountNew; i++) {
-      position = slideItems[i].getBoundingClientRect()[attr];
+      position = slideItems[i][attr];
+      // position = slideItems[i].getBoundingClientRect()[attr];
       slidePositions.push(position - first);
     }
   }
