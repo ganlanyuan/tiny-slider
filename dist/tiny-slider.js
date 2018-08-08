@@ -1202,8 +1202,9 @@ var tns = function(options) {
         imgsComplete = true;
 
         // check styles application
+        var num = loop ? index : slideCount - 1;
         (function checkStylesApplication() {
-          slideItems[index - 1].getBoundingClientRect().right.toFixed(2) === slideItems[index].getBoundingClientRect().left.toFixed(2) ?
+          slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
           temp() :
           setTimeout(function(){ checkStylesApplication(); }, 16);
         })();
@@ -2119,13 +2120,11 @@ var tns = function(options) {
   // (init) => slidePositions
   function getSlidePositions () {
     slidePositions = [0];
-    var attr = horizontal ? 'offsetLeft' : 'offsetTop',
-        first = slideItems[0][attr],
-        // first = slideItems[0].getBoundingClientRect()[attr],
+    var attr = horizontal ? 'left' : 'top',
+        first = slideItems[0].getBoundingClientRect()[attr],
         position;
     for (var i = 1; i < slideCountNew; i++) {
-      position = slideItems[i][attr];
-      // position = slideItems[i].getBoundingClientRect()[attr];
+      position = slideItems[i].getBoundingClientRect()[attr];
       slidePositions.push(position - first);
     }
   }
