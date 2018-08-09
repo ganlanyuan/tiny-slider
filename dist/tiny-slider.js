@@ -848,7 +848,7 @@ var tns = function(options) {
   }
   
   // disable slider when slidecount <= items
-  resetVariblesWhenDisable(disable || freeze);
+  if (!autoWidth) { resetVariblesWhenDisable(disable || freeze); }
 
   if (TRANSFORM) {
     transformAttr = TRANSFORM;
@@ -1058,6 +1058,7 @@ var tns = function(options) {
   }
 
   function sliderInit () {
+    if (responsive) { setBreakpointZone(); }
     initStructure();
 
     // add id, class, aria attributes 
@@ -1100,48 +1101,10 @@ var tns = function(options) {
 
     initSheet();
     initSliderTransform();
-    if (!autoWidth) { initUI(); }
-    if (responsive) { setBreakpointZone(); }
-
-    // add events
-    if (carousel && TRANSITIONEND) {
-      var eve = {};
-      eve[TRANSITIONEND] = onTransitionEnd;
-      addEvents(container, eve);
+    if (!autoWidth) {
+      initTools();
+      initEvents();
     }
-
-    if (touch) { addEvents(container, touchEvents); }
-    if (mouseDrag) { addEvents(container, dragEvents); }
-    if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
-
-    if (nested === 'inner') {
-      events.on('outerResized', function () {
-        resizeTasks();
-        events.emit('innerLoaded', info());
-      });
-    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
-      addEvents(win, {'resize': onResize});
-    }
-
-    if (nested === 'outer') {
-      events.on('innerLoaded', runAutoHeight);
-    } else if ((autoHeight || !carousel) && !disable) {
-      runAutoHeight();
-    }
-
-    if (!autoWidth) { lazyLoad(); }
-
-    if (disable) {
-      disableSlider();
-    } else if (freeze) {
-      freezeSlider();
-    }
-
-    events.on('indexChanged', additionalUpdates);
-    if (typeof onInit === 'function') { onInit(info()); }
-    if (nested === 'inner') { events.emit('innerLoaded', info()); }
-
-    isOn = true;
   }
 
   function initStructure () {
@@ -1209,39 +1172,30 @@ var tns = function(options) {
 
         function temp () {
           // run Fn()s which are rely on image loading
-          if (!disable) {
-            if (!horizontal || autoWidth) {
-              getSlidePositions();
-              lazyLoad();
+          if (!horizontal || autoWidth) {
+            getSlidePositions();
 
-              if (autoWidth) {
-                // items = getOption('items');
-                rightBoundary = getRightBoundary();
-                if (freezable) { freeze = getFreeze(); }
-                indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
-
-                if (freeze) {
-                  controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
-                }
-
-                // update slider UI
-                initUI();
-
-              } else {
-                updateContentWrapperHeight();
-              }
-            }
-
-            // set container transform property
-            if (carousel) {
-              doContainerTransformSilent();
+            if (autoWidth) {
+              rightBoundary = getRightBoundary();
+              if (freezable) { freeze = getFreeze(); }
+              indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
+              resetVariblesWhenDisable(disable || freeze);
+            } else {
+              updateContentWrapperHeight();
             }
           }
+
+          // set container transform property
+          if (carousel) { doContainerTransformSilent(); }
+
+          // update slider tools and events
+          initTools();
+          initEvents();
         }
 
       }); });
-    }
-    if (carousel && horizontal && !autoWidth) { doContainerTransformSilent(); }
+
+    } else if (carousel) { doContainerTransformSilent(); }
   }
 
   function initSheet () {
@@ -1389,7 +1343,7 @@ var tns = function(options) {
     }
   }
 
-  function initUI () {
+  function initTools () {
     // == autoplayInit ==
     if (hasAutoplay) {
       var txt = autoplay ? 'stop' : 'start';
@@ -1512,8 +1466,43 @@ var tns = function(options) {
 
     // hide tools if needed
     disableUI();
+  }
 
+  function initEvents () {
+    // add events
+    if (carousel && TRANSITIONEND) {
+      var eve = {};
+      eve[TRANSITIONEND] = onTransitionEnd;
+      addEvents(container, eve);
+    }
 
+    if (touch) { addEvents(container, touchEvents); }
+    if (mouseDrag) { addEvents(container, dragEvents); }
+    if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
+
+    if (nested === 'inner') {
+      events.on('outerResized', function () {
+        resizeTasks();
+        events.emit('innerLoaded', info());
+      });
+    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
+      addEvents(win, {'resize': onResize});
+    }
+
+    if (nested === 'outer') {
+      events.on('innerLoaded', runAutoHeight);
+    } else if ((autoHeight || !carousel) && !disable) {
+      runAutoHeight();
+    }
+
+    lazyLoad();
+    if (disable) { disableSlider(); } else if (freeze) { freezeSlider(); }
+
+    events.on('indexChanged', additionalUpdates);
+    if (typeof onInit === 'function') { onInit(info()); }
+    if (nested === 'inner') { events.emit('innerLoaded', info()); }
+
+    isOn = true;
   }
 
   function destroy () {
@@ -2312,7 +2301,6 @@ var tns = function(options) {
   function doContainerTransformSilent (val) {
     resetDuration(container, '0s');
     doContainerTransform(val);
-    setTimeout(function() { resetDuration(container, ''); }, 10);
   }
 
   function doContainerTransform (val) {
@@ -2346,6 +2334,7 @@ var tns = function(options) {
   var transformCore = (function () {
     return carousel ?
       function () {
+        resetDuration(container, '');
         if (TRANSITIONDURATION || !speed) {
           // for morden browsers with non-zero duration or 
           // zero duration for all browsers
