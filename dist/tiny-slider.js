@@ -594,9 +594,9 @@ var tns = function(options) {
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
-      list = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'], optionsElements = {};
-  for (var i = list.length; i--;) {
-    var item = list[i];
+      tnsList = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'], optionsElements = {};
+  for (var i = tnsList.length; i--;) {
+    var item = tnsList[i];
     if (typeof options[item] === 'string') {
       var str = options[item],
           el = doc.querySelector(str);
@@ -804,6 +804,8 @@ var tns = function(options) {
         controlsContainerHTML = options.controlsContainer ? options.controlsContainer.outerHTML : '',
         prevButton = options.prevButton,
         nextButton = options.nextButton,
+        prevButtonHTML = options.prevButton ? options.prevButton.outerHTML : '',
+        nextButtonHTML = options.nextButton ? options.nextButton.outerHTML : '',
         prevIsButton,
         nextIsButton;
   }
@@ -1508,27 +1510,21 @@ var tns = function(options) {
   function destroy () {
     // sheet
     sheet.disabled = true;
+    if (sheet.ownerNode) { sheet.ownerNode.remove(); }
 
     // remove win event listeners
     removeEvents(win, {'resize': onResize});
 
-    // remove arrowKeys event listener
+    // arrowKeys, controls, nav
     if (arrowKeys) { removeEvents(doc, docmentKeydownEvent); }
-
-    // controls
     if (controlsContainer) { removeEvents(controlsContainer, controlsEvents); }
-    if (controlsContainerHTML) { controlsContainer.outerHTML = controlsContainerHTML; }
-
-    // nav
     if (navContainer) { removeEvents(navContainer, navEvents); }
-    if (navContainerHTML) { navContainer.outerHTML = navContainerHTML; }
 
     // autoplay
     removeEvents(container, hoverEvents);
     removeEvents(container, visibilityEvent);
     if (autoplayButton) { removeEvents(autoplayButton, {'click': toggleAutoplay}); }
     if (autoplay) { clearInterval(autoplayTimer); }
-    if (autoplayButtonHTML) { autoplayButton.outerHTML = autoplayButtonHTML; }
 
     // container
     if (carousel && TRANSITIONEND) {
@@ -1538,12 +1534,23 @@ var tns = function(options) {
     }
     if (touch) { removeEvents(container, touchEvents); }
     if (mouseDrag) { removeEvents(container, dragEvents); }
-    outerWrapper.outerHTML = containerHTML;
-    // outerWrapper.insertAdjacentHTML('beforebegin', containerHTML);
-    // outerWrapper.remove();
+
+    // cache Object values in options && reset HTML
+    var htmlList = [containerHTML, controlsContainerHTML, prevButtonHTML, nextButtonHTML, navContainerHTML, autoplayButtonHTML];
+
+    tnsList.forEach(function(item, i) {
+      var el = item === 'container' ? outerWrapper : options[item];
+
+      if (typeof el === 'object') {
+        var prevEl = el.previousElementSibling ? el.previousElementSibling : false;
+        el.outerHTML = htmlList[i];
+        options[item] = prevEl ? prevEl.nextElementSibling : el.parentNode.firstElementChild;
+      }
+    });
+
 
     // reset variables
-    animateIn = animateOut = animateDelay = animateNormal = horizontal = outerWrapper = innerWrapper = container = containerParent = containerHTML = slideItems = slideCount = breakpointZone = windowWidth = autoWidth = fixedWidth = edgePadding = gutter = viewport = items = slideBy = viewportMax = arrowKeys = speed = rewind = loop = autoHeight = sheet = lazyload = slidePositions = slideItemsOut = cloneCount = slideCountNew = hasRightDeadZone = rightBoundary = updateIndexBeforeTransform = transformAttr = transformPrefix = transformPostfix = getIndexMax = index = indexCached = indexMin = indexMax = resizeTimer = swipeAngle = moveDirectionExpected = running = onInit = events = newContainerClasses = slideId = disable = disabled = freezable = freeze = frozen = controlsEvents = navEvents = hoverEvents = visibilityEvent = docmentKeydownEvent = touchEvents = dragEvents = hasControls = hasNav = navAsThumbnails = hasAutoplay = hasTouch = hasMouseDrag = slideActiveClass = imgCompleteClass = imgEvents = imgsComplete = controls = controlsText = controlsContainer = controlsContainerHTML = prevButton = nextButton = prevIsButton = nextIsButton = nav = navContainer = navContainerHTML = navItems = visibleNavIndexes = visibleNavIndexesCached = navClicked = navCurrentIndex = navCurrentIndexCached = navActiveClass = autoplay = autoplayTimeout = autoplayDirection = autoplayText = autoplayHoverPause = autoplayButton = autoplayButtonHTML = autoplayResetOnVisibility = autoplayHtmlStrings = autoplayTimer = animating = autoplayHoverPaused = autoplayUserPaused = autoplayVisibilityPaused = initPosition = lastPosition = translateInit = disX = disY = panStart = rafIndex = getDist = touch = mouseDrag = null;
+    tnsList = animateIn = animateOut = animateDelay = animateNormal = horizontal = outerWrapper = innerWrapper = container = containerParent = containerHTML = slideItems = slideCount = breakpointZone = windowWidth = autoWidth = fixedWidth = edgePadding = gutter = viewport = items = slideBy = viewportMax = arrowKeys = speed = rewind = loop = autoHeight = sheet = lazyload = slidePositions = slideItemsOut = cloneCount = slideCountNew = hasRightDeadZone = rightBoundary = updateIndexBeforeTransform = transformAttr = transformPrefix = transformPostfix = getIndexMax = index = indexCached = indexMin = indexMax = resizeTimer = swipeAngle = moveDirectionExpected = running = onInit = events = newContainerClasses = slideId = disable = disabled = freezable = freeze = frozen = controlsEvents = navEvents = hoverEvents = visibilityEvent = docmentKeydownEvent = touchEvents = dragEvents = hasControls = hasNav = navAsThumbnails = hasAutoplay = hasTouch = hasMouseDrag = slideActiveClass = imgCompleteClass = imgEvents = imgsComplete = controls = controlsText = controlsContainer = controlsContainerHTML = prevButton = nextButton = prevIsButton = nextIsButton = nav = navContainer = navContainerHTML = navItems = visibleNavIndexes = visibleNavIndexesCached = navClicked = navCurrentIndex = navCurrentIndexCached = navActiveClass = autoplay = autoplayTimeout = autoplayDirection = autoplayText = autoplayHoverPause = autoplayButton = autoplayButtonHTML = autoplayResetOnVisibility = autoplayHtmlStrings = autoplayTimer = animating = autoplayHoverPaused = autoplayUserPaused = autoplayVisibilityPaused = initPosition = lastPosition = translateInit = disX = disY = panStart = rafIndex = getDist = touch = mouseDrag = null;
     // check variables
     // [animateIn, animateOut, animateDelay, animateNormal, horizontal, outerWrapper, innerWrapper, container, containerParent, containerHTML, slideItems, slideCount, breakpointZone, windowWidth, autoWidth, fixedWidth, edgePadding, gutter, viewport, items, slideBy, viewportMax, arrowKeys, speed, rewind, loop, autoHeight, sheet, lazyload, slidePositions, slideItemsOut, cloneCount, slideCountNew, hasRightDeadZone, rightBoundary, updateIndexBeforeTransform, transformAttr, transformPrefix, transformPostfix, getIndexMax, index, indexCached, indexMin, indexMax, resizeTimer, swipeAngle, moveDirectionExpected, running, onInit, events, newContainerClasses, slideId, disable, disabled, freezable, freeze, frozen, controlsEvents, navEvents, hoverEvents, visibilityEvent, docmentKeydownEvent, touchEvents, dragEvents, hasControls, hasNav, navAsThumbnails, hasAutoplay, hasTouch, hasMouseDrag, slideActiveClass, imgCompleteClass, imgEvents, imgsComplete, controls, controlsText, controlsContainer, controlsContainerHTML, prevButton, nextButton, prevIsButton, nextIsButton, nav, navContainer, navContainerHTML, navItems, visibleNavIndexes, visibleNavIndexesCached, navClicked, navCurrentIndex, navCurrentIndexCached, navActiveClass, autoplay, autoplayTimeout, autoplayDirection, autoplayText, autoplayHoverPause, autoplayButton, autoplayButtonHTML, autoplayResetOnVisibility, autoplayHtmlStrings, autoplayTimer, animating, autoplayHoverPaused, autoplayUserPaused, autoplayVisibilityPaused, initPosition, lastPosition, translateInit, disX, disY, panStart, rafIndex, getDist, touch, mouseDrag ].forEach(function(item) { if (item !== null) { console.log(item); } });
 

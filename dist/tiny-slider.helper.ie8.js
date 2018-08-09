@@ -118,6 +118,56 @@ if (!Array.prototype.indexOf) {
   }
 })();
 
+// Element.firstElementChild
+
+(function () {
+
+  if (!("firstElementChild" in document.documentElement)) {
+    Object.defineProperty(Element.prototype, "firstElementChild", {
+      get: function(){
+        for(var nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i) {
+          if(n = nodes[i], 1 === n.nodeType) { return n; }
+        }
+        return null;
+      }
+    });
+  }
+})();
+
+// Element.previousElementSibling
+
+(function () {
+
+  if (!("previousElementSibling" in document.documentElement)) {
+    Object.defineProperty(Element.prototype, "previousElementSibling", {
+      get: function(){
+        var e = this.previousSibling;
+        while(e && 1 !== e.nodeType) {
+          e = e.previousSibling;
+        }
+        return e;
+      }
+    });
+  }
+})();
+
+// Element.nextElementSibling
+
+(function () {
+
+  if (!("nextElementSibling" in document.documentElement)) {
+    Object.defineProperty(Element.prototype, "nextElementSibling", {
+      get: function(){
+        var e = this.nextSibling;
+        while(e && 1 !== e.nodeType) {
+          e = e.nextSibling;
+        }
+        return e;
+      }
+    });
+  }
+})();
+
 // getComputedStyle
 
 (function(){
