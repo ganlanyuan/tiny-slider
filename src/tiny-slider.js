@@ -730,13 +730,17 @@ export var tns = function(options) {
         // set imgsComplete to true
         imgsComplete = true;
 
-        // check styles application
-        var num = loop ? index : slideCount - 1;
-        (function checkStylesApplication() {
-          slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
-          temp() :
-          setTimeout(function(){ checkStylesApplication() }, 16);
-        })();
+        if (autoWidth) {
+          // check styles application
+          var num = loop ? index : slideCount - 1;
+          (function checkStylesApplication() {
+            slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
+            temp() :
+            setTimeout(function(){ checkStylesApplication() }, 16);
+          })();
+        } else {
+          temp();
+        }
 
         function temp () {
           // run Fn()s which are rely on image loading
