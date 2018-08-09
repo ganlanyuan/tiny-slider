@@ -167,12 +167,20 @@
         {% elif slide === 'autoHeight' or slide === 'responsive5' %}
           {% set w = 700 if mobile else 1600 %}
           {% set hs = [500, 700, 600, 800, 500, 600, 800] %}
-          {% for i in range(1, 6) %}
-            <div>
-              <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/{{ w }}x{{ hs[i-1] }}" alt="" width="{{ w }}" height="{{ hs[i-1] }}"></div>
-              <p>{{ titles[i] }}</p>
-            </div>
-          {% endfor %}
+          {% if slide === 'autoHeight' %}
+            {% for i in range(1, 6) %}
+              <div>
+                <div><img src="{{ baseurl }}{{ collectionId[i - 1] }}/{{ w }}x{{ hs[i-1] }}" alt="" width="{{ w }}" height="{{ hs[i-1] }}"></div>
+                <p>{{ titles[i] }}</p>
+              </div>
+            {% endfor %}
+          {% else %}
+            {% for i in range(1, 6) %}
+              <div class="item">
+                <div class="img img-{{ i }}" style="height: {{ hs[i-1] }}px;"><a href="">{{ i - 1 }}</a></div>
+              </div>
+            {% endfor %}
+          {% endif %}
           
         {# nested #}
         {% elif slide === 'nested' %}

@@ -1406,10 +1406,8 @@ function testResponsive5() {
             case 0:
               _context11.prev = 0;
               doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), first = container.querySelector('#' + id + '-item0');
-              _context11.next = 4;
-              return wait(1000);
 
-            case 4:
+
               assertionFixedWidth = first.clientWidth === getFW(windowWidth) && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
               assertionAutoHeight = wrapper.style.height === '';
               if (!assertionFixedWidth) {
@@ -1422,10 +1420,10 @@ function testResponsive5() {
               // resize window
               windowWidth = Number(bps[0]) + 20;
               newWindow.style.width = windowWidth + 'px';
-              _context11.next = 12;
+              _context11.next = 10;
               return wait(2000);
 
-            case 12:
+            case 10:
               if (assertionFixedWidth) {
                 assertionFixedWidth = first.clientWidth === getFW(windowWidth) + 100 && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
                 if (!assertionFixedWidth) {
@@ -1441,28 +1439,28 @@ function testResponsive5() {
 
               updateTest(testFixedWidthT, assertionFixedWidth, commentFixedWidth);
               updateTest(testAutoHeightT, assertionAutoHeight, commentAutoHeight);
-              _context11.next = 22;
+              _context11.next = 20;
               break;
 
-            case 18:
-              _context11.prev = 18;
+            case 16:
+              _context11.prev = 16;
               _context11.t0 = _context11['catch'](0);
 
               testFixedWidthT.className = 'item-notsure';
               testAutoHeightT.className = 'item-notsure';
 
-            case 22:
-              _context11.prev = 22;
+            case 20:
+              _context11.prev = 20;
 
               body.removeChild(newWindow);
-              return _context11.finish(22);
+              return _context11.finish(20);
 
-            case 25:
+            case 23:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, this, [[0, 18, 22, 25]]);
+      }, _callee11, this, [[0, 16, 20, 23]]);
     }));
 
     return function responsive5Tests() {

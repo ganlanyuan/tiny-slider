@@ -1213,7 +1213,6 @@ function testResponsive5 () {
           container = doc.querySelector('#' + id),
           first = container.querySelector('#' + id + '-item0');
 
-      await wait(1000);
       assertionFixedWidth = first.clientWidth === getFW(windowWidth) &&
         wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
       assertionAutoHeight = wrapper.style.height === '';
