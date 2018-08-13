@@ -9,7 +9,9 @@
   -webkit-transition: all 0s;
   -moz-transition: all 0s;
   transition: all 0s;
-  > div, > li {
+  > div,
+  > li,
+  > article {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
