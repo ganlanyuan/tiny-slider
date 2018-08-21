@@ -1103,10 +1103,6 @@ var tns = function(options) {
 
     initSheet();
     initSliderTransform();
-    if (!autoWidth) {
-      initTools();
-      initEvents();
-    }
   }
 
   function initStructure () {
@@ -1201,7 +1197,12 @@ var tns = function(options) {
 
       }); });
 
-    } else if (carousel) { doContainerTransformSilent(); }
+    } else {
+      if (carousel) { doContainerTransformSilent(); }
+
+      initTools();
+      initEvents();
+    }
   }
 
   function initSheet () {
