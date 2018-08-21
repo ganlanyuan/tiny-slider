@@ -683,7 +683,7 @@ var tns = function(options) {
       slideCount = slideItems.length,
       breakpointZone,
       windowWidth = getWindowWidth(),
-      isOn;
+      isOn = true;
   if (responsive) { setBreakpointZone(); }
 
   // fixedWidth: viewport > rightBoundary > indexMax
@@ -1508,8 +1508,6 @@ var tns = function(options) {
     events.on('indexChanged', additionalUpdates);
     if (typeof onInit === 'function') { onInit(info()); }
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
-
-    isOn = true;
   }
 
   function destroy () {
@@ -1560,8 +1558,10 @@ var tns = function(options) {
     // check variables
     // [animateIn, animateOut, animateDelay, animateNormal, horizontal, outerWrapper, innerWrapper, container, containerParent, containerHTML, slideItems, slideCount, breakpointZone, windowWidth, autoWidth, fixedWidth, edgePadding, gutter, viewport, items, slideBy, viewportMax, arrowKeys, speed, rewind, loop, autoHeight, sheet, lazyload, slidePositions, slideItemsOut, cloneCount, slideCountNew, hasRightDeadZone, rightBoundary, updateIndexBeforeTransform, transformAttr, transformPrefix, transformPostfix, getIndexMax, index, indexCached, indexMin, indexMax, resizeTimer, swipeAngle, moveDirectionExpected, running, onInit, events, newContainerClasses, slideId, disable, disabled, freezable, freeze, frozen, controlsEvents, navEvents, hoverEvents, visibilityEvent, docmentKeydownEvent, touchEvents, dragEvents, hasControls, hasNav, navAsThumbnails, hasAutoplay, hasTouch, hasMouseDrag, slideActiveClass, imgCompleteClass, imgEvents, imgsComplete, controls, controlsText, controlsContainer, controlsContainerHTML, prevButton, nextButton, prevIsButton, nextIsButton, nav, navContainer, navContainerHTML, navItems, visibleNavIndexes, visibleNavIndexesCached, navClicked, navCurrentIndex, navCurrentIndexCached, navActiveClass, autoplay, autoplayTimeout, autoplayDirection, autoplayText, autoplayHoverPause, autoplayButton, autoplayButtonHTML, autoplayResetOnVisibility, autoplayHtmlStrings, autoplayTimer, animating, autoplayHoverPaused, autoplayUserPaused, autoplayVisibilityPaused, initPosition, lastPosition, translateInit, disX, disY, panStart, rafIndex, getDist, touch, mouseDrag ].forEach(function(item) { if (item !== null) { console.log(item); } });
 
-    this.getInfo = this.events = this.goTo = this.play = this.pause = this.destroy = null;
-    this.isOn = isOn = false;
+    for (var a in this) {
+      if (a !== 'rebuild') { this[a] = null; }
+    }
+    isOn = false;
   }
 
 // === ON RESIZE ===
