@@ -1112,9 +1112,10 @@ export var tns = function(options) {
       var el = item === 'container' ? outerWrapper : options[item];
 
       if (typeof el === 'object') {
-        var prevEl = el.previousElementSibling ? el.previousElementSibling : false;
+        var prevEl = el.previousElementSibling ? el.previousElementSibling : false,
+            parentEl = el.parentNode;
         el.outerHTML = htmlList[i];
-        options[item] = prevEl ? prevEl.nextElementSibling : el.parentNode.firstElementChild;
+        options[item] = prevEl ? prevEl.nextElementSibling : parentEl.firstElementChild;
       }
     });
 
