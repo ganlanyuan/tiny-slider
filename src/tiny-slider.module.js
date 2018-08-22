@@ -217,6 +217,7 @@ export var tns = function(options) {
       if (!carousel) {
         if (key === 'slideBy') { obj[key] = 'page'; }
         if (key === 'edgePadding') { obj[key] = false; }
+        if (key === 'autoHeight') { obj[key] = false; }
       }
       if (nested === 'outer' && key === 'autoHeight') { obj[key] = true; }
 
@@ -363,6 +364,7 @@ export var tns = function(options) {
         'error': imgLoadedOrError
       },
       imgsComplete;
+
 
   // controls
   if (hasControls) {
@@ -686,7 +688,8 @@ export var tns = function(options) {
     if (container.id === '') { container.id = slideId; }
     newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
     newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
-    if (carousel) { newContainerClasses += ' tns-' + options.axis; }
+    // if (carousel) { newContainerClasses += ' tns-' + options.axis; }
+    newContainerClasses += ' tns-' + options.axis;
     container.className += newContainerClasses;
 
     // add constrain layer for carousel
@@ -764,8 +767,10 @@ export var tns = function(options) {
       }); });
 
     } else {
+      // set container transform property
       if (carousel) { doContainerTransformSilent(); }
 
+      // update slider tools and events
       initTools();
       initEvents();
     }
@@ -803,7 +808,8 @@ export var tns = function(options) {
     //         margin-left: ~
 
     // Resource: https://docs.google.com/spreadsheets/d/147up245wwTXeQYve3BRSAD4oVcvQmuGsFteJOeA5xNQ/edit?usp=sharing
-    if (carousel && horizontal) {
+    // if (carousel && horizontal) {
+    if (horizontal) {
       if (PERCENTAGELAYOUT || autoWidth) {
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
@@ -1064,7 +1070,7 @@ export var tns = function(options) {
 
     if (nested === 'outer') {
       events.on('innerLoaded', runAutoHeight);
-    } else if ((autoHeight || !carousel) && !disable) {
+    } else if (autoHeight && !disable) {
       runAutoHeight();
     }
 
@@ -1372,7 +1378,7 @@ export var tns = function(options) {
       }
 
       // auto height
-      if (autoHeight || !carousel) { runAutoHeight(); }
+      if (autoHeight) { runAutoHeight(); }
 
       if (needContainerTransform) {
         doContainerTransformSilent();
