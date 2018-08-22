@@ -1277,16 +1277,28 @@ export var tns = function(options) {
         removeEvents(doc, docmentKeydownEvent);
     }
     if (controls !== controlsTem) {
-      controls ?
-        showElement(controlsContainer) :
-        hideElement(controlsContainer); 
+      if (controls) {
+        if (controlsContainer) {
+          showElement(controlsContainer, options.controlsContainer);
+        } else {
+          showElement(prevButton, options.prevButton);
+          showElement(nextButton, options.nextButton);
+        }
+      } else {
+        if (controlsContainer) {
+          hideElement(controlsContainer, options.controlsContainer);
+        } else {
+          hideElement(prevButton, options.prevButton);
+          hideElement(nextButton, options.nextButton);
+        }
+      }
     }
     if (nav !== navTem) {
       if (nav) {
-        showElement(navContainer);
+        showElement(navContainer, options.navContainer);
         updateNavVisibility();
       } else {
-        hideElement(navContainer);
+        hideElement(navContainer, options.navContainer);
       }
     }
     if (touch !== touchTem) {
@@ -1301,10 +1313,10 @@ export var tns = function(options) {
     }
     if (autoplay !== autoplayTem) {
       if (autoplay) {
-        if (autoplayButton) { showElement(autoplayButton); }
+        if (autoplayButton) { showElement(autoplayButton, options.autoplayButton); }
         if (!animating && !autoplayUserPaused) { startAutoplay(); }
       } else {
-        if (autoplayButton) { hideElement(autoplayButton); }
+        if (autoplayButton) { hideElement(autoplayButton, options.autoplayButton); }
         if (animating) { stopAutoplay(); }
       }
     }
@@ -1457,15 +1469,29 @@ export var tns = function(options) {
   })();
 
   function disableUI () {
-    if (!autoplay && autoplayButton) { hideElement(autoplayButton); }
-    if (!nav && navContainer) { hideElement(navContainer); }
-    if (!controls && controlsContainer) { hideElement(controlsContainer); }
+    if (!autoplay && autoplayButton) { hideElement(autoplayButton, options.autoplayButton); }
+    if (!nav && navContainer) { hideElement(navContainer, options.navContainer); }
+    if (!controls) {
+      if (controlsContainer) {
+        hideElement(controlsContainer, options.controlsContainer);
+      } else {
+        hideElement(prevButton, options.prevButton);
+        hideElement(nextButton, options.nextButton);
+      }
+    }
   }
 
   function enableUI () {
-    if (autoplay && autoplayButton) { showElement(autoplayButton); }
-    if (nav && navContainer) { showElement(navContainer); }
-    if (controls && controlsContainer) { showElement(controlsContainer); }
+    if (autoplay && autoplayButton) { showElement(autoplayButton, options.autoplayButton); }
+    if (nav && navContainer) { showElement(navContainer, options.navContainer); }
+    if (controls) {
+      if (controlsContainer) {
+        showElement(controlsContainer, options.controlsContainer);
+      } else {
+        showElement(prevButton, options.prevButton);
+        showElement(nextButton, options.nextButton);
+      }
+    }
   }
 
   function freezeSlider () {
