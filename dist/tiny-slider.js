@@ -1502,7 +1502,7 @@ var tns = function(options) {
         resizeTasks();
         events.emit('innerLoaded', info());
       });
-    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
+    } else if (responsive || fixedWidth || autoWidth || autoHeight || !horizontal) {
       addEvents(win, {'resize': onResize});
     }
 
@@ -1913,8 +1913,8 @@ var tns = function(options) {
       if (controlsContainer) {
         hideElement(controlsContainer, options.controlsContainer);
       } else {
-        hideElement(prevButton, options.prevButton);
-        hideElement(nextButton, options.nextButton);
+        if (prevButton) { hideElement(prevButton, options.prevButton); }
+        if (nextButton) { hideElement(nextButton, options.nextButton); }
       }
     }
   }
@@ -1926,8 +1926,8 @@ var tns = function(options) {
       if (controlsContainer) {
         showElement(controlsContainer, options.controlsContainer);
       } else {
-        showElement(prevButton, options.prevButton);
-        showElement(nextButton, options.nextButton);
+        if (prevButton) { showElement(prevButton, options.prevButton); }
+        if (nextButton) { showElement(nextButton, options.nextButton); }
       }
     }
   }
