@@ -1,4 +1,4 @@
-declare module 'tiny-slider/src/tiny-slider.module.js' {
+declare module 'tiny-slider' {
     export interface CommonOptions {
         /**
          * The initial index of the slider.
