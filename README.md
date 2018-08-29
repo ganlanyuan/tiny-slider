@@ -1,6 +1,6 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.8.5-green.svg)  
+![version](https://img.shields.io/badge/Version-2.8.6-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/tests/index.html)   
 [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)   
@@ -200,8 +200,8 @@ Note: some features may need a manual test.
 ## Usage
 #### 1. Add CSS (and IE8 polyfills if needed)
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.5/tiny-slider.css">
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.5/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.6/tiny-slider.css">
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.6/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 ```
 
 #### 2. Add markup
@@ -217,7 +217,7 @@ Note: some features may need a manual test.
 #### 3. Call tns()
 Add tiny-slider.js to your page:  
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.5/min/tiny-slider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.8.6/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 
@@ -227,7 +227,7 @@ Or import `tns` via `webpack` or `rollup`:
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or import `tns` directly start from v2.8.5  
+Or import `tns` directly start from v2.8.6  
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
@@ -281,7 +281,7 @@ Or import `tns` directly start from v2.8.5
 | `loop` | Boolean | Default: true. <br> Moves throughout all the slides seamlessly. |
 | `rewind` | Boolean | Default: false. <br> Moves to the opposite edge when reaching the first or last slide. |
 | `autoHeight` | Boolean | Default: false. <br> Height of slider container changes according to each slide's height. |
-| `responsive` | Map: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| false | Default: false. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
+| `responsive` | Object: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| false | Default: false. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
 | `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). <br> NOTE: `width` attribute for each `<img>` is required for `autoWidth` slider. |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |

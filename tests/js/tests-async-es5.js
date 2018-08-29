@@ -61,7 +61,7 @@ var testBase = function () {
               var navVisible = navItems[0],
                   navHidden = navItems[2];
 
-              return navVisible.getAttribute('data-nav') === '0' && !navVisible.hasAttribute('hidden') && navHidden.getAttribute('data-nav') === '2' && navHidden.hasAttribute('hidden');
+              return navVisible.getAttribute('data-nav') === '0' && navVisible.style.display !== 'none' && navHidden.getAttribute('data-nav') === '2' && navHidden.style.display === 'none';
             });
 
             controlsClick = addTest('Controls: click functions'), navClick = addTest('Nav: click functions'), controlsKeydown = addTest('Controls: keydown events'), navKeydown = addTest('Nav: keydown events'), testGoto = addTest('Goto: Random numbers');
@@ -1532,8 +1532,8 @@ function testResponsive6() {
                 }
               }
 
-              controlsDisplay = getComputedStyle(controls, null).display;
-              navDisplay = getComputedStyle(nav, null).display;
+              controlsDisplay = controls.style.display;
+              navDisplay = nav.style.display;
               assertionControlsNav = controlsDisplay === 'none' && navDisplay === 'none';
               if (!assertionControlsNav) {
                 commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
@@ -1555,8 +1555,8 @@ function testResponsive6() {
                 }
               }
               if (assertionControlsNav) {
-                controlsDisplay = getComputedStyle(controls, null).display;
-                navDisplay = getComputedStyle(nav, null).display;
+                controlsDisplay = controls.style.display;
+                navDisplay = nav.style.display;
                 assertionControlsNav = controlsDisplay !== 'none' && navDisplay !== 'none';
                 if (!assertionControlsNav) {
                   commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport;
@@ -1680,7 +1680,7 @@ function testFewitems() {
 
   addTitle(id);
   runTest('Slide: count, controls: hidden, nav: hidden', function () {
-    return info.container.parentNode.style.margin === '0px' && info.controlsContainer.hasAttribute('hidden') && info.navContainer.hasAttribute('hidden');
+    return info.container.parentNode.style.margin === '0px' && info.controlsContainer.style.display === 'none' && info.navContainer.style.display === 'none';
   });
 }
 

@@ -90,9 +90,9 @@ async function testBase () {
         navHidden = navItems[2];
 
     return navVisible.getAttribute('data-nav') === '0' &&
-      !navVisible.hasAttribute('hidden') &&
+      navVisible.style.display !== 'none' &&
       navHidden.getAttribute('data-nav') === '2' &&
-      navHidden.hasAttribute('hidden');
+      navHidden.style.display === 'none';
   });
 
   var controlsClick = addTest('Controls: click functions'),
@@ -1342,8 +1342,8 @@ function testResponsive6 () {
         }
       }
 
-      controlsDisplay = getComputedStyle(controls, null).display;
-      navDisplay = getComputedStyle(nav, null).display;
+      controlsDisplay = controls.style.display;
+      navDisplay = nav.style.display;
       assertionControlsNav = controlsDisplay === 'none' && navDisplay === 'none';
       if (!assertionControlsNav) {
         commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
@@ -1362,8 +1362,8 @@ function testResponsive6 () {
         }
       }
       if (assertionControlsNav) {
-        controlsDisplay = getComputedStyle(controls, null).display;
-        navDisplay = getComputedStyle(nav, null).display;
+        controlsDisplay = controls.style.display;
+        navDisplay = nav.style.display;
         assertionControlsNav = controlsDisplay !== 'none' && navDisplay !== 'none';
         if (!assertionControlsNav) {
           commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport
@@ -1534,8 +1534,8 @@ function testFewitems () {
   addTitle(id);
   runTest('Slide: count, controls: hidden, nav: hidden', function() {
     return info.container.parentNode.style.margin === '0px' &&
-      info.controlsContainer.hasAttribute('hidden') &&
-      info.navContainer.hasAttribute('hidden');
+      info.controlsContainer.style.display === 'none' &&
+      info.navContainer.style.display === 'none';
   });
 }
 

@@ -312,19 +312,11 @@ function arrayFromNodeList (nl) {
 }
 
 function hideElement(el, forceHide) {
-  if (forceHide) {
-    if (el.style.display !== 'none') { el.style.display = 'none'; }
-  } else if (!hasAttr(el, 'hidden')) {
-    setAttrs(el, {'hidden': ''});
-  }
+  if (el.style.display !== 'none') { el.style.display = 'none'; }
 }
 
 function showElement(el, forceHide) {
-  if (forceHide) {
-    if (el.style.display === 'none') { el.style.display = ''; }
-  } else if (hasAttr(el, 'hidden')) {
-    removeAttrs(el, 'hidden');
-  }
+  if (el.style.display === 'none') { el.style.display = ''; }
 }
 
 function isVisible(el) {
@@ -1406,7 +1398,7 @@ var tns = function(options) {
       // generated nav 
       } else {
         var navHtml = '',
-            hiddenStr = navAsThumbnails ? '' : 'hidden';
+            hiddenStr = navAsThumbnails ? '' : 'style="display:none"';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-selected="false" aria-controls="' + slideItems[initIndex + i].id + '" ' + hiddenStr + ' type="button"></button>';
@@ -1502,7 +1494,7 @@ var tns = function(options) {
         resizeTasks();
         events.emit('innerLoaded', info());
       });
-    } else if (responsive || fixedWidth || autoWidth || !horizontal) {
+    } else if (responsive || fixedWidth || autoWidth || autoHeight || !horizontal) {
       addEvents(win, {'resize': onResize});
     }
 
@@ -1717,26 +1709,26 @@ var tns = function(options) {
     if (controls !== controlsTem) {
       if (controls) {
         if (controlsContainer) {
-          showElement(controlsContainer, options.controlsContainer);
+          showElement(controlsContainer);
         } else {
-          showElement(prevButton, options.prevButton);
-          showElement(nextButton, options.nextButton);
+          if (prevButton) { showElement(prevButton); }
+          if (nextButton) { showElement(nextButton); }
         }
       } else {
         if (controlsContainer) {
-          hideElement(controlsContainer, options.controlsContainer);
+          hideElement(controlsContainer);
         } else {
-          hideElement(prevButton, options.prevButton);
-          hideElement(nextButton, options.nextButton);
+          if (prevButton) { hideElement(prevButton); }
+          if (nextButton) { hideElement(nextButton); }
         }
       }
     }
     if (nav !== navTem) {
       if (nav) {
-        showElement(navContainer, options.navContainer);
+        showElement(navContainer);
         updateNavVisibility();
       } else {
-        hideElement(navContainer, options.navContainer);
+        hideElement(navContainer);
       }
     }
     if (touch !== touchTem) {
@@ -1751,10 +1743,10 @@ var tns = function(options) {
     }
     if (autoplay !== autoplayTem) {
       if (autoplay) {
-        if (autoplayButton) { showElement(autoplayButton, options.autoplayButton); }
+        if (autoplayButton) { showElement(autoplayButton); }
         if (!animating && !autoplayUserPaused) { startAutoplay(); }
       } else {
-        if (autoplayButton) { hideElement(autoplayButton, options.autoplayButton); }
+        if (autoplayButton) { hideElement(autoplayButton); }
         if (animating) { stopAutoplay(); }
       }
     }
@@ -1907,27 +1899,27 @@ var tns = function(options) {
   })();
 
   function disableUI () {
-    if (!autoplay && autoplayButton) { hideElement(autoplayButton, options.autoplayButton); }
-    if (!nav && navContainer) { hideElement(navContainer, options.navContainer); }
+    if (!autoplay && autoplayButton) { hideElement(autoplayButton); }
+    if (!nav && navContainer) { hideElement(navContainer); }
     if (!controls) {
       if (controlsContainer) {
-        hideElement(controlsContainer, options.controlsContainer);
+        hideElement(controlsContainer);
       } else {
-        hideElement(prevButton, options.prevButton);
-        hideElement(nextButton, options.nextButton);
+        if (prevButton) { hideElement(prevButton); }
+        if (nextButton) { hideElement(nextButton); }
       }
     }
   }
 
   function enableUI () {
-    if (autoplay && autoplayButton) { showElement(autoplayButton, options.autoplayButton); }
-    if (nav && navContainer) { showElement(navContainer, options.navContainer); }
+    if (autoplay && autoplayButton) { showElement(autoplayButton); }
+    if (nav && navContainer) { showElement(navContainer); }
     if (controls) {
       if (controlsContainer) {
-        showElement(controlsContainer, options.controlsContainer);
+        showElement(controlsContainer);
       } else {
-        showElement(prevButton, options.prevButton);
-        showElement(nextButton, options.nextButton);
+        if (prevButton) { showElement(prevButton); }
+        if (nextButton) { showElement(nextButton); }
       }
     }
   }
@@ -2982,11 +2974,7 @@ var tns = function(options) {
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
       forEachNodeList(navItems, function(el, i) {
-        if (visibleNavIndexes.indexOf(i) < 0) {
-          hideElement(el);
-        } else {
-          showElement(el);
-        }
+        visibleNavIndexes.indexOf(i) < 0 ? hideElement(el) : showElement(el);
       });
 
       // cache visible nav indexes
@@ -3021,7 +3009,7 @@ var tns = function(options) {
   }
 
   return {
-    version: '2.8.5',
+    version: '2.8.6',
     getInfo: info,
     events: events,
     goTo: goTo,
