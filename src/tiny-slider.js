@@ -1631,6 +1631,10 @@ export var tns = function(options) {
           addEvents(img, eve);
 
           if (!hasClass(img, 'loaded')) {
+            const srcset = getAttr(img, 'data-srcset');
+            if (srcset) {
+              img.srcset = srcset;
+            }
             img.src = getAttr(img, 'data-src');
             addClass(img, 'loaded');
           }
