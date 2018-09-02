@@ -320,7 +320,7 @@ function showElement(el, forceHide) {
 }
 
 function isVisible(el) {
-  return el.offsetWidth > 0 && el.offsetHeight > 0;
+  return window.getComputedStyle(el).display !== 'none';
 }
 
 function whichProperty(props){
@@ -2061,10 +2061,11 @@ var tns = function(options) {
           addEvents(img, eve);
 
           if (!hasClass(img, 'loaded')) {
-            const srcset = getAttr(img, 'data-srcset');
-            if (srcset) {
-              img.srcset = srcset;
-            }
+            // update srcset
+            var srcset = getAttr(img, 'data-srcset');
+            if (srcset) { img.srcset = srcset; }
+
+            // update src
             img.src = getAttr(img, 'data-src');
             addClass(img, 'loaded');
           }
