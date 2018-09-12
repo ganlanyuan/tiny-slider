@@ -2280,16 +2280,18 @@ export var tns = function(options) {
     var code = e.keyCode;
 
     switch (code) {
-      case KEYS.LEFT:
-      case KEYS.UP:
       case KEYS.PAGEUP:
+      case KEYS.UP:
+        if(horizontal) break;
+      case KEYS.LEFT:
           if (!prevButton.disabled) {
             onControlsClick(e, -1);
           }
           break;
-      case KEYS.RIGHT:
-      case KEYS.DOWN:
       case KEYS.PAGEDOWN:
+      case KEYS.DOWN:
+        if(horizontal) break;
+      case KEYS.RIGHT:
           if (!nextButton.disabled) {
             onControlsClick(e, 1);
           }
