@@ -1630,14 +1630,17 @@ export var tns = function(options) {
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
           addEvents(img, eve);
 
-          if (!hasClass(img, 'loaded')) {
+          if (!hasClass(img, 'loading') && !hasClass(img, 'loaded')) {
             // update srcset
             var srcset = getAttr(img, 'data-srcset');
             if (srcset) { img.srcset = srcset; }
 
             // update src
+            img.onload = function() {
+              addClass(img, 'loaded')
+            }
             img.src = getAttr(img, 'data-src');
-            addClass(img, 'loaded');
+            addClass(img, 'loading');
           }
         });
       }
