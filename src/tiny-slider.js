@@ -1637,7 +1637,8 @@ export var tns = function(options) {
 
             // update src
             img.onload = function() {
-              addClass(img, 'loaded')
+              addClass(img, 'loaded');
+              removeClass(img, 'loading');
             }
             img.src = getAttr(img, 'data-src');
             addClass(img, 'loading');
