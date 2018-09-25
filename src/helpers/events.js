@@ -3,7 +3,10 @@ export function Events() {
     topics: {},
     on: function (eventName, fn) {
       this.topics[eventName] = this.topics[eventName] || [];
-      this.topics[eventName].push(fn);
+
+      if (this.topics[eventName].length === 0) {
+        this.topics[eventName].push(fn);
+      }
     },
     off: function(eventName, fn) {
       if (this.topics[eventName]) {
