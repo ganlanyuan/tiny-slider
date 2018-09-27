@@ -1238,8 +1238,7 @@ var tns = function(options) {
     //         margin-left: ~
 
     // Resource: https://docs.google.com/spreadsheets/d/147up245wwTXeQYve3BRSAD4oVcvQmuGsFteJOeA5xNQ/edit?usp=sharing
-    // if (carousel && horizontal) {
-    if (horizontal) {
+    if (carousel && horizontal) {
       if (PERCENTAGELAYOUT || autoWidth) {
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
