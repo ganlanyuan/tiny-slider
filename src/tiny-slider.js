@@ -439,7 +439,7 @@ export var tns = function(options) {
   // === COMMON FUNCTIONS === //
   function resetVariblesWhenDisable (condition) {
     if (condition) {
-      controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
+      controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = controlsContainer = false;
     }
   }
 
