@@ -1634,11 +1634,17 @@ export var tns = function(options) {
             var srcset = getAttr(img, 'data-srcset');
             if (srcset) { img.srcset = srcset; }
 
-            // update src
             img.onload = function() {
               addClass(img, 'loaded');
               removeClass(img, 'loading');
             }
+            
+            img.onerror = function() {
+              addClass(img, 'failed');
+              removeClass(img, 'loading');
+            }
+
+            // update src
             img.src = getAttr(img, 'data-src');
             addClass(img, 'loading');
           }

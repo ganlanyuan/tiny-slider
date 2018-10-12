@@ -2059,14 +2059,24 @@ var tns = function(options) {
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
           addEvents(img, eve);
 
-          if (!hasClass(img, 'loaded')) {
+          if (!hasClass(img, 'loading') && !hasClass(img, 'loaded')) {
             // update srcset
             var srcset = getAttr(img, 'data-srcset');
             if (srcset) { img.srcset = srcset; }
 
+            img.onload = function() {
+              addClass(img, 'loaded');
+              removeClass(img, 'loading');
+            };
+            
+            img.onerror = function() {
+              addClass(img, 'failed');
+              removeClass(img, 'loading');
+            };
+
             // update src
             img.src = getAttr(img, 'data-src');
-            addClass(img, 'loaded');
+            addClass(img, 'loading');
           }
         });
       }
