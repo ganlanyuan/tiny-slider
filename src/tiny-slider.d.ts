@@ -312,10 +312,9 @@ export interface TinySliderInstance {
     /**
      * Rebuild the slider after destroying it.
      * 
-     * @param [options] optional options for a new tiny slider
      * @returns a new tinyslider instance.
      */
-    rebuild(options?: TinySliderSettings): TinySliderInstance;
+    rebuild(): TinySliderInstance;
 }
 
 export function tns(options: TinySliderSettings): TinySliderInstance; 
