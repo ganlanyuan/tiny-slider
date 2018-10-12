@@ -2593,8 +2593,8 @@ export var tns = function(options) {
     updateSliderHeight: updateInnerWrapperHeight,
     refresh: initSliderTransform,
     destroy: destroy,
-    rebuild: function(newOptions = null) {
-      return tns(extend(newOptions || options, optionsElements));
+    rebuild: function() {
+      return tns(extend(options, optionsElements));
     }
   };
 };
