@@ -280,6 +280,7 @@ export var tns = function(options) {
       autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
       sheet = createStyleSheet(),
       lazyload = options.lazyload,
+      lazyloadSelector = options.lazyloadSelector,
       slidePositions, // collection of slide positions
       slideItemsOut = [],
       cloneCount = loop ? getCloneCountForLoop() : 0,
