@@ -91,6 +91,7 @@ export var tns = function(options) {
     autoHeight: false,
     responsive: false,
     lazyload: false,
+    lazyloadSelector: '.tns-lazy-img',
     touch: true,
     mouseDrag: false,
     swipeAngle: 15,
@@ -1623,7 +1624,7 @@ export var tns = function(options) {
       len = Math.ceil(Math.min(len, slideCountNew));
 
       for(; i < len; i++) {
-        forEachNodeList(slideItems[i].querySelectorAll('.tns-lazy-img'), function (img) {
+        forEachNodeList(slideItems[i].querySelectorAll(lazyloadSelector), function (img) {
           // stop propagation transitionend event to container
           var eve = {};
           eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
