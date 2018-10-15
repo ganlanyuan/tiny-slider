@@ -55,7 +55,9 @@
   }
   > .tns-slide-active {
     position: relative;
-    left: unset !important;
+  }
+  &.tns-subpixel > .tns-slide-active {
+    left: auto !important;
   }
   > .tns-moving {
     -webkit-transition: all 0.25s;
