@@ -1,0 +1,107 @@
+{
+  "src_folders" : ["tests/scripts"],
+  "output_folder" : "reports",
+  "custom_commands_path" : "",
+  "custom_assertions_path" : "",
+  "page_objects_path" : "",
+  "globals_path" : "globals.js",
+
+  "selenium" : {
+    "start_process" : false,
+    "server_path" : "",
+    "log_path" : "",
+    "host" : "127.0.0.1",
+    "port" : 4444,
+    "cli_args" : {
+      "webdriver.chrome.driver" : "",
+      "webdriver.ie.driver" : ""
+    }
+  },
+
+  "test_settings" : {
+    "default" : {
+      "launch_url" : "<launch_url_of_choice>",
+      "selenium_port"  : 80,
+      "selenium_host"  : "hub.crossbrowsertesting.com",
+      "silent": true,
+      "request_timeout_options": {
+        "timeout": 300000,
+        "retry_attempts": 2
+      },
+      "screenshots" : {
+        "enabled" : false,
+        "path" : ""
+      },
+      "username": "${CBT_USERNAME}",
+      "access_key": "${CBT_ACCESS_KEY}",
+      "desiredCapabilities": {
+        "acceptSslCerts": "1",
+        "browserName": "Internet Explorer",
+        "version": "8",
+        "build": "1.0",
+        "javascriptEnabled": "1",
+        "name": "NightwatchJSExample",
+        "platform" : "Windows 7",
+        "record_network" : "false",
+        "record_video" : "true",
+        "screen_resolution" : "1024x768"
+      }
+    },
+    "ie9": {
+      "desiredCapabilities": {
+        "acceptSslCerts": "1",
+        "build": "1.0",
+        "javascriptEnabled": "1",
+        "name": "NightwatchJSExample",
+        "record_network" : "false",
+        "record_video" : "true",
+        "browserName": "Internet Explorer",
+        "version": "9",
+        "platform": "Windows 7 64-Bit",
+        "screenResolution": "1366x768"
+      }
+    },
+    "firefox": {
+      "desiredCapabilities": {
+        "acceptSslCerts": "1",
+        "build": "1.0",
+        "javascriptEnabled": "1",
+        "name": "NightwatchJSExample",
+        "record_network" : "false",
+        "record_video" : "true",
+        "browserName": "Firefox",
+        "version": "8",
+        "platform": "Windows 8",
+        "screenResolution": "1366x768"
+      }
+    },
+    "chrome": {
+      "desiredCapabilities": {
+        "acceptSslCerts": "1",
+        "build": "1.0",
+        "javascriptEnabled": "1",
+        "name": "NightwatchJSExample",
+        "record_network" : "false",
+        "record_video" : "true",
+        "browserName": "Chrome",
+        "version": "18",
+        "platform": "Windows 8",
+        "screenResolution": "1366x768"
+      }
+    },
+    "safari": {
+      "desiredCapabilities": {
+        "acceptSslCerts": "1",
+        "build": "1.0",
+        "javascriptEnabled": "1",
+        "name": "NightwatchJSExample",
+        "record_network" : "false",
+        "record_video" : "true",
+        "browserName": "Safari",
+        "version": "6.2",
+        "platform": "Mac OSX 10.8",
+        "screenResolution": "1400x900"
+      }
+    }
+  }
+}

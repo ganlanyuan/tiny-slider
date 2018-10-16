@@ -8,6 +8,7 @@
 *.log
 /*.html
 *.sketch
+auth.js
 
 /.codekit-cache/
 /bower_components/

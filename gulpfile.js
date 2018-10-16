@@ -158,18 +158,18 @@ gulp.task('server', function() {
     notify: false
   });
 
-  gulp.watch('tests/templates/**/*.njk', function (e) {
-    var dir = path.parse(e.path).dir,
-        njkSrc = (dir.indexOf('parts') === -1) ? e.path : 'tests/templates/*.njk';
-
-    if (e.type !== 'deleted') {
-      return gulp.src(njkSrc)
+  gulp.watch('template/**/*.njk', function (e) {
+    var dir = path.parse(e.path).dir;
+    if (e.type !== 'deleted' && dir.indexOf('parts') < 0) {
+      return gulp.src(e.path)
         .pipe($.plumber())
         .pipe($.nunjucks.compile({}, {
           watch: true,
           noCache: true
         }))
-        .pipe($.rename(function (path) { path.extname = '.html'; }))
+        .pipe($.rename(function (path) {
+          path.extname = '.html';
+        }))
         .pipe($.htmltidy({
           doctype: 'html5',
           wrap: 0,
@@ -179,7 +179,7 @@ gulp.task('server', function() {
           'drop-empty-elements': false,
           'force-output': true
         }))
-        .pipe(gulp.dest('./tests'));
+        .pipe(gulp.dest(dir.replace('/template', '')));
     }
   });
   gulp.watch(pathSrc + sassFile, function (e) {
