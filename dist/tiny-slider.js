@@ -681,7 +681,7 @@ var tns = function(options) {
       slideCount = slideItems.length,
       breakpointZone,
       windowWidth = getWindowWidth(),
-      isOn = true;
+      isOn = false;
   if (responsive) { setBreakpointZone(); }
 
   // fixedWidth: viewport > rightBoundary > indexMax
@@ -1438,8 +1438,6 @@ var tns = function(options) {
     if (hasControls) {
       if (controlsContainer || (prevButton && nextButton)) {
         if (controlsContainer) {
-          prevButton = controlsContainer.children[0];
-          nextButton = controlsContainer.children[1];
           setAttrs(controlsContainer, {
             'aria-label': 'Carousel Navigation',
             'tabindex': '0'
@@ -1456,6 +1454,9 @@ var tns = function(options) {
         outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
+      }
+
+      if (!prevButton || !nextButton) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
       }
@@ -1509,8 +1510,9 @@ var tns = function(options) {
     if (disable) { disableSlider(); } else if (freeze) { freezeSlider(); }
 
     events.on('indexChanged', additionalUpdates);
-    if (typeof onInit === 'function') { onInit(info()); }
     if (nested === 'inner') { events.emit('innerLoaded', info()); }
+    if (typeof onInit === 'function') { onInit(info()); }
+    isOn = true;
   }
 
   function destroy () {
@@ -3020,6 +3022,7 @@ var tns = function(options) {
       visibleNavIndexes: visibleNavIndexes,
       visibleNavIndexesCached: visibleNavIndexesCached,
       sheet: sheet,
+      isOn: isOn,
       event: e || {},
     };
   }

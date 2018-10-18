@@ -201,8 +201,9 @@ var testBase = function () {
           case 59:
 
             updateTest(testGoto, assertion);
+            assignDone();
 
-          case 60:
+          case 61:
           case 'end':
             return _context.stop();
         }
@@ -276,8 +277,9 @@ var testNonLoop = function () {
             }
 
             updateTest(test, assertion);
+            assignDone();
 
-          case 20:
+          case 21:
           case 'end':
             return _context2.stop();
         }
@@ -340,6 +342,9 @@ var testAutoplay = function () {
             return testAutoplayFn(id, test2, timeout, true);
 
           case 16:
+            assignDone();
+
+          case 17:
           case 'end':
             return _context13.stop();
         }
@@ -397,8 +402,9 @@ var testAnimation1 = function () {
 
           case 11:
             updateTest(test, checkAnimationClasses());
+            assignDone();
 
-          case 12:
+          case 13:
           case 'end':
             return _context14.stop();
         }
@@ -443,8 +449,9 @@ var testAnimation2 = function () {
             assertion = index % slideCount === count * items % slideCount && compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) && compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
 
             updateTest(test, assertion);
+            assignDone();
 
-          case 10:
+          case 11:
           case 'end':
             return _context15.stop();
         }
@@ -458,91 +465,111 @@ var testAnimation2 = function () {
 }();
 
 var testCustomize = function () {
-  var _ref16 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
-    var id, slider, info, opt, autoplayButton, controlsClick, autoplayT, autoplayPauseT, timeout;
-    return regeneratorRuntime.wrap(function _callee16$(_context16) {
+  var _ref16 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
+    var id, slider, opt, autoplayButton;
+    return regeneratorRuntime.wrap(function _callee17$(_context17) {
       while (1) {
-        switch (_context16.prev = _context16.next) {
+        switch (_context17.prev = _context17.next) {
           case 0:
-            id = 'customize', slider = sliders[id], info = slider.getInfo(), opt = options[id], autoplayButton = document.querySelector(opt['autoplayButton']);
+            id = 'customize', slider = sliders[id], opt = options[id], autoplayButton = document.querySelector(opt['autoplayButton']);
 
 
             addTitle(id);
 
-            // stop autoplay and go to the first slide
-            // before testing slide attrs
-            if (opt['autoplay']) {
-              autoplayButton.click();
-              slider.goTo('first');
-            }
-            runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
-              return checkSlidesAttrs(id);
-            });
+            waitUntilInit(slider, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
+              var info, controlsClick, autoplayT, autoplayPauseT, timeout;
+              return regeneratorRuntime.wrap(function _callee16$(_context16) {
+                while (1) {
+                  switch (_context16.prev = _context16.next) {
+                    case 0:
+                      info = slider.getInfo();
 
-            runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function () {
-              return checkControlsAttrs(id);
-            });
+                      // stop autoplay and go to the first slide
+                      // before testing slide attrs
 
-            runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function () {
-              var assertion,
-                  info = slider.getInfo(),
-                  slideCount = info.slideCount,
-                  absIndex = info.index % slideCount,
-                  navContainer = info.navContainer,
-                  navItems = info.navItems;
+                      if (opt['autoplay']) {
+                        autoplayButton.click();
+                        slider.goTo('first');
+                      }
+                      runTest('Slides: width, count, id, class, aria-hidden, tabindex', function () {
+                        return checkSlidesAttrs(id);
+                      });
 
-              assertion = navContainer.getAttribute('aria-label') === 'Carousel Pagination';
+                      runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function () {
+                        return checkControlsAttrs(id);
+                      });
 
-              while (absIndex < 0) {
-                absIndex += slideCount;
-              }
-              for (var i = slideCount; i--;) {
-                var arr = i === absIndex ? ['0', 'true'] : ['-1', 'false'],
-                    nav = navItems[i];
-                if (assertion) {
-                  assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute(tabindex) === arr[0] && nav.getAttribute('aria-selected') === arr[1];
+                      runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function () {
+                        var assertion,
+                            info = slider.getInfo(),
+                            slideCount = info.slideCount,
+                            absIndex = info.index % slideCount,
+                            navContainer = info.navContainer,
+                            navItems = info.navItems;
+
+                        assertion = navContainer.getAttribute('aria-label') === 'Carousel Pagination';
+
+                        while (absIndex < 0) {
+                          absIndex += slideCount;
+                        }
+                        for (var i = slideCount; i--;) {
+                          var arr = i === absIndex ? ['0', 'true'] : ['-1', 'false'],
+                              nav = navItems[i];
+                          if (assertion) {
+                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute(tabindex) === arr[0] && nav.getAttribute('aria-selected') === arr[1];
+                          }
+                        }
+                        return assertion;
+                      });
+
+                      // simulateClick(info.prevButton);
+                      controlsClick = addTest('Controls: click functions'), autoplayT = addTest('Slide: autoplay'), autoplayPauseT = addTest('Slide: autoplay pause');
+                      _context16.next = 8;
+                      return checkControlsClick(controlsClick, id, 11);
+
+                    case 8:
+                      if (!opt['autoplay']) {
+                        _context16.next = 18;
+                        break;
+                      }
+
+                      // reset autoplay
+                      autoplayButton.click();
+
+                      timeout = 100;
+
+                      if (opt['autoplayTimeout']) {
+                        timeout += opt['autoplayTimeout'];
+                      }
+                      if (opt['speed']) {
+                        timeout += opt['speed'];
+                      }
+
+                      _context16.next = 15;
+                      return testAutoplayFn(id, autoplayT, timeout, false);
+
+                    case 15:
+                      autoplayButton.click();
+                      _context16.next = 18;
+                      return testAutoplayFn(id, autoplayPauseT, timeout, true);
+
+                    case 18:
+                      assignDone();
+
+                    case 19:
+                    case 'end':
+                      return _context16.stop();
+                  }
                 }
-              }
-              return assertion;
-            });
+              }, _callee16, this);
+            })));
 
-            // simulateClick(info.prevButton);
-            controlsClick = addTest('Controls: click functions'), autoplayT = addTest('Slide: autoplay'), autoplayPauseT = addTest('Slide: autoplay pause');
-            _context16.next = 9;
-            return checkControlsClick(controlsClick, id, 11);
-
-          case 9:
-            if (!opt['autoplay']) {
-              _context16.next = 19;
-              break;
-            }
-
-            // reset autoplay
-            autoplayButton.click();
-
-            timeout = 100;
-
-            if (opt['autoplayTimeout']) {
-              timeout += opt['autoplayTimeout'];
-            }
-            if (opt['speed']) {
-              timeout += opt['speed'];
-            }
-
-            _context16.next = 16;
-            return testAutoplayFn(id, autoplayT, timeout, false);
-
-          case 16:
-            autoplayButton.click();
-            _context16.next = 19;
-            return testAutoplayFn(id, autoplayPauseT, timeout, true);
-
-          case 19:
+          case 3:
           case 'end':
-            return _context16.stop();
+            return _context17.stop();
         }
       }
-    }, _callee16, this);
+    }, _callee17, this);
   }));
 
   return function testCustomize() {
@@ -551,33 +578,33 @@ var testCustomize = function () {
 }();
 
 var repeat = function () {
-  var _ref18 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(fn, count, timeout) {
-    return regeneratorRuntime.wrap(function _callee18$(_context18) {
+  var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(fn, count, timeout) {
+    return regeneratorRuntime.wrap(function _callee19$(_context19) {
       while (1) {
-        switch (_context18.prev = _context18.next) {
+        switch (_context19.prev = _context19.next) {
           case 0:
             if (!timeout) {
-              _context18.next = 10;
+              _context19.next = 10;
               break;
             }
 
           case 1:
             if (!(count > 0)) {
-              _context18.next = 8;
+              _context19.next = 8;
               break;
             }
 
-            _context18.next = 4;
+            _context19.next = 4;
             return wait(timeout);
 
           case 4:
             fn();
             count--;
-            _context18.next = 1;
+            _context19.next = 1;
             break;
 
           case 8:
-            _context18.next = 11;
+            _context19.next = 11;
             break;
 
           case 10:
@@ -588,23 +615,23 @@ var repeat = function () {
 
           case 11:
           case 'end':
-            return _context18.stop();
+            return _context19.stop();
         }
       }
-    }, _callee18, this);
+    }, _callee19, this);
   }));
 
   return function repeat(_x, _x2, _x3) {
-    return _ref18.apply(this, arguments);
+    return _ref19.apply(this, arguments);
   };
 }();
 
 var checkControlsClick = function () {
-  var _ref19 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19(test, id, count, vertical) {
+  var _ref20 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(test, id, count, vertical, islast) {
     var assertion, slider, info, container, wrapper, slideCount, navContainer, navItems, slideItems, items, edge1, edge2, getAssertion, current, absIndex;
-    return regeneratorRuntime.wrap(function _callee19$(_context19) {
+    return regeneratorRuntime.wrap(function _callee20$(_context20) {
       while (1) {
-        switch (_context19.prev = _context19.next) {
+        switch (_context20.prev = _context20.next) {
           case 0:
             getAssertion = function getAssertion(absIndex) {
               var index = sliders[id].getInfo().index,
@@ -628,7 +655,7 @@ var checkControlsClick = function () {
 
             // click prev button n times
             current = info.index, absIndex = getAbsIndex(current, -count, info);
-            _context19.next = 6;
+            _context20.next = 6;
             return repeat(function () {
               id === 'customize' ? simulateClick(info.prevButton) : info.prevButton.click();
             }, count);
@@ -637,11 +664,11 @@ var checkControlsClick = function () {
             assertion = getAssertion(absIndex);
 
             if (!assertion) {
-              _context19.next = 11;
+              _context20.next = 11;
               break;
             }
 
-            _context19.next = 10;
+            _context20.next = 10;
             return repeat(function () {
               id === 'customize' ? simulateClick(info.nextButton) : info.nextButton.click();
             }, count);
@@ -652,29 +679,32 @@ var checkControlsClick = function () {
           case 11:
 
             updateTest(test, assertion);
+            if (islast) {
+              assignDone();
+            }
 
-          case 12:
+          case 13:
           case 'end':
-            return _context19.stop();
+            return _context20.stop();
         }
       }
-    }, _callee19, this);
+    }, _callee20, this);
   }));
 
-  return function checkControlsClick(_x4, _x5, _x6, _x7) {
-    return _ref19.apply(this, arguments);
+  return function checkControlsClick(_x4, _x5, _x6, _x7, _x8) {
+    return _ref20.apply(this, arguments);
   };
 }();
 
 var testAutoplayFn = function () {
-  var _ref20 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(id, el, timeout, equal) {
+  var _ref21 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21(id, el, timeout, equal) {
     var assertion, current;
-    return regeneratorRuntime.wrap(function _callee20$(_context20) {
+    return regeneratorRuntime.wrap(function _callee21$(_context21) {
       while (1) {
-        switch (_context20.prev = _context20.next) {
+        switch (_context21.prev = _context21.next) {
           case 0:
             current = sliders[id].getInfo().index;
-            _context20.next = 3;
+            _context21.next = 3;
             return wait(timeout);
 
           case 3:
@@ -684,14 +714,14 @@ var testAutoplayFn = function () {
 
           case 6:
           case 'end':
-            return _context20.stop();
+            return _context21.stop();
         }
       }
-    }, _callee20, this);
+    }, _callee21, this);
   }));
 
-  return function testAutoplayFn(_x8, _x9, _x10, _x11) {
-    return _ref20.apply(this, arguments);
+  return function testAutoplayFn(_x9, _x10, _x11, _x12) {
+    return _ref21.apply(this, arguments);
   };
 }();
 
@@ -749,6 +779,7 @@ function testRewind() {
   }
 
   updateTest(test, assertion);
+  assignDone();
 }
 
 function testFixedWidth() {
@@ -771,7 +802,7 @@ function testFixedWidth() {
   });
 
   var controlsClick = addTest('Controls: click functions');
-  checkControlsClick(controlsClick, id, info.slideCount * 3 + 2);
+  checkControlsClick(controlsClick, id, info.slideCount * 3 + 2, false, true);
 }
 
 function testFixedWidthGutter() {
@@ -785,6 +816,7 @@ function testFixedWidthGutter() {
     var slideItems = info.slideItems;
     return compare2Nums(slideItems[0].clientWidth, fw + gutter);
   });
+  assignDone();
 }
 
 function testFixedWidthEdgePadding() {
@@ -798,6 +830,7 @@ function testFixedWidthEdgePadding() {
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
+  assignDone();
 }
 
 function testFixedWidthEdgePaddingGutter() {
@@ -811,6 +844,7 @@ function testFixedWidthEdgePaddingGutter() {
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
+  assignDone();
 }
 
 function testVertical() {
@@ -867,7 +901,7 @@ function testVertical() {
             return wait(500);
 
           case 2:
-            checkControlsClick(controlsClick, id, 11, 'top');
+            checkControlsClick(controlsClick, id, 11, true, true);
 
           case 3:
           case 'end':
@@ -904,6 +938,7 @@ function testVerticalGutter() {
       }
     }, _callee5, this);
   })));
+  assignDone();
 }
 
 function testVerticalEdgePadding() {
@@ -930,6 +965,7 @@ function testVerticalEdgePadding() {
       }
     }, _callee6, this);
   })));
+  assignDone();
 }
 
 function testVerticalEdgePaddingGutter() {
@@ -956,6 +992,7 @@ function testVerticalEdgePaddingGutter() {
       }
     }, _callee7, this);
   })));
+  assignDone();
 }
 
 function testResponsive1() {
@@ -1031,14 +1068,15 @@ function testResponsive1() {
               _context8.prev = 36;
 
               body.removeChild(newWindow);
+              assignDone();
               return _context8.finish(36);
 
-            case 39:
+            case 40:
             case 'end':
               return _context8.stop();
           }
         }
-      }, _callee8, this, [[0, 30, 36, 39]]);
+      }, _callee8, this, [[0, 30, 36, 40]]);
     }));
 
     return function responsive1Tests() {
@@ -1156,14 +1194,15 @@ function testResponsive2() {
               _context9.prev = 32;
 
               body.removeChild(newWindow);
+              assignDone();
               return _context9.finish(32);
 
-            case 35:
+            case 36:
             case 'end':
               return _context9.stop();
           }
         }
-      }, _callee9, this, [[0, 27, 32, 35]]);
+      }, _callee9, this, [[0, 27, 32, 36]]);
     }));
 
     return function responsive2Tests() {
@@ -1262,14 +1301,15 @@ function testResponsive3() {
               _context10.prev = 25;
 
               body.removeChild(newWindow);
+              assignDone();
               return _context10.finish(25);
 
-            case 28:
+            case 29:
             case 'end':
               return _context10.stop();
           }
         }
-      }, _callee10, this, [[0, 21, 25, 28]]);
+      }, _callee10, this, [[0, 21, 25, 29]]);
     }));
 
     return function responsive3Tests() {
@@ -1393,6 +1433,7 @@ function testResponsive4() {
       testArrowKeysT.className = 'item-notsure';
       body.removeChild(newWindow);
     }
+    assignDone();
   }
 }
 
@@ -1453,14 +1494,15 @@ function testResponsive5() {
               _context11.prev = 20;
 
               body.removeChild(newWindow);
+              assignDone();
               return _context11.finish(20);
 
-            case 23:
+            case 24:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, this, [[0, 16, 20, 23]]);
+      }, _callee11, this, [[0, 16, 20, 24]]);
     }));
 
     return function responsive5Tests() {
@@ -1579,14 +1621,15 @@ function testResponsive6() {
               _context12.prev = 28;
 
               body.removeChild(newWindow);
+              assignDone();
               return _context12.finish(28);
 
-            case 31:
+            case 32:
             case 'end':
               return _context12.stop();
           }
         }
-      }, _callee12, this, [[0, 24, 28, 31]]);
+      }, _callee12, this, [[0, 24, 28, 32]]);
     }));
 
     return function responsive6Tests() {
@@ -1632,6 +1675,7 @@ function testMouseDrag() {
   addTitle(id);
   var test = addTest('Mouse drag');
   updateTest(test, '-notsure');
+  assignDone();
 }
 
 function testGutter() {
@@ -1649,6 +1693,7 @@ function testGutter() {
     // because the gap is made by padding
     return compare2Nums(firstRect.right, secondRect.left);
   });
+  assignDone();
 }
 
 function testEdgePadding() {
@@ -1660,6 +1705,7 @@ function testEdgePadding() {
   runTest('Slide: position', function () {
     return checkPositionEdgePadding(id, 0);
   });
+  assignDone();
 }
 
 function testEdgePaddingGutter() {
@@ -1671,6 +1717,7 @@ function testEdgePaddingGutter() {
   runTest('Slide: position', function () {
     return checkPositionEdgePadding(id);
   });
+  assignDone();
 }
 
 function testFewitems() {
@@ -1682,6 +1729,7 @@ function testFewitems() {
   runTest('Slide: count, controls: hidden, nav: hidden', function () {
     return info.container.parentNode.style.margin === '0px' && info.controlsContainer.style.display === 'none' && info.navContainer.style.display === 'none';
   });
+  assignDone();
 }
 
 function testSlideByPage() {
@@ -1691,7 +1739,7 @@ function testSlideByPage() {
 
   addTitle(id);
   var controlsClick = addTest('Controls: click');
-  checkControlsClick(controlsClick, id, 11);
+  checkControlsClick(controlsClick, id, 11, false, true);
 }
 
 function testArrowKeys() {
@@ -1737,6 +1785,7 @@ function testArrowKeys() {
   } else {
     updateTest(test, '-notsure');
   }
+  assignDone();
 }
 
 function testLazyload() {
@@ -1778,12 +1827,12 @@ function testLazyload() {
     }
   }
   updateTest(test, assertion);
+  assignDone();
 }
 
 function testAutoHeight() {
   var id = 'autoHeight',
-      slider = sliders[id],
-      info = slider.getInfo();
+      slider = sliders[id];
 
   addTitle(id);
 
@@ -1792,17 +1841,17 @@ function testAutoHeight() {
       testHeight2 = addTest('Slider height should be the same as the maximum heights of visible slides after clicking prev/next buttons'),
       comment = '';
 
-  imagesLoaded(info.container, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
-    var assertion, wrapper, slideItems, nextButton;
-    return regeneratorRuntime.wrap(function _callee17$(_context17) {
+  waitUntilInit(slider, _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18() {
+    var assertion, info, wrapper, slideItems, nextButton;
+    return regeneratorRuntime.wrap(function _callee18$(_context18) {
       while (1) {
-        switch (_context17.prev = _context17.next) {
+        switch (_context18.prev = _context18.next) {
           case 0:
-            _context17.next = 2;
+            _context18.next = 2;
             return wait(300);
 
           case 2:
-            wrapper = info.container.parentNode, slideItems = info.slideItems, nextButton = info.nextButton;
+            info = slider.getInfo(), wrapper = info.container.parentNode, slideItems = info.slideItems, nextButton = info.nextButton;
 
 
             assertion = containsClasses(wrapper, ['tns-ah']);
@@ -1820,7 +1869,7 @@ function testAutoHeight() {
             updateTest(testHeight1, assertion, comment);
 
             nextButton.click();
-            _context17.next = 12;
+            _context18.next = 12;
             return wait(500);
 
           case 12:
@@ -1830,7 +1879,7 @@ function testAutoHeight() {
             }
 
             nextButton.click();
-            _context17.next = 17;
+            _context18.next = 17;
             return wait(500);
 
           case 17:
@@ -1842,13 +1891,14 @@ function testAutoHeight() {
             }
 
             updateTest(testHeight2, assertion, comment);
+            assignDone();
 
-          case 19:
+          case 20:
           case 'end':
-            return _context17.stop();
+            return _context18.stop();
         }
       }
-    }, _callee17, this);
+    }, _callee18, this);
   })));
 }
 
@@ -1891,6 +1941,7 @@ function testNested() {
   _nextButton.click();
   _assertion = _slider.getInfo().index === _index + _slideBy && slider.getInfo().index === index;
   updateTest(_test, _assertion);
+  assignDone();
 }
 
 function wait(ms) {
@@ -1933,6 +1984,10 @@ function updateTest(test, assertion, str) {
     default:
       test.className = 'item-notsure';
   }
+}
+
+function assignDone() {
+  resultsDiv.className += ' tests-done';
 }
 
 function addComment(test, str) {
@@ -2028,12 +2083,12 @@ function waitFn(fn, time) {
     time = 200;
   }
 
-  return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21() {
-    return regeneratorRuntime.wrap(function _callee21$(_context21) {
+  return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+    return regeneratorRuntime.wrap(function _callee22$(_context22) {
       while (1) {
-        switch (_context21.prev = _context21.next) {
+        switch (_context22.prev = _context22.next) {
           case 0:
-            _context21.next = 2;
+            _context22.next = 2;
             return wait(time);
 
           case 2:
@@ -2041,11 +2096,21 @@ function waitFn(fn, time) {
 
           case 3:
           case 'end':
-            return _context21.stop();
+            return _context22.stop();
         }
       }
-    }, _callee21, this);
+    }, _callee22, this);
   }));
+}
+
+function waitUntilInit(slider, callback) {
+  setTimeout(function () {
+    if (slider.getInfo().isOn) {
+      callback();
+    } else {
+      waitUntilInit(slider, callback);
+    }
+  }, 30);
 }
 
 initFns = {

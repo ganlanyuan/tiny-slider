@@ -10,6 +10,7 @@ const $ = require('gulp-load-plugins')({
 const browserSync = require('browser-sync').create();
 const nunjucks = require('nunjucks');
 const path = require('path');
+const fs = require('fs');
 
 let sourcemapsDest = 'sourcemaps';
 let libName = 'tiny-slider',
@@ -30,6 +31,44 @@ function errorlog (error) {
   console.error.bind(error);  
   this.emit('end');  
 }  
+
+function readfiles (dir, arr) {
+  fs.readdirSync(dir).forEach( file => {
+    if (path.extname(file) === '.njk') {
+      arr.push(dir+file);
+    }
+  });
+}
+
+gulp.task('njk', function() {
+  let files = [];
+  readfiles('./template/demo/', files);
+  readfiles('./template/test/', files);
+
+  files.forEach(function(file) {
+    let dest = path.dirname(file).replace('/template', '');
+    
+    return gulp.src(file)
+      .pipe($.plumber())
+      .pipe($.nunjucks.compile({}, {
+        watch: true,
+        noCache: true
+      }))
+      .pipe($.rename(function (path) {
+        path.extname = '.html';
+      }))
+      .pipe($.htmltidy({
+        doctype: 'html5',
+        wrap: 0,
+        hideComments: false,
+        indent: true,
+        'indent-attributes': false,
+        'drop-empty-elements': false,
+        'force-output': true
+      }))
+      .pipe(gulp.dest(dest));
+  });
+});
 
 function sassTask(src, dest) {
   return gulp.src(src)
@@ -108,40 +147,6 @@ gulp.task('min', ['editPro'], function () {
     .pipe(gulp.dest(pathDest + 'min'))
 })
 
-gulp.task('test', function () {
-  return rollup({
-    input: pathTest + testScript,
-    context: 'window',
-    // treeshake: false,
-    plugins: [
-      resolve({
-        jsnext: true,
-        main: true,
-        browser: true,
-      }),
-      // babel({
-      //   exclude: 'node_modules/**' // only transpile our source code
-      // }),
-    ],
-  }).then(function (bundle) {
-    return bundle.write({
-      file: pathTest + testName + '.min.js',
-      format: 'iife',
-      moduleName: 'tiny',
-    });
-  });
-});
-
-// let testcafeObj = {
-//   src: 'tests/tests.js',
-//   options: { browsers: ['chrome', 'safari'] },
-// };
-// testcafe
-// gulp.task('testcafe', () => {
-//   return gulp.src(testcafeObj.src)
-//     .pipe(testcafe(testcafeObj.options));
-// });
-
 // browser-sync
 gulp.task('server', function() {
   browserSync.init({
@@ -198,6 +203,5 @@ gulp.task('default', [
   // 'min',
   // 'helper-ie8',
   // 'makeDevCopy',
-  // 'test',
   'server', 
 ]);  

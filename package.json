@@ -5,11 +5,11 @@
   "main": "src/tiny-slider.js",
   "types": "src/tiny-slider.d.ts",
   "directories": {
-    "test": "tests"
+    "test": "test"
   },
   "scripts": {
-    "start": "nodemon --watch tests/js/tests-async.js --exec npm test",
-    "test": "npx babel tests/js/tests-async.js -o tests/js/tests-async-es5.js"
+    "start": "nodemon --watch test/js/tests-async.js --exec npm test",
+    "test": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js"
   },
   "repository": {
     "type": "git",

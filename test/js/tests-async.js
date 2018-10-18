@@ -249,6 +249,7 @@ async function testBase () {
   await repeat(checkGoto, 3);
 
   updateTest(testGoto, assertion);
+  assignDone();
 }
 
 
@@ -338,6 +339,7 @@ async function testNonLoop () {
   }
 
   updateTest(test, assertion);
+  assignDone();
 }
 
 
@@ -395,6 +397,7 @@ function testRewind () {
   }
 
   updateTest(test, assertion);
+  assignDone();
 }
 
 
@@ -441,7 +444,7 @@ function testFixedWidth () {
   });
 
   var controlsClick = addTest('Controls: click functions');
-  checkControlsClick(controlsClick, id, (info.slideCount * 3 + 2));
+  checkControlsClick(controlsClick, id, (info.slideCount * 3 + 2), false, true);
 }
 
 
@@ -477,6 +480,7 @@ function testFixedWidthGutter () {
     var slideItems = info.slideItems;
     return compare2Nums(slideItems[0].clientWidth, fw + gutter);
   });
+  assignDone();
 }
 
 
@@ -515,6 +519,7 @@ function testFixedWidthEdgePadding () {
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
       compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
+  assignDone();
 }
 
 
@@ -548,6 +553,7 @@ function testFixedWidthEdgePaddingGutter () {
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
       compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
+  assignDone();
 }
 
 
@@ -603,7 +609,7 @@ function testVertical () {
   var controlsClick = addTest('slides: click functions');
   (async function() {
     await wait(500);
-    checkControlsClick(controlsClick, id, 11, 'top');
+    checkControlsClick(controlsClick, id, 11, true, true);
   })();
 }
 
@@ -645,6 +651,7 @@ function testVerticalGutter () {
       compare2Nums(firstRect.bottom, secondRect.top - gutter) &&
       compare2Nums(lastRect.bottom, innerWrapperRect.bottom - gutter);
   });
+  assignDone();
 }
 
 
@@ -676,6 +683,7 @@ function testVerticalEdgePadding () {
     await wait(500);
     return checkPositionEdgePadding(id, true);
   });
+  assignDone();
 }
 
 
@@ -707,6 +715,7 @@ function testVerticalEdgePaddingGutter () {
     await wait(500);
     return checkPositionEdgePadding(id, true);
   });
+  assignDone();
 }
 
 
@@ -836,6 +845,7 @@ function testResponsive1 () {
       testEdgePadding.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
+      assignDone();
     }
   }
 }
@@ -947,6 +957,7 @@ function testResponsive2 () {
       testAutoplayT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
+      assignDone();
     }
   }
 }
@@ -1044,6 +1055,7 @@ function testResponsive3() {
       testAutoplayT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
+      assignDone();
     }
   }
 }
@@ -1152,6 +1164,7 @@ function testResponsive4 () {
       testArrowKeysT.className = 'item-notsure';
       body.removeChild(newWindow);
     }
+    assignDone();
   }
 }
 
@@ -1248,6 +1261,7 @@ function testResponsive5 () {
       testAutoHeightT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
+      assignDone();
     }
   }
 }
@@ -1377,6 +1391,7 @@ function testResponsive6 () {
       updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
     } finally {
       body.removeChild(newWindow);
+      assignDone();
     }
   }
 }
@@ -1409,6 +1424,7 @@ function testMouseDrag () {
   addTitle(id);
   var test = addTest('Mouse drag');
   updateTest(test, '-notsure');
+  assignDone();
 }
 
 
@@ -1445,6 +1461,7 @@ function testGutter () {
     // because the gap is made by padding
     return compare2Nums(firstRect.right, secondRect.left);
   });
+  assignDone();
 }
 
 
@@ -1475,6 +1492,7 @@ function testEdgePadding () {
   runTest('Slide: position', function() {
     return checkPositionEdgePadding(id, 0);
   });
+  assignDone();
 }
 
 
@@ -1505,6 +1523,7 @@ function testEdgePaddingGutter () {
   runTest('Slide: position', function() {
     return checkPositionEdgePadding(id);
   });
+  assignDone();
 }
 
 
@@ -1537,6 +1556,7 @@ function testFewitems () {
       info.controlsContainer.style.display === 'none' &&
       info.navContainer.style.display === 'none';
   });
+  assignDone();
 }
 
 
@@ -1565,7 +1585,7 @@ function testSlideByPage () {
 
   addTitle(id);
   var controlsClick = addTest('Controls: click');
-  checkControlsClick(controlsClick, id, 11);
+  checkControlsClick(controlsClick, id, 11, false, true);
 }
 
 
@@ -1630,6 +1650,7 @@ function testArrowKeys () {
   } else {
     updateTest(test, '-notsure');
   }
+  assignDone();
 }
 
 
@@ -1695,6 +1716,7 @@ async function testAutoplay () {
   // test autoplay pause
   autoplayButton.click();
   await testAutoplayFn(id, test2, timeout, true);
+  assignDone();
 }
 
 
@@ -1758,6 +1780,7 @@ async function testAnimation1 () {
   info.nextButton.click();
   await wait(speed + 500);
   updateTest(test, checkAnimationClasses());
+  assignDone();
 }
 
 
@@ -1810,6 +1833,7 @@ async function testAnimation2 () {
     compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
 
   updateTest(test, assertion);
+  assignDone();
 }
 
 
@@ -1878,6 +1902,7 @@ function testLazyload () {
     }
   }
   updateTest(test, assertion);
+  assignDone();
 }
 
 
@@ -1902,70 +1927,74 @@ function testLazyload () {
 async function testCustomize () {
   var id = 'customize',
       slider = sliders[id],
-      info = slider.getInfo(),
       opt = options[id],
       autoplayButton = document.querySelector(opt['autoplayButton']);
 
   addTitle(id);
 
-  // stop autoplay and go to the first slide
-  // before testing slide attrs
-  if (opt['autoplay']) {
-    autoplayButton.click();
-    slider.goTo('first');
-  }
-  runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
-    return checkSlidesAttrs(id);
-  });
+  waitUntilInit(slider, async function() {
+    var info = slider.getInfo();
 
-  runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function() {
-    return checkControlsAttrs(id);
-  });
-
-  runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function() {
-    var assertion,
-        info = slider.getInfo(),
-        slideCount = info.slideCount,
-        absIndex = info.index%slideCount,
-        navContainer = info.navContainer,
-        navItems = info.navItems;
-
-    assertion = navContainer.getAttribute('aria-label') === 'Carousel Pagination';
-
-    while (absIndex < 0) { absIndex += slideCount; }
-    for (var i = slideCount; i--;) {
-      var arr = (i === absIndex) ? ['0', 'true'] : ['-1', 'false'],
-          nav = navItems[i];
-      if (assertion) {
-        assertion = 
-          nav.getAttribute('data-nav') === i.toString() &&
-          nav.getAttribute('aria-controls') === id + '-item' + i &&
-          nav.getAttribute(tabindex) === arr[0] &&
-          nav.getAttribute('aria-selected') === arr[1];
-      }
+    // stop autoplay and go to the first slide
+    // before testing slide attrs
+    if (opt['autoplay']) {
+      autoplayButton.click();
+      slider.goTo('first');
     }
-    return assertion;
+    runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
+      return checkSlidesAttrs(id);
+    });
+
+    runTest('Controls: aria-label, aria-controls, data-controls, tabindex', function() {
+      return checkControlsAttrs(id);
+    });
+
+    runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function() {
+      var assertion,
+          info = slider.getInfo(),
+          slideCount = info.slideCount,
+          absIndex = info.index%slideCount,
+          navContainer = info.navContainer,
+          navItems = info.navItems;
+
+      assertion = navContainer.getAttribute('aria-label') === 'Carousel Pagination';
+
+      while (absIndex < 0) { absIndex += slideCount; }
+      for (var i = slideCount; i--;) {
+        var arr = (i === absIndex) ? ['0', 'true'] : ['-1', 'false'],
+            nav = navItems[i];
+        if (assertion) {
+          assertion = 
+            nav.getAttribute('data-nav') === i.toString() &&
+            nav.getAttribute('aria-controls') === id + '-item' + i &&
+            nav.getAttribute(tabindex) === arr[0] &&
+            nav.getAttribute('aria-selected') === arr[1];
+        }
+      }
+      return assertion;
+    });
+
+    // simulateClick(info.prevButton);
+    var controlsClick = addTest('Controls: click functions'),
+        autoplayT = addTest('Slide: autoplay'),
+        autoplayPauseT = addTest('Slide: autoplay pause');
+
+    await checkControlsClick(controlsClick, id, 11);
+
+    if (opt['autoplay']) {
+      // reset autoplay
+      autoplayButton.click();
+
+      var timeout = 100;
+      if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
+      if (opt['speed']) { timeout += opt['speed']; }
+
+      await testAutoplayFn(id, autoplayT, timeout, false);
+      autoplayButton.click();
+      await testAutoplayFn(id, autoplayPauseT, timeout, true);
+    }
+    assignDone();
   });
-
-  // simulateClick(info.prevButton);
-  var controlsClick = addTest('Controls: click functions'),
-      autoplayT = addTest('Slide: autoplay'),
-      autoplayPauseT = addTest('Slide: autoplay pause');
-
-  await checkControlsClick(controlsClick, id, 11);
-
-  if (opt['autoplay']) {
-    // reset autoplay
-    autoplayButton.click();
-
-    var timeout = 100;
-    if (opt['autoplayTimeout']) { timeout += opt['autoplayTimeout']; }
-    if (opt['speed']) { timeout += opt['speed']; }
-
-    await testAutoplayFn(id, autoplayT, timeout, false);
-    autoplayButton.click();
-    await testAutoplayFn(id, autoplayPauseT, timeout, true);
-  }
 }
 
 
@@ -1989,8 +2018,7 @@ async function testCustomize () {
 
 function testAutoHeight () {
   var id = 'autoHeight',
-      slider = sliders[id],
-      info = slider.getInfo();
+      slider = sliders[id];
 
   addTitle(id);
 
@@ -1999,9 +2027,10 @@ function testAutoHeight () {
       testHeight2 = addTest('Slider height should be the same as the maximum heights of visible slides after clicking prev/next buttons'),
       comment = '';
 
-  imagesLoaded(info.container, async function() {
+  waitUntilInit(slider, async function() {
     await wait(300);
     var assertion,
+        info = slider.getInfo(),
         wrapper = info.container.parentNode,
         slideItems = info.slideItems,
         nextButton = info.nextButton;
@@ -2043,6 +2072,7 @@ function testAutoHeight () {
     }
 
     updateTest(testHeight2, assertion, comment);
+    assignDone();
   });
 }
 
@@ -2106,6 +2136,7 @@ function testNested () {
   _assertion = _slider.getInfo().index === _index + _slideBy &&
     slider.getInfo().index === index;    
   updateTest(_test, _assertion);
+  assignDone();
 }
 
 
@@ -2163,6 +2194,10 @@ function updateTest (test, assertion, str) {
     default:
       test.className = 'item-notsure';
   }
+}
+
+function assignDone () {
+  resultsDiv.className += ' tests-done';
 }
 
 function addComment (test, str) {
@@ -2265,7 +2300,7 @@ function checkControlsAttrs (id) {
     nextButton.getAttribute('aria-controls') === id;
 }
 
-async function checkControlsClick (test, id, count, vertical) {
+async function checkControlsClick (test, id, count, vertical, islast) {
   var assertion,
       slider = sliders[id],
       info = slider.getInfo(),
@@ -2320,6 +2355,7 @@ async function checkControlsClick (test, id, count, vertical) {
   }
 
   updateTest(test, assertion);
+  if (islast) { assignDone(); }
 }
 
 function checkPositionEdgePadding (id, vertical) {
@@ -2361,6 +2397,16 @@ function waitFn (fn, time) {
     await wait(time);
     fn();
   };
+}
+
+function waitUntilInit (slider, callback) {
+  setTimeout(function() {
+    if (slider.getInfo().isOn) {
+      callback();
+    } else {
+      waitUntilInit(slider, callback);
+    }
+  }, 30);
 }
 
 initFns = {
