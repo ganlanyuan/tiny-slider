@@ -797,7 +797,6 @@ var tns = function(options) {
       },
       imgsComplete;
 
-
   // controls
   if (hasControls) {
     var controlsContainer = options.controlsContainer,

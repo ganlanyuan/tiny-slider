@@ -1857,52 +1857,50 @@ async function testAnimation2 () {
 
 function testLazyload () {
   var id = 'lazyload',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      edgePadding = options[id]['edgePadding'],
-      slideBy = options[id]['slideBy'] || 1,
-      slideItems = info.slideItems,
-      items = info.items,
-      index = info.index,
-      first = index,
-      last = index + items - 1;
+      slider = sliders[id];
 
-  if (edgePadding) {
-    first -= 1;
-    last += 1;  
-  }
+  waitUntilInit(slider, async function() {
+    var info = slider.getInfo(),
+        edgePadding = options[id]['edgePadding'],
+        slideBy = options[id]['slideBy'] || 1,
+        slideItems = info.slideItems,
+        items = info.items,
+        index = info.index,
+        first = index,
+        last = index + items - 1;
 
-  addTitle(id);
-
-  runTest('Slide: init', function() {
-    var imgFirst = slideItems[first].querySelector('img'),
-        imgLast = slideItems[last].querySelector('img'),
-        imgPrev = slideItems[first - 1].querySelector('img'),
-        imgNext = slideItems[last + 1].querySelector('img');
-
-    return imgFirst.getAttribute('src') === imgFirst.getAttribute('data-src') &&
-      imgLast.getAttribute('src') === imgLast.getAttribute('data-src') &&
-      imgPrev.getAttribute('src') !== imgPrev.getAttribute('data-src') && 
-      imgNext.getAttribute('src') !== imgNext.getAttribute('data-src') &&
-      containsClasses(imgFirst, 'loaded') &&
-      containsClasses(imgLast, 'loaded') &&
-      !containsClasses(imgPrev, 'loaded') &&
-      !containsClasses(imgNext, 'loaded'); 
-  });
-
-  var test = addTest('Controls: click'),
-      assertion;
-
-  info.nextButton.click();
-  for (var i = last + 1; i < last + 1 + slideBy; i++) {
-    if (assertion === undefined || assertion !== false) {
-      var img = slideItems[i].querySelector('img');
-      assertion = img.getAttribute('src') === img.getAttribute('data-src') &&
-        containsClasses(img, 'loaded');
+    if (edgePadding) {
+      first -= 1;
+      last += 1;  
     }
-  }
-  updateTest(test, assertion);
-  assignDone();
+
+    addTitle(id);
+
+    runTest('Slide: init', function() {
+      var imgFirst = slideItems[first].querySelector('img'),
+          imgLast = slideItems[last].querySelector('img'),
+          imgPrev = slideItems[first - 1].querySelector('img'),
+          imgNext = slideItems[last + 1].querySelector('img');
+
+      return imgFirst.getAttribute('src') === imgFirst.getAttribute('data-src') &&
+        imgLast.getAttribute('src') === imgLast.getAttribute('data-src') &&
+        imgPrev.getAttribute('src') !== imgPrev.getAttribute('data-src') && 
+        imgNext.getAttribute('src') !== imgNext.getAttribute('data-src');
+    });
+
+    var test = addTest('Controls: click'),
+        assertion;
+
+    info.nextButton.click();
+    for (var i = last + 1; i < last + 1 + slideBy; i++) {
+      if (assertion === undefined || assertion !== false) {
+        var img = slideItems[i].querySelector('img');
+        assertion = img.getAttribute('src') === img.getAttribute('data-src');
+      }
+    }
+    updateTest(test, assertion);
+    assignDone();
+  });
 }
 
 
