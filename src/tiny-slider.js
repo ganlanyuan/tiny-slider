@@ -1005,29 +1005,28 @@ export var tns = function(options) {
 
     // == controlsInit ==
     if (hasControls) {
-      if (controlsContainer || (prevButton && nextButton)) {
-        if (controlsContainer) {
-          setAttrs(controlsContainer, {
-            'aria-label': 'Carousel Navigation',
-            'tabindex': '0'
-          });
-          setAttrs(controlsContainer.children, {
-            'aria-controls': slideId,
-            'tabindex': '-1',
-          });
-        }
-        
-        setAttrs(prevButton, {'data-controls' : 'prev'});
-        setAttrs(nextButton, {'data-controls' : 'next'});
-      } else {
+      if (!controlsContainer || !prevButton || !nextButton) {
         outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
-      }
-
-      if (!prevButton || !nextButton) {
         prevButton = controlsContainer.children[0];
         nextButton = controlsContainer.children[1];
+      }
+
+      if (options.controlsContainer) {
+        setAttrs(controlsContainer, {
+          'aria-label': 'Carousel Navigation',
+          'tabindex': '0'
+        });
+        setAttrs(controlsContainer.children, {
+          'aria-controls': slideId,
+          'tabindex': '-1',
+        });
+      }
+      
+      if (options.controlsContainer || (options.prevButton && options.nextButton)) {
+        setAttrs(prevButton, {'data-controls' : 'prev'});
+        setAttrs(nextButton, {'data-controls' : 'next'});
       }
 
       prevIsButton = isButton(prevButton);

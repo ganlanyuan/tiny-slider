@@ -1,4 +1,4 @@
-// import { tns } from '../../src/tiny-slider';
+// import { tns } from '../../src/tiny-slider.js';
 
 for (var i in options) {
   var item = options[i];
