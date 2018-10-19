@@ -516,7 +516,7 @@ var testCustomize = function () {
                           var arr = i === absIndex ? ['0', 'true'] : ['-1', 'false'],
                               nav = navItems[i];
                           if (assertion) {
-                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute(tabindex) === arr[0] && nav.getAttribute('aria-selected') === arr[1];
+                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute('aria-label') === 'Carousel Page ' + (i + 1) && nav.getAttribute(tabindex) === arr[0] && nav.getAttribute('aria-selected') === arr[1];
                           }
                         }
                         return assertion;
