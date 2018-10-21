@@ -201,7 +201,7 @@ var testBase = function () {
           case 59:
 
             updateTest(testGoto, assertion);
-            assignDone();
+            assignDone(id);
 
           case 61:
           case 'end':
@@ -277,7 +277,7 @@ var testNonLoop = function () {
             }
 
             updateTest(test, assertion);
-            assignDone();
+            assignDone(id);
 
           case 21:
           case 'end':
@@ -342,7 +342,7 @@ var testAutoplay = function () {
             return testAutoplayFn(id, test2, timeout, true);
 
           case 16:
-            assignDone();
+            assignDone(id);
 
           case 17:
           case 'end':
@@ -402,7 +402,7 @@ var testAnimation1 = function () {
 
           case 11:
             updateTest(test, checkAnimationClasses());
-            assignDone();
+            assignDone(id);
 
           case 13:
           case 'end':
@@ -449,7 +449,7 @@ var testAnimation2 = function () {
             assertion = index % slideCount === count * items % slideCount && compare2Nums(slideItems[index].getBoundingClientRect().left, rect.left) && compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
 
             updateTest(test, assertion);
-            assignDone();
+            assignDone(id);
 
           case 11:
           case 'end':
@@ -554,7 +554,7 @@ var testCustomize = function () {
                       return testAutoplayFn(id, autoplayPauseT, timeout, true);
 
                     case 18:
-                      assignDone();
+                      assignDone(id);
 
                     case 19:
                     case 'end':
@@ -680,7 +680,7 @@ var checkControlsClick = function () {
 
             updateTest(test, assertion);
             if (islast) {
-              assignDone();
+              assignDone(id);
             }
 
           case 13:
@@ -779,7 +779,7 @@ function testRewind() {
   }
 
   updateTest(test, assertion);
-  assignDone();
+  assignDone(id);
 }
 
 function testFixedWidth() {
@@ -816,7 +816,7 @@ function testFixedWidthGutter() {
     var slideItems = info.slideItems;
     return compare2Nums(slideItems[0].clientWidth, fw + gutter);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testFixedWidthEdgePadding() {
@@ -830,7 +830,7 @@ function testFixedWidthEdgePadding() {
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testFixedWidthEdgePaddingGutter() {
@@ -844,7 +844,7 @@ function testFixedWidthEdgePaddingGutter() {
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) && compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testVertical() {
@@ -938,7 +938,7 @@ function testVerticalGutter() {
       }
     }, _callee5, this);
   })));
-  assignDone();
+  assignDone(id);
 }
 
 function testVerticalEdgePadding() {
@@ -965,7 +965,7 @@ function testVerticalEdgePadding() {
       }
     }, _callee6, this);
   })));
-  assignDone();
+  assignDone(id);
 }
 
 function testVerticalEdgePaddingGutter() {
@@ -992,7 +992,7 @@ function testVerticalEdgePaddingGutter() {
       }
     }, _callee7, this);
   })));
-  assignDone();
+  assignDone(id);
 }
 
 function testResponsive1() {
@@ -1068,7 +1068,7 @@ function testResponsive1() {
               _context8.prev = 36;
 
               body.removeChild(newWindow);
-              assignDone();
+              assignDone(id);
               return _context8.finish(36);
 
             case 40:
@@ -1194,7 +1194,7 @@ function testResponsive2() {
               _context9.prev = 32;
 
               body.removeChild(newWindow);
-              assignDone();
+              assignDone(id);
               return _context9.finish(32);
 
             case 36:
@@ -1301,7 +1301,7 @@ function testResponsive3() {
               _context10.prev = 25;
 
               body.removeChild(newWindow);
-              assignDone();
+              assignDone(id);
               return _context10.finish(25);
 
             case 29:
@@ -1433,7 +1433,7 @@ function testResponsive4() {
       testArrowKeysT.className = 'item-notsure';
       body.removeChild(newWindow);
     }
-    assignDone();
+    assignDone(id);
   }
 }
 
@@ -1494,7 +1494,7 @@ function testResponsive5() {
               _context11.prev = 20;
 
               body.removeChild(newWindow);
-              assignDone();
+              assignDone(id);
               return _context11.finish(20);
 
             case 24:
@@ -1621,7 +1621,7 @@ function testResponsive6() {
               _context12.prev = 28;
 
               body.removeChild(newWindow);
-              assignDone();
+              assignDone(id);
               return _context12.finish(28);
 
             case 32:
@@ -1675,7 +1675,7 @@ function testMouseDrag() {
   addTitle(id);
   var test = addTest('Mouse drag');
   updateTest(test, '-notsure');
-  assignDone();
+  assignDone(id);
 }
 
 function testGutter() {
@@ -1693,7 +1693,7 @@ function testGutter() {
     // because the gap is made by padding
     return compare2Nums(firstRect.right, secondRect.left);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testEdgePadding() {
@@ -1705,7 +1705,7 @@ function testEdgePadding() {
   runTest('Slide: position', function () {
     return checkPositionEdgePadding(id, 0);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testEdgePaddingGutter() {
@@ -1717,7 +1717,7 @@ function testEdgePaddingGutter() {
   runTest('Slide: position', function () {
     return checkPositionEdgePadding(id);
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testFewitems() {
@@ -1729,7 +1729,7 @@ function testFewitems() {
   runTest('Slide: count, controls: hidden, nav: hidden', function () {
     return info.container.parentNode.style.margin === '0px' && info.controlsContainer.style.display === 'none' && info.navContainer.style.display === 'none';
   });
-  assignDone();
+  assignDone(id);
 }
 
 function testSlideByPage() {
@@ -1785,7 +1785,7 @@ function testArrowKeys() {
   } else {
     updateTest(test, '-notsure');
   }
-  assignDone();
+  assignDone(id);
 }
 
 function testLazyload() {
@@ -1829,7 +1829,7 @@ function testLazyload() {
               }
             }
             updateTest(test, assertion);
-            assignDone();
+            assignDone(id);
 
           case 9:
           case 'end':
@@ -1901,7 +1901,7 @@ function testAutoHeight() {
             }
 
             updateTest(testHeight2, assertion, comment);
-            assignDone();
+            assignDone(id);
 
           case 20:
           case 'end':
@@ -1951,7 +1951,7 @@ function testNested() {
   _nextButton.click();
   _assertion = _slider.getInfo().index === _index + _slideBy && slider.getInfo().index === index;
   updateTest(_test, _assertion);
-  assignDone();
+  assignDone(id);
 }
 
 function wait(ms) {
@@ -1996,8 +1996,16 @@ function updateTest(test, assertion, str) {
   }
 }
 
-function assignDone() {
-  resultsDiv.className += ' tests-done';
+function assignDone(id) {
+  var div = doc.querySelector('#' + id + '_wrapper');
+  if (div) {
+    div.style.display = 'none';
+  }
+
+  var str = 'test-done';
+  if (resultsDiv.className.indexOf(str) < 0) {
+    resultsDiv.className += ' ' + str;
+  }
 }
 
 function addComment(test, str) {

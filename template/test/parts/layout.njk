@@ -1,4 +1,4 @@
-{% if not page in ['responsive1', 'responsive2', 'responsive3', 'responsive4', 'responsive5', 'responsive6'] %}
+{% if not static %}
   {% set type = 'test' %}
 {% endif %}
 
@@ -23,7 +23,7 @@
   <!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
   <script src="../dist/tiny-slider.js"></script>
 </head>
-<body {{ 'class="frame"' | safe if isFrame }}>
+<body {{ 'data-responsive=' + responsive | safe if responsive }}>
 {% set sliders = [page] %}
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 

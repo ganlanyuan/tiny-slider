@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie10 lt-ie9" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js lt-ie10" lang="en"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html class="no-js" lang="en">
+  <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      Tiny slider
+    </title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel="stylesheet" href="../dist/tiny-slider.css">
+    <link rel="stylesheet" href="css/test.css"><!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
+
+    <script src="../dist/tiny-slider.js"></script>
+  </head>
+  <body data-responsive="6">
+    <div class="test-results"></div>
+    <script>
+    var mobile = false,
+      prefix = "",
+      isTestPage = true,
+      isDemoPage = false,
+      classIn = 'tns-fadeIn',
+      classOut = 'tns-fadeOut',
+      speed = 0,
+      doc = document,
+      win = window,
+      ww = win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth,
+      fw = getFW(ww),
+      initFns = {},
+      sliders = new Object(),
+      edgepadding = 50,
+      gutter = 10;
+
+    function getFW (width) {
+    var sm = 400, md = 900, lg = 1400;
+    return width < sm ? 150 : width >= sm && width < md ? 200 : width >= md && width < lg ? 300 : 400;
+    }
+    window.addEventListener('resize', function() { fw = getFW(ww); });
+    </script> 
+    <script src="js/options.js"></script> <!--[if (IE 8)&!(IEMobile)]>
+<script>
+  if (Object.defineProperty 
+    && Object.getOwnPropertyDescriptor 
+    && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") 
+    && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function() {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+      Object.defineProperty(Element.prototype, "textContent",
+       {
+         get: function() {
+           return innerText.get.call(this);
+         },
+         set: function(s) {
+           return innerText.set.call(this, s);
+         }
+       }
+     );
+    })();
+  }
+</script>
+<![endif]-->
+     
+    <script src="js/es6-promise.auto.min.js"></script> 
+    <script src="js/helpers.js"></script> 
+    <script src="js/babel-polyfill/dist/polyfill.min.js"></script> 
+    <script src="js/tests-async-es5.js"></script> 
+    <script src="js/run.js"></script>
+  </body>
+</html>

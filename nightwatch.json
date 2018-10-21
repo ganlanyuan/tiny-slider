@@ -5,6 +5,8 @@
   "custom_assertions_path" : "",
   "page_objects_path" : "",
   "globals_path" : "globals.js",
+  "end_session_on_fail": false,
+  "skip_testcases_on_fail" : false,
 
   "selenium" : {
     "start_process" : false,
@@ -24,6 +26,8 @@
       "selenium_port"  : 80,
       "selenium_host"  : "hub.crossbrowsertesting.com",
       "silent": true,
+      "end_session_on_fail": false,
+      "skip_testcases_on_fail" : false,
       "request_timeout_options": {
         "timeout": 300000,
         "retry_attempts": 2
@@ -35,7 +39,7 @@
       "username": "${CBT_USERNAME}",
       "access_key": "${CBT_ACCESS_KEY}",
       "globals": {
-        "urlcode": "aecb2e78"
+        "urlcode": "920384a9"
       },
       "desiredCapabilities": {
         "acceptSslCerts": "1",
@@ -51,16 +55,12 @@
       }
     },
     "ie": {
+      "end_session_on_fail": false,
+      "skip_testcases_on_fail" : false,
       "globals": {
         "browser_name": "ie"
       },
       "desiredCapabilities": {
-        "acceptSslCerts": "1",
-        "build": "1.0",
-        "javascriptEnabled": "1",
-        "name": "NightwatchJSExample",
-        "record_network" : "false",
-        "record_video" : "true",
         "browserName": "Internet Explorer",
         "version": "9",
         "platform": "Windows 7 64-Bit",
@@ -68,16 +68,12 @@
       }
     },
     "firefox": {
+      "end_session_on_fail": false,
+      "skip_testcases_on_fail" : false,
       "globals": {
         "browser_name": "firefox"
       },
       "desiredCapabilities": {
-        "acceptSslCerts": "1",
-        "build": "1.0",
-        "javascriptEnabled": "1",
-        "name": "NightwatchJSExample",
-        "record_network" : "false",
-        "record_video" : "true",
         "browserName": "Firefox",
         "version": "9",
         "platform": "Windows 7 64-Bit",
@@ -85,16 +81,12 @@
       }
     },
     "chrome": {
+      "end_session_on_fail": false,
+      "skip_testcases_on_fail" : false,
       "globals": {
         "browser_name": "chrome"
       },
       "desiredCapabilities": {
-        "acceptSslCerts": "1",
-        "build": "1.0",
-        "javascriptEnabled": "1",
-        "name": "NightwatchJSExample",
-        "record_network" : "false",
-        "record_video" : "true",
         "browserName": "Chrome",
         "version": "18",
         "platform": "Windows 8",
@@ -102,16 +94,12 @@
       }
     },
     "safari": {
+      "end_session_on_fail": false,
+      "skip_testcases_on_fail" : false,
       "globals": {
         "browser_name": "safari"
       },
       "desiredCapabilities": {
-        "acceptSslCerts": "1",
-        "build": "1.0",
-        "javascriptEnabled": "1",
-        "name": "NightwatchJSExample",
-        "record_network" : "false",
-        "record_video" : "true",
         "browserName": "Safari",
         "version": "6.2",
         "platform": "Mac OSX 10.8",
