@@ -1,4 +1,6 @@
-{% set type = 'test' %}
+{% if not page in ['responsive1', 'responsive2', 'responsive3', 'responsive4', 'responsive5', 'responsive6'] %}
+  {% set type = 'test' %}
+{% endif %}
 
 <!doctype html>
 <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie10 lt-ie9" lang="en"><![endif]-->
