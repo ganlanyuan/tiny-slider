@@ -2394,6 +2394,8 @@ export var tns = function(options) {
 
   function onPanStart (e) {
     if (running) { onTransitionEnd(); }
+
+    if (autoplay && animating) { stopAutoplay(); }
     
     panStart = true;
     if (carousel) {
@@ -2523,6 +2525,7 @@ export var tns = function(options) {
     }
 
     if (swipeAngle) { moveDirectionExpected = '?'; } // reset
+    if (autoplay && !animating) { startAutoplay(); }
   }
 
   // === RESIZE FUNCTIONS === //
