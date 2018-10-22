@@ -432,9 +432,10 @@ function Events() {
       }
     },
     emit: function (eventName, data) {
+      data.type = eventName;
       if (this.topics[eventName]) {
         this.topics[eventName].forEach(function(fn) {
-          fn(data);
+          fn(data, eventName);
         });
       }
     }
@@ -1296,7 +1297,6 @@ var tns = function(options) {
 
     // ## MEDIAQUERIES
     if (responsive && CSSMQ) {
-      console.table(responsive);
       for (var bp in responsive) {
         // bp: convert string to number
         bp = parseInt(bp);
@@ -1347,7 +1347,6 @@ var tns = function(options) {
         str = innerWrapperStr + containerStr + slideStr;
 
         if (str) {
-          console.log(str);
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
         }
       }

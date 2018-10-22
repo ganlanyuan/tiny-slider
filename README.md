@@ -455,7 +455,7 @@ slider = slider.rebuild();
 ## Custom Events
 Available events include: `indexChanged`, `transitionStart`, `transitionEnd`, `newBreakpointStart`, `newBreakpointEnd`, `touchStart`, `touchMove`, `touchEnd`, `dragStart`, `dragMove` and `dragEnd`.
 ```javascript
-var customizedFunction = function (info) {
+var customizedFunction = function (info, eventName) {
   // direct access to info object
   console.log(info.event.type, info.container.id);
 }

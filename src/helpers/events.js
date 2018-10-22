@@ -16,9 +16,10 @@ export function Events() {
       }
     },
     emit: function (eventName, data) {
+      data.type = eventName;
       if (this.topics[eventName]) {
         this.topics[eventName].forEach(function(fn) {
-          fn(data);
+          fn(data, eventName);
         });
       }
     }
