@@ -13,3 +13,4 @@ auth.js
 /.codekit-cache/
 /bower_components/
 /node_modules/
+/test/reports/

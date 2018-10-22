@@ -249,7 +249,7 @@ async function testBase () {
   await repeat(checkGoto, 3);
 
   updateTest(testGoto, assertion);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -339,7 +339,7 @@ async function testNonLoop () {
   }
 
   updateTest(test, assertion);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -397,7 +397,7 @@ function testRewind () {
   }
 
   updateTest(test, assertion);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -480,7 +480,7 @@ function testFixedWidthGutter () {
     var slideItems = info.slideItems;
     return compare2Nums(slideItems[0].clientWidth, fw + gutter);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -519,7 +519,7 @@ function testFixedWidthEdgePadding () {
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
       compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -553,7 +553,7 @@ function testFixedWidthEdgePaddingGutter () {
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
       compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -651,7 +651,7 @@ function testVerticalGutter () {
       compare2Nums(firstRect.bottom, secondRect.top - gutter) &&
       compare2Nums(lastRect.bottom, innerWrapperRect.bottom - gutter);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -683,7 +683,7 @@ function testVerticalEdgePadding () {
     await wait(500);
     return checkPositionEdgePadding(id, true);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -715,7 +715,7 @@ function testVerticalEdgePaddingGutter () {
     await wait(500);
     return checkPositionEdgePadding(id, true);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -845,7 +845,7 @@ function testResponsive1 () {
       testEdgePadding.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
-      assignDone();
+      assignDone(id);
     }
   }
 }
@@ -957,7 +957,7 @@ function testResponsive2 () {
       testAutoplayT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
-      assignDone();
+      assignDone(id);
     }
   }
 }
@@ -1055,7 +1055,7 @@ function testResponsive3() {
       testAutoplayT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
-      assignDone();
+      assignDone(id);
     }
   }
 }
@@ -1164,7 +1164,7 @@ function testResponsive4 () {
       testArrowKeysT.className = 'item-notsure';
       body.removeChild(newWindow);
     }
-    assignDone();
+    assignDone(id);
   }
 }
 
@@ -1261,7 +1261,7 @@ function testResponsive5 () {
       testAutoHeightT.className = 'item-notsure';
     } finally {
       body.removeChild(newWindow);
-      assignDone();
+      assignDone(id);
     }
   }
 }
@@ -1391,7 +1391,7 @@ function testResponsive6 () {
       updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
     } finally {
       body.removeChild(newWindow);
-      assignDone();
+      assignDone(id);
     }
   }
 }
@@ -1424,7 +1424,7 @@ function testMouseDrag () {
   addTitle(id);
   var test = addTest('Mouse drag');
   updateTest(test, '-notsure');
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1461,7 +1461,7 @@ function testGutter () {
     // because the gap is made by padding
     return compare2Nums(firstRect.right, secondRect.left);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1492,7 +1492,7 @@ function testEdgePadding () {
   runTest('Slide: position', function() {
     return checkPositionEdgePadding(id, 0);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1523,7 +1523,7 @@ function testEdgePaddingGutter () {
   runTest('Slide: position', function() {
     return checkPositionEdgePadding(id);
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1556,7 +1556,7 @@ function testFewitems () {
       info.controlsContainer.style.display === 'none' &&
       info.navContainer.style.display === 'none';
   });
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1650,7 +1650,7 @@ function testArrowKeys () {
   } else {
     updateTest(test, '-notsure');
   }
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1716,7 +1716,7 @@ async function testAutoplay () {
   // test autoplay pause
   autoplayButton.click();
   await testAutoplayFn(id, test2, timeout, true);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1780,7 +1780,7 @@ async function testAnimation1 () {
   info.nextButton.click();
   await wait(speed + 500);
   updateTest(test, checkAnimationClasses());
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1833,7 +1833,7 @@ async function testAnimation2 () {
     compare2Nums(slideItems[index + items - 1].getBoundingClientRect().right, rect.right);
 
   updateTest(test, assertion);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -1899,7 +1899,7 @@ function testLazyload () {
       }
     }
     updateTest(test, assertion);
-    assignDone();
+    assignDone(id);
   });
 }
 
@@ -1992,7 +1992,7 @@ async function testCustomize () {
       autoplayButton.click();
       await testAutoplayFn(id, autoplayPauseT, timeout, true);
     }
-    assignDone();
+    assignDone(id);
   });
 }
 
@@ -2071,7 +2071,7 @@ function testAutoHeight () {
     }
 
     updateTest(testHeight2, assertion, comment);
-    assignDone();
+    assignDone(id);
   });
 }
 
@@ -2135,7 +2135,7 @@ function testNested () {
   _assertion = _slider.getInfo().index === _index + _slideBy &&
     slider.getInfo().index === index;    
   updateTest(_test, _assertion);
-  assignDone();
+  assignDone(id);
 }
 
 
@@ -2195,8 +2195,16 @@ function updateTest (test, assertion, str) {
   }
 }
 
-function assignDone () {
-  resultsDiv.className += ' tests-done';
+function assignDone (id) {
+  var div = doc.querySelector('#' + id + '_wrapper');
+  if (div) {
+    div.style.display = 'none';
+  }
+
+  var str = 'test-done';
+  if (resultsDiv.className.indexOf(str) < 0) {
+    resultsDiv.className += ' ' + str;
+  }
 }
 
 function addComment (test, str) {
@@ -2354,7 +2362,7 @@ async function checkControlsClick (test, id, count, vertical, islast) {
   }
 
   updateTest(test, assertion);
-  if (islast) { assignDone(); }
+  if (islast) { assignDone(id); }
 }
 
 function checkPositionEdgePadding (id, vertical) {

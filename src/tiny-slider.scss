@@ -33,6 +33,12 @@
     }
     > .tns-item {
       float: left;
+    }
+  }
+}
+.tns-carousel {
+  &.tns-no-subpixel {
+    > .tns-item {
       margin-right: -100%;
     }
   }
@@ -55,8 +61,6 @@
   }
   > .tns-slide-active {
     position: relative;
-  }
-  &.tns-subpixel > .tns-slide-active {
     left: auto !important;
   }
   > .tns-moving {

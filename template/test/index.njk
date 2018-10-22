@@ -1,3 +1,121 @@
-{% set page = 'test' %}
-{# {% set isFrame = true %} #}
-{% extends './parts/layout.njk' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screenshots</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+    }
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      list-style: none;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    .screenshot {
+      max-height: 400px;
+      overflow: hidden;
+    }
+    h2 {
+      text-transform: capitalize;
+    }
+    .tip {
+      font-size: 14px;
+      color: #666;
+      padding: 10px;
+      background: #f7f7f7;
+    }
+    [class^="browser"] { display: none; }
+    [data-current="0"] .browser0,
+    [data-current="1"] .browser1,
+    [data-current="2"] .browser2,
+    [data-current="3"] .browser3 { display: block; }
+  </style>
+</head>
+<body data-current="0">
+  <div class="tip">Press ←/→ key to switch between browsers</div>
+  {% for browser in [
+    'chrome',
+    'firefox',
+    'ie',
+    'safari'
+  ] %}
+  <div class="browser{{ loop.index0 }}">
+    <h2>{{ browser }}</h2>
+    <ul>
+    {% for test in [
+      'animation1',
+      'animation2',
+      'arrowKeys',
+      'autoHeight',
+      'autoplay',
+      'base',
+      'customize',
+      'edgePadding-gutter',
+      'edgePadding',
+      'few-items',
+      'fixedWidth-edgePadding-gutter',
+      'fixedWidth-edgePadding',
+      'fixedWidth-gutter',
+      'fixedWidth',
+      'frame1',
+      'frame2',
+      'frame3',
+      'frame5',
+      'frame6',
+      'gutter',
+      'lazyload',
+      'mouse-drag',
+      'nested',
+      'non-loop',
+      'rewind',
+      'slide-by-page',
+      'vertical-edgePadding-gutter',
+      'vertical-edgePadding',
+      'vertical-gutter',
+      'vertical'
+      ] %}
+      <li class="screenshot"><a href="{{ test }}.html" target="_blank"><img src="screenshot/new/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
+    {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+
+  <script>
+    var current = 0,
+        min = 0,
+        max = 3,
+        attr = 'data-current',
+        body = document.body;
+
+    document.addEventListener('keydown', function(e) {
+      switch(e.keyCode) {
+        case 37:
+          update(-1);
+          break;
+        case 39:
+          update(1);
+      }
+    });
+
+    function update (num) {
+      current += num;
+      if (current > max) {
+        current = min;
+      } else if (current < min) {
+        current = max;
+      }
+
+      body.setAttribute(attr, current);
+    }
+  </script>
+</body>
+</html>

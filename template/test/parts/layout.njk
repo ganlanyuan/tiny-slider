@@ -1,4 +1,6 @@
-{% set type = 'test' %}
+{% if not static %}
+  {% set type = 'test' %}
+{% endif %}
 
 <!doctype html>
 <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie10 lt-ie9" lang="en"><![endif]-->
@@ -21,7 +23,7 @@
   <!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
   <script src="../dist/tiny-slider.js"></script>
 </head>
-<body {{ 'class="frame"' | safe if isFrame }}>
+<body {{ 'data-responsive=' + responsive | safe if responsive }}>
 {% set sliders = [page] %}
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
@@ -258,5 +260,6 @@
 {% endif %}
 
 <script src="js/run.js"></script>
+{# <script type="module" src="js/run.js"></script> #}
 </body>
 </html>

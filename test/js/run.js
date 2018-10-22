@@ -1,4 +1,4 @@
-// import { tns } from '../../src/tiny-slider';
+// import { tns } from '../../src/tiny-slider.js';
 
 for (var i in options) {
   var item = options[i];
@@ -6,6 +6,7 @@ for (var i in options) {
   item.swipeAngle = false;
   if (!item.speed) { item.speed = speed; }
   
+  var data_responsive = doc.body.getAttribute('data-responsive');
   if (doc.querySelector(item.container)) {
     sliders[i] = tns(options[i]);
 
@@ -13,9 +14,10 @@ for (var i in options) {
     if (initFns[i]) { initFns[i](); }
 
   // test responsive pages
-  } else if (doc.body.className.indexOf('frame') >= 0) {
-    if (i.indexOf('responsive') >= 0) {
-      if (initFns[i]) { initFns[i](); }
+  } else if (data_responsive) {
+    var str = 'responsive' + data_responsive;
+    if (i === str && initFns[i]) {
+      initFns[i]();
     }
   }
 }
