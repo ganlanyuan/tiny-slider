@@ -1965,6 +1965,7 @@ async function testCustomize () {
           assertion = 
             nav.getAttribute('data-nav') === i.toString() &&
             nav.getAttribute('aria-controls') === id + '-item' + i &&
+            nav.getAttribute('aria-label') === 'Carousel Page '+ (i + 1) &&
             nav.getAttribute(tabindex) === arr[0] &&
             nav.getAttribute('aria-selected') === arr[1];
         }
