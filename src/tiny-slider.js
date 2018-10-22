@@ -550,10 +550,10 @@ export var tns = function(options) {
       i * 100 / slideCountNew + '%';
   }
 
-  function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem) {
+  function getInnerWrapperStyles (edgePaddingTem, gutterTem, fixedWidthTem, speedTem, autoHeightBP) {
     var str = '';
 
-    if (edgePaddingTem) {
+    if (edgePaddingTem !== undefined) {
       var gap = edgePaddingTem;
       if (gutterTem) { gap -= gutterTem; }
       str = horizontal ?
@@ -565,8 +565,7 @@ export var tns = function(options) {
       str = 'margin: 0 ' + dir + ';'
     }
 
-    if (TRANSITIONDURATION && speedTem) { str += getTrsnsitionDurationStyle(speedTem); }
-    
+    if (autoHeightBP && TRANSITIONDURATION && speedTem) { str += getTrsnsitionDurationStyle(speedTem); }
     return str;
   }
 
@@ -824,7 +823,7 @@ export var tns = function(options) {
     // ## BASIC STYLES
     if (CSSMQ) {
       // inner wrapper styles
-      var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed);
+      var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed, options.autoHeight);
       addCSSRule(sheet, '#' + slideId + '-iw', str, getCssRulesLength(sheet));
 
       // container styles
@@ -850,7 +849,7 @@ export var tns = function(options) {
     // insert stylesheet (one line) for slides only (since slides are many)
     } else {
       // inner wrapper styles
-      innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+      innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth, autoHeight);
 
       // container styles
       if (carousel && horizontal && !autoWidth) {
@@ -867,6 +866,7 @@ export var tns = function(options) {
 
     // ## MEDIAQUERIES
     if (responsive && CSSMQ) {
+      console.table(responsive);
       for (var bp in responsive) {
         // bp: convert string to number
         bp = parseInt(bp);
@@ -880,11 +880,12 @@ export var tns = function(options) {
             fixedWidthBP = getOption('fixedWidth', bp),
             speedBP = getOption('speed', bp),
             edgePaddingBP = getOption('edgePadding', bp),
+            autoHeightBP = getOption('autoHeight', bp),
             gutterBP = getOption('gutter', bp);
 
         // inner wrapper string
         if ('edgePadding' in opts || 'gutter' in opts) {
-          innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(edgePaddingBP, gutterBP, fixedWidthBP, speedBP) + '}';
+          innerWrapperStr = '#' + slideId + '-iw{' + getInnerWrapperStyles(edgePaddingBP, gutterBP, fixedWidthBP, speedBP, autoHeightBP) + '}';
         }
 
         // container string
@@ -916,6 +917,7 @@ export var tns = function(options) {
         str = innerWrapperStr + containerStr + slideStr;
 
         if (str) {
+          console.log(str);
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
         }
       }
@@ -1371,7 +1373,7 @@ export var tns = function(options) {
       if (bpChanged && !CSSMQ) {
         // inner wrapper styles
         if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
-          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth);
+          innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth, speed, autoHeight);
         }
 
         if (horizontal) {
