@@ -2063,10 +2063,6 @@ var tns = function(options) {
           addEvents(img, eve);
 
           if (!hasClass(img, 'loading') && !hasClass(img, 'loaded')) {
-            // update srcset
-            var srcset = getAttr(img, 'data-srcset');
-            if (srcset) { img.srcset = srcset; }
-
             img.onload = function() {
               addClass(img, 'loaded');
               removeClass(img, 'loading');
@@ -2077,9 +2073,18 @@ var tns = function(options) {
               removeClass(img, 'loading');
             };
 
+            // update srcset
+            var srcset = getAttr(img, 'data-srcset');
+            if (srcset) { img.srcset = srcset; }
+
             // update src
             img.src = getAttr(img, 'data-src');
+
             addClass(img, 'loading');
+
+            if (img.complete) {
+              img.onload();
+            }
           }
         });
       }
