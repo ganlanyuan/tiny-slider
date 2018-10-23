@@ -382,6 +382,7 @@ To get the slider information, you can either use the `getInfo()` method or subs
             slideCountNew: slideCountNew, // total slide count after initialization
                     index: index, // current index
               indexCached: indexCached, // previous index
+             displayIndex: getCurrentSlide(), // display index starts from 1
                navCurrent: navCurrent, // current dot index
          navCurrentCached: navCurrentCached, // previous dot index
         visibleNavIndexes: visibleNavIndexes, // visible nav indexes

@@ -742,6 +742,7 @@ var tns = function(options) {
       })(),
       index = getStartIndex(getOption('startIndex')),
       indexCached = index,
+      displayIndex = getCurrentSlide(),
       indexMin = 0,
       indexMax = !autoWidth ? getIndexMax() : null,
       // resize
@@ -873,6 +874,12 @@ var tns = function(options) {
     if (condition) {
       controls = nav = touch = mouseDrag = arrowKeys = autoplay = autoplayHoverPause = autoplayResetOnVisibility = false;
     }
+  }
+
+  function getCurrentSlide () {
+    var tem = carousel ? index - cloneCount : index;
+    while (tem < 0) { tem += slideCount; }
+    return tem%slideCount + 1;
   }
 
   function getStartIndex (ind) {
@@ -3025,6 +3032,7 @@ var tns = function(options) {
       slideCountNew: slideCountNew,
       index: index,
       indexCached: indexCached,
+      displayIndex: getCurrentSlide(),
       navCurrentIndex: navCurrentIndex,
       navCurrentIndexCached: navCurrentIndexCached,
       visibleNavIndexes: visibleNavIndexes,
