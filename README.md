@@ -344,7 +344,9 @@ The following options can be redefined in `responsive` field:
   });
 </script>
 ```
-NOTE: `fixedWidth` can only be changed to other positive integers. It can't be changed to negtive integer, 0 or other data type.
+NOTE: 
++ The breakpoints behave like `(min-width: breakpoint)` in CSS, so an undefined option will be inherited from previous small breakpoints.
++ `fixedWidth` can only be changed to other positive integers. It can't be changed to negtive integer, 0 or other data type.
 *[top↑](#tiny-slider-20)*  
 
 ## Methods
