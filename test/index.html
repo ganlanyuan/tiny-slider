@@ -27,6 +27,12 @@
       overflow: hidden;
     }
     h2 {
+      /*margin: 0;*/
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      background: hsla(0, 0%, 100%, 0.85);
       text-transform: capitalize;
     }
     .tip {
@@ -35,413 +41,644 @@
       padding: 10px;
       background: #f7f7f7;
     }
+    .up {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      margin: 10px;
+      padding: 10px;
+      width: 50px;
+      height: 50px;
+      border: 0;
+      background: #000;
+      cursor: pointer;
+    }
+    .up:before,
+    .up:after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      right: 15px;
+      top: 20px;
+      width: 20px;
+      height: 20px;
+      transform: rotate(45deg);
+      background: #fff;
+    }
+    .up:after {
+      transform: translateY(2px) rotate(45deg);
+      background: #000;
+    }
     [class^="browser"] { display: none; }
     [data-current="0"] .browser0,
     [data-current="1"] .browser1,
     [data-current="2"] .browser2,
-    [data-current="3"] .browser3 { display: block; }
+    [data-current="3"] .browser3,
+    [data-current="4"] .browser4,
+    [data-current="5"] .browser5,
+    [data-current="6"] .browser6,
+    [data-current="7"] .browser7,
+    [data-current="8"] .browser8,
+    [data-current="9"] .browser9,
+    [data-current="10"] .browser10 { display: block; }
     </style>
   </head>
   <body data-current="0">
     <div class="tip">
       Press ←/→ key to switch between browsers
     </div>
-    <div class="browser0">
+    <div class="browser0 browser">
       <h2>
-        chrome
+        chrome 14
       </h2>
       <ul>
-        <li class="screenshot">
-          <a href="animation1.html" target="_blank"><img src="screenshot/new/chrome/animation1.png" alt="animation1"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/chrome/animation1.png" alt="animation1"></a>
         </li>
-        <li class="screenshot">
-          <a href="animation2.html" target="_blank"><img src="screenshot/new/chrome/animation2.png" alt="animation2"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/chrome/animation2.png" alt="animation2"></a>
         </li>
-        <li class="screenshot">
-          <a href="arrowKeys.html" target="_blank"><img src="screenshot/new/chrome/arrowKeys.png" alt="arrowKeys"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/chrome/arrowKeys.png" alt="arrowKeys"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoHeight.html" target="_blank"><img src="screenshot/new/chrome/autoHeight.png" alt="autoHeight"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/chrome/autoHeight.png" alt="autoHeight"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoplay.html" target="_blank"><img src="screenshot/new/chrome/autoplay.png" alt="autoplay"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/chrome/autoplay.png" alt="autoplay"></a>
         </li>
-        <li class="screenshot">
-          <a href="base.html" target="_blank"><img src="screenshot/new/chrome/base.png" alt="base"></a>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/chrome/base.png" alt="base"></a>
         </li>
-        <li class="screenshot">
-          <a href="customize.html" target="_blank"><img src="screenshot/new/chrome/customize.png" alt="customize"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/chrome/customize.png" alt="customize"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/new/chrome/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/chrome/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding.html" target="_blank"><img src="screenshot/new/chrome/edgePadding.png" alt="edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/chrome/edgePadding.png" alt="edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="few-items.html" target="_blank"><img src="screenshot/new/chrome/few-items.png" alt="few-items"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/chrome/few-items.png" alt="few-items"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/chrome/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/chrome/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/new/chrome/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/chrome/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/new/chrome/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/chrome/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth.html" target="_blank"><img src="screenshot/new/chrome/fixedWidth.png" alt="fixedWidth"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/chrome/fixedWidth.png" alt="fixedWidth"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame1.html" target="_blank"><img src="screenshot/new/chrome/frame1.png" alt="frame1"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/chrome/frame1.png" alt="frame1"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame2.html" target="_blank"><img src="screenshot/new/chrome/frame2.png" alt="frame2"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/chrome/frame2.png" alt="frame2"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame3.html" target="_blank"><img src="screenshot/new/chrome/frame3.png" alt="frame3"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/chrome/frame3.png" alt="frame3"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame5.html" target="_blank"><img src="screenshot/new/chrome/frame5.png" alt="frame5"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/chrome/frame5.png" alt="frame5"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame6.html" target="_blank"><img src="screenshot/new/chrome/frame6.png" alt="frame6"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/chrome/frame6.png" alt="frame6"></a>
         </li>
-        <li class="screenshot">
-          <a href="gutter.html" target="_blank"><img src="screenshot/new/chrome/gutter.png" alt="gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/chrome/gutter.png" alt="gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="lazyload.html" target="_blank"><img src="screenshot/new/chrome/lazyload.png" alt="lazyload"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/chrome/lazyload.png" alt="lazyload"></a>
         </li>
-        <li class="screenshot">
-          <a href="mouse-drag.html" target="_blank"><img src="screenshot/new/chrome/mouse-drag.png" alt="mouse-drag"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/chrome/mouse-drag.png" alt="mouse-drag"></a>
         </li>
-        <li class="screenshot">
-          <a href="nested.html" target="_blank"><img src="screenshot/new/chrome/nested.png" alt="nested"></a>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/chrome/nested.png" alt="nested"></a>
         </li>
-        <li class="screenshot">
-          <a href="non-loop.html" target="_blank"><img src="screenshot/new/chrome/non-loop.png" alt="non-loop"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/chrome/non-loop.png" alt="non-loop"></a>
         </li>
-        <li class="screenshot">
-          <a href="rewind.html" target="_blank"><img src="screenshot/new/chrome/rewind.png" alt="rewind"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/chrome/rewind.png" alt="rewind"></a>
         </li>
-        <li class="screenshot">
-          <a href="slide-by-page.html" target="_blank"><img src="screenshot/new/chrome/slide-by-page.png" alt="slide-by-page"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/chrome/slide-by-page.png" alt="slide-by-page"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/chrome/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/chrome/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/new/chrome/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/chrome/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/new/chrome/vertical-gutter.png" alt="vertical-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/chrome/vertical-gutter.png" alt="vertical-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical.html" target="_blank"><img src="screenshot/new/chrome/vertical.png" alt="vertical"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/chrome/vertical.png" alt="vertical"></a>
         </li>
       </ul>
     </div>
-    <div class="browser1">
+    <div class="browser1 browser">
       <h2>
-        firefox
+        firefox 12
       </h2>
       <ul>
-        <li class="screenshot">
-          <a href="animation1.html" target="_blank"><img src="screenshot/new/firefox/animation1.png" alt="animation1"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/firefox/animation1.png" alt="animation1"></a>
         </li>
-        <li class="screenshot">
-          <a href="animation2.html" target="_blank"><img src="screenshot/new/firefox/animation2.png" alt="animation2"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/firefox/animation2.png" alt="animation2"></a>
         </li>
-        <li class="screenshot">
-          <a href="arrowKeys.html" target="_blank"><img src="screenshot/new/firefox/arrowKeys.png" alt="arrowKeys"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/firefox/arrowKeys.png" alt="arrowKeys"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoHeight.html" target="_blank"><img src="screenshot/new/firefox/autoHeight.png" alt="autoHeight"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/firefox/autoHeight.png" alt="autoHeight"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoplay.html" target="_blank"><img src="screenshot/new/firefox/autoplay.png" alt="autoplay"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/firefox/autoplay.png" alt="autoplay"></a>
         </li>
-        <li class="screenshot">
-          <a href="base.html" target="_blank"><img src="screenshot/new/firefox/base.png" alt="base"></a>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/firefox/base.png" alt="base"></a>
         </li>
-        <li class="screenshot">
-          <a href="customize.html" target="_blank"><img src="screenshot/new/firefox/customize.png" alt="customize"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/firefox/customize.png" alt="customize"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/new/firefox/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/firefox/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding.html" target="_blank"><img src="screenshot/new/firefox/edgePadding.png" alt="edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/firefox/edgePadding.png" alt="edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="few-items.html" target="_blank"><img src="screenshot/new/firefox/few-items.png" alt="few-items"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/firefox/few-items.png" alt="few-items"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/firefox/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/firefox/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/new/firefox/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/firefox/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/new/firefox/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/firefox/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth.html" target="_blank"><img src="screenshot/new/firefox/fixedWidth.png" alt="fixedWidth"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/firefox/fixedWidth.png" alt="fixedWidth"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame1.html" target="_blank"><img src="screenshot/new/firefox/frame1.png" alt="frame1"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/firefox/frame1.png" alt="frame1"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame2.html" target="_blank"><img src="screenshot/new/firefox/frame2.png" alt="frame2"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/firefox/frame2.png" alt="frame2"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame3.html" target="_blank"><img src="screenshot/new/firefox/frame3.png" alt="frame3"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/firefox/frame3.png" alt="frame3"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame5.html" target="_blank"><img src="screenshot/new/firefox/frame5.png" alt="frame5"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/firefox/frame5.png" alt="frame5"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame6.html" target="_blank"><img src="screenshot/new/firefox/frame6.png" alt="frame6"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/firefox/frame6.png" alt="frame6"></a>
         </li>
-        <li class="screenshot">
-          <a href="gutter.html" target="_blank"><img src="screenshot/new/firefox/gutter.png" alt="gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/firefox/gutter.png" alt="gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="lazyload.html" target="_blank"><img src="screenshot/new/firefox/lazyload.png" alt="lazyload"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/firefox/lazyload.png" alt="lazyload"></a>
         </li>
-        <li class="screenshot">
-          <a href="mouse-drag.html" target="_blank"><img src="screenshot/new/firefox/mouse-drag.png" alt="mouse-drag"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/firefox/mouse-drag.png" alt="mouse-drag"></a>
         </li>
-        <li class="screenshot">
-          <a href="nested.html" target="_blank"><img src="screenshot/new/firefox/nested.png" alt="nested"></a>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/firefox/nested.png" alt="nested"></a>
         </li>
-        <li class="screenshot">
-          <a href="non-loop.html" target="_blank"><img src="screenshot/new/firefox/non-loop.png" alt="non-loop"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/firefox/non-loop.png" alt="non-loop"></a>
         </li>
-        <li class="screenshot">
-          <a href="rewind.html" target="_blank"><img src="screenshot/new/firefox/rewind.png" alt="rewind"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/firefox/rewind.png" alt="rewind"></a>
         </li>
-        <li class="screenshot">
-          <a href="slide-by-page.html" target="_blank"><img src="screenshot/new/firefox/slide-by-page.png" alt="slide-by-page"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/firefox/slide-by-page.png" alt="slide-by-page"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/firefox/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/firefox/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/new/firefox/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/firefox/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/new/firefox/vertical-gutter.png" alt="vertical-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/firefox/vertical-gutter.png" alt="vertical-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical.html" target="_blank"><img src="screenshot/new/firefox/vertical.png" alt="vertical"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/firefox/vertical.png" alt="vertical"></a>
         </li>
       </ul>
     </div>
-    <div class="browser2">
+    <div class="browser2 browser">
       <h2>
-        ie
+        ie 9
       </h2>
       <ul>
-        <li class="screenshot">
-          <a href="animation1.html" target="_blank"><img src="screenshot/new/ie/animation1.png" alt="animation1"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/ie/animation1.png" alt="animation1"></a>
         </li>
-        <li class="screenshot">
-          <a href="animation2.html" target="_blank"><img src="screenshot/new/ie/animation2.png" alt="animation2"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/ie/animation2.png" alt="animation2"></a>
         </li>
-        <li class="screenshot">
-          <a href="arrowKeys.html" target="_blank"><img src="screenshot/new/ie/arrowKeys.png" alt="arrowKeys"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/ie/arrowKeys.png" alt="arrowKeys"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoHeight.html" target="_blank"><img src="screenshot/new/ie/autoHeight.png" alt="autoHeight"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/ie/autoHeight.png" alt="autoHeight"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoplay.html" target="_blank"><img src="screenshot/new/ie/autoplay.png" alt="autoplay"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/ie/autoplay.png" alt="autoplay"></a>
         </li>
-        <li class="screenshot">
-          <a href="base.html" target="_blank"><img src="screenshot/new/ie/base.png" alt="base"></a>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/ie/base.png" alt="base"></a>
         </li>
-        <li class="screenshot">
-          <a href="customize.html" target="_blank"><img src="screenshot/new/ie/customize.png" alt="customize"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/ie/customize.png" alt="customize"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/new/ie/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/ie/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding.html" target="_blank"><img src="screenshot/new/ie/edgePadding.png" alt="edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/ie/edgePadding.png" alt="edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="few-items.html" target="_blank"><img src="screenshot/new/ie/few-items.png" alt="few-items"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/ie/few-items.png" alt="few-items"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/ie/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/ie/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/new/ie/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/ie/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/new/ie/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/ie/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth.html" target="_blank"><img src="screenshot/new/ie/fixedWidth.png" alt="fixedWidth"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/ie/fixedWidth.png" alt="fixedWidth"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame1.html" target="_blank"><img src="screenshot/new/ie/frame1.png" alt="frame1"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/ie/frame1.png" alt="frame1"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame2.html" target="_blank"><img src="screenshot/new/ie/frame2.png" alt="frame2"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/ie/frame2.png" alt="frame2"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame3.html" target="_blank"><img src="screenshot/new/ie/frame3.png" alt="frame3"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/ie/frame3.png" alt="frame3"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame5.html" target="_blank"><img src="screenshot/new/ie/frame5.png" alt="frame5"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/ie/frame5.png" alt="frame5"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame6.html" target="_blank"><img src="screenshot/new/ie/frame6.png" alt="frame6"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/ie/frame6.png" alt="frame6"></a>
         </li>
-        <li class="screenshot">
-          <a href="gutter.html" target="_blank"><img src="screenshot/new/ie/gutter.png" alt="gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/ie/gutter.png" alt="gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="lazyload.html" target="_blank"><img src="screenshot/new/ie/lazyload.png" alt="lazyload"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/ie/lazyload.png" alt="lazyload"></a>
         </li>
-        <li class="screenshot">
-          <a href="mouse-drag.html" target="_blank"><img src="screenshot/new/ie/mouse-drag.png" alt="mouse-drag"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/ie/mouse-drag.png" alt="mouse-drag"></a>
         </li>
-        <li class="screenshot">
-          <a href="nested.html" target="_blank"><img src="screenshot/new/ie/nested.png" alt="nested"></a>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/ie/nested.png" alt="nested"></a>
         </li>
-        <li class="screenshot">
-          <a href="non-loop.html" target="_blank"><img src="screenshot/new/ie/non-loop.png" alt="non-loop"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/ie/non-loop.png" alt="non-loop"></a>
         </li>
-        <li class="screenshot">
-          <a href="rewind.html" target="_blank"><img src="screenshot/new/ie/rewind.png" alt="rewind"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/ie/rewind.png" alt="rewind"></a>
         </li>
-        <li class="screenshot">
-          <a href="slide-by-page.html" target="_blank"><img src="screenshot/new/ie/slide-by-page.png" alt="slide-by-page"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/ie/slide-by-page.png" alt="slide-by-page"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/ie/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/ie/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/new/ie/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/ie/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/new/ie/vertical-gutter.png" alt="vertical-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/ie/vertical-gutter.png" alt="vertical-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical.html" target="_blank"><img src="screenshot/new/ie/vertical.png" alt="vertical"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/ie/vertical.png" alt="vertical"></a>
         </li>
       </ul>
     </div>
-    <div class="browser3">
+    <div class="browser3 browser">
       <h2>
-        safari
+        edge 15
       </h2>
       <ul>
-        <li class="screenshot">
-          <a href="animation1.html" target="_blank"><img src="screenshot/new/safari/animation1.png" alt="animation1"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/edge/animation1.png" alt="animation1"></a>
         </li>
-        <li class="screenshot">
-          <a href="animation2.html" target="_blank"><img src="screenshot/new/safari/animation2.png" alt="animation2"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/edge/animation2.png" alt="animation2"></a>
         </li>
-        <li class="screenshot">
-          <a href="arrowKeys.html" target="_blank"><img src="screenshot/new/safari/arrowKeys.png" alt="arrowKeys"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/edge/arrowKeys.png" alt="arrowKeys"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoHeight.html" target="_blank"><img src="screenshot/new/safari/autoHeight.png" alt="autoHeight"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/edge/autoHeight.png" alt="autoHeight"></a>
         </li>
-        <li class="screenshot">
-          <a href="autoplay.html" target="_blank"><img src="screenshot/new/safari/autoplay.png" alt="autoplay"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/edge/autoplay.png" alt="autoplay"></a>
         </li>
-        <li class="screenshot">
-          <a href="base.html" target="_blank"><img src="screenshot/new/safari/base.png" alt="base"></a>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/edge/base.png" alt="base"></a>
         </li>
-        <li class="screenshot">
-          <a href="customize.html" target="_blank"><img src="screenshot/new/safari/customize.png" alt="customize"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/edge/customize.png" alt="customize"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/new/safari/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/edge/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="edgePadding.html" target="_blank"><img src="screenshot/new/safari/edgePadding.png" alt="edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/edge/edgePadding.png" alt="edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="few-items.html" target="_blank"><img src="screenshot/new/safari/few-items.png" alt="few-items"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/edge/few-items.png" alt="few-items"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/safari/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/edge/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/new/safari/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/edge/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/new/safari/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/edge/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="fixedWidth.html" target="_blank"><img src="screenshot/new/safari/fixedWidth.png" alt="fixedWidth"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/edge/fixedWidth.png" alt="fixedWidth"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame1.html" target="_blank"><img src="screenshot/new/safari/frame1.png" alt="frame1"></a>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/edge/frame1.png" alt="frame1"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame2.html" target="_blank"><img src="screenshot/new/safari/frame2.png" alt="frame2"></a>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/edge/frame2.png" alt="frame2"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame3.html" target="_blank"><img src="screenshot/new/safari/frame3.png" alt="frame3"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/edge/frame3.png" alt="frame3"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame5.html" target="_blank"><img src="screenshot/new/safari/frame5.png" alt="frame5"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/edge/frame5.png" alt="frame5"></a>
         </li>
-        <li class="screenshot">
-          <a href="frame6.html" target="_blank"><img src="screenshot/new/safari/frame6.png" alt="frame6"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/edge/frame6.png" alt="frame6"></a>
         </li>
-        <li class="screenshot">
-          <a href="gutter.html" target="_blank"><img src="screenshot/new/safari/gutter.png" alt="gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/edge/gutter.png" alt="gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="lazyload.html" target="_blank"><img src="screenshot/new/safari/lazyload.png" alt="lazyload"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/edge/lazyload.png" alt="lazyload"></a>
         </li>
-        <li class="screenshot">
-          <a href="mouse-drag.html" target="_blank"><img src="screenshot/new/safari/mouse-drag.png" alt="mouse-drag"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/edge/mouse-drag.png" alt="mouse-drag"></a>
         </li>
-        <li class="screenshot">
-          <a href="nested.html" target="_blank"><img src="screenshot/new/safari/nested.png" alt="nested"></a>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/edge/nested.png" alt="nested"></a>
         </li>
-        <li class="screenshot">
-          <a href="non-loop.html" target="_blank"><img src="screenshot/new/safari/non-loop.png" alt="non-loop"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/edge/non-loop.png" alt="non-loop"></a>
         </li>
-        <li class="screenshot">
-          <a href="rewind.html" target="_blank"><img src="screenshot/new/safari/rewind.png" alt="rewind"></a>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/edge/rewind.png" alt="rewind"></a>
         </li>
-        <li class="screenshot">
-          <a href="slide-by-page.html" target="_blank"><img src="screenshot/new/safari/slide-by-page.png" alt="slide-by-page"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/edge/slide-by-page.png" alt="slide-by-page"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/new/safari/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/edge/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/new/safari/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/edge/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/new/safari/vertical-gutter.png" alt="vertical-gutter"></a>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/edge/vertical-gutter.png" alt="vertical-gutter"></a>
         </li>
-        <li class="screenshot">
-          <a href="vertical.html" target="_blank"><img src="screenshot/new/safari/vertical.png" alt="vertical"></a>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/edge/vertical.png" alt="vertical"></a>
         </li>
       </ul>
     </div>
+    <div class="browser4 browser">
+      <h2>
+        safari 5.1
+      </h2>
+      <ul>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/safari/animation1.png" alt="animation1"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/safari/animation2.png" alt="animation2"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/safari/arrowKeys.png" alt="arrowKeys"></a>
+        </li>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/safari/autoHeight.png" alt="autoHeight"></a>
+        </li>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/safari/autoplay.png" alt="autoplay"></a>
+        </li>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/safari/base.png" alt="base"></a>
+        </li>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/safari/customize.png" alt="customize"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/safari/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/safari/edgePadding.png" alt="edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/safari/few-items.png" alt="few-items"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/safari/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/safari/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/safari/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/safari/fixedWidth.png" alt="fixedWidth"></a>
+        </li>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/safari/frame1.png" alt="frame1"></a>
+        </li>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/safari/frame2.png" alt="frame2"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/safari/frame3.png" alt="frame3"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/safari/frame5.png" alt="frame5"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/safari/frame6.png" alt="frame6"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/safari/gutter.png" alt="gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/safari/lazyload.png" alt="lazyload"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/safari/mouse-drag.png" alt="mouse-drag"></a>
+        </li>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/safari/nested.png" alt="nested"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/safari/non-loop.png" alt="non-loop"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/safari/rewind.png" alt="rewind"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/safari/slide-by-page.png" alt="slide-by-page"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/safari/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/safari/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/safari/vertical-gutter.png" alt="vertical-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/safari/vertical.png" alt="vertical"></a>
+        </li>
+      </ul>
+    </div>
+    <div class="browser5 browser">
+      <h2>
+        opera 12.15
+      </h2>
+      <ul>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="animation1.html" target="_blank"><img src="screenshot/opera/animation1.png" alt="animation1"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="animation2.html" target="_blank"><img src="screenshot/opera/animation2.png" alt="animation2"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="arrowKeys.html" target="_blank"><img src="screenshot/opera/arrowKeys.png" alt="arrowKeys"></a>
+        </li>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="autoHeight.html" target="_blank"><img src="screenshot/opera/autoHeight.png" alt="autoHeight"></a>
+        </li>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="autoplay.html" target="_blank"><img src="screenshot/opera/autoplay.png" alt="autoplay"></a>
+        </li>
+        <li class="screenshot" style="height: 27.200000000000003em">
+          <a href="base.html" target="_blank"><img src="screenshot/opera/base.png" alt="base"></a>
+        </li>
+        <li class="screenshot" style="height: 16em">
+          <a href="customize.html" target="_blank"><img src="screenshot/opera/customize.png" alt="customize"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding-gutter.html" target="_blank"><img src="screenshot/opera/edgePadding-gutter.png" alt="edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="edgePadding.html" target="_blank"><img src="screenshot/opera/edgePadding.png" alt="edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="few-items.html" target="_blank"><img src="screenshot/opera/few-items.png" alt="few-items"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding-gutter.html" target="_blank"><img src="screenshot/opera/fixedWidth-edgePadding-gutter.png" alt="fixedWidth-edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-edgePadding.html" target="_blank"><img src="screenshot/opera/fixedWidth-edgePadding.png" alt="fixedWidth-edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="fixedWidth-gutter.html" target="_blank"><img src="screenshot/opera/fixedWidth-gutter.png" alt="fixedWidth-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="fixedWidth.html" target="_blank"><img src="screenshot/opera/fixedWidth.png" alt="fixedWidth"></a>
+        </li>
+        <li class="screenshot" style="height: 12.8em">
+          <a href="frame1.html" target="_blank"><img src="screenshot/opera/frame1.png" alt="frame1"></a>
+        </li>
+        <li class="screenshot" style="height: 11.200000000000001em">
+          <a href="frame2.html" target="_blank"><img src="screenshot/opera/frame2.png" alt="frame2"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame3.html" target="_blank"><img src="screenshot/opera/frame3.png" alt="frame3"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame5.html" target="_blank"><img src="screenshot/opera/frame5.png" alt="frame5"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="frame6.html" target="_blank"><img src="screenshot/opera/frame6.png" alt="frame6"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="gutter.html" target="_blank"><img src="screenshot/opera/gutter.png" alt="gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="lazyload.html" target="_blank"><img src="screenshot/opera/lazyload.png" alt="lazyload"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="mouse-drag.html" target="_blank"><img src="screenshot/opera/mouse-drag.png" alt="mouse-drag"></a>
+        </li>
+        <li class="screenshot" style="height: 14.4em">
+          <a href="nested.html" target="_blank"><img src="screenshot/opera/nested.png" alt="nested"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="non-loop.html" target="_blank"><img src="screenshot/opera/non-loop.png" alt="non-loop"></a>
+        </li>
+        <li class="screenshot" style="height: 9.600000000000001em">
+          <a href="rewind.html" target="_blank"><img src="screenshot/opera/rewind.png" alt="rewind"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="slide-by-page.html" target="_blank"><img src="screenshot/opera/slide-by-page.png" alt="slide-by-page"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding-gutter.html" target="_blank"><img src="screenshot/opera/vertical-edgePadding-gutter.png" alt="vertical-edgePadding-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-edgePadding.html" target="_blank"><img src="screenshot/opera/vertical-edgePadding.png" alt="vertical-edgePadding"></a>
+        </li>
+        <li class="screenshot" style="height: 8em">
+          <a href="vertical-gutter.html" target="_blank"><img src="screenshot/opera/vertical-gutter.png" alt="vertical-gutter"></a>
+        </li>
+        <li class="screenshot" style="height: 16em">
+          <a href="vertical.html" target="_blank"><img src="screenshot/opera/vertical.png" alt="vertical"></a>
+        </li>
+      </ul>
+    </div><button class="up"></button> 
     <script>
-    var current = 0,
-        min = 0,
-        max = 3,
-        attr = 'data-current',
-        body = document.body;
 
-    document.addEventListener('keydown', function(e) {
+    var doc = document,
+        current = 0,
+        min = 0,
+        max = doc.querySelectorAll('.browser').length - 1,
+        attr = 'data-current',
+        body = doc.body;
+
+    doc.addEventListener('keydown', function(e) {
       switch(e.keyCode) {
         case 37:
           update(-1);
@@ -453,14 +690,61 @@
 
     function update (num) {
       current += num;
-      if (current > max) {
-        current = min;
-      } else if (current < min) {
-        current = max;
-      }
+      current = Math.max(min, Math.min(max, current));
+      // if (current > max) {
+      //   current = min;
+      // } else if (current < min) {
+      //   current = max;
+      // }
 
       body.setAttribute(attr, current);
     }
+
+    var scrollTo = (function () {
+      return function (to, duration) {
+        var body = document.body,
+            html = document.documentElement,
+            wh = (html || body.parentNode || body).clientHeight,
+            bh = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight ),
+            total = to + wh,
+            goal = bh - wh - 1;
+            
+        if (total > bh) { to = goal; }
+        to = Math.round(to);
+
+        function runScroll(element, to, duration) {
+          if (duration < 0) { return; }
+          var difference = to - element.scrollTop,
+              perTick = difference / duration * 10,
+              running;
+
+          var run = function () {
+            element.scrollTop += perTick;
+            if (element.scrollTop === to) { return; }
+            runScroll(element, to, duration - 10);
+
+            running = false;
+          };
+
+          if (!running) {
+            running = true;
+            if (window.requestAnimationFrame) {
+              window.requestAnimationFrame(run);
+            } else {
+              setTimeout(run, 10);
+            }
+          }
+        }
+
+        runScroll(document.body, to, duration);
+        runScroll(document.documentElement, to, duration);
+      };
+    })();
+
+    var up = doc.querySelector('.up');
+    up.addEventListener('click', function() {
+      scrollTo(0, 100);
+    });
     </script>
   </body>
 </html>

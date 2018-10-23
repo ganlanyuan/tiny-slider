@@ -226,8 +226,9 @@ pre[class*="language-"] { margin: 0; }
 
 /* test results */
 .test-results {
-  line-height: 1.4;
-  padding: 20px 10%;
+  line-height: 1.6;
+  line-height: 1.6rem;
+  padding: 1.6em 10%;
   background-color: #f2f2f2;
 }
 
@@ -260,7 +261,6 @@ pre[class*="language-"] { margin: 0; }
 }
 
 /* test results */
-.test-results { line-height: 1.6; }
 .test-results .title { font-weight: bold; text-transform: capitalize; }
 .test-results .title:nth-child(n+2) { margin-top: 1em; }
 .test-results [class*="item"] { margin-left: 1em; font-size: 0.9em; }

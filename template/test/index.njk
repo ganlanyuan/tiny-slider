@@ -25,6 +25,12 @@
       overflow: hidden;
     }
     h2 {
+      /*margin: 0;*/
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      background: hsla(0, 0%, 100%, 0.85);
       text-transform: capitalize;
     }
     .tip {
@@ -33,70 +39,109 @@
       padding: 10px;
       background: #f7f7f7;
     }
+    .up {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      margin: 10px;
+      padding: 10px;
+      width: 50px;
+      height: 50px;
+      border: 0;
+      background: #000;
+      cursor: pointer;
+    }
+    .up:before,
+    .up:after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      right: 15px;
+      top: 20px;
+      width: 20px;
+      height: 20px;
+      transform: rotate(45deg);
+      background: #fff;
+    }
+    .up:after {
+      transform: translateY(2px) rotate(45deg);
+      background: #000;
+    }
     [class^="browser"] { display: none; }
     [data-current="0"] .browser0,
     [data-current="1"] .browser1,
     [data-current="2"] .browser2,
-    [data-current="3"] .browser3 { display: block; }
+    [data-current="3"] .browser3,
+    [data-current="4"] .browser4,
+    [data-current="5"] .browser5,
+    [data-current="6"] .browser6,
+    [data-current="7"] .browser7,
+    [data-current="8"] .browser8,
+    [data-current="9"] .browser9,
+    [data-current="10"] .browser10 { display: block; }
   </style>
 </head>
 <body data-current="0">
   <div class="tip">Press ←/→ key to switch between browsers</div>
-  {% for browser in [
-    'chrome',
-    'firefox',
-    'ie',
-    'safari'
-  ] %}
-  <div class="browser{{ loop.index0 }}">
-    <h2>{{ browser }}</h2>
+  {% for browser, version in {
+    'chrome': 14,
+    'firefox': 12,
+    'ie': 9,
+    'edge': 15,
+    'safari': 5.1,
+    'opera': 12.15
+  } %}
+  <div class="browser{{ loop.index0 }} browser">
+    <h2>{{ browser }} {{ version }}</h2>
     <ul>
-    {% for test in [
-      'animation1',
-      'animation2',
-      'arrowKeys',
-      'autoHeight',
-      'autoplay',
-      'base',
-      'customize',
-      'edgePadding-gutter',
-      'edgePadding',
-      'few-items',
-      'fixedWidth-edgePadding-gutter',
-      'fixedWidth-edgePadding',
-      'fixedWidth-gutter',
-      'fixedWidth',
-      'frame1',
-      'frame2',
-      'frame3',
-      'frame5',
-      'frame6',
-      'gutter',
-      'lazyload',
-      'mouse-drag',
-      'nested',
-      'non-loop',
-      'rewind',
-      'slide-by-page',
-      'vertical-edgePadding-gutter',
-      'vertical-edgePadding',
-      'vertical-gutter',
-      'vertical'
-      ] %}
-      <li class="screenshot"><a href="{{ test }}.html" target="_blank"><img src="screenshot/new/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
+    {% for test, row in {
+      'animation1': 2,
+      'animation2': 1,
+      'arrowKeys': 1,
+      'autoHeight': 3,
+      'autoplay': 4,
+      'base': 13,
+      'customize': 6,
+      'edgePadding-gutter': 1,
+      'edgePadding': 1,
+      'few-items': 1,
+      'fixedWidth-edgePadding-gutter': 1,
+      'fixedWidth-edgePadding': 1,
+      'fixedWidth-gutter': 1,
+      'fixedWidth': 2,
+      'frame1': 4,
+      'frame2': 3,
+      'frame3': 2,
+      'frame5': 2,
+      'frame6': 2,
+      'gutter': 1,
+      'lazyload': 2,
+      'mouse-drag': 1,
+      'nested': 5,
+      'non-loop': 2,
+      'rewind': 2,
+      'slide-by-page': 1,
+      'vertical-edgePadding-gutter': 1,
+      'vertical-edgePadding': 1,
+      'vertical-gutter': 1,
+      'vertical': 6
+      } %}
+      <li class="screenshot" style="height: {{ (row + 3 + 1)*1.6 }}em"><a href="{{ test }}.html" target="_blank"><img src="screenshot/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
     {% endfor %}
     </ul>
   </div>
   {% endfor %}
+  <button class="up"></button>
 
   <script>
-    var current = 0,
+    var doc = document,
+        current = 0,
         min = 0,
-        max = 3,
+        max = doc.querySelectorAll('.browser').length - 1,
         attr = 'data-current',
-        body = document.body;
+        body = doc.body;
 
-    document.addEventListener('keydown', function(e) {
+    doc.addEventListener('keydown', function(e) {
       switch(e.keyCode) {
         case 37:
           update(-1);
@@ -108,14 +153,61 @@
 
     function update (num) {
       current += num;
-      if (current > max) {
-        current = min;
-      } else if (current < min) {
-        current = max;
-      }
+      current = Math.max(min, Math.min(max, current));
+      // if (current > max) {
+      //   current = min;
+      // } else if (current < min) {
+      //   current = max;
+      // }
 
       body.setAttribute(attr, current);
     }
+
+    var scrollTo = (function () {
+      return function (to, duration) {
+        var body = document.body,
+            html = document.documentElement,
+            wh = (html || body.parentNode || body).clientHeight,
+            bh = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight ),
+            total = to + wh,
+            goal = bh - wh - 1;
+            
+        if (total > bh) { to = goal; }
+        to = Math.round(to);
+
+        function runScroll(element, to, duration) {
+          if (duration < 0) { return; }
+          var difference = to - element.scrollTop,
+              perTick = difference / duration * 10,
+              running;
+
+          var run = function () {
+            element.scrollTop += perTick;
+            if (element.scrollTop === to) { return; }
+            runScroll(element, to, duration - 10);
+
+            running = false;
+          };
+
+          if (!running) {
+            running = true;
+            if (window.requestAnimationFrame) {
+              window.requestAnimationFrame(run);
+            } else {
+              setTimeout(run, 10);
+            }
+          }
+        }
+
+        runScroll(document.body, to, duration);
+        runScroll(document.documentElement, to, duration);
+      };
+    })();
+
+    var up = doc.querySelector('.up');
+    up.addEventListener('click', function() {
+      scrollTo(0, 100);
+    });
   </script>
 </body>
 </html>

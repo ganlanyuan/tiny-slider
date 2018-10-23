@@ -8,8 +8,10 @@
     "test": "test"
   },
   "scripts": {
-    "start": "nodemon --watch test/js/tests-async.js --exec npm test",
-    "test": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js"
+    "server": "ngrok http 3000",
+    "test": "nightwatch -c browserstack.conf.js -e chrome,firefox,ie,edge,safari,opera",
+    "start": "nodemon --watch test/js/tests-async.js --exec npm run compile",
+    "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +29,6 @@
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "cbt_tunnels": "^0.9.7",
     "nightwatch": "^0.9.21",
     "nodemon": "^1.17.5"
   }
