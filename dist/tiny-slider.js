@@ -496,16 +496,19 @@ var tns = function(options) {
     viewportMax: false,
     slideBy: 1,
     controls: true,
+    controlsPosition: '',
     controlsText: ['prev', 'next'],
     controlsContainer: false,
     prevButton: false,
     nextButton: false,
     nav: true,
+    navPosition: '',
     navContainer: false,
     navAsThumbnails: false,
     arrowKeys: false,
     speed: 300,
     autoplay: false,
+    autoplayPosition: '',
     autoplayTimeout: 5000,
     autoplayDirection: 'forward',
     autoplayText: ['start', 'stop'],
@@ -1375,7 +1378,7 @@ var tns = function(options) {
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': txt});
       } else if (options.autoplayButtonOutput) {
-        outerWrapper.insertAdjacentHTML('afterbegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
+        outerWrapper.insertAdjacentHTML(options.autoplayPosition !== 'top' ? 'beforeend' : 'afterbegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
         autoplayButton = outerWrapper.querySelector('[data-action]');
       }
 
@@ -1420,7 +1423,7 @@ var tns = function(options) {
           navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-controls="' + slideItems[initIndex + i].id + '" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-        outerWrapper.insertAdjacentHTML('afterbegin', navHtml);
+        outerWrapper.insertAdjacentHTML(options.navPosition !== 'top' ? 'beforeend' : 'afterbegin', navHtml);
 
         navContainer = outerWrapper.querySelector('.tns-nav');
         navItems = navContainer.children;
@@ -1452,7 +1455,7 @@ var tns = function(options) {
     // == controlsInit ==
     if (hasControls) {
       if (!controlsContainer || !prevButton || !nextButton) {
-        outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML(options.controlsPosition !== 'top' ? 'beforeend' : 'afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
         prevButton = controlsContainer.children[0];
