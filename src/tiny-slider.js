@@ -363,8 +363,8 @@ export var tns = function(options) {
       slideActiveClass = 'tns-slide-active',
       imgCompleteClass = 'tns-complete',
       imgEvents = {
-        'load': imgLoadedOrError,
-        'error': imgLoadedOrError
+        'load': onImgLoaded,
+        'error': onImgFailed
       },
       imgsComplete;
 
@@ -724,27 +724,33 @@ export var tns = function(options) {
       // add complete class if all images are loaded/failed
       forEachNodeList(imgs, function(img) {
         var src = img.src;
-
         if (src.indexOf('data:image') < 0) {
           addEvents(img, imgEvents);
           img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
           img.src = src;
-        } else {
-          addClass(img, imgCompleteClass);
+          addClass(img, 'loading');
+          imgCachedCheck(img);
+        } else if (!lazyload) {
+          imgLoaded(img);
         }
       });
 
-      raf(function(){ imageLoaded(arrayFromNodeList(imgs), function() {
-        // set imgsComplete to true
-        imgsComplete = true;
+      // All imgs are completed
+      raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), function() { imgsComplete = true; }); });
 
+      // Check imgs in viewport only for auto height
+      if (!autoWidth && horizontal) { imgs = getImageArray(index, items); }
+
+      lazyload ? initTM() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initTM); });
+
+      function initTM () {
         if (autoWidth) {
           // check styles application
           var num = loop ? index : slideCount - 1;
-          (function checkStylesApplication() {
+          (function stylesApplicationCheck() {
             slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
             temp() :
-            setTimeout(function(){ checkStylesApplication() }, 16);
+            setTimeout(function(){ stylesApplicationCheck() }, 16);
           })();
         } else {
           temp();
@@ -773,7 +779,7 @@ export var tns = function(options) {
           initEvents();
         }
 
-      }); });
+      }
 
     } else {
       // set container transform property
@@ -1635,21 +1641,13 @@ export var tns = function(options) {
 
       for(; i < len; i++) {
         forEachNodeList(slideItems[i].querySelectorAll(lazyloadSelector), function (img) {
-          // stop propagation transitionend event to container
-          var eve = {};
-          eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
-          addEvents(img, eve);
+          if (!hasClass(img, imgCompleteClass)) {
+            // stop propagation transitionend event to container
+            var eve = {};
+            eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
+            addEvents(img, eve);
 
-          if (!hasClass(img, 'loading') && !hasClass(img, 'loaded')) {
-            img.onload = function() {
-              addClass(img, 'loaded');
-              removeClass(img, 'loading');
-            }
-            
-            img.onerror = function() {
-              addClass(img, 'failed');
-              removeClass(img, 'loading');
-            }
+            addEvents(img, imgEvents);
 
             // update srcset
             var srcset = getAttr(img, 'data-srcset');
@@ -1659,21 +1657,43 @@ export var tns = function(options) {
             img.src = getAttr(img, 'data-src');
 
             addClass(img, 'loading');
-
-            if (img.complete) {
-              img.onload();
-            }
+            imgCachedCheck(img);
           }
         });
       }
     }
   }
 
-
-  function imgLoadedOrError (e) {
+  function onImgLoaded (e) {
     var img = getTarget(e);
-    addClass(img, imgCompleteClass);
+    imgLoaded(img);
+  }
+
+  function onImgFailed (e) {
+    var img = getTarget(e);
+    imgFailed(img);
+  }
+
+  function imgLoaded (img) {
+    addClass(img, 'loaded');
+    imgCompleted(img);
+  }
+
+  function imgFailed (img) {
+    addClass(img, 'failed');
+    imgCompleted(img);
+  }
+
+  function imgCompleted (img) {
+    addClass(img, 'tns-complete');
+    removeClass(img, 'loading');
     removeEvents(img, imgEvents);
+  }
+
+  function imgCachedCheck (img) {
+    if (img.complete) {
+      img.naturalWidth !== 0 ? imgLoaded(img) : imgFailed(img);
+    }
   }
 
   function getImageArray (slideStart, slideRange) {
@@ -1694,10 +1714,10 @@ export var tns = function(options) {
         getImageArray(index, items) :
         getImageArray(cloneCount, slideCount);
 
-    raf(function(){ imageLoaded(imgs, updateInnerWrapperHeight); });
+    raf(function(){ imgsLoadedCheck(imgs, updateInnerWrapperHeight); });
   }
 
-  function imageLoaded (imgs, cb) {
+  function imgsLoadedCheck (imgs, cb) {
     // directly execute callback function if all images are complete
     if (imgsComplete) { return cb(); }
 
@@ -1710,7 +1730,7 @@ export var tns = function(options) {
     if (!imgs.length) { return cb(); }
 
     // otherwise execute this functiona again
-    raf(function(){ imageLoaded(imgs, cb); });
+    raf(function(){ imgsLoadedCheck(imgs, cb); });
   } 
 
   function additionalUpdates () {

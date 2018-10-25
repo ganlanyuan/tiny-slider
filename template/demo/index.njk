@@ -18,7 +18,6 @@
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
   <!--[if (IE 8)&!(IEMobile)]><script src="../dist/tiny-slider.helper.ie8.js"></script><![endif]-->
-  <script src="../dist/tiny-slider.js"></script>
 </head>
 <body>
 {% set sliders = [
@@ -45,6 +44,7 @@
   'autoHeight',
   'nested'
 ] %}
+{# {% set sliders = ['autoWidth-lazyload'] %} #}
 
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
@@ -285,7 +285,10 @@
   window.addEventListener('resize', function() { fw = getFW(ww); });
 </script>
 
-<script>
+{# <script src="../dist/tiny-slider.js"></script>
+<script> #}
+<script type="module">
+  import { tns } from '../src/tiny-slider.js';
   var options = {
     'base': {
       container: '',
