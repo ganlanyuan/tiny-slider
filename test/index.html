@@ -22,12 +22,7 @@
       max-width: 100%;
       height: auto;
     }
-    .screenshot {
-      max-height: 400px;
-      overflow: hidden;
-    }
     h2 {
-      /*margin: 0;*/
       padding: 10px 0;
       position: sticky;
       top: 0;
@@ -41,6 +36,7 @@
       padding: 10px;
       background: #f7f7f7;
     }
+    .screenshot { overflow: hidden; }
     .up {
       position: fixed;
       right: 0;
@@ -69,25 +65,15 @@
       transform: translateY(2px) rotate(45deg);
       background: #000;
     }
-    [class^="browser"] { display: none; }
-    [data-current="0"] .browser0,
-    [data-current="1"] .browser1,
-    [data-current="2"] .browser2,
-    [data-current="3"] .browser3,
-    [data-current="4"] .browser4,
-    [data-current="5"] .browser5,
-    [data-current="6"] .browser6,
-    [data-current="7"] .browser7,
-    [data-current="8"] .browser8,
-    [data-current="9"] .browser9,
-    [data-current="10"] .browser10 { display: block; }
+    .loaded .browser { display: none; }
+    :target { display: block !important; }
     </style>
   </head>
-  <body data-current="0">
+  <body>
     <div class="tip">
       Press ←/→ key to switch between browsers
     </div>
-    <div class="browser0 browser">
+    <div class="browser0 browser" id="chrome">
       <h2>
         chrome 14
       </h2>
@@ -184,7 +170,7 @@
         </li>
       </ul>
     </div>
-    <div class="browser1 browser">
+    <div class="browser1 browser" id="firefox">
       <h2>
         firefox 12
       </h2>
@@ -281,7 +267,7 @@
         </li>
       </ul>
     </div>
-    <div class="browser2 browser">
+    <div class="browser2 browser" id="ie">
       <h2>
         ie 9
       </h2>
@@ -378,7 +364,7 @@
         </li>
       </ul>
     </div>
-    <div class="browser3 browser">
+    <div class="browser3 browser" id="edge">
       <h2>
         edge 15
       </h2>
@@ -475,7 +461,7 @@
         </li>
       </ul>
     </div>
-    <div class="browser4 browser">
+    <div class="browser4 browser" id="safari">
       <h2>
         safari 5.1
       </h2>
@@ -572,7 +558,7 @@
         </li>
       </ul>
     </div>
-    <div class="browser5 browser">
+    <div class="browser5 browser" id="opera">
       <h2>
         opera 12.15
       </h2>
@@ -675,8 +661,11 @@
         current = 0,
         min = 0,
         max = doc.querySelectorAll('.browser').length - 1,
-        attr = 'data-current',
+        browsers = doc.querySelectorAll('.browser'),
         body = doc.body;
+
+    body.className += 'loaded';
+    if (!location.hash) { location.hash = '#' + browsers[0].id; }
 
     doc.addEventListener('keydown', function(e) {
       switch(e.keyCode) {
@@ -697,7 +686,7 @@
       //   current = max;
       // }
 
-      body.setAttribute(attr, current);
+      location.hash = '#' + browsers[current].id;
     }
 
     var scrollTo = (function () {

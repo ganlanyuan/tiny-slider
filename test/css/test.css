@@ -119,7 +119,7 @@ img:not(.tns-lazy-img), .lazyload img { height: auto; }
   cursor: pointer;
   border: 5px solid #fff;
 }
-.thumbnails [aria-selected="true"] {
+.thumbnails .tns-nav-active {
   background: none;
   border-color: #000;
 }
@@ -183,7 +183,7 @@ img:not(.tns-lazy-img), .lazyload img { height: auto; }
   background: #ddd;
   border: 0;
 }
-.tns-nav > [aria-selected="true"] { background: #999; }
+.tns-nav > .tns-nav-active { background: #999; }
 .playbutton-wrapper { text-align: center; }
 .playbutton-wrapper button { height: 34px; padding: 0 10px; font-size: 14px; background: #fff; border-radius: 3px; border: 1px solid  #ccc; cursor: pointer; }
 .wrapper { padding: 0 5em; }

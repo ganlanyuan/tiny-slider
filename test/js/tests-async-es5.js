@@ -81,7 +81,7 @@ var testBase = function () {
 
 
               if (assertion !== false) {
-                assertion = navItems[visibleNavIndexes[i]].getAttribute('aria-selected') === 'true' && getAbsIndex(current, 0, info) === visibleNavIndexes[i] && compare2Nums(currentSlide.getBoundingClientRect().left, 0) && currentSlide.getAttribute('aria-hidden') === 'false';
+                assertion = navItems[visibleNavIndexes[i]].className.indexOf(navActiveClass) >= 0 && getAbsIndex(current, 0, info) === visibleNavIndexes[i] && compare2Nums(currentSlide.getBoundingClientRect().left, 0) && currentSlide.getAttribute('aria-hidden') === 'false';
               }
             }
 
@@ -104,7 +104,7 @@ var testBase = function () {
             prev = info.index, current = slider.getInfo().index, absIndex = getAbsIndex(prev, -3, info), currentSlide = slideItems[current];
 
 
-            assertion = current === absIndex + cloneCount && navItems[absIndex].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+            assertion = current === absIndex + cloneCount && navItems[absIndex].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
             if (!assertion) {
               _context.next = 28;
@@ -122,7 +122,7 @@ var testBase = function () {
             absIndex = 0;
             currentSlide = slideItems[current];
 
-            assertion = current === absIndex + cloneCount && navItems[absIndex].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+            assertion = current === absIndex + cloneCount && navItems[absIndex].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
           case 28:
 
@@ -142,7 +142,7 @@ var testBase = function () {
             current = slider.getInfo().index, currentSlide = slideItems[current];
 
             if (assertion) {
-              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[1] && navItems[visibleNavIndexes[1]].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[1] && navItems[visibleNavIndexes[1]].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
             }
             // fire keydown event on left arrow
             // the 1st nav item get focused
@@ -162,7 +162,7 @@ var testBase = function () {
 
 
             if (assertion) {
-              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[2] && navItems[visibleNavIndexes[2]].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[2] && navItems[visibleNavIndexes[2]].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
             }
             // fire keydown event on up arrow
             // the 1st nav item get focused
@@ -176,7 +176,7 @@ var testBase = function () {
 
 
             if (assertion) {
-              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[0] && navItems[visibleNavIndexes[0]].getAttribute('aria-selected') === 'true' && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+              assertion = getAbsIndex(current, 0, info) === visibleNavIndexes[0] && navItems[visibleNavIndexes[0]].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
             }
             updateTest(navKeydown, assertion);
             _context.next = 53;
@@ -248,14 +248,14 @@ var testNonLoop = function () {
           case 9:
             current = slideCount - items;
             if (assertion) {
-              assertion = nextButton.hasAttribute('disabled') && navItems[current].getAttribute('aria-selected') === 'true' && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+              assertion = nextButton.hasAttribute('disabled') && navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
             }
 
             // click next button once
             nextButton.click();
             if (assertion) {
               current = slideCount - items;
-              assertion = navItems[current].getAttribute('aria-selected') === 'true' && slideItems[current].getAttribute('aria-hidden') === 'false';
+              assertion = navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false';
             }
 
             // click prev button once
@@ -273,7 +273,7 @@ var testNonLoop = function () {
           case 17:
             current = 0;
             if (assertion) {
-              assertion = prevButton.hasAttribute('disabled') && navItems[current].getAttribute('aria-selected') === 'true' && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+              assertion = prevButton.hasAttribute('disabled') && navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
             }
 
             updateTest(test, assertion);
@@ -499,7 +499,7 @@ var testCustomize = function () {
                         return checkControlsAttrs(id);
                       });
 
-                      runTest('Nav: aria-label, data-nav, tabindex, aria-selected, aria-controls', function () {
+                      runTest('Nav: aria-label, data-nav, tabindex, active class, aria-controls', function () {
                         var assertion,
                             info = slider.getInfo(),
                             slideCount = info.slideCount,
@@ -513,10 +513,12 @@ var testCustomize = function () {
                           absIndex += slideCount;
                         }
                         for (var i = slideCount; i--;) {
-                          var arr = i === absIndex ? ['0', 'true'] : ['-1', 'false'],
-                              nav = navItems[i];
+                          var nav = navItems[i],
+                              number = nav.className.indexOf(navActiveClass),
+                              arr = i === absIndex ? [' (Current Slide)', '0', number >= 0] : ['', '-1', number < 0];
+
                           if (assertion) {
-                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute('aria-label') === 'Carousel Page ' + (i + 1) && nav.getAttribute(tabindex) === arr[0] && nav.getAttribute('aria-selected') === arr[1];
+                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute('aria-label') === 'Carousel Page ' + (i + 1) + arr[0] && nav.getAttribute(tabindex) === arr[1] && arr[2];
                           }
                         }
                         return assertion;
@@ -642,7 +644,7 @@ var checkControlsClick = function () {
               // if (id === 'customize') {
               //   console.log(absIndex, index%slideCount);
               // }
-              return absIndex === Number(navContainer.querySelector('.tns-nav-active').getAttribute('data-nav')) && navItems[absIndex].getAttribute('aria-selected') === 'true' && first.getAttribute('aria-hidden') === 'false' && !first.hasAttribute(tabindex) && last.getAttribute('aria-hidden') === 'false' && !last.hasAttribute(tabindex) && compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) && checkLastEdge;
+              return absIndex === Number(navContainer.querySelector('.' + navActiveClass).getAttribute('data-nav')) && first.getAttribute('aria-hidden') === 'false' && !first.hasAttribute(tabindex) && last.getAttribute('aria-hidden') === 'false' && !last.hasAttribute(tabindex) && compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) && checkLastEdge;
             };
 
             slider = sliders[id], info = slider.getInfo(), container = info.container, wrapper = container.parentNode, slideCount = info.slideCount, navContainer = info.navContainer, navItems = info.navItems, slideItems = info.slideItems, items = info.items, edge1 = 'left', edge2 = 'right';
@@ -735,7 +737,8 @@ var body = doc.body,
     gutter = 10,
     ua = navigator.userAgent,
     tabindex = ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1 ? 'tabIndex' : 'tabindex',
-    canFireKeydown;
+    canFireKeydown,
+    navActiveClass = 'tns-nav-active';
 
 doc.onkeydown = function (e) {
   e = e || window.event;
@@ -1451,58 +1454,58 @@ function testResponsive5() {
 
               assertionFixedWidth = first.clientWidth === getFW(windowWidth) && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
               assertionAutoHeight = wrapper.style.height === '';
-              if (!assertionFixedWidth) {
-                commentFixedWidth = 'FixedWidth 1 >> first element width: ' + first.clientWidth + ' | ' + getFW(windowWidth) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
-              }
-              if (!assertionAutoHeight) {
-                commentAutoHeight = 'AutoHeight 1 >> wrapper height: ' + wrapper.style.height + '(should be empty)' + ', viewport width: ' + windowWidth;
-              }
+              // if (!assertionFixedWidth) {
+              //   commentFixedWidth = 'FixedWidth 1 >> first element width: ' + first.clientWidth + ' | ' + getFW(windowWidth) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
+              // }
+              // if (!assertionAutoHeight) {
+              //   commentAutoHeight = 'AutoHeight 1 >> wrapper height: ' + wrapper.style.height + '(should be empty)' + ', viewport width: ' + windowWidth;
+              // }
 
               // resize window
               windowWidth = Number(bps[0]) + 20;
               newWindow.style.width = windowWidth + 'px';
-              _context11.next = 10;
+              _context11.next = 8;
               return wait(2000);
 
-            case 10:
+            case 8:
               if (assertionFixedWidth) {
                 assertionFixedWidth = first.clientWidth === getFW(windowWidth) + 100 && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
-                if (!assertionFixedWidth) {
-                  commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
-                }
+                // if (!assertionFixedWidth) {
+                //   commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
+                // }
               }
               if (assertionAutoHeight) {
                 assertionAutoHeight = wrapper.style.height === first.clientHeight + 'px';
-                if (!assertionAutoHeight) {
-                  commentAutoHeight = 'AutoHeight 2 >> wrapper height: ' + wrapper.style.height + ' | first element height: ' + first.clientHeight + 'px' + ', viewport width: ' + windowWidth;
-                }
+                // if (!assertionAutoHeight) {
+                //   commentAutoHeight = 'AutoHeight 2 >> wrapper height: ' + wrapper.style.height + ' | first element height: ' + first.clientHeight + 'px' + ', viewport width: ' + windowWidth;
+                // }
               }
 
               updateTest(testFixedWidthT, assertionFixedWidth, commentFixedWidth);
               updateTest(testAutoHeightT, assertionAutoHeight, commentAutoHeight);
-              _context11.next = 20;
+              _context11.next = 18;
               break;
 
-            case 16:
-              _context11.prev = 16;
+            case 14:
+              _context11.prev = 14;
               _context11.t0 = _context11['catch'](0);
 
               testFixedWidthT.className = 'item-notsure';
               testAutoHeightT.className = 'item-notsure';
 
-            case 20:
-              _context11.prev = 20;
+            case 18:
+              _context11.prev = 18;
 
               body.removeChild(newWindow);
               assignDone(id);
-              return _context11.finish(20);
+              return _context11.finish(18);
 
-            case 24:
+            case 22:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, this, [[0, 16, 20, 24]]);
+      }, _callee11, this, [[0, 14, 18, 22]]);
     }));
 
     return function responsive5Tests() {
@@ -1556,80 +1559,80 @@ function testResponsive6() {
               left = innerWrapper.getBoundingClientRect().left;
               right = innerWrapper.getBoundingClientRect().right;
               assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
-              if (!assertionEdgePadding) {
-                commentEdgePadding = 'init >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
-              }
+              // if (!assertionEdgePadding) {
+              //   commentEdgePadding = 'init >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+              // }
 
               // resize window
               newWindow.style.width = slideWidth * 2 + 100 + 'px';
-              _context12.next = 10;
+              _context12.next = 9;
               return wait(1000);
 
-            case 10:
+            case 9:
               if (assertionEdgePadding) {
                 left = child0.getBoundingClientRect().left;
                 assertionEdgePadding = left === 0;
-                if (!assertionEdgePadding) {
-                  commentEdgePadding += 'frozen >> edgePadding: child0 left - ' + left + ' | 0, viewport - ' + viewport;
-                }
+                // if (!assertionEdgePadding) {
+                //   commentEdgePadding += 'frozen >> edgePadding: child0 left - ' + left + ' | 0, viewport - ' + viewport;
+                // }
               }
 
               controlsDisplay = controls.style.display;
               navDisplay = nav.style.display;
               assertionControlsNav = controlsDisplay === 'none' && navDisplay === 'none';
-              if (!assertionControlsNav) {
-                commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
-              }
+              // if (!assertionControlsNav) {
+              //   commentControlsNav = 'frozen >> controls display: ' + controlsDisplay + ' | none ; nav display: ' + navDisplay + ' | none, viewport - ' + viewport;
+              // }
 
               // resize window
               newWindow.style.width = slideWidth + edgepadding * 2 - gutter + 'px';
-              _context12.next = 18;
+              _context12.next = 16;
               return wait(1000);
 
-            case 18:
+            case 16:
               if (assertionEdgePadding) {
                 viewport = wrapper.clientWidth;
                 left = innerWrapper.getBoundingClientRect().left;
                 right = innerWrapper.getBoundingClientRect().right;
                 assertionEdgePadding = left === edgepadding && right === viewport - (edgepadding - gutter);
-                if (!assertionEdgePadding) {
-                  commentEdgePadding = 'active >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
-                }
+                // if (!assertionEdgePadding) {
+                //   commentEdgePadding = 'active >> edgePadding: innerWrapper left - ' + left + ' | ' + edgepadding + ', innerWrapper right - ' + right + ' | ' + (viewport - (edgepadding - gutter)) + ', viewport - ' + viewport;
+                // }
               }
               if (assertionControlsNav) {
                 controlsDisplay = controls.style.display;
                 navDisplay = nav.style.display;
                 assertionControlsNav = controlsDisplay !== 'none' && navDisplay !== 'none';
-                if (!assertionControlsNav) {
-                  commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport;
-                }
+                // if (!assertionControlsNav) {
+                //   commentControlsNav = 'active >> controls display: ' + controlsDisplay + ' | !none ; nav display: ' + navDisplay + ' | !none, viewport - ' + viewport
+                // }
               }
 
               updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
-              _context12.next = 28;
+              _context12.next = 26;
               break;
 
-            case 24:
-              _context12.prev = 24;
+            case 22:
+              _context12.prev = 22;
               _context12.t0 = _context12['catch'](0);
 
               updateTest(testEdgePaddingT, assertionEdgePadding, commentEdgePadding);
               updateTest(testControlsNavT, assertionControlsNav, commentControlsNav);
 
-            case 28:
-              _context12.prev = 28;
+            case 26:
+              _context12.prev = 26;
 
               body.removeChild(newWindow);
               assignDone(id);
-              return _context12.finish(28);
+              return _context12.finish(26);
 
-            case 32:
+            case 30:
             case 'end':
               return _context12.stop();
           }
         }
-      }, _callee12, this, [[0, 24, 28, 32]]);
+      }, _callee12, this, [[0, 22, 26, 30]]);
     }));
 
     return function responsive6Tests() {

@@ -20,12 +20,7 @@
       max-width: 100%;
       height: auto;
     }
-    .screenshot {
-      max-height: 400px;
-      overflow: hidden;
-    }
     h2 {
-      /*margin: 0;*/
       padding: 10px 0;
       position: sticky;
       top: 0;
@@ -39,6 +34,7 @@
       padding: 10px;
       background: #f7f7f7;
     }
+    .screenshot { overflow: hidden; }
     .up {
       position: fixed;
       right: 0;
@@ -67,21 +63,11 @@
       transform: translateY(2px) rotate(45deg);
       background: #000;
     }
-    [class^="browser"] { display: none; }
-    [data-current="0"] .browser0,
-    [data-current="1"] .browser1,
-    [data-current="2"] .browser2,
-    [data-current="3"] .browser3,
-    [data-current="4"] .browser4,
-    [data-current="5"] .browser5,
-    [data-current="6"] .browser6,
-    [data-current="7"] .browser7,
-    [data-current="8"] .browser8,
-    [data-current="9"] .browser9,
-    [data-current="10"] .browser10 { display: block; }
+    .loaded .browser { display: none; }
+    :target { display: block !important; }
   </style>
 </head>
-<body data-current="0">
+<body>
   <div class="tip">Press ←/→ key to switch between browsers</div>
   {% for browser, version in {
     'chrome': 14,
@@ -91,7 +77,7 @@
     'safari': 5.1,
     'opera': 12.15
   } %}
-  <div class="browser{{ loop.index0 }} browser">
+  <div class="browser{{ loop.index0 }} browser" id="{{ browser }}">
     <h2>{{ browser }} {{ version }}</h2>
     <ul>
     {% for test, row in {
@@ -138,8 +124,11 @@
         current = 0,
         min = 0,
         max = doc.querySelectorAll('.browser').length - 1,
-        attr = 'data-current',
+        browsers = doc.querySelectorAll('.browser'),
         body = doc.body;
+  
+    body.className += 'loaded';
+    if (!location.hash) { location.hash = '#' + browsers[0].id; }
 
     doc.addEventListener('keydown', function(e) {
       switch(e.keyCode) {
@@ -150,7 +139,7 @@
           update(1);
       }
     });
-
+  
     function update (num) {
       current += num;
       current = Math.max(min, Math.min(max, current));
@@ -159,10 +148,10 @@
       // } else if (current < min) {
       //   current = max;
       // }
-
-      body.setAttribute(attr, current);
+  
+      location.hash = '#' + browsers[current].id;
     }
-
+  
     var scrollTo = (function () {
       return function (to, duration) {
         var body = document.body,
@@ -174,21 +163,21 @@
             
         if (total > bh) { to = goal; }
         to = Math.round(to);
-
+  
         function runScroll(element, to, duration) {
           if (duration < 0) { return; }
           var difference = to - element.scrollTop,
               perTick = difference / duration * 10,
               running;
-
+  
           var run = function () {
             element.scrollTop += perTick;
             if (element.scrollTop === to) { return; }
             runScroll(element, to, duration - 10);
-
+  
             running = false;
           };
-
+  
           if (!running) {
             running = true;
             if (window.requestAnimationFrame) {
@@ -198,12 +187,12 @@
             }
           }
         }
-
+  
         runScroll(document.body, to, duration);
         runScroll(document.documentElement, to, duration);
       };
     })();
-
+  
     var up = doc.querySelector('.up');
     up.addEventListener('click', function() {
       scrollTo(0, 100);

@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "server": "ngrok http 3000",
+    "ngrok": "ngrok http 3000",
     "test": "nightwatch -c browserstack.conf.js -e chrome,firefox,ie,edge,safari,opera",
     "start": "nodemon --watch test/js/tests-async.js --exec npm run compile",
     "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js"
