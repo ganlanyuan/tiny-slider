@@ -1,8 +1,7 @@
 this.features = function(browser) {
   var bn = browser.globals.browser_name,
       screenshotPath = 'test/screenshot/',
-      subdomain = '7616ae1d',
-      baseurl = 'https://' + subdomain + '.ngrok.io/test/';
+      baseurl = 'https://d8903df1.ngrok.io/test/';
 
   browser
     .url(baseurl+'animation1.html')

@@ -1868,45 +1868,51 @@ function testAutoHeight() {
 
 
             assertion = containsClasses(wrapper, ['tns-ah']);
-            if (!assertion) {
-              comment = 'innerWrapper contains class "tns-ah": ' + containsClasses(wrapper, ['tns-ah']);
-            }
+            // if (!assertion) {
+            //   comment = 'innerWrapper contains class "tns-ah": ' + containsClasses(wrapper, ['tns-ah']);
+            // }
 
             updateTest(testClass, assertion, comment);
 
             assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
-            if (!assertion) {
-              comment = 'Init: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
-            }
+            // if (!assertion) {
+            //   comment = 'Init: innerWrapper height:' + wrapper.clientHeight +
+            //     ' | slide height: ' + slideItems[info.index].clientHeight + 
+            //     ' | index: ' + info.index;
+            // }
 
             updateTest(testHeight1, assertion, comment);
 
             nextButton.click();
-            _context19.next = 12;
+            _context19.next = 10;
             return wait(500);
 
-          case 12:
+          case 10:
             assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-            if (!assertion) {
-              comment = 'Click1: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
-            }
+            // if (!assertion) {
+            //   comment = 'Click1: innerWrapper height:' + wrapper.clientHeight +
+            //     ' | slide height: ' + slideItems[info.index].clientHeight + 
+            //     ' | index: ' + info.index;
+            // }
 
             nextButton.click();
-            _context19.next = 17;
+            _context19.next = 14;
             return wait(500);
 
-          case 17:
+          case 14:
             if (assertion) {
               assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-              if (!assertion) {
-                comment = '\nClick2: innerWrapper height:' + wrapper.clientHeight + ' | slide height: ' + slideItems[info.index].clientHeight + ' | index: ' + info.index;
-              }
+              // if (!assertion) {
+              //   comment = '\nClick2: innerWrapper height:' + wrapper.clientHeight +
+              //     ' | slide height: ' + slideItems[info.index].clientHeight + 
+              //     ' | index: ' + info.index;
+              // }
             }
 
             updateTest(testHeight2, assertion, comment);
             assignDone(id);
 
-          case 20:
+          case 17:
           case 'end':
             return _context19.stop();
         }
