@@ -257,19 +257,22 @@ Or import `tns` directly start from v2.8.7
 | `edgePadding` | positive integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | positive integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
 | `autoWidth` | Boolean | Default: false. <br> If `true`, the width of each slide will be its natural width as a `inline-block` box. |
-| `viewportMax` (previously `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
+| `viewportMax` (was `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. <br>For better accessibility, when a prev/next button is focused, user will be able to control the slider using left/right arrow keys.|
+| `controlsPosition` | "top" \| "bottom" | Default: "top". <br> Controls `controls` position. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
 | `controlsContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the prev/next buttons. <br> `controlsContainer` must have at least 2 child elements. |
 | `prevButton` | Node \| String \| false | Default: false. <br> Customized previous buttons. <br> This option will be ignored if `controlsContainer` is a Node element or a CSS selector. |
 | `nextButton` | Node \| String \| false | Default: false. <br> Customized next buttons. <br> This option will be ignored if `controlsContainer` is a Node element or a CSS selector. |
 | `nav` | Boolean | Default: true. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
+| `navPosition` | "top" \| "bottom" | Default: "top". <br> Controls `nav` position. |
 | `navContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the dots. <br> `navContainer` must have at least same number of children as the slides. |
 | `navAsThumbnails` | Boolean | Default: false. <br> Indecate if the dots are thurbnails. If `true`, they will always be visible even when more than 1 slides displayed in the viewport. |
 | `arrowKeys` | Boolean | Default: false. <br> Allows using arrow keys to switch slides. |
 | `speed` | positive integer | Default: 300. <br> Speed of the slide animation (in "ms"). |
 | `autoplay` | Boolean | Default: false. <br> Toggles the automatic change of slides. |
+| `autoplayPosition` | "top" \| "bottom" | Default: "top". <br> Controls `autoplay` position. |
 | `autoplayTimeout` | positive integer | Default: 5000. <br> Time between 2 `autoplay` slides change (in "ms"). |
 | `autoplayDirection` | "forward" \| "backward" | Default: "forward". <br> Direction of slide movement (ascending/descending the slide index). |
 | `autoplayText` | Array (Text \| Markup) | Default: ["start", "stop"]. <br> Text or markup in the autoplay start/stop button. |
