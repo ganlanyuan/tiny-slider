@@ -530,6 +530,7 @@ var tns = function(options) {
     mouseDrag: false,
     swipeAngle: 15,
     nested: false,
+    preventActionWhenRunning: false,
     freezable: true,
     onInit: false,
     useLocalStorage: true
@@ -2565,7 +2566,8 @@ var tns = function(options) {
 
     // go to exact slide
     } else {
-      if (running) { onTransitionEnd(); }
+      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
+      
 
       var absIndex = getAbsIndex(), 
           indexGap = 0;
@@ -2611,7 +2613,8 @@ var tns = function(options) {
 
   // on controls click
   function onControlsClick (e, dir) {
-    if (running) { onTransitionEnd(); }
+      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
+    
 
     var passEventObject;
 
@@ -2648,7 +2651,8 @@ var tns = function(options) {
 
   // on nav click
   function onNavClick (e) {
-    if (running) { onTransitionEnd(); }
+      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
+    
     
     e = getEvent(e);
     var target = e.target || e.srcElement,
@@ -2855,7 +2859,8 @@ var tns = function(options) {
   }
 
   function onPanStart (e) {
-    if (running) { onTransitionEnd(); }
+      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
+    
 
     if (autoplay && animating) { stopAutoplayTimer(); }
     
