@@ -751,6 +751,7 @@ var tns = function(options) {
       indexMax = !autoWidth ? getIndexMax() : null,
       // resize
       resizeTimer,
+      preventActionWhenRunning = options.preventActionWhenRunning,
       swipeAngle = options.swipeAngle,
       moveDirectionExpected = swipeAngle ? '?' : true,
       running = false,
@@ -2275,7 +2276,7 @@ var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked !== -1 ? navClicked : getAbsIndex();
+      navCurrentIndex = navClicked >= 0 ? navClicked : getAbsIndex();
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -2566,8 +2567,7 @@ var tns = function(options) {
 
     // go to exact slide
     } else {
-      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
-      
+      checkRunning();
 
       var absIndex = getAbsIndex(), 
           indexGap = 0;
@@ -2581,9 +2581,7 @@ var tns = function(options) {
 
         if (!isNaN(targetIndex)) {
           // from directly called goTo function
-          if (!e) {
-            targetIndex = Math.max(0, Math.min(slideCount - 1, targetIndex));
-          }
+          if (!e) { targetIndex = Math.max(0, Math.min(slideCount - 1, targetIndex)); }
 
           indexGap = targetIndex - absIndex;
         }
@@ -2611,11 +2609,15 @@ var tns = function(options) {
     }
   }
 
+  function checkRunning () {
+    if (running) {
+      if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
+    }
+  }
+
   // on controls click
   function onControlsClick (e, dir) {
-      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
-    
-
+    checkRunning();
     var passEventObject;
 
     if (!dir) {
@@ -2651,8 +2653,7 @@ var tns = function(options) {
 
   // on nav click
   function onNavClick (e) {
-      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
-    
+    checkRunning();
     
     e = getEvent(e);
     var target = e.target || e.srcElement,
@@ -2663,6 +2664,11 @@ var tns = function(options) {
     if (hasAttr(target, 'data-nav')) {
       navIndex = navClicked = [].indexOf.call(navItems, target);
       goTo(navIndex, e);
+
+      if (navCurrentIndex === navIndex) {
+        if (animating) { stopAutoplay(); }
+        navClicked = -1; // reset navClicked
+      }
     }
   }
 
@@ -2859,8 +2865,7 @@ var tns = function(options) {
   }
 
   function onPanStart (e) {
-      if (running) { if (preventActionWhenRunning) { return; }else{ onTransitionEnd(); } }
-    
+    checkRunning();
 
     if (autoplay && animating) { stopAutoplayTimer(); }
     
