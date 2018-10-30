@@ -2567,7 +2567,9 @@ var tns = function(options) {
 
     // go to exact slide
     } else {
-      checkRunning();
+      if (running) {
+        if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
+      }
 
       var absIndex = getAbsIndex(), 
           indexGap = 0;
@@ -2609,15 +2611,11 @@ var tns = function(options) {
     }
   }
 
-  function checkRunning () {
+  // on controls click
+  function onControlsClick (e, dir) {
     if (running) {
       if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
     }
-  }
-
-  // on controls click
-  function onControlsClick (e, dir) {
-    checkRunning();
     var passEventObject;
 
     if (!dir) {
@@ -2653,7 +2651,9 @@ var tns = function(options) {
 
   // on nav click
   function onNavClick (e) {
-    checkRunning();
+    if (running) {
+      if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
+    }
     
     e = getEvent(e);
     var target = e.target || e.srcElement,
@@ -2865,7 +2865,9 @@ var tns = function(options) {
   }
 
   function onPanStart (e) {
-    checkRunning();
+    if (running) {
+      if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
+    }
 
     if (autoplay && animating) { stopAutoplayTimer(); }
     
