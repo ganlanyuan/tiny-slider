@@ -851,7 +851,7 @@ var tns = function(options) {
         disX,
         disY,
         panStart = false,
-        rafIndex = 0,
+        rafIndex,
         getDist = horizontal ? 
           function(a, b) { return a.x - b.x; } :
           function(a, b) { return a.y - b.y; };
@@ -1133,7 +1133,7 @@ var tns = function(options) {
     if (container.id === '') { container.id = slideId; }
     newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
     newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
-    // if (carousel) { newContainerClasses += ' tns-' + options.axis; }
+    if (autoWidth) { newContainerClasses += ' tns-autowidth'; }
     newContainerClasses += ' tns-' + options.axis;
     container.className += newContainerClasses;
 
@@ -2872,9 +2872,9 @@ var tns = function(options) {
     if (autoplay && animating) { stopAutoplayTimer(); }
     
     panStart = true;
-    if (carousel) {
+    if (rafIndex) {
       caf(rafIndex);
-      rafIndex = 0;
+      rafIndex = null;
     }
 
     var $ = getEvent(e);
@@ -2887,7 +2887,7 @@ var tns = function(options) {
     lastPosition.x = initPosition.x = parseInt($.clientX);
     lastPosition.y = initPosition.y = parseInt($.clientY);
     if (carousel) {
-      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, '')) | 0;
       resetDuration(container, '0s');
     }
   }
@@ -2942,10 +2942,11 @@ var tns = function(options) {
 
   function onPanEnd (e) {
     if (panStart) {
-      if (carousel) {
+      if (rafIndex) {
         caf(rafIndex);
-        resetDuration(container, '');
+        rafIndex = null;
       }
+      if (carousel) { resetDuration(container, ''); }
       panStart = false;
 
       var $ = getEvent(e);
