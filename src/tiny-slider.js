@@ -973,17 +973,14 @@ export var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        for (var i = 0; i < slideCount; i++) {
-          var item = navItems[i];
-          if (item) {
-            setAttrs(item, {
-              'data-nav': i,
-              'tabindex': '-1',
-              'aria-controls': slideItems[initIndex + i].id,
-              'aria-label': navStr + (i + 1),
-            });
-          }
-        }
+        forEachNodeList(navItems, function(item, i) {
+          setAttrs(item, {
+            'data-nav': i,
+            'tabindex': '-1',
+            'aria-controls': slideItems[initIndex + i].id,
+            'aria-label': navStr + (i + 1),
+          });
+        });
 
       // generated nav 
       } else {

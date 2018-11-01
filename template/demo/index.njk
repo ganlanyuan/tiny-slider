@@ -44,7 +44,7 @@
   'autoHeight',
   'nested'
 ] %}
-{# {% set sliders = ['autoWidth'] %} #}
+{# {% set sliders = ['fixedWidth-gutter'] %} #}
 
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
@@ -285,10 +285,10 @@
   window.addEventListener('resize', function() { fw = getFW(ww); });
 </script>
 
-{# <script src="../dist/tiny-slider.js"></script>
-<script> #}
-<script type="module">
-  import { tns } from '../src/tiny-slider.js';
+{# <script type="module"> #}
+  {# import { tns } from '../src/tiny-slider.js'; #}
+<script src="../dist/tiny-slider.js"></script>
+<script>
   var options = {
     'base': {
       container: '',
