@@ -940,7 +940,12 @@ var tns = function(options) {
   }
 
   function getClientWidth (el) {
-    return el.clientWidth || getClientWidth(el.parentNode);
+    var div = doc.createElement('div'),
+        width;
+    el.appendChild(div);
+    width = div.offsetWidth;
+    div.remove();
+    return width || getClientWidth(el.parentNode);
   }
 
   function getViewportWidth () {
