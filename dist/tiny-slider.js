@@ -730,7 +730,7 @@ var tns = function(options) {
       // index
       getIndexMax = (function () {
         if (fixedWidth) {
-          return function() { return Math.floor(- rightBoundary / (fixedWidth + gutter)) + 1; };
+          return function() { return Math.ceil(- rightBoundary / (fixedWidth + gutter)); };
         } else if (autoWidth) {
           return function() {
             for (var i = slideCountNew, result = i - 1; i--;) {
