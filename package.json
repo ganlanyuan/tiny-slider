@@ -17,6 +17,10 @@
     "type": "git",
     "url": "git+https://github.com/ganlanyuan/tiny-slider.git"
   },
+  "files": [
+    "dist",
+    "src"    
+  ],
   "keywords": [],
   "author": "ganlanyuan <ganlanyuan@gmail.com>",
   "license": "MIT",
