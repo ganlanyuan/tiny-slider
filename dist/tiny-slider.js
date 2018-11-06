@@ -2895,7 +2895,7 @@ var tns = function(options) {
     lastPosition.x = initPosition.x = parseInt($.clientX);
     lastPosition.y = initPosition.y = parseInt($.clientY);
     if (carousel) {
-      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, '')) | 0;
+      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
       resetDuration(container, '0s');
     }
   }
@@ -2962,7 +2962,7 @@ var tns = function(options) {
       lastPosition.y = parseInt($.clientY);
       var dist = getDist(lastPosition, initPosition);
 
-      if (Math.abs(dist) >= 5) {
+      if (Math.abs(dist)) {
         // drag vs click
         if (!isTouchEvent(e)) {
           // prevent "click"
