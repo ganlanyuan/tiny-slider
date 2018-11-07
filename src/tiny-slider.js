@@ -100,6 +100,7 @@ export var tns = function(options) {
     swipeAngle: 15,
     nested: false,
     preventActionWhenRunning: false,
+    preventScrollOnTouch: 'auto',
     freezable: true,
     onInit: false,
     useLocalStorage: true
@@ -371,7 +372,8 @@ export var tns = function(options) {
         'load': onImgLoaded,
         'error': onImgFailed
       },
-      imgsComplete;
+      imgsComplete,
+      preventScroll = options.preventScrollOnTouch === 'force' ? true : false;
 
   // controls
   if (hasControls) {
@@ -2441,6 +2443,10 @@ export var tns = function(options) {
     e.preventDefault ? e.preventDefault() : e.returnValue = false;
   }
 
+  function getMoveDirectionExpected () {
+    return getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
+  }
+
   function onPanStart (e) {
     if (running) {
       if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
@@ -2475,16 +2481,14 @@ export var tns = function(options) {
       lastPosition.x = parseInt($.clientX);
       lastPosition.y = parseInt($.clientY);
 
-      if (carousel && !rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
-    }
-  }
+      if (carousel) {
+        if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
+      } else {
+        if (moveDirectionExpected === '?') { moveDirectionExpected = getMoveDirectionExpected(); }
+        if (moveDirectionExpected) { preventScroll = true; }
+      }
 
-  function updateMoveDirectionExpected () {
-    if (
-      moveDirectionExpected === '?' && 
-      lastPosition.x !== initPosition.x && 
-      lastPosition.y !== initPosition.y) {
-      moveDirectionExpected = getTouchDirection(toDegree(lastPosition.y - initPosition.y, lastPosition.x - initPosition.x), swipeAngle) === options.axis;
+      if (preventScroll) { e.preventDefault(); }
     }
   }
 
@@ -2496,8 +2500,10 @@ export var tns = function(options) {
     caf(rafIndex);
     if (panStart) { rafIndex = raf(function(){ panUpdate(e); }); }
 
-    updateMoveDirectionExpected();
+    if (moveDirectionExpected === '?') { moveDirectionExpected = getMoveDirectionExpected(); }
     if (moveDirectionExpected) {
+      if (!preventScroll && isTouchEvent(e)) { preventScroll = true; }
+
       try {
         if (e.type) { events.emit(isTouchEvent(e) ? 'touchMove' : 'dragMove', info(e)); }
       } catch(err) {}
@@ -2568,7 +2574,6 @@ export var tns = function(options) {
             events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
           });
         } else {
-          updateMoveDirectionExpected();
           if (moveDirectionExpected) {
             onControlsClick(e, dist > 0 ? -1 : 1);
           }
@@ -2576,7 +2581,9 @@ export var tns = function(options) {
       }
     }
 
-    if (swipeAngle) { moveDirectionExpected = '?'; } // reset
+    // reset
+    if (options.preventScrollOnTouch === 'auto') { preventScroll = false; }
+    if (swipeAngle) { moveDirectionExpected = '?'; } 
     if (autoplay && !animating) { setAutoplayTimer(); }
   }
 
