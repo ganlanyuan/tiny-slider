@@ -35,11 +35,11 @@
       float: left;
     }
   }
-}
-.tns-carousel {
-  &.tns-no-subpixel {
-    > .tns-item {
-      margin-right: -100%;
+  &.tns-carousel {
+    &.tns-no-subpixel {
+      > .tns-item {
+        margin-right: -100%;
+      }
     }
   }
 }

@@ -1940,7 +1940,8 @@ async function testCustomize () {
       autoplayButton.click();
       slider.goTo('first');
     }
-    runTest('Slides: width, count, id, class, aria-hidden, tabindex', function() {
+    runTest('Slides: width, count, id, class, aria-hidden, tabindex', async function() {
+      await wait(300);
       return checkSlidesAttrs(id);
     });
 
