@@ -1227,8 +1227,10 @@ function testResponsive5 () {
           container = doc.querySelector('#' + id),
           first = container.querySelector('#' + id + '-item0');
 
+      await wait(1000);
       assertionFixedWidth = first.clientWidth === getFW(windowWidth) &&
         wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+      // console.log(first.clientWidth + '|' + getFW(windowWidth) + '|' + wrapper.getBoundingClientRect().left + '|' + first.getBoundingClientRect().left);
       assertionAutoHeight = wrapper.style.height === '';
       // if (!assertionFixedWidth) {
       //   commentFixedWidth = 'FixedWidth 1 >> first element width: ' + first.clientWidth + ' | ' + getFW(windowWidth) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
@@ -1238,12 +1240,14 @@ function testResponsive5 () {
       // }
 
       // resize window
+      await wait(1000);
       windowWidth = Number(bps[0]) + 20;
       newWindow.style.width = windowWidth + 'px';
       await wait(2000);
       if (assertionFixedWidth) {
         assertionFixedWidth = first.clientWidth === (getFW(windowWidth) + 100) &&
           wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+        // console.log(first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ' | ' + wrapper.getBoundingClientRect().left + ' | ' + first.getBoundingClientRect().left);
         // if (!assertionFixedWidth) {
         //   commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
         // }

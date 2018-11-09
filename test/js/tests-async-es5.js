@@ -1465,9 +1465,12 @@ function testResponsive5() {
             case 0:
               _context11.prev = 0;
               doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), first = container.querySelector('#' + id + '-item0');
+              _context11.next = 4;
+              return wait(1000);
 
-
+            case 4:
               assertionFixedWidth = first.clientWidth === getFW(windowWidth) && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+              // console.log(first.clientWidth + '|' + getFW(windowWidth) + '|' + wrapper.getBoundingClientRect().left + '|' + first.getBoundingClientRect().left);
               assertionAutoHeight = wrapper.style.height === '';
               // if (!assertionFixedWidth) {
               //   commentFixedWidth = 'FixedWidth 1 >> first element width: ' + first.clientWidth + ' | ' + getFW(windowWidth) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
@@ -1477,14 +1480,19 @@ function testResponsive5() {
               // }
 
               // resize window
-              windowWidth = Number(bps[0]) + 20;
-              newWindow.style.width = windowWidth + 'px';
               _context11.next = 8;
-              return wait(2000);
+              return wait(1000);
 
             case 8:
+              windowWidth = Number(bps[0]) + 20;
+              newWindow.style.width = windowWidth + 'px';
+              _context11.next = 12;
+              return wait(2000);
+
+            case 12:
               if (assertionFixedWidth) {
                 assertionFixedWidth = first.clientWidth === getFW(windowWidth) + 100 && wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+                // console.log(first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ' | ' + wrapper.getBoundingClientRect().left + ' | ' + first.getBoundingClientRect().left);
                 // if (!assertionFixedWidth) {
                 //   commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
                 // }
@@ -1498,29 +1506,29 @@ function testResponsive5() {
 
               updateTest(testFixedWidthT, assertionFixedWidth, commentFixedWidth);
               updateTest(testAutoHeightT, assertionAutoHeight, commentAutoHeight);
-              _context11.next = 18;
+              _context11.next = 22;
               break;
 
-            case 14:
-              _context11.prev = 14;
+            case 18:
+              _context11.prev = 18;
               _context11.t0 = _context11['catch'](0);
 
               testFixedWidthT.className = 'item-notsure';
               testAutoHeightT.className = 'item-notsure';
 
-            case 18:
-              _context11.prev = 18;
+            case 22:
+              _context11.prev = 22;
 
               body.removeChild(newWindow);
               assignDone(id);
-              return _context11.finish(18);
+              return _context11.finish(22);
 
-            case 22:
+            case 26:
             case 'end':
               return _context11.stop();
           }
         }
-      }, _callee11, this, [[0, 14, 18, 22]]);
+      }, _callee11, this, [[0, 18, 22, 26]]);
     }));
 
     return function responsive5Tests() {
