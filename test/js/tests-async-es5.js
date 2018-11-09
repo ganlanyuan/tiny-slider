@@ -1900,7 +1900,7 @@ function testAutoHeight() {
 
             nextButton.click();
             _context20.next = 10;
-            return wait(500);
+            return wait(800);
 
           case 10:
             assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
@@ -1912,7 +1912,7 @@ function testAutoHeight() {
 
             nextButton.click();
             _context20.next = 14;
-            return wait(500);
+            return wait(800);
 
           case 14:
             if (assertion) {

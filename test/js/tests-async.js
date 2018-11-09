@@ -2055,7 +2055,7 @@ function testAutoHeight () {
     updateTest(testHeight1, assertion, comment);
 
     nextButton.click();
-    await wait(500);
+    await wait(800);
     assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
     // if (!assertion) {
     //   comment = 'Click1: innerWrapper height:' + wrapper.clientHeight +
@@ -2064,7 +2064,7 @@ function testAutoHeight () {
     // }
 
     nextButton.click();
-    await wait(500);
+    await wait(800);
     if (assertion) {
       assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
       // if (!assertion) {
