@@ -1229,7 +1229,7 @@ function testResponsive5 () {
 
       await wait(1000);
       assertionFixedWidth = first.clientWidth === getFW(windowWidth) &&
-        wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+        compare2Nums(wrapper.getBoundingClientRect().left, first.getBoundingClientRect().left);
       // console.log(first.clientWidth + '|' + getFW(windowWidth) + '|' + wrapper.getBoundingClientRect().left + '|' + first.getBoundingClientRect().left);
       assertionAutoHeight = wrapper.style.height === '';
       // if (!assertionFixedWidth) {
@@ -1246,7 +1246,7 @@ function testResponsive5 () {
       await wait(2000);
       if (assertionFixedWidth) {
         assertionFixedWidth = first.clientWidth === (getFW(windowWidth) + 100) &&
-          wrapper.getBoundingClientRect().left === first.getBoundingClientRect().left;
+          compare2Nums(wrapper.getBoundingClientRect().left, first.getBoundingClientRect().left);
         // console.log(first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ' | ' + wrapper.getBoundingClientRect().left + ' | ' + first.getBoundingClientRect().left);
         // if (!assertionFixedWidth) {
         //   commentFixedWidth = 'FixedWidth 2 >> first element width: ' + first.clientWidth + ' | ' + (getFW(windowWidth) + 100) + ', wrapper left: ' + wrapper.getBoundingClientRect().left + ' | first element left: ' + first.getBoundingClientRect().left + ', viewport width: ' + windowWidth;
