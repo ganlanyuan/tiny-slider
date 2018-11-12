@@ -166,9 +166,10 @@ export var tns = function(options) {
 
   // get element nodes from selectors
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
-      tnsList = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'], optionsElements = {};
-  for (var i = tnsList.length; i--;) {
-    var item = tnsList[i];
+      tnsList = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'], 
+      optionsElements = {};
+      
+  tnsList.forEach(function(item) {
     if (typeof options[item] === 'string') {
       var str = options[item],
           el = doc.querySelector(str);
@@ -181,7 +182,7 @@ export var tns = function(options) {
         return;
       }
     }
-  }
+  });
 
   // make sure at least 1 slide
   if (options.container.children.length < 1) {
