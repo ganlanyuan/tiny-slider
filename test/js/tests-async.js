@@ -274,6 +274,57 @@ async function testBase () {
 
 
 
+// ### startIndex
+async function testStartIndex () {
+  var arr = ['carousel-loop', 'carousel-non-loop', 'gallery-loop', 'gallery-non-loop'],
+      testid = 'start-index';
+
+  addTitle(testid);
+
+  function getStartIndex (clc, slc, it, opt) {
+    var ind = opt['startIndex'];
+    ind = ind ? Math.max(0, Math.min(opt.loop !== false ? slc - 1 : slc - it, ind)) : 0;
+    return opt.mode !== 'gallery' ? ind + clc : ind;
+  }
+
+  function startIndexFn (id) {
+    var info = sliders[id].getInfo(),
+        slideItems = info.slideItems,
+        items = info.items,
+        slideCount = info.slideCount,
+        cloneCount = info.cloneCount;
+    // console.log(slideItems[getStartIndex(cloneCount, slideCount, items, options[id])].getBoundingClientRect().left);
+    return Math.abs(slideItems[getStartIndex(cloneCount, slideCount, items, options[id])].getBoundingClientRect().left) < 1;
+  }
+
+  arr.forEach(function(item) {
+    runTest(item, function() { return startIndexFn('start-index-' + item); });
+  });
+
+  assignDone(testid);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2425,6 +2476,7 @@ function waitUntilInit (slider, callback) {
 
 initFns = {
   'base': waitFn(testBase),
+  'start-index-gallery-non-loop': waitFn(testStartIndex),
   'few-items': waitFn(testFewitems),
   'mouse-drag': waitFn(testMouseDrag),
   'gutter': waitFn(testGutter),

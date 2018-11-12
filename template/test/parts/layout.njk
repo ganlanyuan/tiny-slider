@@ -167,6 +167,18 @@
             </div>
             {% endfor %}
 
+          {# start-index #}
+          {% elif page === 'start-index' %}
+            {% for item in ['carousel-loop', 'carousel-non-loop', 'gallery-loop', 'gallery-non-loop'] %}
+            <div id="start-index-{{ item }}">
+              {% for i in range(0, 7) %}
+              <div class="item">
+                <div class="img img-{{ i + 1 }}"><a href="">{{ i }}</a></div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+
           {# default #}
           {% else %}
             {% set regExp = r/^vertical/%}

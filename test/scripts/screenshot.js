@@ -1,7 +1,7 @@
 this.features = function(browser) {
   var bn = browser.globals.browser_name,
       screenshotPath = 'test/screenshot/',
-      baseurl = 'https://14eb968b.ngrok.io/test/';
+      baseurl = 'https://' + '0614fa6d.ngrok.io' + '/test/';
 
   browser
     .url(baseurl+'animation1.html')
@@ -97,8 +97,8 @@ this.features = function(browser) {
     .url(baseurl+'vertical.html')
     .waitForElementPresent('.test-done', 20000)
     .saveScreenshot(screenshotPath+bn+'/vertical.png')
-    // .url(baseurl+'start-index.html')
-    // .waitForElementPresent('.test-done', 20000)
-    // .saveScreenshot(screenshotPath+bn+'/start-index.png')
+    .url(baseurl+'start-index.html')
+    .waitForElementPresent('.test-done', 20000)
+    .saveScreenshot(screenshotPath+bn+'/start-index.png')
     .end();
 };

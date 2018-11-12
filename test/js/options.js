@@ -6,8 +6,29 @@ var options = {
     slideBy: 'page',
     mouseDrag: true,
   },
-  'start-index': {
+  'start-index-carousel-loop': {
     container: '',
+    items: 3,
+    slideBy: 'page',
+    startIndex: 6,
+  },
+  'start-index-carousel-non-loop': {
+    container: '',
+    items: 3,
+    slideBy: 'page',
+    loop: false,
+    startIndex: 6,
+  },
+  'start-index-gallery-loop': {
+    container: '',
+    mode: 'gallery',
+    items: 3,
+    slideBy: 'page',
+    startIndex: 6,
+  },
+  'start-index-gallery-non-loop': {
+    container: '',
+    mode: 'gallery',
     items: 3,
     slideBy: 'page',
     loop: false,
