@@ -1,4 +1,6 @@
 export function setLocalStorage(storage, key, value, access) {
-  if (access) { storage.setItem(key, value); }
+  if (access) {
+    try { storage.setItem(key, value); } catch () {}
+  }
   return value;
 }
