@@ -1189,22 +1189,8 @@ var tns = function(options) {
       // Check imgs in viewport only for auto height
       if (!autoWidth && horizontal) { imgs = getImageArray(index, items); }
 
-      lazyload ? initTM() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initTM); });
-
-      function initTM () {
-        if (autoWidth) {
-          // check styles application
-          var num = loop ? index : slideCount - 1;
-          (function stylesApplicationCheck() {
-            slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
-            temp() :
-            setTimeout(function(){ stylesApplicationCheck(); }, 16);
-          })();
-        } else {
-          temp();
-        }
-
-        function temp () {
+      var initTM = function() {
+        var temp = function () {
           // run Fn()s which are rely on image loading
           if (!horizontal || autoWidth) {
             getSlidePositions();
@@ -1225,10 +1211,22 @@ var tns = function(options) {
           // update slider tools and events
           initTools();
           initEvents();
+        };
+
+        if (autoWidth) {
+          // check styles application
+          var num = loop ? index : slideCount - 1;
+          (function stylesApplicationCheck() {
+            slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
+            temp() :
+            setTimeout(function(){ stylesApplicationCheck(); }, 16);
+          })();
+        } else {
+          temp();
         }
+      };
 
-      }
-
+      lazyload ? initTM() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initTM); });
     } else {
       // set container transform property
       if (carousel) { doContainerTransformSilent(); }
