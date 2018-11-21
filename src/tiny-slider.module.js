@@ -1,14 +1,14 @@
 // helper functions
 if (!Object.keys) {
-    Object.keys = function (object) {
-        var keys = [];
-        for (var name in object) {
-            if (Object.prototype.hasOwnProperty.call(object, name)) {
-                keys.push(name);
-            }
-        }
-        return keys;
-    };
+  Object.keys = function (object) {
+    var keys = [];
+    for (var name in object) {
+      if (Object.prototype.hasOwnProperty.call(object, name)) {
+        keys.push(name);
+      }
+    }
+    return keys;
+  };
 }
 if(!("remove" in Element.prototype)){
   Element.prototype.remove = function(){
@@ -64,6 +64,7 @@ export var tns = function(options) {
     autoWidth: false,
     viewportMax: false,
     slideBy: 1,
+    center: false,
     controls: true,
     controlsPosition: 'top',
     controlsText: ['prev', 'next'],
@@ -266,6 +267,7 @@ export var tns = function(options) {
       edgePadding = getOption('edgePadding'),
       gutter = getOption('gutter'),
       viewport = getViewportWidth(),
+      center = options.center,
       items = !autoWidth ? Math.floor(getOption('items')) : 1,
       slideBy = getOption('slideBy'),
       viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
@@ -1948,6 +1950,7 @@ export var tns = function(options) {
         val = - (fixedWidth + gutter) * num;
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
+        if (center) { num -= (items - 1) / 2; }
         val = - num * 100 / denominator;
       }
     } else {
