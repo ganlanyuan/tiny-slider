@@ -1189,45 +1189,7 @@ var tns = function(options) {
       // Check imgs in viewport only for auto height
       if (!autoWidth && horizontal) { imgs = getImageArray(index, items); }
 
-      lazyload ? initTM() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initTM); });
-
-      function initTM () {
-        if (autoWidth) {
-          // check styles application
-          var num = loop ? index : slideCount - 1;
-          (function stylesApplicationCheck() {
-            slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
-            temp() :
-            setTimeout(function(){ stylesApplicationCheck(); }, 16);
-          })();
-        } else {
-          temp();
-        }
-
-        function temp () {
-          // run Fn()s which are rely on image loading
-          if (!horizontal || autoWidth) {
-            getSlidePositions();
-
-            if (autoWidth) {
-              rightBoundary = getRightBoundary();
-              if (freezable) { freeze = getFreeze(); }
-              indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
-              resetVariblesWhenDisable(disable || freeze);
-            } else {
-              updateContentWrapperHeight();
-            }
-          }
-
-          // set container transform property
-          if (carousel) { doContainerTransformSilent(); }
-
-          // update slider tools and events
-          initTools();
-          initEvents();
-        }
-
-      }
+      lazyload ? initSliderTransformStyleCheck() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initSliderTransformStyleCheck); });
 
     } else {
       // set container transform property
@@ -1237,6 +1199,44 @@ var tns = function(options) {
       initTools();
       initEvents();
     }
+  }
+
+  function initSliderTransformStyleCheck () {
+    if (autoWidth) {
+      // check styles application
+      var num = loop ? index : slideCount - 1;
+      (function stylesApplicationCheck() {
+        slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
+        initSliderTransformCore() :
+        setTimeout(function(){ stylesApplicationCheck(); }, 16);
+      })();
+    } else {
+      initSliderTransformCore();
+    }
+  }
+
+
+  function initSliderTransformCore () {
+    // run Fn()s which are rely on image loading
+    if (!horizontal || autoWidth) {
+      getSlidePositions();
+
+      if (autoWidth) {
+        rightBoundary = getRightBoundary();
+        if (freezable) { freeze = getFreeze(); }
+        indexMax = getIndexMax(); // <= slidePositions, rightBoundary <=
+        resetVariblesWhenDisable(disable || freeze);
+      } else {
+        updateContentWrapperHeight();
+      }
+    }
+
+    // set container transform property
+    if (carousel) { doContainerTransformSilent(); }
+
+    // update slider tools and events
+    initTools();
+    initEvents();
   }
 
   function initSheet () {
