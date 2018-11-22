@@ -958,7 +958,8 @@ var tns = function(options) {
   }
 
   function getViewportWidth () {
-    return getClientWidth(containerParent) - (edgePadding * 2 - gutter);
+    var gap = edgePadding ? edgePadding * 2 - gutter : 0;
+    return getClientWidth(containerParent) - gap;
   }
 
   function hasOption (item) {
@@ -2383,6 +2384,7 @@ var tns = function(options) {
     if (horizontal && !autoWidth) {
       if (fixedWidth) {
         val = - (fixedWidth + gutter) * num;
+        if (center) { val += (viewport - fixedWidth) / 2; }
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
         if (center) { num -= (items - 1) / 2; }
@@ -2390,6 +2392,7 @@ var tns = function(options) {
       }
     } else {
       val = - slidePositions[num];
+      if (center) { val += (viewport - (slideItems[num].clientWidth - gutter)) / 2; }
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
