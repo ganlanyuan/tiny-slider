@@ -398,10 +398,10 @@ export var tns = function(options) {
     var navContainer = options.navContainer,
         navContainerHTML = options.navContainer ? options.navContainer.outerHTML : '',
         navItems,
-        visibleNavIndexes = [],
-        visibleNavIndexesCached = visibleNavIndexes,
+        visibleNavIndexes = getVisibleNavIndex(),
+        visibleNavIndexesCached = [],
         navClicked = -1,
-        navCurrentIndex = getAbsIndex(),
+        navCurrentIndex = getCurrentNavIndex(),
         navCurrentIndexCached = navCurrentIndex,
         navActiveClass = 'tns-nav-active',
         navStr = 'Carousel Page ',
@@ -478,6 +478,18 @@ export var tns = function(options) {
     while (i < 0) { i += slideCount; }
 
     return Math.floor(i%slideCount);
+  }
+
+  function getCurrentNavIndex () {
+    var absIndex = getAbsIndex(), result;
+    visibleNavIndexes.forEach(function(item, i) {
+      if (item <= absIndex) { result = item; }
+    });
+
+    // set active nav to the last one when reaches the right edge
+    if (!loop && carousel && index === indexMax) { result = visibleNavIndexes[visibleNavIndexes.length - 1]; }
+
+    return result;
   }
 
   function getItemsMax () {
@@ -1398,6 +1410,8 @@ export var tns = function(options) {
     }
 
     if (itemsChanged) {
+      visibleNavIndexes = getVisibleNavIndex();
+      updateNavVisibility();
       if (!indChanged) { additionalUpdates(); }
       if (!carousel) { updateGallerySlidePositions(); }
     }
@@ -1756,7 +1770,6 @@ export var tns = function(options) {
     lazyLoad(); 
     updateSlideStatus();
     updateControlsStatus();
-    updateNavVisibility();
     updateNavStatus();
   }
 
@@ -1859,7 +1872,7 @@ export var tns = function(options) {
   function updateNavStatus () {
     // get current nav
     if (nav) {
-      navCurrentIndex = navClicked >= 0 ? navClicked : getAbsIndex();
+      navCurrentIndex = navClicked >= 0 ? navClicked : getCurrentNavIndex();
       navClicked = -1;
 
       if (navCurrentIndex !== navCurrentIndexCached) {
@@ -2598,22 +2611,26 @@ export var tns = function(options) {
    * [0, 1, 2, 3, 4] / 3 => [0, 3]
    */
   function getVisibleNavIndex () {
-    // reset visibleNavIndexes
-    visibleNavIndexes = [];
-
-    var absIndexMin = getAbsIndex()%items;
-    while (absIndexMin < slideCount) {
-      if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
-      visibleNavIndexes.push(absIndexMin);
-      absIndexMin += items;
+    var arr = [], i = 0, max = Math.ceil(slideCount/items);
+    while (i < max) {
+      arr.push(i * items);
+      i++;
     }
 
-    // nav count * items < slide count means
-    // some slides can not be displayed only by nav clicking
-    if (loop && visibleNavIndexes.length * items < slideCount ||
-        !loop && visibleNavIndexes[0] > 0) {
-      visibleNavIndexes.unshift(0);
-    }
+    return arr;
+    // var absIndexMin = getAbsIndex()%items;
+    // while (absIndexMin < slideCount) {
+    //   if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
+    //   visibleNavIndexes.push(absIndexMin);
+    //   absIndexMin += items;
+    // }
+
+    // // nav count * items < slide count means
+    // // some slides can not be displayed only by nav clicking
+    // if (loop && visibleNavIndexes.length * items < slideCount ||
+    //     !loop && visibleNavIndexes[0] > 0) {
+    //   visibleNavIndexes.unshift(0);
+    // }
   }
   
   /*
@@ -2623,7 +2640,6 @@ export var tns = function(options) {
    */
   function updateNavVisibility () {
     if (!nav || navAsThumbnails) { return; }
-    getVisibleNavIndex();
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
       forEachNodeList(navItems, function(el, i) {
