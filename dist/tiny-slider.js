@@ -742,13 +742,16 @@ var tns = function(options) {
         } else if (autoWidth) {
           return function() {
             for (var i = slideCountNew, result = i - 1; i--;) {
-              if (slidePositions[i] > - rightBoundary) { result = i; }
+              if (slidePositions[i] > - rightBoundary) { return i; }
             }
-            return result;
           };
         } else {
           return function() {
-            return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(items)) : slideCountNew - 1;
+            if (center && carousel && !loop) {
+              return slideCount - 1;
+            } else {
+              return loop || carousel ? Math.max(0, slideCountNew - Math.ceil(items)) : slideCountNew - 1;
+            }
           };
         }
       })(),
@@ -983,7 +986,7 @@ var tns = function(options) {
     if (ww == null) { ww = windowWidth; }
 
     if (item === 'items' && fixedWidth) {
-      return Math.floor(viewport / (fixedWidth + gutter)) || 1;
+      return Math.floor((viewport + gutter) / (fixedWidth + gutter)) || 1;
 
     } else {
       var result = options[item];
@@ -1189,7 +1192,7 @@ var tns = function(options) {
       // All imgs are completed
       raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), function() { imgsComplete = true; }); });
 
-      // Check imgs in viewport only for auto height
+      // Check imgs in window only for auto height
       if (!autoWidth && horizontal) { imgs = getImageArray(index, items); }
 
       lazyload ? initSliderTransformStyleCheck() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initSliderTransformStyleCheck); });
@@ -1879,12 +1882,9 @@ var tns = function(options) {
   function getFreeze () {
     if (!fixedWidth && !autoWidth) { return slideCount <= items; }
 
-    if (fixedWidth) {
-      return (fixedWidth + gutter) * slideCount <= viewport + edgePadding * 2;
-    } else {
-      var width = loop ? slidePositions[slideCount] : getSliderWidth();
-      return width <= viewport + edgePadding * 2;
-    }
+    var width = fixedWidth ? (fixedWidth + gutter) * slideCount :
+                loop ? slidePositions[slideCount] : getSliderWidth();
+    return width <= viewport + edgePadding * 2;
   }
 
   function setBreakpointZone () {
@@ -1907,13 +1907,13 @@ var tns = function(options) {
           leftEdge += slideBy;
           rightEdge -= slideBy;
 
-          // adjust edges when has edge padding
+          // adjust edges when has edge paddings
           // or fixed-width slider with extra space on the right side
           if (edgePadding) {
             leftEdge += 1;
             rightEdge -= 1;
           } else if (fixedWidth) {
-            if (viewport%(fixedWidth + gutter)) { rightEdge -= 1; }
+            if ((viewport + gutter)%(fixedWidth + gutter)) { rightEdge -= 1; }
           }
 
           if (cloneCount) {
@@ -2078,7 +2078,7 @@ var tns = function(options) {
       } else {
         var a = index + 1,
             len = a,
-            edge = slidePositions[index] + viewport + edgePadding - gutter;
+            edge = slidePositions[index] + viewport + edgePadding;
         while (slidePositions[a] < edge) {
           a++;
           len = a;
@@ -2371,8 +2371,14 @@ var tns = function(options) {
   }
 
   function getRightBoundary () {
-    var result = viewport - (getSliderWidth() - gutter);
-    if (edgePadding) { result += edgePadding - gutter; }
+    var result = (viewport + gutter) - getSliderWidth();
+    if (center) {
+      if (fixedWidth) {
+        result -= (viewport - fixedWidth) / 2;
+      } else {
+        result -= (viewport - (slideItems[slideCountNew - 1].clientWidth - gutter)) / 2;
+      }
+    }
     if (result > 0) { result = 0; }
     return result;
   }
@@ -2396,20 +2402,6 @@ var tns = function(options) {
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
-    // // remove edge padding for non-loop
-    // if (horizontal && !loop && edgePadding) {
-    //   var gap = edgePadding;
-
-    //   if (!autoWidth && !fixedWidth) {
-    //     gap = TRANSFORM ? gap * 100 / (viewport * slideCountNew / items) : gap / viewport;
-    //   }
-
-    //   if (num <= 0) {
-    //     val -= gap;
-    //   } else if (num >= indexMax && !autoWidth && !fixedWidth) {
-    //     val += gap;
-    //   }
-    // }
 
     val += (horizontal && !autoWidth && !fixedWidth) ? '%' : 'px';
 
@@ -2956,7 +2948,7 @@ var tns = function(options) {
         x += dist;
         x += 'px';
       } else {
-        var percentageX = TRANSFORM ? dist * items * 100 / (viewport * slideCountNew): dist * 100 / viewport;
+        var percentageX = TRANSFORM ? dist * items * 100 / ((viewport + gutter) * slideCountNew): dist * 100 / (viewport + gutter);
         x += percentageX;
         x += '%';
       }
@@ -2993,7 +2985,7 @@ var tns = function(options) {
         if (carousel) {
           rafIndex = raf(function() {
             if (horizontal && !autoWidth) {
-              var indexMoved = - dist * items / viewport;
+              var indexMoved = - dist * items / (viewport + gutter);
               indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
               index += indexMoved;
             } else {
