@@ -702,7 +702,7 @@ var tns = function(options) {
       edgePadding = getOption('edgePadding'),
       gutter = getOption('gutter'),
       viewport = getViewportWidth(),
-      center = options.center,
+      center = getOption('center'),
       items = !autoWidth ? Math.floor(getOption('items')) : 1,
       slideBy = getOption('slideBy'),
       viewportMax = options.viewportMax || options.fixedWidthViewportWidth,
@@ -2411,7 +2411,14 @@ var tns = function(options) {
       }
     } else {
       val = - slidePositions[num];
-      if (center) { val += (viewport - (slideItems[num].clientWidth - gutter)) / 2; }
+      if (center && horizontal) {
+        val += (viewport - (slideItems[num].offsetWidth - gutter)) / 2;
+
+        // * for vertical slider
+        // var vp = autoWidth ? viewport : getViewportHeight() - gutter,
+        //     slideSize = autoWidth ? slideItems[num].offsetWidth - gutter : slideItems[num].offsetHeight;
+        // val += (vp - slideSize) / 2;
+      }
     }
 
     if (hasRightDeadZone) { val = Math.max(val, rightBoundary); }
@@ -3035,6 +3042,12 @@ var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
+  // * for vertical slider: center
+  // function getViewportHeight () {
+  //   var n = loop ? index : Math.min(index, slideCount - items - 1);
+  //   return slidePositions[n + items] - slidePositions[n];
+  // }
+
   // (slidePositions, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight () {
     innerWrapper.style.height = slidePositions[index + items] - slidePositions[index] + 'px';

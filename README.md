@@ -45,7 +45,6 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 *[top↑](#tiny-slider-20)*  
 
 ## Features
-<small>* Default</small>
 <table class="table">
   <thead>
     <tr>
@@ -78,7 +77,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
-      <td>-</td>
+      <td>&nbsp;</td>
     </tr>
     <tr>
       <td>Slide by</td>
@@ -86,7 +85,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
-      <td>-</td>
+      <td>&nbsp;</td>
     </tr>
     <tr>
       <td>Gutter</td>
@@ -102,7 +101,15 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
-      <td>-</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Center (coming in v2.9.0)</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
     </tr>
     <tr>
       <td>Responsive</td>
@@ -194,6 +201,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
     </tr>
   </tbody>
 </table>
+<small>* Default</small>
 
 *[top↑](#tiny-slider-20)*  
 
