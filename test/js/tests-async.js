@@ -2392,10 +2392,9 @@ async function checkControlsClick (test, id, count, vertical, islast) {
         checkLastEdge = options[id]['fixedWidth'] ? true : compare2Nums(last.getBoundingClientRect()[edge2], wrapper.getBoundingClientRect()[edge2]);
 
     // if (id === 'customize') {
-    //   console.log(absIndex, index%slideCount);
+      // console.log(absIndex, index%slideCount);
     // }
-    return absIndex === Number(navContainer.querySelector('.' + navActiveClass).getAttribute('data-nav')) &&
-      first.getAttribute('aria-hidden') === 'false' &&
+    return first.getAttribute('aria-hidden') === 'false' &&
       !first.hasAttribute(tabindex) &&
       last.getAttribute('aria-hidden') === 'false' &&
       !last.hasAttribute(tabindex) &&
