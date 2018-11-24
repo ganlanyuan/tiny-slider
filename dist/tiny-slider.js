@@ -1661,6 +1661,7 @@ var tns = function(options) {
       var fixedWidthTem = fixedWidth,
           autoHeightTem = autoHeight,
           controlsTextTem = controlsText,
+          centerTem = center,
           autoplayTextTem = autoplayText;
 
       if (!CSSMQ) {
@@ -1677,6 +1678,7 @@ var tns = function(options) {
     controls = getOption('controls');
     nav = getOption('nav');
     touch = getOption('touch');
+    center = getOption('center');
     mouseDrag = getOption('mouseDrag');
     autoplay = getOption('autoplay');
     autoplayHoverPause = getOption('autoplayHoverPause');
@@ -1817,7 +1819,7 @@ var tns = function(options) {
     }
 
     if (bpChanged) {
-      if (fixedWidth !== fixedWidthTem) { needContainerTransform = true; }
+      if (fixedWidth !== fixedWidthTem || center !== centerTem) { needContainerTransform = true; }
 
       if (autoHeight !== autoHeightTem) {
         if (!autoHeight) { innerWrapper.style.height = ''; }
@@ -1836,6 +1838,8 @@ var tns = function(options) {
           autoplayButton.innerHTML = html.substring(0, len) + autoplayText[i];
         }
       }
+    } else {
+      if (center && (fixedWidth || autoWidth)) { needContainerTransform = true; }
     }
 
     indChanged = index !== indexTem;
