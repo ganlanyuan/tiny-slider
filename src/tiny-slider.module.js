@@ -1652,53 +1652,52 @@ export var tns = function(options) {
     disabled = false;
   }
 
+  function getVisibleSlideRange () {
+    if (!center && !edgePadding) {
+      return [index, index + items];
+
+    } else {
+      var start = index,
+          end = index,
+          parent = carousel ? innerWrapper.parentNode : outerWrapper,
+          parentRect = parent.getBoundingClientRect(),
+          propStart = horizontal ? 'left' : 'top',
+          propEnd = horizontal ? 'right' : 'bottom';
+
+      while (start > 0 && slideItems[start].getBoundingClientRect()[propStart] - gutter > parentRect[propStart]) {
+        start--;
+      }
+
+      while (end < slideCountNew - 1 && slideItems[end].getBoundingClientRect()[propEnd] + gutter < parentRect[propEnd]) {
+        end++;
+      }
+
+      return [start, end];
+    }
+  }
+
   function lazyLoad () {
     if (lazyload && !disable) {
-      var base = index,
-          gapCenter = Math.ceil((items - 1) / 2),
-          gap = edgePadding && center ? Math.max(1, gapCenter) :
-                edgePadding ? 1 : 
-                center ? gapCenter : 0,
-          start = Math.max(base - gap, 0),
-          end;
+      getImageArray.apply(null, getVisibleSlideRange()).forEach(function (img) {
+        if (!hasClass(img, imgCompleteClass)) {
+          // stop propagation transitionend event to container
+          var eve = {};
+          eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
+          addEvents(img, eve);
 
-      if (!autoWidth) {
-        end = base + items;
-        if (edgePadding) { end +=1; }
-      } else {
-        var a = base + 1,
-            end = a,
-            edge = slidePositions[base] + viewport + edgePadding;
-        while (slidePositions[a] < edge) {
-          a++;
-          end = a;
+          addEvents(img, imgEvents);
+
+          // update srcset
+          var srcset = getAttr(img, 'data-srcset');
+          if (srcset) { img.srcset = srcset; }
+
+          // update src
+          img.src = getAttr(img, 'data-src');
+
+          addClass(img, 'loading');
+          imgCachedCheck(img);
         }
-      }
-
-      end = Math.ceil(Math.min(end, slideCountNew));
-
-      for(; start < end; start++) {
-        forEachNodeList(slideItems[start].querySelectorAll(lazyloadSelector), function (img) {
-          if (!hasClass(img, imgCompleteClass)) {
-            // stop propagation transitionend event to container
-            var eve = {};
-            eve[TRANSITIONEND] = function (e) { e.stopPropagation(); };
-            addEvents(img, eve);
-
-            addEvents(img, imgEvents);
-
-            // update srcset
-            var srcset = getAttr(img, 'data-srcset');
-            if (srcset) { img.srcset = srcset; }
-
-            // update src
-            img.src = getAttr(img, 'data-src');
-
-            addClass(img, 'loading');
-            imgCachedCheck(img);
-          }
-        });
-      }
+      });
     }
   }
 
@@ -1734,12 +1733,11 @@ export var tns = function(options) {
     }
   }
 
-  function getImageArray (slideStart, slideRange) {
+  function getImageArray (start, end) {
     var imgs = [];
-    for (var i = slideStart, l = Math.min(slideStart + slideRange, slideCountNew); i < l; i++) {
-      forEachNodeList(slideItems[i].querySelectorAll('img'), function (img) {
-        imgs.push(img);
-      });
+    while (start <= end) {
+      forEachNodeList(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
+      start++;
     }
 
     return imgs;
@@ -1749,8 +1747,8 @@ export var tns = function(options) {
   // and update container height if it's done
   function runAutoHeight () {
     var imgs = autoHeight ?
-        getImageArray(index, items) :
-        getImageArray(cloneCount, slideCount);
+        getImageArray.apply(null, getVisibleSlideRange()) :
+        getImageArray(cloneCount, cloneCount + slideCount);
 
     raf(function(){ imgsLoadedCheck(imgs, updateInnerWrapperHeight); });
   }
