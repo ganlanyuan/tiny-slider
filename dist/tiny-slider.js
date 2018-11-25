@@ -2089,30 +2089,31 @@ var tns = function(options) {
 
   function lazyLoad () {
     if (lazyload && !disable) {
-      var i = index, len;
+      var base = index,
+          gapCenter = Math.ceil((items - 1) / 2),
+          gap = edgePadding && center ? Math.max(1, gapCenter) :
+                edgePadding ? 1 : 
+                center ? gapCenter : 0,
+          start = Math.max(base - gap, 0),
+          end;
 
       if (!autoWidth) {
-        len = index + items;
+        end = base + items;
+        if (edgePadding) { end +=1; }
       } else {
-        var a = index + 1,
-            len = a,
-            edge = slidePositions[index] + viewport + edgePadding;
+        var a = base + 1,
+            end = a,
+            edge = slidePositions[base] + viewport + edgePadding;
         while (slidePositions[a] < edge) {
           a++;
-          len = a;
+          end = a;
         }
       }
 
-      if (edgePadding) {
-        i -=1;
-        if (!autoWidth) { len +=1; }
-      }
+      end = Math.ceil(Math.min(end, slideCountNew));
 
-      i = Math.floor(Math.max(i, 0));
-      len = Math.ceil(Math.min(len, slideCountNew));
-
-      for(; i < len; i++) {
-        forEachNodeList(slideItems[i].querySelectorAll(lazyloadSelector), function (img) {
+      for(; start < end; start++) {
+        forEachNodeList(slideItems[start].querySelectorAll(lazyloadSelector), function (img) {
           if (!hasClass(img, imgCompleteClass)) {
             // stop propagation transitionend event to container
             var eve = {};
