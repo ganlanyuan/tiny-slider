@@ -1653,27 +1653,53 @@ export var tns = function(options) {
   }
 
   function getVisibleSlideRange () {
-    if (!center && !edgePadding) {
-      return [index, index + items];
+    var start = index, end, rangestart, rangeend, reg = /%|px/;
 
+    // get range start, range end for autoWidth and fixedWidth
+    if (center || edgePadding) {
+      if (autoWidth || fixedWidth) {
+        rangestart = center || edgePadding ? - (getContainerTransformValue().replace(reg, '') + edgePadding) : slidePositions[index];
+        rangeend = rangestart + viewport;
+      }
     } else {
-      var start = index,
-          end = index,
-          parent = carousel ? innerWrapper.parentNode : outerWrapper,
-          parentRect = parent.getBoundingClientRect(),
-          propStart = horizontal ? 'left' : 'top',
-          propEnd = horizontal ? 'right' : 'bottom';
-
-      while (start > 0 && slideItems[start].getBoundingClientRect()[propStart] - gutter > parentRect[propStart]) {
-        start--;
-      }
-
-      while (end < slideCountNew - 1 && slideItems[end].getBoundingClientRect()[propEnd] + gutter < parentRect[propEnd]) {
-        end++;
-      }
-
-      return [start, end];
+      if (autoWidth) { rangestart = slidePositions[index]; }
     }
+
+    // get start, end
+    // check auto width
+    if (autoWidth) {
+      if (!center && !edgePadding) { rangeend = rangestart + viewport; }
+
+      slidePositions.forEach(function(point, i) {
+        if ((center || edgePadding) && point <= rangestart) { start = i; }
+        if (point < rangeend) { end = i; }
+      });
+
+    // check percentage width, fixed width
+    } else {
+      if (center || edgePadding) {
+        if (fixedWidth) {
+          var cell = fixedWidth + gutter;
+          start = Math.floor(Math.max(rangestart, 0)/cell);
+          end = Math.ceil(rangeend/cell);
+          
+        } else {
+          if (center) { start -= (items - 1) / 2; }
+          if (edgePadding) { start -= edgePadding * items / viewport; }
+
+          end = start + items;
+          if (edgePadding) { end += (edgePadding * 2 - gutter) * items / viewport; }
+
+          start = Math.floor(Math.max(start, 0));
+          end = Math.floor(end);
+        }
+
+      } else {
+        end = start + items;
+      }
+    }
+
+    return [start, end];
   }
 
   function lazyLoad () {
@@ -1735,6 +1761,7 @@ export var tns = function(options) {
 
   function getImageArray (start, end) {
     var imgs = [];
+    end = Math.min(end, slideCountNew - 1);
     while (start <= end) {
       forEachNodeList(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
       start++;
