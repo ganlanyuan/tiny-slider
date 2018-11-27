@@ -121,7 +121,7 @@ img:not(.tns-lazy-img), .lazyload img { height: auto; }
   cursor: pointer;
   border: 5px solid #fff;
 }
-.thumbnails [aria-selected="true"] {
+.thumbnails .tns-nav-active {
   background: none;
   border-color: #000;
 }

@@ -662,13 +662,12 @@ var tns = function(options) {
         if (key === 'edgePadding') { obj[key] = false; }
         if (key === 'autoHeight') { obj[key] = false; }
       }
-      if (nested === 'outer' && key === 'autoHeight') { obj[key] = true; }
 
       // update responsive options
       if (key === 'responsive') { updateOptions(obj[key]); }
     }
   }
-  if (!carousel || nested === 'outer') { updateOptions(options); }
+  if (!carousel) { updateOptions(options); }
 
 
   // === define and set variables ===
@@ -1552,10 +1551,10 @@ var tns = function(options) {
       addEvents(win, {'resize': onResize});
     }
 
-    if (nested === 'outer') {
-      events.on('innerLoaded', runAutoHeight);
-    } else if (autoHeight && !disable) {
-      runAutoHeight();
+    if (autoHeight) {
+      if (nested === 'outer') {
+        events.on('innerLoaded', runAutoHeight);
+      } else if (!disable) { runAutoHeight(); }
     }
 
     lazyLoad();
@@ -2101,7 +2100,7 @@ var tns = function(options) {
     }
 
     // get start, end
-    // check auto width
+    // - check auto width
     if (autoWidth) {
       if (!center && !edgePadding) { rangeend = rangestart + viewport; }
 
@@ -2110,7 +2109,7 @@ var tns = function(options) {
         if (point < rangeend) { end = i; }
       });
 
-    // check percentage width, fixed width
+    // - check percentage width, fixed width
     } else {
       if (center || edgePadding) {
         if (fixedWidth) {
@@ -2208,10 +2207,7 @@ var tns = function(options) {
   // check if all visible images are loaded
   // and update container height if it's done
   function runAutoHeight () {
-    var imgs = autoHeight ?
-        getImageArray.apply(null, getVisibleSlideRange()) :
-        getImageArray(cloneCount, cloneCount + slideCount);
-
+    var imgs = getImageArray.apply(null, getVisibleSlideRange());
     raf(function(){ imgsLoadedCheck(imgs, updateInnerWrapperHeight); });
   }
 
