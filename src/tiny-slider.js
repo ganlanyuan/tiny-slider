@@ -481,14 +481,20 @@ export var tns = function(options) {
 
   function getCurrentNavIndex () {
     var absIndex = getAbsIndex(), result;
-    visibleNavIndexes.forEach(function(item, i) {
-      if (item <= absIndex) { result = item; }
-    });
+    
+    if (navAsThumbnails) {
+      return absIndex;
 
-    // set active nav to the last one when reaches the right edge
-    if (!loop && carousel && index === indexMax) { result = visibleNavIndexes[visibleNavIndexes.length - 1]; }
+    } else {
+      visibleNavIndexes.forEach(function(item, i) {
+        if (item <= absIndex) { result = item; }
+      });
 
-    return result;
+      // set active nav to the last one when reaches the right edge
+      if (!loop && carousel && index === indexMax) { result = visibleNavIndexes[visibleNavIndexes.length - 1]; }
+
+      return result;
+    }
   }
 
   function getItemsMax () {
