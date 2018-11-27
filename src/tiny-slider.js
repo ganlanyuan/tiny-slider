@@ -1664,8 +1664,8 @@ export var tns = function(options) {
     // get range start, range end for autoWidth and fixedWidth
     if (center || edgePadding) {
       if (autoWidth || fixedWidth) {
-        rangestart = center || edgePadding ? - (getContainerTransformValue().replace(reg, '') + edgePadding) : slidePositions[index];
-        rangeend = rangestart + viewport;
+        rangestart = center || edgePadding ? - (parseFloat(getContainerTransformValue().replace(reg, '')) + edgePadding) : slidePositions[index];
+        rangeend = rangestart + viewport + edgePadding * 2;
       }
     } else {
       if (autoWidth) { rangestart = slidePositions[index]; }
