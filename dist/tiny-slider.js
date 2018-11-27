@@ -2092,14 +2092,13 @@ var tns = function(options) {
     disabled = false;
   }
 
-  var arrshow = false;
   function getVisibleSlideRange () {
     var start = index, end, rangestart, rangeend, reg = /%|px/;
 
     // get range start, range end for autoWidth and fixedWidth
     if (center || edgePadding) {
       if (autoWidth || fixedWidth) {
-        rangestart = center || edgePadding ? - (parseFloat(getContainerTransformValue().replace(reg, '')) + edgePadding) : slidePositions[index];
+        rangestart = - (parseFloat(getContainerTransformValue().replace(reg, '')) + edgePadding);
         rangeend = rangestart + viewport + edgePadding * 2;
       }
     } else {
@@ -2121,8 +2120,8 @@ var tns = function(options) {
       if (center || edgePadding) {
         if (fixedWidth) {
           var cell = fixedWidth + gutter;
-          start = Math.floor(Math.max(rangestart, 0)/cell);
-          end = Math.ceil(rangeend/cell);
+          start = Math.floor(Math.max(rangestart/cell, 0));
+          end = Math.ceil(rangeend/cell - 1);
           
         } else {
           if (center) { start -= (items - 1) / 2; }
@@ -2136,7 +2135,7 @@ var tns = function(options) {
         }
 
       } else {
-        end = start + items;
+        end = start + items - 1;
       }
     }
 
