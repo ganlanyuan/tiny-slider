@@ -481,7 +481,7 @@ export var tns = function(options) {
 
   function getCurrentNavIndex () {
     var absIndex = getAbsIndex(), result;
-    
+
     if (navAsThumbnails) {
       return absIndex;
 
@@ -534,10 +534,10 @@ export var tns = function(options) {
   }
 
   function getClientWidth (el) {
-    var div = doc.createElement('div'),
-        width;
+    var div = doc.createElement('div'), rect, width;
     el.appendChild(div);
-    width = div.offsetWidth;
+    rect = div.getBoundingClientRect();
+    width = rect.right - rect.left;
     div.remove();
     return width || getClientWidth(el.parentNode);
   }
@@ -1124,11 +1124,11 @@ export var tns = function(options) {
 
     if (autoHeight) {
       if (nested === 'outer') {
-        events.on('innerLoaded', runAutoHeight);
-      } else if (!disable) { runAutoHeight(); }
+        events.on('innerLoaded', doAutoHeight);
+      } else if (!disable) { doAutoHeight(); }
     }
 
-    lazyLoad();
+    doLazyLoad();
     if (disable) { disableSlider(); } else if (freeze) { freezeSlider(); }
 
     events.on('indexChanged', additionalUpdates);
@@ -1451,7 +1451,7 @@ export var tns = function(options) {
       }
 
       // auto height
-      if (autoHeight) { runAutoHeight(); }
+      if (autoHeight) { doAutoHeight(); }
 
       if (needContainerTransform) {
         doContainerTransformSilent();
@@ -1657,6 +1657,7 @@ export var tns = function(options) {
     disabled = false;
   }
 
+  var arrshow = false;
   function getVisibleSlideRange () {
     var start = index, end, rangestart, rangeend, reg = /%|px/;
 
@@ -1707,7 +1708,7 @@ export var tns = function(options) {
     return [start, end];
   }
 
-  function lazyLoad () {
+  function doLazyLoad () {
     if (lazyload && !disable) {
       getImageArray.apply(null, getVisibleSlideRange()).forEach(function (img) {
         if (!hasClass(img, imgCompleteClass)) {
@@ -1777,7 +1778,7 @@ export var tns = function(options) {
 
   // check if all visible images are loaded
   // and update container height if it's done
-  function runAutoHeight () {
+  function doAutoHeight () {
     var imgs = getImageArray.apply(null, getVisibleSlideRange());
     raf(function(){ imgsLoadedCheck(imgs, updateInnerWrapperHeight); });
   }
@@ -1799,7 +1800,7 @@ export var tns = function(options) {
   } 
 
   function additionalUpdates () {
-    lazyLoad(); 
+    doLazyLoad(); 
     updateSlideStatus();
     updateControlsStatus();
     updateNavStatus();
@@ -2010,11 +2011,6 @@ export var tns = function(options) {
       val = - slidePositions[num];
       if (center && horizontal) {
         val += (viewport - (slideItems[num].offsetWidth - gutter)) / 2;
-
-        // * for vertical slider
-        // var vp = autoWidth ? viewport : getViewportHeight() - gutter,
-        //     slideSize = autoWidth ? slideItems[num].offsetWidth - gutter : slideItems[num].offsetHeight;
-        // val += (vp - slideSize) / 2;
       }
     }
 
@@ -2102,7 +2098,7 @@ export var tns = function(options) {
       // events
       events.emit('indexChanged', info());
       events.emit('transitionStart', info());
-      if (autoHeight) { runAutoHeight(); }
+      if (autoHeight) { doAutoHeight(); }
 
       // pause autoplay when click or keydown from user
       if (animating && e && ['click', 'keydown'].indexOf(e.type) >= 0) { stopAutoplay(); }
@@ -2639,12 +2635,6 @@ export var tns = function(options) {
   }
 
   // === RESIZE FUNCTIONS === //
-  // * for vertical slider: center
-  // function getViewportHeight () {
-  //   var n = loop ? index : Math.min(index, slideCount - items - 1);
-  //   return slidePositions[n + items] - slidePositions[n];
-  // }
-
   // (slidePositions, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight () {
     innerWrapper.style.height = slidePositions[index + items] - slidePositions[index] + 'px';
