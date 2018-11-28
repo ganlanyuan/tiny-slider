@@ -1215,7 +1215,7 @@ var tns = function(options) {
       raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), function() { imgsComplete = true; }); });
 
       // Check imgs in window only for auto height
-      if (!autoWidth && horizontal) { imgs = getImageArray(index, items); }
+      if (!autoWidth && horizontal) { imgs = getImageArray(index, Math.min(index + items - 1, slideCountNew - 1)); }
 
       lazyload ? initSliderTransformStyleCheck() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initSliderTransformStyleCheck); });
 
@@ -1247,7 +1247,7 @@ var tns = function(options) {
   function initSliderTransformCore () {
     // run Fn()s which are rely on image loading
     if (!horizontal || autoWidth) {
-      getSlidePositions();
+      setSlidePositions();
 
       if (autoWidth) {
         rightBoundary = getRightBoundary();
@@ -1415,7 +1415,7 @@ var tns = function(options) {
 
   function initTools () {
     // == live region ==
-    outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true"></div>');
+    outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">slide <span class="current">' + getLiveRegionStr() + '</span>  of ' + slideCount + '</div>');
     liveregion = outerWrapper.querySelector('.tns-liveregion');
 
     // == autoplayInit ==
@@ -1446,16 +1446,14 @@ var tns = function(options) {
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
-        setAttrs(navContainer, {
-          'aria-label': 'Carousel Pagination',
-          'aria-controls': slideId,
-        });
+        setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
         forEachNodeList(navItems, function(item, i) {
           setAttrs(item, {
             'data-nav': i,
             'tabindex': '-1',
             'aria-label': navStr + (i + 1),
+            'aria-controls': slideId,
           });
         });
 
@@ -1465,9 +1463,9 @@ var tns = function(options) {
             hiddenStr = navAsThumbnails ? '' : 'style="display:none"';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-controls="' + slideId + '" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
         }
-        navHtml = '<div class="tns-nav" aria-label="Carousel Pagination" aria-controls="' + slideId + '">' + navHtml + '</div>';
+        navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML(getInsertPosition(options.navPosition), navHtml);
 
         navContainer = outerWrapper.querySelector('.tns-nav');
@@ -1719,9 +1717,9 @@ var tns = function(options) {
 
     viewport = getViewportWidth(); // <= edgePadding, gutter
     if ((!horizontal || autoWidth) && !disable) {
-      getSlidePositions();
+      setSlidePositions();
       if (!horizontal) {
-        updateContentWrapperHeight(); // <= getSlidePositions
+        updateContentWrapperHeight(); // <= setSlidePositions
         needContainerTransform = true;
       }
     }
@@ -2103,24 +2101,33 @@ var tns = function(options) {
     disabled = false;
   }
 
-  function getVisibleSlideRange () {
-    var start = index, end, rangestart, rangeend, reg = /%|px/;
+  function getLiveRegionStr () {
+    var arr = getVisibleSlideRange(),
+        start = arr[0] + 1,
+        end = arr[1] + 1;
+    return start === end ? start + '' : start + ' to ' + end; 
+  }
+
+  function getVisibleSlideRange (val) {
+    if (val == null) { val = getContainerTransformValue(); }
+    var start = index, end, rangestart, rangeend;
 
     // get range start, range end for autoWidth and fixedWidth
     if (center || edgePadding) {
       if (autoWidth || fixedWidth) {
-        rangestart = - (parseFloat(getContainerTransformValue().replace(reg, '')) + edgePadding);
+        rangestart = - (parseFloat(val.replace('px', '')) + edgePadding);
         rangeend = rangestart + viewport + edgePadding * 2;
       }
     } else {
-      if (autoWidth) { rangestart = slidePositions[index]; }
+      if (autoWidth) {
+        rangestart = slidePositions[index];
+        rangeend = rangestart + viewport;
+      }
     }
 
     // get start, end
     // - check auto width
     if (autoWidth) {
-      if (!center && !edgePadding) { rangeend = rangestart + viewport; }
-
       slidePositions.forEach(function(point, i) {
         if ((center || edgePadding) && point <= rangestart) { start = i; }
         if (point < rangeend) { end = i; }
@@ -2128,26 +2135,41 @@ var tns = function(options) {
 
     // - check percentage width, fixed width
     } else {
-      if (center || edgePadding) {
-        if (fixedWidth) {
-          var cell = fixedWidth + gutter;
-          start = Math.floor(Math.max(rangestart/cell, 0));
+
+      if (fixedWidth) {
+        var cell = fixedWidth + gutter;
+        if (center || edgePadding) {
+          start = Math.floor(rangestart/cell);
           end = Math.ceil(rangeend/cell - 1);
-          
         } else {
-          if (center) { start -= (items - 1) / 2; }
-          if (edgePadding) { start -= edgePadding * items / viewport; }
-
-          end = start + items;
-          if (edgePadding) { end += (edgePadding * 2 - gutter) * items / viewport; }
-
-          start = Math.floor(Math.max(start, 0));
-          end = Math.floor(end);
+          end = start + Math.ceil(viewport/cell) - 1;
         }
 
       } else {
-        end = start + items - 1;
+        if (center || edgePadding) {
+          var a = items - 1;
+          if (center) {
+            start -= a / 2;
+            end = index + a / 2;
+          } else {
+            end = index + a;
+          }
+
+          if (edgePadding) {
+            var b = edgePadding * items / viewport;
+            start -= b;
+            end += b;
+          }
+
+          start = Math.floor(start);
+          end = Math.ceil(end);
+        } else {
+          end = start + items - 1;
+        }
       }
+
+      start = Math.max(start, 0);
+      end = Math.min(end, slideCountNew - 1);
     }
 
     return [start, end];
@@ -2212,7 +2234,6 @@ var tns = function(options) {
 
   function getImageArray (start, end) {
     var imgs = [];
-    end = Math.min(end, slideCountNew - 1);
     while (start <= end) {
       forEachNodeList(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
       start++;
@@ -2276,15 +2297,14 @@ var tns = function(options) {
 
   // get the distance from the top edge of the first slide to each slide
   // (init) => slidePositions
-  function getSlidePositions () {
+  function setSlidePositions () {
     slidePositions = [0];
     var attr = horizontal ? 'left' : 'top',
-        first = slideItems[0].getBoundingClientRect()[attr],
-        position;
-    for (var i = 1; i < slideCountNew; i++) {
-      position = slideItems[i].getBoundingClientRect()[attr];
-      slidePositions.push(position - first);
-    }
+        first = slideItems[0].getBoundingClientRect()[attr];
+
+    forEachNodeList(slideItems, function(item) {
+      slidePositions.push(item.getBoundingClientRect()[attr] - first);
+    });
   }
 
   // update slide
