@@ -378,6 +378,7 @@ export var tns = function(options) {
         'error': onImgFailed
       },
       imgsComplete,
+      liveregion,
       preventScroll = options.preventScrollOnTouch === 'force' ? true : false;
 
   // controls
@@ -531,6 +532,10 @@ export var tns = function(options) {
 
   function getWindowWidth () {
     return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
+  }
+
+  function getInsertPosition (pos) {
+    return pos === 'top' ? 'afterbegin' : 'beforeend';
   }
 
   function getClientWidth (el) {
@@ -974,13 +979,17 @@ export var tns = function(options) {
   }
 
   function initTools () {
+    // == live region ==
+    outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true"></div>');
+    liveregion = outerWrapper.querySelector('.tns-liveregion');
+
     // == autoplayInit ==
     if (hasAutoplay) {
       var txt = autoplay ? 'stop' : 'start';
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': txt});
       } else if (options.autoplayButtonOutput) {
-        outerWrapper.insertAdjacentHTML(options.autoplayPosition !== 'top' ? 'beforeend' : 'afterbegin', '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.autoplayPosition), '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
         autoplayButton = outerWrapper.querySelector('[data-action]');
       }
 
@@ -1002,13 +1011,15 @@ export var tns = function(options) {
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
-        setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
+        setAttrs(navContainer, {
+          'aria-label': 'Carousel Pagination',
+          'aria-controls': slideId,
+        });
         navItems = navContainer.children;
         forEachNodeList(navItems, function(item, i) {
           setAttrs(item, {
             'data-nav': i,
             'tabindex': '-1',
-            'aria-controls': slideItems[initIndex + i].id,
             'aria-label': navStr + (i + 1),
           });
         });
@@ -1019,10 +1030,10 @@ export var tns = function(options) {
             hiddenStr = navAsThumbnails ? '' : 'style="display:none"';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-controls="' + slideItems[initIndex + i].id + '" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
         }
-        navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
-        outerWrapper.insertAdjacentHTML(options.navPosition !== 'top' ? 'beforeend' : 'afterbegin', navHtml);
+        navHtml = '<div class="tns-nav" aria-label="Carousel Pagination" aria-controls="' + slideId + '">' + navHtml + '</div>';
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.navPosition), navHtml);
 
         navContainer = outerWrapper.querySelector('.tns-nav');
         navItems = navContainer.children;
@@ -1054,7 +1065,7 @@ export var tns = function(options) {
     // == controlsInit ==
     if (hasControls) {
       if (!controlsContainer && (!prevButton || !nextButton)) {
-        outerWrapper.insertAdjacentHTML(options.controlsPosition !== 'top' ? 'beforeend' : 'afterbegin', '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
       }
