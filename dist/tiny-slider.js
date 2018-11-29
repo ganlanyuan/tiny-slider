@@ -2129,8 +2129,8 @@ var tns = function(options) {
     // - check auto width
     if (autoWidth) {
       slidePositions.forEach(function(point, i) {
-        if ((center || edgePadding) && point <= rangestart) { start = i; }
-        if (point < rangeend) { end = i; }
+        if ((center || edgePadding) && point <= rangestart + 0.5) { start = i; }
+        if (rangeend - point >= 0.5) { end = i; }
       });
 
     // - check percentage width, fixed width
@@ -2300,10 +2300,10 @@ var tns = function(options) {
   function setSlidePositions () {
     slidePositions = [0];
     var attr = horizontal ? 'left' : 'top',
-        first = slideItems[0].getBoundingClientRect()[attr];
+        base = slideItems[0].getBoundingClientRect()[attr];
 
-    forEachNodeList(slideItems, function(item) {
-      slidePositions.push(item.getBoundingClientRect()[attr] - first);
+    forEachNodeList(slideItems, function(item, i) {
+      if (i) { slidePositions.push(item.getBoundingClientRect()[attr] - base); }
     });
   }
 
