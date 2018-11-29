@@ -241,7 +241,7 @@ function getTouchDirection(angle, range) {
 }
 
 // https://toddmotto.com/ditch-the-array-foreach-call-nodelist-hack/
-function forEachNodeList (arr, callback, scope) {
+function forEach (arr, callback, scope) {
   for (var i = 0, l = arr.length; i < l; i++) {
     callback.call(scope, arr[i], i);
   }
@@ -813,7 +813,7 @@ var tns = function(options) {
         'error': onImgFailed
       },
       imgsComplete,
-      liveregion,
+      liveregionCurrent,
       preventScroll = options.preventScrollOnTouch === 'force' ? true : false;
 
   // controls
@@ -1198,7 +1198,7 @@ var tns = function(options) {
       var imgs = container.querySelectorAll('img');
 
       // add complete class if all images are loaded/failed
-      forEachNodeList(imgs, function(img) {
+      forEach(imgs, function(img) {
         var src = img.src;
         if (src.indexOf('data:image') < 0) {
           addEvents(img, imgEvents);
@@ -1268,17 +1268,11 @@ var tns = function(options) {
   }
 
   function initSheet () {
-    // activate visible slides
-    // add aria attrs
+    // gallery:
     // set animation classes and left value for gallery slider
-    // use slide count when slides are fewer than items
-    for (var i = index, l = index + Math.min(slideCount, items); i < l; i++) {
-      var item = slideItems[i];
-      setAttrs(item, {'aria-hidden': 'false'});
-      removeAttrs(item, ['tabindex']);
-      addClass(item, slideActiveClass);
-
-      if (!carousel) { 
+    if (!carousel) { 
+      for (var i = index, l = index + Math.min(slideCount, items); i < l; i++) {
+        var item = slideItems[i];
         item.style.left = (i - index) * 100 / items + '%';
         addClass(item, animateIn);
         removeClass(item, animateNormal);
@@ -1304,7 +1298,7 @@ var tns = function(options) {
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
       } else if (carousel) {
-        forEachNodeList(slideItems, function (slide, i) {
+        forEach(slideItems, function (slide, i) {
           slide.style.marginLeft = getSlideMarginLeft(i);
         });
       }
@@ -1414,9 +1408,12 @@ var tns = function(options) {
   }
 
   function initTools () {
+    // == slides ==
+    updateSlideStatus();
+
     // == live region ==
     outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">slide <span class="current">' + getLiveRegionStr() + '</span>  of ' + slideCount + '</div>');
-    liveregion = outerWrapper.querySelector('.tns-liveregion');
+    liveregionCurrent = outerWrapper.querySelector('.tns-liveregion .current');
 
     // == autoplayInit ==
     if (hasAutoplay) {
@@ -1424,7 +1421,7 @@ var tns = function(options) {
       if (autoplayButton) {
         setAttrs(autoplayButton, {'data-action': txt});
       } else if (options.autoplayButtonOutput) {
-        outerWrapper.insertAdjacentHTML(getInsertPosition(options.autoplayPosition), '<button data-action="' + txt + '" type="button">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.autoplayPosition), '<button data-action="' + txt + '">' + autoplayHtmlStrings[0] + txt + autoplayHtmlStrings[1] + autoplayText[0] + '</button>');
         autoplayButton = outerWrapper.querySelector('[data-action]');
       }
 
@@ -1448,7 +1445,7 @@ var tns = function(options) {
       if (navContainer) {
         setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
-        forEachNodeList(navItems, function(item, i) {
+        forEach(navItems, function(item, i) {
           setAttrs(item, {
             'data-nav': i,
             'tabindex': '-1',
@@ -1463,7 +1460,7 @@ var tns = function(options) {
             hiddenStr = navAsThumbnails ? '' : 'style="display:none"';
         for (var i = 0; i < slideCount; i++) {
           // hide nav items by default
-          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-controls="' + slideId + '" ' + hiddenStr + ' type="button" aria-label="' + navStr + (i + 1) +'"></button>';
+          navHtml += '<button data-nav="' + i +'" tabindex="-1" aria-controls="' + slideId + '" ' + hiddenStr + ' aria-label="' + navStr + (i + 1) +'"></button>';
         }
         navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML(getInsertPosition(options.navPosition), navHtml);
@@ -1498,7 +1495,7 @@ var tns = function(options) {
     // == controlsInit ==
     if (hasControls) {
       if (!controlsContainer && (!prevButton || !nextButton)) {
-        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'" type="button">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button data-controls="prev" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[0] + '</button><button data-controls="next" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
       }
@@ -1869,6 +1866,12 @@ var tns = function(options) {
       if (!carousel) { updateGallerySlidePositions(); }
     }
 
+    if ((fixedWidth || autoWidth) && !indChanged && !itemsChanged) {
+      doLazyLoad(); 
+      updateSlideStatus();
+      updateLiveRegion();
+    }
+
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
       if (bpChanged && !CSSMQ) {
@@ -2101,6 +2104,11 @@ var tns = function(options) {
     disabled = false;
   }
 
+  function updateLiveRegion () {
+    var str = getLiveRegionStr();
+    if (liveregionCurrent.innerHTML !== str) { liveregionCurrent.innerHTML = str; }
+  }
+
   function getLiveRegionStr () {
     var arr = getVisibleSlideRange(),
         start = arr[0] + 1,
@@ -2235,7 +2243,7 @@ var tns = function(options) {
   function getImageArray (start, end) {
     var imgs = [];
     while (start <= end) {
-      forEachNodeList(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
+      forEach(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
       start++;
     }
 
@@ -2268,6 +2276,7 @@ var tns = function(options) {
   function additionalUpdates () {
     doLazyLoad(); 
     updateSlideStatus();
+    updateLiveRegion();
     updateControlsStatus();
     updateNavStatus();
   }
@@ -2302,37 +2311,35 @@ var tns = function(options) {
     var attr = horizontal ? 'left' : 'top',
         base = slideItems[0].getBoundingClientRect()[attr];
 
-    forEachNodeList(slideItems, function(item, i) {
+    forEach(slideItems, function(item, i) {
       if (i) { slidePositions.push(item.getBoundingClientRect()[attr] - base); }
     });
   }
 
   // update slide
   function updateSlideStatus () {
-    var l = index + Math.min(slideCount, items);
-    for (var i = slideCountNew; i--;) {
-      var item = slideItems[i];
-      
-      // visible slides
-      if (i >= index && i < l) {
-        if (hasAttr(item, 'tabindex')) {
-          setAttrs(item, {'aria-hidden': 'false'});
-          removeAttrs(item, ['tabindex']);
+    var range = getVisibleSlideRange(),
+        start = range[0],
+        end = range[1];
+
+    forEach(slideItems, function(item, i) {
+      // show slides
+      if (i >= start && i <= end) {
+        if (hasAttr(item, 'aria-hidden')) {
+          removeAttrs(item, ['aria-hidden', 'tabindex']);
           addClass(item, slideActiveClass);
         }
-      // hidden slides
+      // hide slides
       } else {
-        if (!hasAttr(item, 'tabindex')) {
+        if (!hasAttr(item, 'aria-hidden')) {
           setAttrs(item, {
             'aria-hidden': 'true',
             'tabindex': '-1'
           });
-        }
-        if (hasClass(item, slideActiveClass)) {
           removeClass(item, slideActiveClass);
         }
       }
-    }
+    });
   }
 
   // gallery: update slide position
@@ -2360,7 +2367,7 @@ var tns = function(options) {
 
     // removing '.tns-moving'
     setTimeout(function() {
-      forEachNodeList(slideItems, function(el) {
+      forEach(slideItems, function(el) {
         removeClass(el, 'tns-moving');
       });
     }, 300);
@@ -3142,7 +3149,7 @@ var tns = function(options) {
     if (!nav || navAsThumbnails) { return; }
 
     if (visibleNavIndexes !== visibleNavIndexesCached) {
-      forEachNodeList(navItems, function(el, i) {
+      forEach(navItems, function(el, i) {
         visibleNavIndexes.indexOf(i) < 0 ? hideElement(el) : showElement(el);
       });
 
