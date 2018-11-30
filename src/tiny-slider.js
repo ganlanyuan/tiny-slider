@@ -1048,7 +1048,8 @@ export var tns = function(options) {
         addCSSRule(sheet, '[aria-controls^=' + slideId + '-item]', str, getCssRulesLength(sheet));
       }
 
-      setAttrs(navItems[navCurrentIndex], {'tabindex': '0', 'aria-label': navStr + (navCurrentIndex + 1) + navStrCurrent});
+      setAttrs(navItems[navCurrentIndex], {'aria-label': navStr + (navCurrentIndex + 1) + navStrCurrent});
+      removeAttrs(navItems[navCurrentIndex], 'tabindex');
       addClass(navItems[navCurrentIndex], navActiveClass);
 
       // add events
@@ -1953,11 +1954,10 @@ export var tns = function(options) {
           'tabindex': '-1',
           'aria-label': navStr + (navCurrentIndexCached + 1)
         });
-        setAttrs(navCurrent, {
-          'tabindex': '0',
-          'aria-label': navStr + (navCurrentIndex + 1) + navStrCurrent
-        });
         removeClass(navPrev, navActiveClass);
+        
+        setAttrs(navCurrent, {'aria-label': navStr + (navCurrentIndex + 1) + navStrCurrent});
+        removeAttrs(navCurrent, 'tabindex');
         addClass(navCurrent, navActiveClass);
 
         navCurrentIndexCached = navCurrentIndex;
