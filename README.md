@@ -404,8 +404,8 @@ To get the slider information, you can either use the `getInfo()` method or subs
              displayIndex: getCurrentSlide(), // display index starts from 1
                navCurrent: navCurrent, // current dot index
          navCurrentCached: navCurrentCached, // previous dot index
-        visibleNavIndexes: visibleNavIndexes, // visible nav indexes
-  visibleNavIndexesCached: visibleNavIndexesCached,
+                    pages: pages, // visible nav indexes
+              pagesCached: pagesCached,
                     sheet: sheet,
                     event: e || {}, // event object if available
 };

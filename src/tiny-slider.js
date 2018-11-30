@@ -302,7 +302,7 @@ export var tns = function(options) {
       // index
       getIndexMax = (function () {
         if (fixedWidth) {
-          return function() { return Math.ceil(- rightBoundary / (fixedWidth + gutter)); };
+          return function() { return center && !loop ? slideCount - 1 : Math.ceil(- rightBoundary / (fixedWidth + gutter)); };
         } else if (autoWidth) {
           return function() {
             for (var i = slideCountNew, result = i - 1; i--;) {
@@ -398,8 +398,8 @@ export var tns = function(options) {
     var navContainer = options.navContainer,
         navContainerHTML = options.navContainer ? options.navContainer.outerHTML : '',
         navItems,
-        visibleNavIndexes = getVisibleNavIndex(),
-        visibleNavIndexesCached = [],
+        pages = autoWidth ? slideCount : getPages(),
+        pagesCached = 0,
         navClicked = -1,
         navCurrentIndex = getCurrentNavIndex(),
         navCurrentIndexCached = navCurrentIndex,
@@ -482,20 +482,12 @@ export var tns = function(options) {
 
   function getCurrentNavIndex () {
     var absIndex = getAbsIndex(), result;
+    result = navAsThumbnails ? absIndex : Math.ceil((absIndex + 1) * pages / slideCount - 1);
 
-    if (navAsThumbnails) {
-      return absIndex;
+    // set active nav to the last one when reaches the right edge
+    // if (!loop && carousel && index === indexMax) { result = pages - 1; }
 
-    } else {
-      visibleNavIndexes.forEach(function(item, i) {
-        if (item <= absIndex) { result = item; }
-      });
-
-      // set active nav to the last one when reaches the right edge
-      if (!loop && carousel && index === indexMax) { result = visibleNavIndexes[visibleNavIndexes.length - 1]; }
-
-      return result;
-    }
+    return result;
   }
 
   function getItemsMax () {
@@ -1188,9 +1180,9 @@ export var tns = function(options) {
 
 
     // reset variables
-    tnsList = animateIn = animateOut = animateDelay = animateNormal = horizontal = outerWrapper = innerWrapper = container = containerParent = containerHTML = slideItems = slideCount = breakpointZone = windowWidth = autoWidth = fixedWidth = edgePadding = gutter = viewport = items = slideBy = viewportMax = arrowKeys = speed = rewind = loop = autoHeight = sheet = lazyload = slidePositions = slideItemsOut = cloneCount = slideCountNew = hasRightDeadZone = rightBoundary = updateIndexBeforeTransform = transformAttr = transformPrefix = transformPostfix = getIndexMax = index = indexCached = indexMin = indexMax = resizeTimer = swipeAngle = moveDirectionExpected = running = onInit = events = newContainerClasses = slideId = disable = disabled = freezable = freeze = frozen = controlsEvents = navEvents = hoverEvents = visibilityEvent = docmentKeydownEvent = touchEvents = dragEvents = hasControls = hasNav = navAsThumbnails = hasAutoplay = hasTouch = hasMouseDrag = slideActiveClass = imgCompleteClass = imgEvents = imgsComplete = controls = controlsText = controlsContainer = controlsContainerHTML = prevButton = nextButton = prevIsButton = nextIsButton = nav = navContainer = navContainerHTML = navItems = visibleNavIndexes = visibleNavIndexesCached = navClicked = navCurrentIndex = navCurrentIndexCached = navActiveClass = navStr = navStrCurrent = autoplay = autoplayTimeout = autoplayDirection = autoplayText = autoplayHoverPause = autoplayButton = autoplayButtonHTML = autoplayResetOnVisibility = autoplayHtmlStrings = autoplayTimer = animating = autoplayHoverPaused = autoplayUserPaused = autoplayVisibilityPaused = initPosition = lastPosition = translateInit = disX = disY = panStart = rafIndex = getDist = touch = mouseDrag = null;
+    tnsList = animateIn = animateOut = animateDelay = animateNormal = horizontal = outerWrapper = innerWrapper = container = containerParent = containerHTML = slideItems = slideCount = breakpointZone = windowWidth = autoWidth = fixedWidth = edgePadding = gutter = viewport = items = slideBy = viewportMax = arrowKeys = speed = rewind = loop = autoHeight = sheet = lazyload = slidePositions = slideItemsOut = cloneCount = slideCountNew = hasRightDeadZone = rightBoundary = updateIndexBeforeTransform = transformAttr = transformPrefix = transformPostfix = getIndexMax = index = indexCached = indexMin = indexMax = resizeTimer = swipeAngle = moveDirectionExpected = running = onInit = events = newContainerClasses = slideId = disable = disabled = freezable = freeze = frozen = controlsEvents = navEvents = hoverEvents = visibilityEvent = docmentKeydownEvent = touchEvents = dragEvents = hasControls = hasNav = navAsThumbnails = hasAutoplay = hasTouch = hasMouseDrag = slideActiveClass = imgCompleteClass = imgEvents = imgsComplete = controls = controlsText = controlsContainer = controlsContainerHTML = prevButton = nextButton = prevIsButton = nextIsButton = nav = navContainer = navContainerHTML = navItems = pages = pagesCached = navClicked = navCurrentIndex = navCurrentIndexCached = navActiveClass = navStr = navStrCurrent = autoplay = autoplayTimeout = autoplayDirection = autoplayText = autoplayHoverPause = autoplayButton = autoplayButtonHTML = autoplayResetOnVisibility = autoplayHtmlStrings = autoplayTimer = animating = autoplayHoverPaused = autoplayUserPaused = autoplayVisibilityPaused = initPosition = lastPosition = translateInit = disX = disY = panStart = rafIndex = getDist = touch = mouseDrag = null;
     // check variables
-    // [animateIn, animateOut, animateDelay, animateNormal, horizontal, outerWrapper, innerWrapper, container, containerParent, containerHTML, slideItems, slideCount, breakpointZone, windowWidth, autoWidth, fixedWidth, edgePadding, gutter, viewport, items, slideBy, viewportMax, arrowKeys, speed, rewind, loop, autoHeight, sheet, lazyload, slidePositions, slideItemsOut, cloneCount, slideCountNew, hasRightDeadZone, rightBoundary, updateIndexBeforeTransform, transformAttr, transformPrefix, transformPostfix, getIndexMax, index, indexCached, indexMin, indexMax, resizeTimer, swipeAngle, moveDirectionExpected, running, onInit, events, newContainerClasses, slideId, disable, disabled, freezable, freeze, frozen, controlsEvents, navEvents, hoverEvents, visibilityEvent, docmentKeydownEvent, touchEvents, dragEvents, hasControls, hasNav, navAsThumbnails, hasAutoplay, hasTouch, hasMouseDrag, slideActiveClass, imgCompleteClass, imgEvents, imgsComplete, controls, controlsText, controlsContainer, controlsContainerHTML, prevButton, nextButton, prevIsButton, nextIsButton, nav, navContainer, navContainerHTML, navItems, visibleNavIndexes, visibleNavIndexesCached, navClicked, navCurrentIndex, navCurrentIndexCached, navActiveClass, navStr, navStrCurrent, autoplay, autoplayTimeout, autoplayDirection, autoplayText, autoplayHoverPause, autoplayButton, autoplayButtonHTML, autoplayResetOnVisibility, autoplayHtmlStrings, autoplayTimer, animating, autoplayHoverPaused, autoplayUserPaused, autoplayVisibilityPaused, initPosition, lastPosition, translateInit, disX, disY, panStart, rafIndex, getDist, touch, mouseDrag ].forEach(function(item) { if (item !== null) { console.log(item); } });
+    // [animateIn, animateOut, animateDelay, animateNormal, horizontal, outerWrapper, innerWrapper, container, containerParent, containerHTML, slideItems, slideCount, breakpointZone, windowWidth, autoWidth, fixedWidth, edgePadding, gutter, viewport, items, slideBy, viewportMax, arrowKeys, speed, rewind, loop, autoHeight, sheet, lazyload, slidePositions, slideItemsOut, cloneCount, slideCountNew, hasRightDeadZone, rightBoundary, updateIndexBeforeTransform, transformAttr, transformPrefix, transformPostfix, getIndexMax, index, indexCached, indexMin, indexMax, resizeTimer, swipeAngle, moveDirectionExpected, running, onInit, events, newContainerClasses, slideId, disable, disabled, freezable, freeze, frozen, controlsEvents, navEvents, hoverEvents, visibilityEvent, docmentKeydownEvent, touchEvents, dragEvents, hasControls, hasNav, navAsThumbnails, hasAutoplay, hasTouch, hasMouseDrag, slideActiveClass, imgCompleteClass, imgEvents, imgsComplete, controls, controlsText, controlsContainer, controlsContainerHTML, prevButton, nextButton, prevIsButton, nextIsButton, nav, navContainer, navContainerHTML, navItems, pages, pagesCached, navClicked, navCurrentIndex, navCurrentIndexCached, navActiveClass, navStr, navStrCurrent, autoplay, autoplayTimeout, autoplayDirection, autoplayText, autoplayHoverPause, autoplayButton, autoplayButtonHTML, autoplayResetOnVisibility, autoplayHtmlStrings, autoplayTimer, animating, autoplayHoverPaused, autoplayUserPaused, autoplayVisibilityPaused, initPosition, lastPosition, translateInit, disX, disY, panStart, rafIndex, getDist, touch, mouseDrag ].forEach(function(item) { if (item !== null) { console.log(item); } });
 
     for (var a in this) {
       if (a !== 'rebuild') { this[a] = null; }
@@ -1358,12 +1350,9 @@ export var tns = function(options) {
       }
     }
     if (nav !== navTem) {
-      if (nav) {
-        showElement(navContainer);
-        updateNavVisibility();
-      } else {
+      nav ?
+        showElement(navContainer) :
         hideElement(navContainer);
-      }
     }
     if (touch !== touchTem) {
       touch ?
@@ -1419,24 +1408,24 @@ export var tns = function(options) {
       if (center && (fixedWidth || autoWidth)) { needContainerTransform = true; }
     }
 
+    if (itemsChanged || fixedWidth && !autoWidth) {
+      pages = getPages();
+      updateNavVisibility();
+    }
+
     indChanged = index !== indexTem;
     if (indChanged) { 
       events.emit('indexChanged', info());
       needContainerTransform = true;
-    }
-
-    if (itemsChanged) {
-      visibleNavIndexes = getVisibleNavIndex();
-      updateNavVisibility();
+    } else if (itemsChanged) {
       if (!indChanged) { additionalUpdates(); }
-      if (!carousel) { updateGallerySlidePositions(); }
-    }
-
-    if ((fixedWidth || autoWidth) && !indChanged && !itemsChanged) {
+    } else if (fixedWidth || autoWidth) {
       doLazyLoad(); 
       updateSlideStatus();
       updateLiveRegion();
     }
+
+    if (itemsChanged || !carousel) { updateGallerySlidePositions(); }
 
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
@@ -1775,13 +1764,11 @@ export var tns = function(options) {
   }
 
   function onImgLoaded (e) {
-    var img = getTarget(e);
-    imgLoaded(img);
+    imgLoaded(getTarget(e));
   }
 
   function onImgFailed (e) {
-    var img = getTarget(e);
-    imgFailed(img);
+    imgFailed(getTarget(e));
   }
 
   function imgLoaded (img) {
@@ -2020,14 +2007,14 @@ export var tns = function(options) {
 
   function getRightBoundary () {
     var result = (viewport + gutter) - getSliderWidth();
-    if (center) {
-      if (fixedWidth) {
-        result -= (viewport - fixedWidth) / 2;
-      } else {
-        result -= (viewport - (slideItems[slideCountNew - 1].clientWidth - gutter)) / 2;
-      }
+
+    if (center && !loop) {
+      result = fixedWidth ? 
+        result - (viewport - fixedWidth) / 2 :
+        result - (viewport - (slideItems[slideCountNew - 1].clientWidth - gutter)) / 2;
     }
     if (result > 0) { result = 0; }
+
     return result;
   }
 
@@ -2283,7 +2270,7 @@ export var tns = function(options) {
 
     if (!dir) {
       e = getEvent(e);
-      var target = e.target || e.srcElement;
+      var target = getTarget(e);
 
       while (target !== controlsContainer && [prevButton, nextButton].indexOf(target) < 0) { target = target.parentNode; }
 
@@ -2319,14 +2306,14 @@ export var tns = function(options) {
     }
     
     e = getEvent(e);
-    var target = e.target || e.srcElement,
-        navIndex;
+    var target = getTarget(e), navIndex;
 
     // find the clicked nav item
     while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
     if (hasAttr(target, 'data-nav')) {
-      navIndex = navClicked = [].indexOf.call(navItems, target);
-      goTo(navIndex, e);
+      var navIndex = navClicked = Number(getAttr(target, 'data-nav')),
+          targetIndex = navAsThumbnails ? navIndex : Math.min(Math.ceil(navIndex * slideCount / pages), slideCount - 1);
+      goTo(targetIndex, e);
 
       if (navCurrentIndex === navIndex) {
         if (animating) { stopAutoplay(); }
@@ -2456,49 +2443,36 @@ export var tns = function(options) {
   }
 
   // set focus
-  function setFocus (focus) {
-    focus.focus();
+  function setFocus (el) {
+    el.focus();
   }
 
   // on key nav
   function onNavKeydown (e) {
+    e = getEvent(e);
     var curElement = doc.activeElement;
     if (!hasAttr(curElement, 'data-nav')) { return; }
 
-    e = getEvent(e);
     var code = e.keyCode,
-        navIndex = [].indexOf.call(navItems, curElement),
-        len = visibleNavIndexes.length,
-        current = visibleNavIndexes.indexOf(navIndex);
-
-    if (options.navContainer) {
-      len = slideCount;
-      current = navIndex;
-    }
-
-    function getNavIndex (num) {
-      return options.navContainer ? num : visibleNavIndexes[num];
-    }
+        navIndex = Number(getAttr(curElement, 'data-nav'));
 
     switch(code) {
       case KEYS.LEFT:
       case KEYS.PAGEUP:
-        if (current > 0) { setFocus(navItems[getNavIndex(current - 1)]); }
+        if (navIndex > 0) { setFocus(navItems[navIndex - 1]); }
         break;
 
-      case KEYS.UP:
       case KEYS.HOME:
-        if (current > 0) { setFocus(navItems[getNavIndex(0)]); }
+        if (navIndex > 0) { setFocus(navItems[0]); }
         break;
 
       case KEYS.RIGHT:
       case KEYS.PAGEDOWN:
-        if (current < len - 1) { setFocus(navItems[getNavIndex(current + 1)]); }
+        if (navIndex < pages - 1) { setFocus(navItems[navIndex + 1]); }
         break;
 
-      case KEYS.DOWN:
       case KEYS.END:
-        if (current < len - 1) { setFocus(navItems[getNavIndex(len - 1)]); }
+        if (navIndex < pages - 1) { setFocus(navItems[pages - 1]); }
         break;
 
       // Can't use onNavClick here,
@@ -2507,7 +2481,6 @@ export var tns = function(options) {
       case KEYS.SPACE:
         navClicked = navIndex;
         goTo(navIndex, e);
-        break;
     }
   }
 
@@ -2677,34 +2650,11 @@ export var tns = function(options) {
     innerWrapper.style.height = slidePositions[index + items] - slidePositions[index] + 'px';
   }
 
-  /*
-   * get nav item indexes per items
-   * add 1 more if the nav items cann't cover all slides
-   * [0, 1, 2, 3, 4] / 3 => [0, 3]
-   */
-  function getVisibleNavIndex () {
-    var arr = [], i = 0, max = Math.ceil(slideCount/items);
-    while (i < max) {
-      arr.push(i * items);
-      i++;
-    }
-
-    return arr;
-    // var absIndexMin = getAbsIndex()%items;
-    // while (absIndexMin < slideCount) {
-    //   if (carousel && !loop && absIndexMin + items > slideCount) { absIndexMin = slideCount - items; }
-    //   visibleNavIndexes.push(absIndexMin);
-    //   absIndexMin += items;
-    // }
-
-    // // nav count * items < slide count means
-    // // some slides can not be displayed only by nav clicking
-    // if (loop && visibleNavIndexes.length * items < slideCount ||
-    //     !loop && visibleNavIndexes[0] > 0) {
-    //   visibleNavIndexes.unshift(0);
-    // }
+  function getPages () {
+    var rough = fixedWidth ? (fixedWidth + gutter) * slideCount / viewport : slideCount / items;
+    return Math.min(Math.ceil(rough), slideCount);
   }
-  
+
   /*
    * 1. update visible nav items list
    * 2. add "hidden" attributes to previous visible nav items
@@ -2713,13 +2663,24 @@ export var tns = function(options) {
   function updateNavVisibility () {
     if (!nav || navAsThumbnails) { return; }
 
-    if (visibleNavIndexes !== visibleNavIndexesCached) {
-      forEach(navItems, function(el, i) {
-        visibleNavIndexes.indexOf(i) < 0 ? hideElement(el) : showElement(el);
-      });
+    if (pages !== pagesCached) {
+      var min = pagesCached,
+          max = pages,
+          fn = showElement;
 
-      // cache visible nav indexes
-      visibleNavIndexesCached = visibleNavIndexes;
+      if (pagesCached > pages) {
+        min = pages;
+        max = pagesCached;
+        fn = hideElement;
+      }
+
+      while (min < max) {
+        fn(navItems[min]);
+        min++;
+      }
+
+      // cache pages
+      pagesCached = pages;
     }
   }
 
@@ -2743,8 +2704,8 @@ export var tns = function(options) {
       displayIndex: getCurrentSlide(),
       navCurrentIndex: navCurrentIndex,
       navCurrentIndexCached: navCurrentIndexCached,
-      visibleNavIndexes: visibleNavIndexes,
-      visibleNavIndexesCached: visibleNavIndexesCached,
+      pages: pages,
+      pagesCached: pagesCached,
       sheet: sheet,
       isOn: isOn,
       event: e || {},
