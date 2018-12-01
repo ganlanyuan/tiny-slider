@@ -19,7 +19,7 @@
   },
   "files": [
     "dist",
-    "src"    
+    "src"
   ],
   "keywords": [],
   "author": "ganlanyuan <ganlanyuan@gmail.com>",
@@ -35,5 +35,12 @@
     "babel-preset-env": "^1.7.0",
     "nightwatch": "^0.9.21",
     "nodemon": "^1.17.5"
+  },
+  "browserify": {
+    "transform": [
+      ["babelify", {
+        "presets": ["@babel/preset-env"]
+      }]
+    ]
   }
 }
