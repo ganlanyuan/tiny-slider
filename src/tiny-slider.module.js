@@ -101,7 +101,7 @@ export var tns = function(options) {
     swipeAngle: 15,
     nested: false,
     preventActionWhenRunning: false,
-    preventScrollOnTouch: 'auto',
+    preventScrollOnTouch: false,
     freezable: true,
     onInit: false,
     useLocalStorage: true
@@ -1102,7 +1102,7 @@ export var tns = function(options) {
       addEvents(container, eve);
     }
 
-    if (touch) { addEvents(container, touchEvents); }
+    if (touch) { addEvents(container, touchEvents, options.preventScrollOnTouch); }
     if (mouseDrag) { addEvents(container, dragEvents); }
     if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
@@ -1350,7 +1350,7 @@ export var tns = function(options) {
     }
     if (touch !== touchTem) {
       touch ?
-        addEvents(container, touchEvents) :
+        addEvents(container, touchEvents, options.preventScrollOnTouch) :
         removeEvents(container, touchEvents);
     }
     if (mouseDrag !== mouseDragTem) {

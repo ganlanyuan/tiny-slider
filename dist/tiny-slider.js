@@ -390,15 +390,6 @@ function getEndProperty(propIn, propOut) {
   return endProp;
 }
 
-// import { passiveOption } from './passiveOption.js';
-
-function addEvents(el, obj) {
-  for (var prop in obj) {
-    // var option = (prop === 'touchstart' || prop === 'touchmove') ? passiveOption : false;
-    el.addEventListener(prop, obj[prop], false);
-  }
-}
-
 // Test via a getter in the options object to see if the passive property is accessed
 var supportsPassive = false;
 try {
@@ -410,6 +401,12 @@ try {
   window.addEventListener("test", null, opts);
 } catch (e) {}
 var passiveOption = supportsPassive ? { passive: true } : false;
+
+function addEvents(el, obj, preventScroll) {
+  for (var prop in obj) {
+    el.addEventListener(prop, obj[prop], preventScroll ? false : passiveOption);
+  }
+}
 
 function removeEvents(el, obj) {
   for (var prop in obj) {
@@ -536,7 +533,7 @@ var tns = function(options) {
     swipeAngle: 15,
     nested: false,
     preventActionWhenRunning: false,
-    preventScrollOnTouch: 'auto',
+    preventScrollOnTouch: false,
     freezable: true,
     onInit: false,
     useLocalStorage: true
@@ -1537,7 +1534,7 @@ var tns = function(options) {
       addEvents(container, eve);
     }
 
-    if (touch) { addEvents(container, touchEvents); }
+    if (touch) { addEvents(container, touchEvents, options.preventScrollOnTouch); }
     if (mouseDrag) { addEvents(container, dragEvents); }
     if (arrowKeys) { addEvents(doc, docmentKeydownEvent); }
 
@@ -1785,7 +1782,7 @@ var tns = function(options) {
     }
     if (touch !== touchTem) {
       touch ?
-        addEvents(container, touchEvents) :
+        addEvents(container, touchEvents, options.preventScrollOnTouch) :
         removeEvents(container, touchEvents);
     }
     if (mouseDrag !== mouseDragTem) {

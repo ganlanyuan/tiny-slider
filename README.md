@@ -303,7 +303,7 @@ Or import `tns` directly start from v2.8.8
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
 | `swipeAngle` | positive integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
 | `preventActionWhenRunning` (v2.8.8+) | Boolean | Default: false. <br> Prevent next transition while slider is transforming. |
-| `preventScrollOnTouch` (v2.8.8+) | "auto" \| "force" | Default: "auto". <br> Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling. |
+| `preventScrollOnTouch` (v2.8.8+) | "auto" \| "force" \| false | Default: false. <br> Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling. |
 | `nested` | "inner" \| "outer" \| false | Default: false. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/demo/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `freezable` | Boolean | Default: true. <br> Indicate whether the slider will be frozen (`controls`, `nav`, `autoplay` and other functions will stop work) when all slides can be displayed in one page. |
 | `disable` | Boolean | Default: false. <br> Disable slider. |
