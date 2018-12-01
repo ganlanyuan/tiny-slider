@@ -2458,6 +2458,7 @@ export var tns = function(options) {
 
     switch(code) {
       case KEYS.LEFT:
+      case KEYS.UP:
       case KEYS.PAGEUP:
         if (navIndex > 0) { setFocus(navItems[navIndex - 1]); }
         break;
@@ -2467,6 +2468,7 @@ export var tns = function(options) {
         break;
 
       case KEYS.RIGHT:
+      case KEYS.DOWN:
       case KEYS.PAGEDOWN:
         if (navIndex < pages - 1) { setFocus(navItems[navIndex + 1]); }
         break;
