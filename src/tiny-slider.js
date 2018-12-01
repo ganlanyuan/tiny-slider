@@ -112,14 +112,8 @@ export var tns = function(options) {
       KEYS = {
         ENTER: 13,
         SPACE: 32,
-        PAGEUP: 33,
-        PAGEDOWN: 34,
-        END: 35,
-        HOME: 36,
         LEFT: 37,
-        UP: 38,
-        RIGHT: 39,
-        DOWN: 40
+        RIGHT: 39
       },
       tnsStorage = {},
       localStorageAccess = options.useLocalStorage;
@@ -2404,41 +2398,24 @@ export var tns = function(options) {
   // keydown events on document 
   function onDocumentKeydown (e) {
     e = getEvent(e);
-    switch(e.keyCode) {
-      case KEYS.LEFT:
-        onControlsClick(e, -1);
-        break;
-      case KEYS.RIGHT:
-        onControlsClick(e, 1);
+    var keyIndex = [KEYS.LEFT, KEYS.RIGHT].indexOf(e.keyCode);
+
+    if (keyIndex >= 0) {
+      onControlsClick(e, keyIndex === 0 ? -1 : 1);
     }
   }
 
   // on key control
   function onControlsKeydown (e) {
     e = getEvent(e);
-    var code = e.keyCode;
+    var keyIndex = [KEYS.LEFT, KEYS.RIGHT].indexOf(e.keyCode);
 
-    switch (code) {
-      case KEYS.LEFT:
-      case KEYS.UP:
-      case KEYS.PAGEUP:
-          if (!prevButton.disabled) {
-            onControlsClick(e, -1);
-          }
-          break;
-      case KEYS.RIGHT:
-      case KEYS.DOWN:
-      case KEYS.PAGEDOWN:
-          if (!nextButton.disabled) {
-            onControlsClick(e, 1);
-          }
-          break;
-      case KEYS.HOME:
-        goTo('first', e);
-        break;
-      case KEYS.END:
-        goTo('last', e);
-        break;
+    if (keyIndex >= 0) {
+      if (keyIndex === 0) {
+        if (!prevButton.disabled) { onControlsClick(e, -1); }
+      } else if (!nextButton.disabled) {
+        onControlsClick(e, 1);
+      }
     }
   }
 
@@ -2453,36 +2430,19 @@ export var tns = function(options) {
     var curElement = doc.activeElement;
     if (!hasAttr(curElement, 'data-nav')) { return; }
 
-    var code = e.keyCode,
+    // var code = e.keyCode,
+    var keyIndex = [KEYS.LEFT, KEYS.RIGHT, KEYS.ENTER, KEYS.SPACE].indexOf(e.keyCode),
         navIndex = Number(getAttr(curElement, 'data-nav'));
 
-    switch(code) {
-      case KEYS.LEFT:
-      case KEYS.UP:
-      case KEYS.PAGEUP:
+    if (keyIndex >= 0) {
+      if (keyIndex === 0) {
         if (navIndex > 0) { setFocus(navItems[navIndex - 1]); }
-        break;
-
-      case KEYS.HOME:
-        if (navIndex > 0) { setFocus(navItems[0]); }
-        break;
-
-      case KEYS.RIGHT:
-      case KEYS.DOWN:
-      case KEYS.PAGEDOWN:
+      } else if (keyIndex === 1) {
         if (navIndex < pages - 1) { setFocus(navItems[navIndex + 1]); }
-        break;
-
-      case KEYS.END:
-        if (navIndex < pages - 1) { setFocus(navItems[pages - 1]); }
-        break;
-
-      // Can't use onNavClick here,
-      // Because onNavClick require event.target as nav items
-      case KEYS.ENTER:
-      case KEYS.SPACE:
+      } else {
         navClicked = navIndex;
         goTo(navIndex, e);
+      }
     }
   }
 
