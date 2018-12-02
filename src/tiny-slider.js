@@ -244,6 +244,7 @@ export var tns = function(options) {
   var horizontal = options.axis === 'horizontal' ? true : false,
       outerWrapper = doc.createElement('div'),
       innerWrapper = doc.createElement('div'),
+      middleWrapper,
       container = options.container,
       containerParent = container.parentNode,
       containerHTML = container.outerHTML,
@@ -601,7 +602,7 @@ export var tns = function(options) {
       str = 'margin: 0 ' + dir + ';'
     }
 
-    if (autoHeightBP && TRANSITIONDURATION && speedTem) { str += getTrsnsitionDurationStyle(speedTem); }
+    if (!carousel && autoHeightBP && TRANSITIONDURATION && speedTem) { str += getTransitionDurationStyle(speedTem); }
     return str;
   }
 
@@ -655,7 +656,7 @@ export var tns = function(options) {
     return prefix;
   }
 
-  function getTrsnsitionDurationStyle (speed) {
+  function getTransitionDurationStyle (speed) {
     return getCSSPrefix(TRANSITIONDURATION, 18) + 'transition-duration:' + speed / 1000 + 's;';
   }
 
@@ -717,7 +718,6 @@ export var tns = function(options) {
     innerWrapper.className = classInner;
     outerWrapper.id = slideId + '-ow';
     innerWrapper.id = slideId + '-iw';
-    if (autoHeight) { innerWrapper.className += ' tns-ah'; }
 
     // set container properties
     if (container.id === '') { container.id = slideId; }
@@ -729,13 +729,19 @@ export var tns = function(options) {
 
     // add constrain layer for carousel
     if (carousel) {
-      var middleWrapper = doc.createElement('div');
+      middleWrapper = doc.createElement('div');
+      middleWrapper.id = slideId + '-mw';
       middleWrapper.className = 'tns-ovh';
 
       outerWrapper.appendChild(middleWrapper);
       middleWrapper.appendChild(innerWrapper);
     } else {
       outerWrapper.appendChild(innerWrapper);
+    }
+
+    if (autoHeight) {
+      var wp = middleWrapper ? middleWrapper : innerWrapper;
+      wp.className += ' tns-ah';
     }
 
     containerParent.insertBefore(outerWrapper, container);
@@ -857,14 +863,18 @@ export var tns = function(options) {
 
     // ## BASIC STYLES
     if (CSSMQ) {
+      // middle wrapper style
+      var str = middleWrapper && options.autoHeight ? getTransitionDurationStyle(options.speed) : '';
+      addCSSRule(sheet, '#' + slideId + '-mw', str, getCssRulesLength(sheet));
+
       // inner wrapper styles
-      var str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed, options.autoHeight);
+      str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed, options.autoHeight);
       addCSSRule(sheet, '#' + slideId + '-iw', str, getCssRulesLength(sheet));
 
       // container styles
       if (carousel) {
         str = horizontal && !autoWidth ? 'width:' + getContainerWidth(options.fixedWidth, options.gutter, options.items) + ';' : '';
-        if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
+        if (TRANSITIONDURATION) { str += getTransitionDurationStyle(speed); }
         addCSSRule(sheet, '#' + slideId, str, getCssRulesLength(sheet));
       }
 
@@ -873,7 +883,7 @@ export var tns = function(options) {
       if (options.gutter) { str += getSlideGutterStyle(options.gutter); }
       // set gallery items transition-duration
       if (!carousel) {
-        if (TRANSITIONDURATION) { str += getTrsnsitionDurationStyle(speed); }
+        if (TRANSITIONDURATION) { str += getTransitionDurationStyle(speed); }
         if (ANIMATIONDURATION) { str += getAnimationDurationStyle(speed); }
       }
       if (str) { addCSSRule(sheet, '#' + slideId + ' > .tns-item', str, getCssRulesLength(sheet)); }
@@ -883,6 +893,9 @@ export var tns = function(options) {
     // set inline styles for inner wrapper & container
     // insert stylesheet (one line) for slides only (since slides are many)
     } else {
+      // middle wrapper styles
+      update_carousel_transition_duration();
+
       // inner wrapper styles
       innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth, autoHeight);
 
@@ -907,6 +920,7 @@ export var tns = function(options) {
 
         var opts = responsive[bp],
             str = '',
+            middleWrapperStr = '',
             innerWrapperStr = '',
             containerStr = '',
             slideStr = '',
@@ -916,6 +930,11 @@ export var tns = function(options) {
             edgePaddingBP = getOption('edgePadding', bp),
             autoHeightBP = getOption('autoHeight', bp),
             gutterBP = getOption('gutter', bp);
+
+        // middle wrapper string
+        if (middleWrapper && getOption('autoHeight', bp) && 'speed' in opts) {
+          middleWrapperStr = '#' + slideId + '-mw{' + getTransitionDurationStyle(speedBP) + '}';
+        }
 
         // inner wrapper string
         if ('edgePadding' in opts || 'gutter' in opts) {
@@ -927,7 +946,7 @@ export var tns = function(options) {
           containerStr = 'width:' + getContainerWidth(fixedWidthBP, gutterBP, itemsBP) + ';';
         }
         if (TRANSITIONDURATION && 'speed' in opts) {
-          containerStr += getTrsnsitionDurationStyle(speedBP);
+          containerStr += getTransitionDurationStyle(speedBP);
         }
         if (containerStr) {
           containerStr = '#' + slideId + '{' + containerStr + '}';
@@ -942,13 +961,13 @@ export var tns = function(options) {
         }
         // set gallery items transition-duration
         if (!carousel && 'speed' in opts) {
-          if (TRANSITIONDURATION) { slideStr += getTrsnsitionDurationStyle(speedBP); }
+          if (TRANSITIONDURATION) { slideStr += getTransitionDurationStyle(speedBP); }
           if (ANIMATIONDURATION) { slideStr += getAnimationDurationStyle(speedBP); }
         }
         if (slideStr) { slideStr = '#' + slideId + ' > .tns-item{' + slideStr + '}'; }
 
         // add up
-        str = innerWrapperStr + containerStr + slideStr;
+        str = middleWrapperStr + innerWrapperStr + containerStr + slideStr;
 
         if (str) {
           sheet.insertRule('@media (min-width: ' + bp / 16 + 'em) {' + str + '}', sheet.cssRules.length);
@@ -1423,6 +1442,11 @@ export var tns = function(options) {
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
       if (bpChanged && !CSSMQ) {
+        // middle wrapper styles
+        if (autoHeight !== autoheightTem || speed !== speedTem) {
+          update_carousel_transition_duration();
+        }
+
         // inner wrapper styles
         if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
           innerWrapper.style.cssText = getInnerWrapperStyles(edgePadding, gutter, fixedWidth, speed, autoHeight);
@@ -1838,6 +1862,12 @@ export var tns = function(options) {
   }
 
 
+  function update_carousel_transition_duration () {
+    if (carousel && autoHeight) {
+      middleWrapper.style[TRANSITIONDURATION] = speed / 1000 + 's';
+    }
+  }
+
   function getMaxSlideHeight (slideStart, slideRange) {
     var heights = [];
     for (var i = slideStart, l = Math.min(slideStart + slideRange, slideCountNew); i < l; i++) {
@@ -1853,11 +1883,10 @@ export var tns = function(options) {
   // 3. update inner wrapper height to max-height
   // 4. set transitionDuration to 0s after transition done
   function updateInnerWrapperHeight () {
-    var maxHeight = autoHeight ? 
-        getMaxSlideHeight(index, items) :
-        getMaxSlideHeight(cloneCount, slideCount);
+    var maxHeight = autoHeight ? getMaxSlideHeight(index, items) : getMaxSlideHeight(cloneCount, slideCount),
+        wp = middleWrapper ? middleWrapper : innerWrapper;
 
-    if (innerWrapper.style.height !== maxHeight) { innerWrapper.style.height = maxHeight + 'px'; }
+    if (wp.style.height !== maxHeight) { wp.style.height = maxHeight + 'px'; }
   }
 
   // get the distance from the top edge of the first slide to each slide
@@ -2621,7 +2650,8 @@ export var tns = function(options) {
   // === RESIZE FUNCTIONS === //
   // (slidePositions, index, items) => vertical_conentWrapper.height
   function updateContentWrapperHeight () {
-    innerWrapper.style.height = slidePositions[index + items] - slidePositions[index] + 'px';
+    var wp = middleWrapper ? middleWrapper : innerWrapper;
+    wp.style.height = slidePositions[index + items] - slidePositions[index] + 'px';
   }
 
   function getPages () {
