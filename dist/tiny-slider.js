@@ -1101,16 +1101,15 @@ var tns = function(options) {
 
     // add id, class, aria attributes 
     // before clone slides
-    for (var x = 0; x < slideCount; x++) {
-      var item = slideItems[x];
-      if (!item.id) { item.id = slideId + '-item' + x; }
+    forEach(slideItems, function(item, i) {
       addClass(item, 'tns-item');
+      if (!item.id) { item.id = slideId + '-item' + i; }
       if (!carousel && animateNormal) { addClass(item, animateNormal); }
       setAttrs(item, {
         'aria-hidden': 'true',
         'tabindex': '-1'
       });
-    }
+    });
 
     // ## clone slides
     // carousel: n + slides + n
@@ -1896,11 +1895,19 @@ var tns = function(options) {
 
   // === INITIALIZATION FUNCTIONS === //
   function getFreeze () {
-    if (!fixedWidth && !autoWidth) { return slideCount <= items; }
+    if (!fixedWidth && !autoWidth) {
+      var a = center ? items - (items - 1) / 2 : items;
+      return  slideCount <= a;
+    }
 
-    var width = fixedWidth ? (fixedWidth + gutter) * slideCount :
-                loop ? slidePositions[slideCount] : getSliderWidth();
-    return width <= viewport + edgePadding * 2;
+    var width = fixedWidth ? (fixedWidth + gutter) * slideCount : slidePositions[slideCount],
+        vp = edgePadding ? viewport + edgePadding * 2 : viewport + gutter;
+
+    if (center) {
+      vp -= fixedWidth ? (viewport - fixedWidth) / 2 : (viewport - (slidePositions[index + 1] - slidePositions[index] - gutter)) / 2;
+    }
+
+    return width <= vp;
   }
 
   function setBreakpointZone () {
@@ -2118,8 +2125,10 @@ var tns = function(options) {
     // - check auto width
     if (autoWidth) {
       slidePositions.forEach(function(point, i) {
-        if ((center || edgePadding) && point <= rangestart + 0.5) { start = i; }
-        if (rangeend - point >= 0.5) { end = i; }
+        if (i < slideCountNew) {
+          if ((center || edgePadding) && point <= rangestart + 0.5) { start = i; }
+          if (rangeend - point >= 0.5) { end = i; }
+        }
       });
 
     // - check percentage width, fixed width
@@ -2288,10 +2297,14 @@ var tns = function(options) {
   function setSlidePositions () {
     slidePositions = [0];
     var attr = horizontal ? 'left' : 'top',
+        attr2 = horizontal ? 'right' : 'bottom',
         base = slideItems[0].getBoundingClientRect()[attr];
 
     forEach(slideItems, function(item, i) {
+      // skip the first slide
       if (i) { slidePositions.push(item.getBoundingClientRect()[attr] - base); }
+      // add the end edge
+      if (i === slideCountNew - 1) { slidePositions.push(item.getBoundingClientRect()[attr2] - base); }
     });
   }
 
@@ -2427,8 +2440,7 @@ var tns = function(options) {
   }
 
   function getSliderWidth () {
-    return fixedWidth ? (fixedWidth + gutter) * slideCountNew :
-        slidePositions[slideCountNew - 1] + slideItems[slideCountNew - 1].getBoundingClientRect().width;
+    return fixedWidth ? (fixedWidth + gutter) * slideCountNew : slidePositions[slideCountNew];
   }
 
   function getRightBoundary () {
@@ -2459,8 +2471,8 @@ var tns = function(options) {
       }
     } else {
       val = - slidePositions[num];
-      if (center && horizontal) {
-        val += (viewport - (slideItems[num].offsetWidth - gutter)) / 2;
+      if (center && autoWidth) {
+        val += (viewport - (slidePositions[num + 1] - slidePositions[num] - gutter)) / 2;
       }
     }
 
@@ -3009,7 +3021,7 @@ var tns = function(options) {
               var moved = - (translateInit + dist);
               if (moved <= 0) {
                 index = indexMin;
-              } else if (moved >= slidePositions[slidePositions.length - 1]) {
+              } else if (moved >= slidePositions[slideCountNew - 1]) {
                 index = indexMax;
               } else {
                 var i = 0;
