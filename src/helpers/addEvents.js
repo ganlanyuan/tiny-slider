@@ -1,7 +1,8 @@
 import { passiveOption } from './passiveOption.js';
 
-export function addEvents(el, obj, preventScroll) {
+export function addEvents(el, obj, preventScrolling) {
   for (var prop in obj) {
-    el.addEventListener(prop, obj[prop], preventScroll ? false : passiveOption);
+    var option = ['touchstart', 'touchmove'].indexOf(prop) >= 0 && !preventScrolling ? passiveOption : false;
+    el.addEventListener(prop, obj[prop], option);
   }
 }

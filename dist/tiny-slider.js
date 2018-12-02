@@ -402,9 +402,10 @@ try {
 } catch (e) {}
 var passiveOption = supportsPassive ? { passive: true } : false;
 
-function addEvents(el, obj, preventScroll) {
+function addEvents(el, obj, preventScrolling) {
   for (var prop in obj) {
-    el.addEventListener(prop, obj[prop], preventScroll ? false : passiveOption);
+    var option = ['touchstart', 'touchmove'].indexOf(prop) >= 0 && !preventScrolling ? passiveOption : false;
+    el.addEventListener(prop, obj[prop], option);
   }
 }
 
@@ -2111,7 +2112,7 @@ var tns = function(options) {
     // get range start, range end for autoWidth and fixedWidth
     if (center || edgePadding) {
       if (autoWidth || fixedWidth) {
-        rangestart = - (parseFloat(val.replace('px', '')) + edgePadding);
+        rangestart = - (parseFloat(val) + edgePadding);
         rangeend = rangestart + viewport + edgePadding * 2;
       }
     } else {
@@ -2930,10 +2931,10 @@ var tns = function(options) {
       preventDefaultBehavior(e);
     }
 
-    lastPosition.x = initPosition.x = parseInt($.clientX);
-    lastPosition.y = initPosition.y = parseInt($.clientY);
+    lastPosition.x = initPosition.x = $.clientX;
+    lastPosition.y = initPosition.y = $.clientY;
     if (carousel) {
-      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, '').replace(transformPostfix, ''));
+      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, ''));
       resetDuration(container, '0s');
     }
   }
@@ -2941,8 +2942,8 @@ var tns = function(options) {
   function onPanMove (e) {
     if (panStart) {
       var $ = getEvent(e);
-      lastPosition.x = parseInt($.clientX);
-      lastPosition.y = parseInt($.clientY);
+      lastPosition.x = $.clientX;
+      lastPosition.y = $.clientY;
 
       if (carousel) {
         if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
@@ -2996,8 +2997,8 @@ var tns = function(options) {
       panStart = false;
 
       var $ = getEvent(e);
-      lastPosition.x = parseInt($.clientX);
-      lastPosition.y = parseInt($.clientY);
+      lastPosition.x = $.clientX;
+      lastPosition.y = $.clientY;
       var dist = getDist(lastPosition, initPosition);
 
       if (Math.abs(dist)) {
