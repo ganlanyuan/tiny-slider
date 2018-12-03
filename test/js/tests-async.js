@@ -787,6 +787,261 @@ function testVerticalEdgePaddingGutter () {
 
 
 
+function testCenterNonLoop () {
+  var id = 'center-non-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton = info.nextButton;
+
+  addTitle(id);
+
+  runTest('Init: current slide should be in the center of the viewport', async function() {
+    await wait(300);
+    return checkPositionCenter(id);
+  });
+
+  runTest('After controls click: current slide should be in the center of the viewport', async function() {
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+    
+    return checkPositionCenter(id);
+  });
+
+  assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function testCenterLoop () {
+  var id = 'center-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton = info.nextButton;
+
+  addTitle(id);
+
+  runTest('Init: current slide should be in the center of the viewport', async function() {
+    await wait(300);
+    return checkPositionCenter(id);
+  });
+
+  runTest('After controls click: current slide should be in the center of the viewport', async function() {
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+
+    return checkPositionCenter(id);
+  });
+
+  assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function testCenterFixedWidthNonLoop () {
+  var id = 'center-fixedWidth-non-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton = info.nextButton;
+
+  addTitle(id);
+
+  runTest('Init: current slide should be in the center of the viewport', async function() {
+    await wait(300);
+    return checkPositionCenter(id);
+  });
+
+  runTest('After controls click: current slide should be in the center of the viewport', async function() {
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+    
+    return checkPositionCenter(id);
+  });
+
+  assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function testCenterFixedWidthLoop () {
+  var id = 'center-fixedWidth-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton = info.nextButton;
+
+  addTitle(id);
+
+  runTest('Init: current slide should be in the center of the viewport', async function() {
+    await wait(300);
+    return checkPositionCenter(id);
+  });
+
+  runTest('After controls click: current slide should be in the center of the viewport', async function() {
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+
+    return checkPositionCenter(id);
+  });
+
+  assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function testCenterAutoWidthNonLoop () {
+  var id = 'center-autoWidth-non-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton;
+
+  addTitle(id);
+  var testInit = addTest('Init: current slide should be in the center of the viewport'),
+      testAfterClick = addTest('After controls click: current slide should be in the center of the viewport');
+
+  waitUntilInit(slider, async function() {
+    await wait(300);
+    updateTest(testInit, checkPositionCenter(id));
+
+    await wait(1000);
+    await repeat(function() { slider.getInfo().nextButton.click(); }, 10);
+    await wait(500);
+    
+    updateTest(testAfterClick, checkPositionCenter(id));
+  });
+
+  // assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function testCenterAutoWidthLoop () {
+  var id = 'center-autoWidth-loop',
+      slider = sliders[id],
+      info = slider.getInfo(),
+      nextButton = info.nextButton;
+
+  addTitle(id);
+  var testInit = addTest('Init: current slide should be in the center of the viewport'),
+      testAfterClick = addTest('After controls click: current slide should be in the center of the viewport');
+
+  waitUntilInit(slider, async function() {
+    await wait(300);
+    updateTest(testInit, checkPositionCenter(id));
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+    
+    updateTest(testAfterClick, checkPositionCenter(id));
+  });
+
+  assignDone(id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function testResponsive1 () {
@@ -2444,6 +2699,19 @@ function checkPositionEdgePadding (id, vertical) {
     compare2Nums(last.getBoundingClientRect()[edge2], wrapperRect[edge2] - endGap);
 }
 
+function checkPositionCenter (id) {
+  var info = sliders[id].getInfo(),
+      gutter = options[id].gutter,
+      wrapper = doc.querySelector('#' + id + '-mw'),
+      wrapperRect = wrapper.getBoundingClientRect(),
+      slideItems = info.slideItems,
+      index = info.index,
+      slide = slideItems[index],
+      slideRect = slide.getBoundingClientRect();
+
+  return compare2Nums(wrapperRect.right - slideRect.right + gutter, slideRect.left - wrapperRect.left);
+}
+
 async function testAutoplayFn (id, el, timeout, equal) {
   var assertion,
       current = sliders[id].getInfo().index;
@@ -2494,6 +2762,12 @@ initFns = {
   'vertical-gutter': waitFn(testVerticalGutter),
   'vertical-edgePadding': waitFn(testVerticalEdgePadding),
   'vertical-edgePadding-gutter': waitFn(testVerticalEdgePaddingGutter),
+  'center-non-loop': waitFn(testCenterNonLoop),
+  'center-loop': waitFn(testCenterLoop),
+  'center-fixedWidth-non-loop': waitFn(testCenterFixedWidthNonLoop),
+  'center-fixedWidth-loop': waitFn(testCenterFixedWidthLoop),
+  'center-autoWidth-non-loop': waitFn(testCenterAutoWidthNonLoop),
+  'center-autoWidth-loop': waitFn(testCenterAutoWidthLoop),
   'animation1': waitFn(testAnimation1),
   'animation2': waitFn(testAnimation2),
   'lazyload': waitFn(testLazyload),

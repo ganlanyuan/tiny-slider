@@ -2474,12 +2474,13 @@ var tns = function(options) {
   }
 
   function getRightBoundary () {
-    var result = (viewport + gutter) - getSliderWidth();
+    var gap = edgePadding ? 0 : gutter,
+        result = (viewport + gap) - getSliderWidth();
 
     if (center && !loop) {
       result = fixedWidth ? 
         result - (viewport - fixedWidth) / 2 :
-        result - (viewport - (slideItems[slideCountNew - 1].clientWidth - gutter)) / 2;
+        result - (viewport - (slidePositions[slideCountNew] - slidePositions[slideCountNew - 1] - gap)) / 2;
     }
     if (result > 0) { result = 0; }
 
@@ -2502,7 +2503,8 @@ var tns = function(options) {
     } else {
       val = - slidePositions[num];
       if (center && autoWidth) {
-        val += (viewport - (slidePositions[num + 1] - slidePositions[num] - gutter)) / 2;
+        var gap = edgePadding ? 0 : gutter;
+        val += (viewport - (slidePositions[num + 1] - slidePositions[num] - gap)) / 2;
       }
     }
 
