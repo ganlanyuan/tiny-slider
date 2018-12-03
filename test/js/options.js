@@ -1,33 +1,28 @@
 var options = {
   'base': {
-    container: '',
     items: 3,
     // loop: false,
     slideBy: 'page',
     mouseDrag: true,
   },
   'start-index-carousel-loop': {
-    container: '',
     items: 3,
     slideBy: 'page',
     startIndex: 6,
   },
   'start-index-carousel-non-loop': {
-    container: '',
     items: 3,
     slideBy: 'page',
     loop: false,
     startIndex: 6,
   },
   'start-index-gallery-loop': {
-    container: '',
     mode: 'gallery',
     items: 3,
     slideBy: 'page',
     startIndex: 6,
   },
   'start-index-gallery-non-loop': {
-    container: '',
     mode: 'gallery',
     items: 3,
     slideBy: 'page',
@@ -35,7 +30,6 @@ var options = {
     startIndex: 6,
   },
   'few-items': {
-    container: '',
     items: 9,
     edgePadding: edgepadding,
     slideBy: 'page',
@@ -45,35 +39,29 @@ var options = {
     loop: false,
   },
   'mouse-drag': {
-    container: '',
     items: 3,
     mouseDrag: true,
     slideBy: 'page',
   },
   'mouse-drag2': {
-    container: '',
     items: 3,
     mouseDrag: true,
     slideBy: 'page',
   },
   'gutter': {
-    container: '',
     items: 3,
     gutter: gutter,
   },
   'edgePadding': {
-    container: '',
     items: 3,
     edgePadding: edgepadding,
   },
   'edgePadding-gutter': {
-    container: '',
     items: 3,
     gutter: gutter,
     edgePadding: edgepadding,
   },
   'non-loop': {
-    container: '',
     // items: 3,
     loop: false,
     responsive: {
@@ -86,31 +74,25 @@ var options = {
     },
   }, 
   'rewind': {
-    container: '',
     items: 3,
     rewind: true,
   }, 
   'slide-by-page': {
-    container: '',
     items: 3,
     slideBy: 'page',
   }, 
   'fixedWidth': {
-    container: '',
     fixedWidth: fw,
   }, 
   'fixedWidth-gutter': {
-    container: '',
     gutter: gutter,
     fixedWidth: fw,
   }, 
   'fixedWidth-edgePadding': {
-    container: '',
     edgePadding: edgepadding,
     fixedWidth: fw,
   }, 
   'fixedWidth-edgePadding-gutter': {
-    container: '',
     gutter: gutter,
     edgePadding: edgepadding,
     fixedWidth: fw,
@@ -138,6 +120,58 @@ var options = {
     mouseDrag: true,
     lazyload: true,
   },
+  'center-non-loop': {
+    items: 4,
+    center: true,
+    gutter: 10,
+    edgePadding: 30,
+    loop: false,
+  },
+  'center-loop': {
+    items: 4,
+    center: true,
+    gutter: 10,
+  },
+  'center-fixedWidth-non-loop': {
+    fixedWidth: fw,
+    center: true,
+    edgePadding: 30,
+    gutter: 10,
+    loop: false,
+  },
+  'center-fixedWidth-loop': {
+    fixedWidth: fw,
+    center: true,
+    edgePadding: 30,
+    gutter: 10,
+  },
+  'center-autoWidth-non-loop': {
+    autoWidth: true,
+    center: true,
+    gutter: 10,
+    edgePadding: 300,
+    loop: false,
+  },
+  'center-autoWidth-loop': {
+    autoWidth: true,
+    center: true,
+    gutter: 10,
+    edgePadding: 300,
+  },
+  'center-lazyload-non-loop': {
+    items: 4,
+    center: true,
+    gutter: 10,
+    edgePadding: 30,
+    loop: false,
+    lazyload: true,
+  },
+  'center-lazyload-loop': {
+    items: 4,
+    center: true,
+    gutter: 10,
+    lazyload: true,
+  },
   'responsive': {
     items: 2,
     controls: false,
@@ -153,7 +187,6 @@ var options = {
     },
   },
   'responsive1': {
-    container: '',
     gutter: 10,
     slideBy: 1,
     responsive: {
@@ -232,12 +265,10 @@ var options = {
     loop: false,
   },
   'arrowKeys': {
-    container: '',
     items: 3,
     arrowKeys: true,
   },
   'autoplay': {
-    container: '',
     items: 3,
     speed: 300,
     autoplay: true,
@@ -247,31 +278,26 @@ var options = {
     // autoplayButtonOutput: false,
   }, 
   'vertical': {
-    container: '',
     items: 3,
     axis: 'vertical',
   }, 
   'vertical-gutter': {
-    container: '',
     items: 3,
     axis: 'vertical',
     gutter: gutter,
   }, 
   'vertical-edgePadding': {
-    container: '',
     items: 3,
     axis: 'vertical',
     edgePadding: edgepadding,
   }, 
   'vertical-edgePadding-gutter': {
-    container: '',
     items: 3,
     axis: 'vertical',
     gutter: gutter,
     edgePadding: edgepadding,
   }, 
   'animation1': {
-    container: '',
     mode: 'gallery',
     items: 2,
     animateIn: classIn,
@@ -279,34 +305,27 @@ var options = {
     speed: 1000,
   },
   'animation2': {
-    container: '',
     mode: 'gallery',
     items: 2,
     speed: 0,
   },
   'lazyload': {
-    container: '',
     items: 3,
     edgePadding: 40,
     lazyload: true,
   },
   'customize': {
-    container: '',
     items: 3,
-    controlsContainer: '#customize-controls',
-    navContainer: '#customize-thumbnails',
     navAsThumbnails: true,
     autoplay: true,
     autoplayTimeout: 1000,
     autoplayButton: '#customize-toggle',
   },
   'autoHeight': {
-    container: '',
     autoHeight: true,
     items: 1,
   },
   'nested_inner': {
-    container: '',
     items: 3,
     nested: 'inner',
     edgePadding: 20,
@@ -314,7 +333,6 @@ var options = {
     slideBy: 'page',
   },
   'nested': {
-    container: '',
     items: 1,
     loop: false,
     // autoHeight: true,
