@@ -51,7 +51,7 @@ async function testBase () {
       innerWrapper = container.parentNode,
       slideItems = info.slideItems,
       navItems = info.navItems,
-      visibleNavIndexes = info.visibleNavIndexes,
+      pages = info.pages,
       slideCount = info.slideCount,
       cloneCount = info.cloneCount,
       assertion;
@@ -88,11 +88,11 @@ async function testBase () {
 
   runTest('Nav items: data-nav, hidden', function() {
     var navVisible = navItems[0],
-        navHidden = navItems[2];
+        navHidden = navItems[3];
 
     return navVisible.getAttribute('data-nav') === '0' &&
       navVisible.style.display !== 'none' &&
-      navHidden.getAttribute('data-nav') === '2' &&
+      navHidden.getAttribute('data-nav') === '3' &&
       navHidden.style.display === 'none';
   });
 
@@ -106,18 +106,18 @@ async function testBase () {
   await checkControlsClick(controlsClick, id, 11);
 
   // nav click
-  for (var i = visibleNavIndexes.length; i--;) {
-    navItems[visibleNavIndexes[i]].click();
+  for (var i = pages; i--;) {
+    navItems[i].click();
 
     var current = slider.getInfo().index,
         currentSlide = slideItems[current];
 
     if (assertion !== false) {
       assertion = 
-        navItems[visibleNavIndexes[i]].className.indexOf(navActiveClass) >= 0 &&
-        getAbsIndex(current, 0, info) === visibleNavIndexes[i] &&
+        navItems[i].className.indexOf(navActiveClass) >= 0 &&
+        getAbsIndex(current, 0, info) === i &&
         compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
-        currentSlide.getAttribute('aria-hidden') === 'false';
+        !currentSlide.hasAttribute('aria-hidden');
     }
   }
 
@@ -164,32 +164,32 @@ async function testBase () {
     var navContainer = info.navContainer,
         wrapperLeft = innerWrapper.getBoundingClientRect().left;
     // focus on the 1st nav item
-    navItems[visibleNavIndexes[0]].focus();
+    navItems[0].focus();
     // fire keydown event on right arrow
     // the 2nd nav item get focused
     fire(navContainer, 'keydown', {'keyCode': 39});
-    assertion = document.activeElement === navItems[visibleNavIndexes[1]];
+    assertion = document.activeElement === navItems[1];
     // press "Enter"
     fire(navContainer, 'keydown', {'keyCode': 13});
     var current = slider.getInfo().index,
         currentSlide = slideItems[current];
     if (assertion) {
       assertion = 
-        getAbsIndex(current, 0, info) === visibleNavIndexes[1] &&
-        navItems[visibleNavIndexes[1]].className.indexOf(navActiveClass) >= 0 &&
+        getAbsIndex(current, 0, info) === 1 &&
+        navItems[1].className.indexOf(navActiveClass) >= 0 &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     // fire keydown event on left arrow
     // the 1st nav item get focused
     fire(navContainer, 'keydown', {'keyCode': 37});
     if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+      assertion = document.activeElement === navItems[0];
     }
     // fire keydown event on down arrow
     // the 3nd nav item get focused
     fire(navContainer, 'keydown', {'keyCode': 40});
     if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[2]];
+      assertion = document.activeElement === navItems[2];
     }
     // press "Space"
     fire(navContainer, 'keydown', {'keyCode': 32});
@@ -198,15 +198,15 @@ async function testBase () {
 
     if (assertion) {
       assertion = 
-        getAbsIndex(current, 0, info) === visibleNavIndexes[2] &&
-        navItems[visibleNavIndexes[2]].className.indexOf(navActiveClass) >= 0 &&
+        getAbsIndex(current, 0, info) === 2 &&
+        navItems[2].className.indexOf(navActiveClass) >= 0 &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     // fire keydown event on up arrow
     // the 1st nav item get focused
     fire(navContainer, 'keydown', {'keyCode': 38});
     if (assertion) {
-      assertion = document.activeElement === navItems[visibleNavIndexes[0]];
+      assertion = document.activeElement === navItems[0];
     }
     // press "Enter"
     fire(navContainer, 'keydown', {'keyCode': 13});
@@ -215,8 +215,8 @@ async function testBase () {
 
     if (assertion) {
       assertion = 
-        getAbsIndex(current, 0, info) === visibleNavIndexes[0] &&
-        navItems[visibleNavIndexes[0]].className.indexOf(navActiveClass) >= 0 &&
+        getAbsIndex(current, 0, info) === 0 &&
+        navItems[0].className.indexOf(navActiveClass) >= 0 &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
     updateTest(navKeydown, assertion);
@@ -2264,7 +2264,7 @@ function testAutoHeight () {
 
   addTitle(id);
 
-  var testClass = addTest('InnerWrapper should has class "tns-ah"'),
+  var testClass = addTest('Middle wrapper should has class "tns-ah"'),
       testHeight1 = addTest('Slider height should be the same as the maximum heights of visible slides in initialization'),
       testHeight2 = addTest('Slider height should be the same as the maximum heights of visible slides after clicking prev/next buttons'),
       comment = '';
@@ -2273,44 +2273,24 @@ function testAutoHeight () {
     await wait(300);
     var assertion,
         info = slider.getInfo(),
-        wrapper = info.container.parentNode,
         slideItems = info.slideItems,
-        nextButton = info.nextButton;
+        nextButton = info.nextButton,
+        middleWrapper = doc.querySelector('#' + id + '-mw');
 
-    assertion = containsClasses(wrapper, ['tns-ah']);
-    // if (!assertion) {
-    //   comment = 'innerWrapper contains class "tns-ah": ' + containsClasses(wrapper, ['tns-ah']);
-    // }
-
+    assertion = containsClasses(middleWrapper, ['tns-ah']);
     updateTest(testClass, assertion, comment);
 
-    assertion = compare2Nums(wrapper.clientHeight, slideItems[info.index].clientHeight);
-    // if (!assertion) {
-    //   comment = 'Init: innerWrapper height:' + wrapper.clientHeight +
-    //     ' | slide height: ' + slideItems[info.index].clientHeight + 
-    //     ' | index: ' + info.index;
-    // }
-
+    assertion = compare2Nums(middleWrapper.clientHeight, slideItems[info.index].clientHeight);
     updateTest(testHeight1, assertion, comment);
 
     nextButton.click();
     await wait(800);
-    assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-    // if (!assertion) {
-    //   comment = 'Click1: innerWrapper height:' + wrapper.clientHeight +
-    //     ' | slide height: ' + slideItems[info.index].clientHeight + 
-    //     ' | index: ' + info.index;
-    // }
+    assertion = compare2Nums(middleWrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
 
     nextButton.click();
     await wait(800);
     if (assertion) {
-      assertion = compare2Nums(wrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
-      // if (!assertion) {
-      //   comment = '\nClick2: innerWrapper height:' + wrapper.clientHeight +
-      //     ' | slide height: ' + slideItems[info.index].clientHeight + 
-      //     ' | index: ' + info.index;
-      // }
+      assertion = compare2Nums(middleWrapper.clientHeight, slideItems[slider.getInfo().index].clientHeight);
     }
 
     updateTest(testHeight2, assertion, comment);
@@ -2519,13 +2499,13 @@ function checkSlidesAttrs (id) {
   return slideItems.length === slideCount + cloneCount * mul &&
     containsClasses(firstVisible, ['tns-item']) &&
     firstVisible.id === id + '-item' + 0 &&
-    firstVisible.getAttribute('aria-hidden') === 'false' &&
+    !firstVisible.hasAttribute('aria-hidden') &&
     !firstVisible.hasAttribute('tabindex') &&
     firstVisiblePrev.id === '' &&
     firstVisiblePrev.getAttribute('aria-hidden') === 'true' &&
     firstVisiblePrev.getAttribute('tabindex') === '-1' &&
     lastVisible.id === id + '-item' + (items - 1) &&
-    lastVisible.getAttribute('aria-hidden') === 'false' &&
+    !lastVisible.hasAttribute('aria-hidden') &&
     !lastVisible.hasAttribute('tabindex') &&
     lastVisibleNext.getAttribute('aria-hidden') === 'true' &&
     lastVisibleNext.getAttribute('tabindex') === '-1' &&
@@ -2578,9 +2558,9 @@ async function checkControlsClick (test, id, count, vertical, islast) {
     // if (id === 'customize') {
       // console.log(absIndex, index%slideCount);
     // }
-    return first.getAttribute('aria-hidden') === 'false' &&
+    return !first.hasAttribute('aria-hidden') &&
       !first.hasAttribute(tabindex) &&
-      last.getAttribute('aria-hidden') === 'false' &&
+      !last.hasAttribute('aria-hidden') &&
       !last.hasAttribute(tabindex) &&
       compare2Nums(first.getBoundingClientRect()[edge1], wrapper.getBoundingClientRect()[edge1]) &&
       checkLastEdge;
