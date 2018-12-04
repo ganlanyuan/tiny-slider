@@ -787,157 +787,36 @@ function testVerticalEdgePaddingGutter () {
 
 
 
+function center_regular (id) {
+  var slider = sliders[id], nextButton = slider.getInfo().nextButton;
+
+  addTitle(id);
+  runTest('Init: current slide should be in the center of the viewport', async function() {
+    await wait(300);
+    return checkPositionCenter(id);
+  });
+
+  runTest('After controls click: current slide should be in the center of the viewport', async function() {
+
+    await repeat(function() { nextButton.click(); }, 10);
+    await wait(300);
+    
+    return checkPositionCenter(id);
+  });
+
+  assignDone(id);
+}
 function testCenterNonLoop () {
-  var id = 'center-non-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton = info.nextButton;
-
-  addTitle(id);
-
-  runTest('Init: current slide should be in the center of the viewport', async function() {
-    await wait(300);
-    return checkPositionCenter(id);
-  });
-
-  runTest('After controls click: current slide should be in the center of the viewport', async function() {
-
-    await repeat(function() { nextButton.click(); }, 10);
-    await wait(300);
-    
-    return checkPositionCenter(id);
-  });
-
-  assignDone(id);
+  center_regular('center-non-loop');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function testCenterLoop () {
-  var id = 'center-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton = info.nextButton;
-
-  addTitle(id);
-
-  runTest('Init: current slide should be in the center of the viewport', async function() {
-    await wait(300);
-    return checkPositionCenter(id);
-  });
-
-  runTest('After controls click: current slide should be in the center of the viewport', async function() {
-
-    await repeat(function() { nextButton.click(); }, 10);
-    await wait(300);
-
-    return checkPositionCenter(id);
-  });
-
-  assignDone(id);
+  center_regular('center-loop');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function testCenterFixedWidthNonLoop () {
-  var id = 'center-fixedWidth-non-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton = info.nextButton;
-
-  addTitle(id);
-
-  runTest('Init: current slide should be in the center of the viewport', async function() {
-    await wait(300);
-    return checkPositionCenter(id);
-  });
-
-  runTest('After controls click: current slide should be in the center of the viewport', async function() {
-
-    await repeat(function() { nextButton.click(); }, 10);
-    await wait(300);
-    
-    return checkPositionCenter(id);
-  });
-
-  assignDone(id);
+  center_regular('center-fixedWidth-non-loop');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function testCenterFixedWidthLoop () {
-  var id = 'center-fixedWidth-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton = info.nextButton;
-
-  addTitle(id);
-
-  runTest('Init: current slide should be in the center of the viewport', async function() {
-    await wait(300);
-    return checkPositionCenter(id);
-  });
-
-  runTest('After controls click: current slide should be in the center of the viewport', async function() {
-
-    await repeat(function() { nextButton.click(); }, 10);
-    await wait(300);
-
-    return checkPositionCenter(id);
-  });
-
-  assignDone(id);
+  center_regular('center-fixedWidth-loop');
 }
 
 
@@ -959,11 +838,8 @@ function testCenterFixedWidthLoop () {
 
 
 
-function testCenterAutoWidthNonLoop () {
-  var id = 'center-autoWidth-non-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton;
+function center_autoWidth (id) {
+  var slider = sliders[id];
 
   addTitle(id);
   var testInit = addTest('Init: current slide should be in the center of the viewport'),
@@ -974,13 +850,26 @@ function testCenterAutoWidthNonLoop () {
     updateTest(testInit, checkPositionCenter(id));
 
     await wait(1000);
-    await repeat(function() { slider.getInfo().nextButton.click(); }, 10);
+    var nextButton = slider.getInfo().nextButton;
+    await repeat(function() { nextButton.click(); }, 10);
     await wait(500);
     
     updateTest(testAfterClick, checkPositionCenter(id));
-  });
 
-  // assignDone(id);
+    assignDone(id);
+  });
+}
+function testCenterAutoWidthNonLoop () {
+  center_autoWidth('center-autoWidth-non-loop');
+}
+function testCenterAutoWidthLoop () {
+  center_autoWidth('center-autoWidth-loop');
+}
+function testCenterAutoWidthNonLoopEdgePadding () {
+  center_autoWidth('center-autoWidth-non-loop-edgePadding');
+}
+function testCenterAutoWidthLoopEdgePadding () {
+  center_autoWidth('center-autoWidth-loop-edgePadding');
 }
 
 
@@ -1002,28 +891,68 @@ function testCenterAutoWidthNonLoop () {
 
 
 
-function testCenterAutoWidthLoop () {
-  var id = 'center-autoWidth-loop',
-      slider = sliders[id],
-      info = slider.getInfo(),
-      nextButton = info.nextButton;
+
+function forEach (arr, callback, scope) {
+  for (var i = 0, l = arr.length; i < l; i++) {
+    callback.call(scope, arr[i], i);
+  }
+}
+function check_lazyload (id) {
+  var val = true,
+      imgs = doc.querySelectorAll('#' + id + ' .tns-slide-active .tns-lazy-img'),
+      activeSlides = doc.querySelectorAll('#' + id + ' .tns-slide-active'),
+      nextNotActiveSlide = activeSlides[activeSlides.length - 1].nextElementSibling;
+
+  forEach(imgs, function(img, i) {
+    if (val) { val = img.src === img.getAttribute('data-src'); }
+  });
+
+  if (val && nextNotActiveSlide) {
+    val = nextNotActiveSlide.querySelector('.tns-lazy-img').src === 'data:image/svg+xml,%3Csvg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%20600%20600"%3E%3C/svg%3E';
+  }
+
+  return val;
+}
+function center_lazyload (id) {
+  var slider = sliders[id];
 
   addTitle(id);
-  var testInit = addTest('Init: current slide should be in the center of the viewport'),
-      testAfterClick = addTest('After controls click: current slide should be in the center of the viewport');
+  var str = 'images in active slides should be loaded, images not in active slides should not',
+      testInit = addTest('Init: ' + str),
+      testAfterClick = addTest('After controls click: ' + str);
 
   waitUntilInit(slider, async function() {
-    await wait(300);
-    updateTest(testInit, checkPositionCenter(id));
+    await wait(500);
+    updateTest(testInit, check_lazyload(id));
 
-    await repeat(function() { nextButton.click(); }, 10);
-    await wait(300);
+    await wait(1000);
+    slider.getInfo().nextButton.click();
+    await wait(500);
     
-    updateTest(testAfterClick, checkPositionCenter(id));
-  });
+    updateTest(testAfterClick, check_lazyload(id));
 
-  assignDone(id);
+    assignDone(id);
+  });
 }
+function testCenterLazyLoadNonLoop () {
+  center_lazyload('center-lazyload-non-loop');
+}
+function testCenterLazyLoadLoop () {
+  center_lazyload('center-lazyload-loop');
+}
+function testCenterLazyLoadFixedWidthNonLoop () {
+  center_lazyload('center-lazyload-fixedWidth-non-loop');
+}
+function testCenterLazyLoadFixedWidthLoop () {
+  center_lazyload('center-lazyload-fixedWidth-loop');
+}
+function testCenterLazyLoadAutoWidthNonLoop () {
+  center_lazyload('center-lazyload-autoWidth-non-loop');
+}
+function testCenterLazyLoadAutoWidthLoop () {
+  center_lazyload('center-lazyload-autoWidth-loop');
+}
+
 
 
 
@@ -2768,6 +2697,14 @@ initFns = {
   'center-fixedWidth-loop': waitFn(testCenterFixedWidthLoop),
   'center-autoWidth-non-loop': waitFn(testCenterAutoWidthNonLoop),
   'center-autoWidth-loop': waitFn(testCenterAutoWidthLoop),
+  'center-autoWidth-non-loop-edgePadding': waitFn(testCenterAutoWidthNonLoopEdgePadding),
+  'center-autoWidth-loop-edgePadding': waitFn(testCenterAutoWidthLoopEdgePadding),
+  'center-lazyload-non-loop': waitFn(testCenterLazyLoadNonLoop),
+  'center-lazyload-loop': waitFn(testCenterLazyLoadLoop),
+  'center-lazyload-fixedWidth-non-loop': waitFn(testCenterLazyLoadFixedWidthNonLoop),
+  'center-lazyload-fixedWidth-loop': waitFn(testCenterLazyLoadFixedWidthLoop),
+  'center-lazyload-autoWidth-non-loop': waitFn(testCenterLazyLoadAutoWidthNonLoop),
+  'center-lazyload-autoWidth-loop': waitFn(testCenterLazyLoadAutoWidthLoop),
   'animation1': waitFn(testAnimation1),
   'animation2': waitFn(testAnimation2),
   'lazyload': waitFn(testLazyload),

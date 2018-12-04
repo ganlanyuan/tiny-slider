@@ -23,27 +23,45 @@
     <script src="../dist/tiny-slider.js"></script>
   </head>
   <body>
+    <div class="test-results"></div>
     <div class="slider-container">
       <div id="responsive6_wrapper">
-        <h2>
-          Responsive6
-        </h2>
+        <h2></h2>
         <div class="responsive6" id="responsive6">
           <div class="item">
-            <div class="img img-1">
+            <div class="img img-0" style="">
               <a href="">0</a>
             </div>
-            <p>
-              Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!
-            </p>
           </div>
           <div class="item">
-            <div class="img img-2">
+            <div class="img img-1" style="">
               <a href="">1</a>
             </div>
-            <p>
-              Corrupti, libero minima nihil expedita officiis? Quo.
-            </p>
+          </div>
+          <div class="item">
+            <div class="img img-2" style="">
+              <a href="">2</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-3" style="">
+              <a href="">3</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-4" style="">
+              <a href="">4</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-5" style="">
+              <a href="">5</a>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img img-6" style="">
+              <a href="">6</a>
+            </div>
           </div>
         </div>
       </div>
@@ -71,7 +89,33 @@
     }
     window.addEventListener('resize', function() { fw = getFW(ww); });
     </script> 
-    <script src="js/options.js"></script> 
+    <script src="js/options.js"></script> <!--[if (IE 8)&!(IEMobile)]>
+<script>
+  if (Object.defineProperty 
+    && Object.getOwnPropertyDescriptor 
+    && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") 
+    && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function() {
+      var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+      Object.defineProperty(Element.prototype, "textContent",
+       {
+         get: function() {
+           return innerText.get.call(this);
+         },
+         set: function(s) {
+           return innerText.set.call(this, s);
+         }
+       }
+     );
+    })();
+  }
+</script>
+<![endif]-->
+     
+    <script src="js/es6-promise.auto.min.js"></script> 
+    <script src="js/helpers.js"></script> 
+    <script src="js/babel-polyfill/dist/polyfill.min.js"></script> 
+    <script src="js/tests-async-es5.js"></script> 
     <script src="js/run.js"></script>
   </body>
 </html>

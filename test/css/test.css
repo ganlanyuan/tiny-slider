@@ -105,6 +105,7 @@ img {
   font-size: 0.8em;
 }
 
+.img-0 { background: #705BD6; background: hsl(250, 60%, 60%); }
 .img-1 { background: #D6D65B; background: hsl(60, 60%, 60%); }
 .img-2 { background: #5BD6AD; background: hsl(160, 60%, 60%); }
 .img-3 { background: #5B99D6; background: hsl(210, 60%, 60%); }
@@ -112,7 +113,6 @@ img {
 .img-5 { background: #70D65B; background: hsl(110, 60%, 60%); }
 .img-6 { background: #D65B5B; background: hsl(0, 60%, 60%); }
 .img-7 { background: #D6995B; background: hsl(30, 60%, 60%); }
-.img-8 { background: #705BD6; background: hsl(250, 60%, 60%); }
 .customize-tools { position: relative; }
 .thumbnails { 
   margin: 20px 0;
