@@ -296,14 +296,14 @@ var testNonLoop = function () {
           case 9:
             current = slideCount - items;
             if (assertion) {
-              assertion = nextButton.hasAttribute('disabled') && navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+              assertion = nextButton.hasAttribute('disabled') && navItems[Math.floor(current / items)].className.indexOf(navActiveClass) >= 0 && !slideItems[current].hasAttribute('aria-hidden') && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
             }
 
             // click next button once
             nextButton.click();
             if (assertion) {
               current = slideCount - items;
-              assertion = navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false';
+              assertion = navItems[Math.floor(current / items)].className.indexOf(navActiveClass) >= 0 && !slideItems[current].hasAttribute('aria-hidden');
             }
 
             // click prev button once
@@ -321,7 +321,7 @@ var testNonLoop = function () {
           case 17:
             current = 0;
             if (assertion) {
-              assertion = prevButton.hasAttribute('disabled') && navItems[current].className.indexOf(navActiveClass) >= 0 && slideItems[current].getAttribute('aria-hidden') === 'false' && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
+              assertion = prevButton.hasAttribute('disabled') && navItems[Math.floor(current / items)].className.indexOf(navActiveClass) >= 0 && !slideItems[current].hasAttribute('aria-hidden') && compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
             }
 
             updateTest(test, assertion);
@@ -719,6 +719,7 @@ var checkControlsClick = function () {
             if (vertical) {
               edge1 = 'top';
               edge2 = 'bottom';
+              wrapper = wrapper.parentNode;
             }
 
             // click prev button n times
@@ -1722,7 +1723,7 @@ function testResponsive5() {
           switch (_context16.prev = _context16.next) {
             case 0:
               _context16.prev = 0;
-              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-iw'), container = doc.querySelector('#' + id), first = container.querySelector('#' + id + '-item0');
+              doc = newWindow.contentDocument ? newWindow.contentDocument : newWindow.contentWindow.document, wrapper = doc.querySelector('#' + id + '-mw'), container = doc.querySelector('#' + id), first = container.querySelector('#' + id + '-item0');
               _context16.next = 4;
               return wait(1000);
 

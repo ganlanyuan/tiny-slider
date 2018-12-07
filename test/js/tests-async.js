@@ -356,8 +356,8 @@ async function testNonLoop () {
   if (assertion) {
     assertion = 
       nextButton.hasAttribute('disabled') &&
-      navItems[current].className.indexOf(navActiveClass) >= 0 &&
-      slideItems[current].getAttribute('aria-hidden') === 'false' &&
+      navItems[Math.floor(current/items)].className.indexOf(navActiveClass) >= 0 &&
+      !slideItems[current].hasAttribute('aria-hidden') &&
       compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
   }
 
@@ -366,8 +366,8 @@ async function testNonLoop () {
   if (assertion) {
     current = slideCount - items;
     assertion = 
-      navItems[current].className.indexOf(navActiveClass) >= 0 &&
-      slideItems[current].getAttribute('aria-hidden') === 'false';
+      navItems[Math.floor(current/items)].className.indexOf(navActiveClass) >= 0 &&
+      !slideItems[current].hasAttribute('aria-hidden');
   }
 
   // click prev button once
@@ -382,8 +382,8 @@ async function testNonLoop () {
   if (assertion) {
     assertion = 
       prevButton.hasAttribute('disabled') &&
-      navItems[current].className.indexOf(navActiveClass) >= 0 &&
-      slideItems[current].getAttribute('aria-hidden') === 'false' &&
+      navItems[Math.floor(current/items)].className.indexOf(navActiveClass) >= 0 &&
+      !slideItems[current].hasAttribute('aria-hidden') &&
       compare2Nums(slideItems[current].getBoundingClientRect().left, 0);
   }
 
@@ -1455,7 +1455,7 @@ function testResponsive5 () {
           commentFixedWidth,
           commentAutoHeight,
           doc = newWindow.contentDocument? newWindow.contentDocument: newWindow.contentWindow.document,
-          wrapper = doc.querySelector('#' + id + '-iw'),
+          wrapper = doc.querySelector('#' + id + '-mw'),
           container = doc.querySelector('#' + id),
           first = container.querySelector('#' + id + '-item0');
 
@@ -2547,6 +2547,7 @@ async function checkControlsClick (test, id, count, vertical, islast) {
   if (vertical) {
     edge1 = 'top';
     edge2 = 'bottom';
+    wrapper = wrapper.parentNode;
   }
       
   function getAssertion (absIndex) {
