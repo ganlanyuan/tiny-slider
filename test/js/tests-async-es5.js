@@ -3,7 +3,7 @@
 // ### base
 var testBase = function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-    var id, slider, info, container, innerWrapper, slideItems, navItems, pages, slideCount, cloneCount, assertion, controlsClick, navClick, controlsKeydown, navKeydown, testGoto, i, current, currentSlide, prev, absIndex, navContainer, wrapperLeft, controls, input, button, mul, checkGoto;
+    var id, slider, info, items, container, innerWrapper, slideItems, navItems, pages, slideCount, cloneCount, assertion, controlsClick, navClick, controlsKeydown, navKeydown, testGoto, i, current, currentSlide, prev, absIndex, navContainer, wrapperLeft, controls, input, button, mul, checkGoto;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -24,7 +24,7 @@ var testBase = function () {
               }
             };
 
-            id = 'base', slider = sliders[id], info = slider.getInfo(), container = info.container, innerWrapper = container.parentNode, slideItems = info.slideItems, navItems = info.navItems, pages = info.pages, slideCount = info.slideCount, cloneCount = info.cloneCount;
+            id = 'base', slider = sliders[id], info = slider.getInfo(), items = info.items, container = info.container, innerWrapper = container.parentNode, slideItems = info.slideItems, navItems = info.navItems, pages = info.pages, slideCount = info.slideCount, cloneCount = info.cloneCount;
 
 
             addTitle(id);
@@ -81,7 +81,7 @@ var testBase = function () {
 
 
               if (assertion !== false) {
-                assertion = navItems[i].className.indexOf(navActiveClass) >= 0 && getAbsIndex(current, 0, info) === i && compare2Nums(currentSlide.getBoundingClientRect().left, 0) && !currentSlide.hasAttribute('aria-hidden');
+                assertion = navItems[i].className.indexOf(navActiveClass) >= 0 && getAbsIndex(current, 0, info) === i * items && compare2Nums(currentSlide.getBoundingClientRect().left, 0) && !currentSlide.hasAttribute('aria-hidden');
               }
             }
 
@@ -90,7 +90,7 @@ var testBase = function () {
             // keydown events
 
             if (!canFireKeydown) {
-              _context.next = 51;
+              _context.next = 50;
               break;
             }
 
@@ -104,7 +104,7 @@ var testBase = function () {
             prev = info.index, current = slider.getInfo().index, absIndex = getAbsIndex(prev, -3, info), currentSlide = slideItems[current];
 
 
-            assertion = current === absIndex + cloneCount && navItems[absIndex].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+            assertion = current === absIndex + cloneCount && navItems[Math.floor(absIndex / items)].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
             if (!assertion) {
               _context.next = 28;
@@ -122,7 +122,7 @@ var testBase = function () {
             absIndex = 0;
             currentSlide = slideItems[current];
 
-            assertion = current === absIndex + cloneCount && navItems[absIndex].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
+            assertion = current === absIndex + cloneCount && navItems[Math.floor(absIndex / items)].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
           case 28:
 
@@ -150,9 +150,18 @@ var testBase = function () {
             if (assertion) {
               assertion = document.activeElement === navItems[0];
             }
-            // fire keydown event on down arrow
+            // press "Enter"
+            fire(navContainer, 'keydown', { 'keyCode': 13 });
+            current = slider.getInfo().index, currentSlide = slideItems[current];
+
+
+            if (assertion) {
+              assertion = getAbsIndex(current, 0, info) === 0 && navItems[0].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+            }
+            // fire keydown event on right arrow 2 times
             // the 3nd nav item get focused
-            fire(navContainer, 'keydown', { 'keyCode': 40 });
+            fire(navContainer, 'keydown', { 'keyCode': 39 });
+            fire(navContainer, 'keydown', { 'keyCode': 39 });
             if (assertion) {
               assertion = document.activeElement === navItems[2];
             }
@@ -164,46 +173,33 @@ var testBase = function () {
             if (assertion) {
               assertion = getAbsIndex(current, 0, info) === 2 && navItems[2].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
             }
-            // fire keydown event on up arrow
-            // the 1st nav item get focused
-            fire(navContainer, 'keydown', { 'keyCode': 38 });
-            if (assertion) {
-              assertion = document.activeElement === navItems[0];
-            }
-            // press "Enter"
-            fire(navContainer, 'keydown', { 'keyCode': 13 });
-            current = slider.getInfo().index, currentSlide = slideItems[current];
 
-
-            if (assertion) {
-              assertion = getAbsIndex(current, 0, info) === 0 && navItems[0].className.indexOf(navActiveClass) >= 0 && compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
-            }
             updateTest(navKeydown, assertion);
-            _context.next = 53;
+            _context.next = 52;
             break;
 
-          case 51:
+          case 50:
             updateTest(controlsKeydown, '?');
             updateTest(navKeydown, '?');
 
-          case 53:
+          case 52:
 
             // go to
             controls = document.querySelector('#base_wrapper .goto-controls'), input = controls.querySelector('input'), button = controls.querySelector('.button'), mul = 10;
-            _context.next = 56;
+            _context.next = 55;
             return repeat(checkGoto, 3);
 
-          case 56:
+          case 55:
             mul = -10;
-            _context.next = 59;
+            _context.next = 58;
             return repeat(checkGoto, 3);
 
-          case 59:
+          case 58:
 
             updateTest(testGoto, assertion);
             assignDone(id);
 
-          case 61:
+          case 60:
           case 'end':
             return _context.stop();
         }
@@ -534,11 +530,8 @@ var testCustomize = function () {
                 while (1) {
                   switch (_context23.prev = _context23.next) {
                     case 0:
-                      info = slider.getInfo();
-
                       // stop autoplay and go to the first slide
                       // before testing slide attrs
-
                       if (opt['autoplay']) {
                         autoplayButton.click();
                         slider.goTo('first');
@@ -566,11 +559,14 @@ var testCustomize = function () {
                         return checkControlsAttrs(id);
                       });
 
+                      info = slider.getInfo();
+
                       runTest('Nav: aria-label, data-nav, tabindex, active class, aria-controls', function () {
                         var assertion,
                             info = slider.getInfo(),
                             slideCount = info.slideCount,
-                            absIndex = info.index % slideCount,
+                            cloneCount = info.cloneCount,
+                            absIndex = (info.index - cloneCount) % slideCount,
                             navContainer = info.navContainer,
                             navItems = info.navItems;
 
@@ -582,23 +578,25 @@ var testCustomize = function () {
                         for (var i = slideCount; i--;) {
                           var nav = navItems[i],
                               number = nav.className.indexOf(navActiveClass),
-                              arr = i === absIndex ? [' (Current Slide)', '0', number >= 0] : ['', '-1', number < 0];
+                              hasCl = i === absIndex ? number >= 0 : number < 0,
+                              currentStr = i === absIndex ? ' (Current Slide)' : '',
+                              ti = i === absIndex ? !nav.hasAttribute('tabindex') : nav.getAttribute('tabindex') === '-1';
 
                           if (assertion) {
-                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id + '-item' + i && nav.getAttribute('aria-label') === 'Carousel Page ' + (i + 1) + arr[0] && nav.getAttribute(tabindex) === arr[1] && arr[2];
+                            assertion = nav.getAttribute('data-nav') === i.toString() && nav.getAttribute('aria-controls') === id && nav.getAttribute('aria-label') === 'Carousel Page ' + (i + 1) + currentStr && ti && hasCl;
                           }
                         }
                         return assertion;
                       });
 
-                      // simulateClick(info.prevButton);
+                      simulateClick(info.prevButton);
                       controlsClick = addTest('Controls: click functions'), autoplayT = addTest('Slide: autoplay'), autoplayPauseT = addTest('Slide: autoplay pause');
-                      _context23.next = 8;
+                      _context23.next = 9;
                       return checkControlsClick(controlsClick, id, 11);
 
-                    case 8:
+                    case 9:
                       if (!opt['autoplay']) {
-                        _context23.next = 18;
+                        _context23.next = 19;
                         break;
                       }
 
@@ -614,18 +612,19 @@ var testCustomize = function () {
                         timeout += opt['speed'];
                       }
 
-                      _context23.next = 15;
+                      _context23.next = 16;
                       return testAutoplayFn(id, autoplayT, timeout, false);
 
-                    case 15:
+                    case 16:
                       autoplayButton.click();
-                      _context23.next = 18;
+                      _context23.next = 19;
                       return testAutoplayFn(id, autoplayPauseT, timeout, true);
 
-                    case 18:
+                    case 19:
+
                       assignDone(id);
 
-                    case 19:
+                    case 20:
                     case 'end':
                       return _context23.stop();
                   }

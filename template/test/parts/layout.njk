@@ -24,7 +24,6 @@
   <script src="../dist/tiny-slider.js"></script>
 </head>
 <body {{ 'data-responsive=' + responsive | safe if responsive }}>
-{% set sliders = [page] %}
 {% set titles = [
   "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
   "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", 
@@ -60,98 +59,96 @@
 
   {% if page %}
     {# sliders #}
-    <div class="slider-container">
-      <div id="{{ page }}_wrapper">
-        <h2>{{ slide | title }}</h2>
-
-        {# go to #}
-        {% if page === 'base' %}
-          <div class="goto-controls">
-            Go to slide: <input type="text" value="3">
-            <button class="button">Go</button>
-          </div>
+    <div id="{{ page }}_wrapper">
+      <h2>{{ page | title }}</h2>
+    
+      {# go to #}
+      {% if page === 'base' %}
+        <div class="goto-controls">
+          Go to slide: <input type="text" value="3">
+          <button class="button">Go</button>
+        </div>
+      {% endif %}
+    
+      {# slider body #}
+      <div class="{{ page }}" id="{{ page }}">
+    
+        {% set count = 2 if fewItems else 7 %}
+        {% set w = [600, 500, 200, 400, 640, 360, 460] if autoWidth else [600, 600, 600, 600, 600, 600, 600] %}
+    
+        {% if autoWidth %}
+          {% set h = [320, 300, 310, 330, 300, 240, 280] %}
+        {% elif autoHeight %}
+          {% set h = [500, 700, 600, 800, 500, 600, 800] %}
+        {% else %}
+          {% set h = [600, 600, 600, 600, 600, 600, 600] %}
         {% endif %}
-
-        {# slider body #}
-        <div class="{{ page }}" id="{{ page }}">
-
-          {% set count = 2 if fewItems else 7 %}
-          {% set w = [600, 500, 200, 400, 640, 360, 460] if autoWidth else [600, 600, 600, 600, 600, 600, 600] %}
-
-          {% if autoWidth %}
-            {% set h = [320, 300, 310, 330, 300, 240, 280] %}
-          {% elif autoHeight %}
-            {% set h = [500, 700, 600, 800, 500, 600, 800] %}
-          {% else %}
-            {% set h = [600, 600, 600, 600, 600, 600, 600] %}
-          {% endif %}
-
-          {% if page === 'nested' %}
+    
+        {% if page === 'nested' %}
+          {% for i in range(0, count) %}
+          <div class="item">
+            {% if i === 1 %}
+              <div class="{{ page }}_inner_wrapper" id="{{ page }}_inner_wrapper">
+                <div class="{{ page }}_inner" id="{{ page }}_inner">
+                  {% for i in range(1, 8) %}
+                  <div class="item">
+                    <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+                    <p>{{ titles[i] }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% else %}
+              <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
+              <p>{{ titles[i] }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+          
+        {# start-index #}
+        {% elif page === 'start-index' %}
+          {% for item in ['carousel-loop', 'carousel-non-loop', 'gallery-loop', 'gallery-non-loop'] %}
+          <div id="start-index-{{ item }}">
             {% for i in range(0, count) %}
             <div class="item">
-              {% if i === 1 %}
-                <div class="{{ page }}_inner_wrapper" id="{{ page }}_inner_wrapper">
-                  <div class="{{ page }}_inner" id="{{ page }}_inner">
-                    {% for i in range(1, 8) %}
-                    <div class="item">
-                      <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
-                      <p>{{ titles[i] }}</p>
-                    </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              {% else %}
-                <div class="img img-{{ i }}"><a href="">{{ i - 1 }}</a></div>
-                <p>{{ titles[i] }}</p>
-              {% endif %}
+              <div class="img img-{{ i + 1 }}"><a href="">{{ i }}</a></div>
             </div>
             {% endfor %}
-            
-          {# start-index #}
-          {% elif page === 'start-index' %}
-            {% for item in ['carousel-loop', 'carousel-non-loop', 'gallery-loop', 'gallery-non-loop'] %}
-            <div id="start-index-{{ item }}">
-              {% for i in range(0, count) %}
-              <div class="item">
-                <div class="img img-{{ i + 1 }}"><a href="">{{ i }}</a></div>
-              </div>
-              {% endfor %}
-            </div>
-            {% endfor %}
-
-          {# default #}
-          {% else %}
-            {% for i in range(0, count) %}
-              <div class="item">
-                {% if hasimg %}
-                {% set src = baseurl + collectionId[i] + '/' + w[i] + 'x' + h[i] %}
-                <div><a href=""><img {{ 'class="tns-lazy-img"' | safe if lazyload }} src="{{ imgPlaceholder if lazyload else src }}" data-src="{{ src }}" alt="" width="{{ w[i] }}" height="{{ h[i] }}"></a></div>
-                {% else %}
-                <div class="img img-{{ i }}" style="{{ 'height:' + h[i] + 'px' | safe if autoHeight }}"><a href="">{{ i }}</a></div>
-                {% endif %}
-
-                {# <p>{{ titles[i] }}</p> #}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-        
-        {# customize tools #}
-        {% if page === 'customize' %}
-          <div class="customize-tools">
-            <ul class="thumbnails" id="customize-thumbnails">
-              {% for i in range(0, count) %}
-                <li><img src="{{ baseurl }}{{ collectionId[i] }}/600x400" alt="" width="600" height="400"></li>
-              {% endfor %}
-            </ul>
-            <ul class="controls" id="customize-controls">
-              <li class="prev"><img src="images/angle-left.png" alt=""></li>
-              <li class="next"><img src="images/angle-right.png" alt=""></li>
-            </ul>
-            <div class="playbutton-wrapper"><button id="customize-toggle">Pause</button></div>
           </div>
+          {% endfor %}
+    
+        {# default #}
+        {% else %}
+          {% for i in range(0, count) %}
+            <div class="item">
+              {% if hasimg %}
+              {% set src = baseurl + collectionId[i] + '/' + w[i] + 'x' + h[i] %}
+              <div><a href=""><img {{ 'class="tns-lazy-img"' | safe if lazyload }} src="{{ imgPlaceholder if lazyload else src }}" data-src="{{ src }}" alt="" width="{{ w[i] }}" height="{{ h[i] }}"></a></div>
+              {% else %}
+              <div class="img img-{{ i }}" style="{{ 'height:' + h[i] + 'px' | safe if autoHeight }}"><a href="">{{ i }}</a></div>
+              {% endif %}
+    
+              {# <p>{{ titles[i] }}</p> #}
+            </div>
+          {% endfor %}
         {% endif %}
       </div>
+      
+      {# customize tools #}
+      {% if page === 'customize' %}
+        <div class="customize-tools">
+          <ul class="thumbnails" id="customize-thumbnails">
+            {% for i in range(0, count) %}
+              <li><img src="{{ baseurl }}{{ collectionId[i] }}/600x400" alt="" width="600" height="400"></li>
+            {% endfor %}
+          </ul>
+          <ul class="controls" id="customize-controls">
+            <li class="prev"><img src="images/angle-left.png" alt=""></li>
+            <li class="next"><img src="images/angle-right.png" alt=""></li>
+          </ul>
+          <div class="playbutton-wrapper"><button id="customize-toggle">Pause</button></div>
+        </div>
+      {% endif %}
     </div>
   {% endif %}
 {% endblock %}

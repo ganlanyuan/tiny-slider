@@ -356,6 +356,8 @@ var options = {
   'customize': {
     items: 3,
     navAsThumbnails: true,
+    navContainer: '#customize-thumbnails',
+    controlsContainer: '#customize-controls',
     autoplay: true,
     autoplayTimeout: 1000,
     autoplayButton: '#customize-toggle',

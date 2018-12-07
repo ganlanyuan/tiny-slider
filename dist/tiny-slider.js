@@ -909,8 +909,12 @@ var tns = function(options) {
   }
 
   function getCurrentNavIndex () {
-    var absIndex = getAbsIndex(), result;
-    result = navAsThumbnails ? absIndex : Math.ceil((absIndex + 1) * pages / slideCount - 1);
+    var absIndex = getAbsIndex(),
+        result;
+
+    result = navAsThumbnails ? absIndex : 
+      fixedWidth || autoWidth ? Math.ceil((absIndex + 1) * pages / slideCount - 1) : 
+          Math.floor(absIndex / items);
 
     // set active nav to the last one when reaches the right edge
     // if (!loop && carousel && index === indexMax) { result = pages - 1; }
@@ -2782,7 +2786,8 @@ var tns = function(options) {
     while (target !== navContainer && !hasAttr(target, 'data-nav')) { target = target.parentNode; }
     if (hasAttr(target, 'data-nav')) {
       var navIndex = navClicked = Number(getAttr(target, 'data-nav')),
-          targetIndex = navAsThumbnails ? navIndex : Math.min(Math.ceil(navIndex * slideCount / pages), slideCount - 1);
+          targetIndexBase = fixedWidth || autoWidth ? navIndex * slideCount / pages : navIndex * items,
+          targetIndex = navAsThumbnails ? navIndex : Math.min(Math.ceil(targetIndexBase), slideCount - 1);
       goTo(targetIndex, e);
 
       if (navCurrentIndex === navIndex) {

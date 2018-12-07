@@ -47,6 +47,7 @@ async function testBase () {
   var id = 'base',
       slider = sliders[id],
       info = slider.getInfo(),
+      items = info.items,
       container = info.container,
       innerWrapper = container.parentNode,
       slideItems = info.slideItems,
@@ -115,7 +116,7 @@ async function testBase () {
     if (assertion !== false) {
       assertion = 
         navItems[i].className.indexOf(navActiveClass) >= 0 &&
-        getAbsIndex(current, 0, info) === i &&
+        getAbsIndex(current, 0, info) === i * items &&
         compare2Nums(currentSlide.getBoundingClientRect().left, 0) &&
         !currentSlide.hasAttribute('aria-hidden');
     }
@@ -139,7 +140,7 @@ async function testBase () {
         
     assertion = 
       current === absIndex + cloneCount &&
-      navItems[absIndex].className.indexOf(navActiveClass) >= 0 &&
+      navItems[Math.floor(absIndex/items)].className.indexOf(navActiveClass) >= 0 &&
       compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
 
     if (assertion) {
@@ -154,7 +155,7 @@ async function testBase () {
           
       assertion = 
         current === absIndex + cloneCount &&
-        navItems[absIndex].className.indexOf(navActiveClass) >= 0 &&
+        navItems[Math.floor(absIndex/items)].className.indexOf(navActiveClass) >= 0 &&
         compare2Nums(currentSlide.getBoundingClientRect().left, innerWrapper.getBoundingClientRect().left);
     }
 
@@ -185,9 +186,21 @@ async function testBase () {
     if (assertion) {
       assertion = document.activeElement === navItems[0];
     }
-    // fire keydown event on down arrow
+    // press "Enter"
+    fire(navContainer, 'keydown', {'keyCode': 13});
+    var current = slider.getInfo().index,
+        currentSlide = slideItems[current];
+
+    if (assertion) {
+      assertion = 
+        getAbsIndex(current, 0, info) === 0 &&
+        navItems[0].className.indexOf(navActiveClass) >= 0 &&
+        compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
+    }
+    // fire keydown event on right arrow 2 times
     // the 3nd nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 40});
+    fire(navContainer, 'keydown', {'keyCode': 39});
+    fire(navContainer, 'keydown', {'keyCode': 39});
     if (assertion) {
       assertion = document.activeElement === navItems[2];
     }
@@ -202,23 +215,7 @@ async function testBase () {
         navItems[2].className.indexOf(navActiveClass) >= 0 &&
         compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
     }
-    // fire keydown event on up arrow
-    // the 1st nav item get focused
-    fire(navContainer, 'keydown', {'keyCode': 38});
-    if (assertion) {
-      assertion = document.activeElement === navItems[0];
-    }
-    // press "Enter"
-    fire(navContainer, 'keydown', {'keyCode': 13});
-    var current = slider.getInfo().index,
-        currentSlide = slideItems[current];
 
-    if (assertion) {
-      assertion = 
-        getAbsIndex(current, 0, info) === 0 &&
-        navItems[0].className.indexOf(navActiveClass) >= 0 &&
-        compare2Nums(currentSlide.getBoundingClientRect().left, wrapperLeft);
-    }
     updateTest(navKeydown, assertion);
   } else {
     updateTest(controlsKeydown, '?');
@@ -2171,8 +2168,6 @@ async function testCustomize () {
   addTitle(id);
 
   waitUntilInit(slider, async function() {
-    var info = slider.getInfo();
-
     // stop autoplay and go to the first slide
     // before testing slide attrs
     if (opt['autoplay']) {
@@ -2188,11 +2183,13 @@ async function testCustomize () {
       return checkControlsAttrs(id);
     });
 
+    var info = slider.getInfo();
     runTest('Nav: aria-label, data-nav, tabindex, active class, aria-controls', function() {
       var assertion,
           info = slider.getInfo(),
           slideCount = info.slideCount,
-          absIndex = info.index%slideCount,
+          cloneCount = info.cloneCount,
+          absIndex = (info.index-cloneCount)%slideCount,
           navContainer = info.navContainer,
           navItems = info.navItems;
 
@@ -2202,21 +2199,23 @@ async function testCustomize () {
       for (var i = slideCount; i--;) {
         var nav = navItems[i],
             number = nav.className.indexOf(navActiveClass),
-            arr = (i === absIndex) ? [' (Current Slide)', '0', number >= 0] : ['', '-1', number < 0];
+            hasCl = (i === absIndex) ? number >= 0 : number < 0,
+            currentStr = (i === absIndex) ? ' (Current Slide)' : '',
+            ti = (i === absIndex) ? !nav.hasAttribute('tabindex') : nav.getAttribute('tabindex') === '-1';
 
         if (assertion) {
           assertion = 
             nav.getAttribute('data-nav') === i.toString() &&
-            nav.getAttribute('aria-controls') === id + '-item' + i &&
-            nav.getAttribute('aria-label') === 'Carousel Page '+ (i + 1) + arr[0] &&
-            nav.getAttribute(tabindex) === arr[1] &&
-            arr[2];
+            nav.getAttribute('aria-controls') === id &&
+            nav.getAttribute('aria-label') === 'Carousel Page '+ (i + 1) + currentStr &&
+            ti &&
+            hasCl;
         }
       }
       return assertion;
     });
 
-    // simulateClick(info.prevButton);
+    simulateClick(info.prevButton);
     var controlsClick = addTest('Controls: click functions'),
         autoplayT = addTest('Slide: autoplay'),
         autoplayPauseT = addTest('Slide: autoplay pause');
@@ -2235,6 +2234,7 @@ async function testCustomize () {
       autoplayButton.click();
       await testAutoplayFn(id, autoplayPauseT, timeout, true);
     }
+
     assignDone(id);
   });
 }
