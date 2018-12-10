@@ -30,6 +30,7 @@ a:focus {
 img {
   max-width: 100%;
   height: auto;
+  border: 0;
 }
 /*img:not(.tns-lazy-img), .lazyload img { height: auto; }*/
 [class*="autoWidth"] img { max-width: none; }

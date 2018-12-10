@@ -9,9 +9,15 @@
   },
   "scripts": {
     "ngrok": "~/ngrok http 3000",
-    "test": "nightwatch -c browserstack.conf.js -e chrome,firefox,ie,edge,safari,opera",
     "start": "nodemon --watch test/js/tests-async.js --exec npm run compile",
-    "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js"
+    "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js",
+    "test": "nightwatch -c browserstack.conf.js -e chrome,firefox,ie,edge,safari,opera",
+    "chrome": "nightwatch -c browserstack.conf.js -e chrome",
+    "firefox": "nightwatch -c browserstack.conf.js -e firefox",
+    "ie": "nightwatch -c browserstack.conf.js -e ie",
+    "edge": "nightwatch -c browserstack.conf.js -e edge",
+    "safari": "nightwatch -c browserstack.conf.js -e safari",
+    "opera": "nightwatch -c browserstack.conf.js -e opera"
   },
   "repository": {
     "type": "git",

@@ -254,6 +254,7 @@ export var tns = function(options) {
       windowWidth = getWindowWidth(),
       isOn = false;
   if (responsive) { setBreakpointZone(); }
+  if (carousel) { container.className += ' tns-vpfix'; }
 
   // fixedWidth: viewport > rightBoundary > indexMax
   var autoWidth = options.autoWidth,
@@ -446,7 +447,10 @@ export var tns = function(options) {
 
   }
 
-  sliderInit();
+  if (carousel) { container.className = container.className.replace('tns-vpfix', ''); }
+  initStructure();
+  initSheet();
+  initSliderTransform();
 
   // === COMMON FUNCTIONS === //
   function resetVariblesWhenDisable (condition) {
@@ -668,9 +672,43 @@ export var tns = function(options) {
     return getCSSPrefix(ANIMATIONDURATION, 17) + 'animation-duration:' + speed / 1000 + 's;';
   }
 
-  function sliderInit () {
-    if (responsive) { setBreakpointZone(); }
-    initStructure();
+  function initStructure () {
+    var classOuter = 'tns-outer',
+        classInner = 'tns-inner',
+        hasGutter = hasOption('gutter');
+
+    outerWrapper.className = classOuter;
+    innerWrapper.className = classInner;
+    outerWrapper.id = slideId + '-ow';
+    innerWrapper.id = slideId + '-iw';
+
+    // set container properties
+    if (container.id === '') { container.id = slideId; }
+    newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
+    newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
+    if (autoWidth) { newContainerClasses += ' tns-autowidth'; }
+    newContainerClasses += ' tns-' + options.axis;
+    container.className += newContainerClasses;
+
+    // add constrain layer for carousel
+    if (carousel) {
+      middleWrapper = doc.createElement('div');
+      middleWrapper.id = slideId + '-mw';
+      middleWrapper.className = 'tns-ovh';
+
+      outerWrapper.appendChild(middleWrapper);
+      middleWrapper.appendChild(innerWrapper);
+    } else {
+      outerWrapper.appendChild(innerWrapper);
+    }
+
+    if (autoHeight) {
+      var wp = middleWrapper ? middleWrapper : innerWrapper;
+      wp.className += ' tns-ah';
+    }
+
+    containerParent.insertBefore(outerWrapper, container);
+    innerWrapper.appendChild(container);
 
     // add id, class, aria attributes 
     // before clone slides
@@ -709,47 +747,6 @@ export var tns = function(options) {
       slideItems = container.children;
     }
 
-    initSheet();
-    initSliderTransform();
-  }
-
-  function initStructure () {
-    var classOuter = 'tns-outer',
-        classInner = 'tns-inner',
-        hasGutter = hasOption('gutter');
-
-    outerWrapper.className = classOuter;
-    innerWrapper.className = classInner;
-    outerWrapper.id = slideId + '-ow';
-    innerWrapper.id = slideId + '-iw';
-
-    // set container properties
-    if (container.id === '') { container.id = slideId; }
-    newContainerClasses += PERCENTAGELAYOUT || autoWidth ? ' tns-subpixel' : ' tns-no-subpixel';
-    newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
-    if (autoWidth) { newContainerClasses += ' tns-autowidth'; }
-    newContainerClasses += ' tns-' + options.axis;
-    container.className += newContainerClasses;
-
-    // add constrain layer for carousel
-    if (carousel) {
-      middleWrapper = doc.createElement('div');
-      middleWrapper.id = slideId + '-mw';
-      middleWrapper.className = 'tns-ovh';
-
-      outerWrapper.appendChild(middleWrapper);
-      middleWrapper.appendChild(innerWrapper);
-    } else {
-      outerWrapper.appendChild(innerWrapper);
-    }
-
-    if (autoHeight) {
-      var wp = middleWrapper ? middleWrapper : innerWrapper;
-      wp.className += ' tns-ah';
-    }
-
-    containerParent.insertBefore(outerWrapper, container);
-    innerWrapper.appendChild(container);
   }
 
   function initSliderTransform () {

@@ -298,7 +298,7 @@ var options = {
     },
   },
   'responsive6': {
-    fixedWidth: fw,
+    fixedWidth: 400,
     edgePadding: edgepadding,
     gutter: gutter,
     loop: false,

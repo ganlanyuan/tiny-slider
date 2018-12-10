@@ -37,10 +37,10 @@
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
 ] %}
 
+{% set imgPlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3C/svg%3E" %}
+
 {% set collectionId = ["", "", "", "", "", "", "", "", "", "", "", ""
   ] if mobile else ["993239", "1673600", "1513994", "502925", "1891993", "1103088", "548245", "539469", "end"] %}
-
-{% set imgPlaceholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"%3E%3C/svg%3E' %}
 {% set baseurl = 'https://via.placeholder.com' if mobile else 'https://source.unsplash.com/collection/' %}
 
 {% block main %}
@@ -117,15 +117,16 @@
           </div>
           {% endfor %}
     
-        {# default #}
+        {# others #}
         {% else %}
           {% for i in range(0, count) %}
             <div class="item">
+
               {% if hasimg %}
-              {% set src = baseurl + collectionId[i] + '/' + w[i] + 'x' + h[i] %}
-              <div><a href=""><img {{ 'class="tns-lazy-img"' | safe if lazyload }} src="{{ imgPlaceholder if lazyload else src }}" data-src="{{ src }}" alt="" width="{{ w[i] }}" height="{{ h[i] }}"></a></div>
+                {% set src = baseurl + collectionId[i] + '/' + w[i] + 'x' + h[i] %}
+                <div><a href=""><img {{ 'class="tns-lazy-img"' | safe if lazyload }} src="{{ imgPlaceholder if lazyload else src }}" data-src="{{ src }}" alt="" width="{{ w[i] }}" height="{{ h[i] }}"></a></div>
               {% else %}
-              <div class="img img-{{ i }}" style="{{ 'height:' + h[i] + 'px' | safe if autoHeight }}"><a href="">{{ i }}</a></div>
+                <div class="img img-{{ i }}" style="{{ 'height:' + h[i] + 'px' | safe if autoHeight }}"><a href="">{{ i }}</a></div>
               {% endif %}
     
               {# <p>{{ titles[i] }}</p> #}

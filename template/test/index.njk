@@ -16,9 +16,14 @@
     li {
       list-style: none;
     }
+    li span {
+      display: block;
+      margin: 20px 0 3px;
+    }
     img {
       max-width: 100%;
       height: auto;
+      border: 0;
     }
     h2 {
       padding: 10px 0;
@@ -87,6 +92,20 @@
       'autoHeight': 3,
       'autoplay': 4,
       'base': 13,
+      'center-non-loop': 2,
+      'center-loop': 2,
+      'center-fixedWidth-non-loop': 2,
+      'center-fixedWidth-loop': 2,
+      'center-autoWidth-non-loop': 2,
+      'center-autoWidth-loop': 2,
+      'center-autoWidth-non-loop-edgePadding': 2,
+      'center-autoWidth-loop-edgePadding': 2,
+      'center-lazyload-non-loop': 2,
+      'center-lazyload-loop': 2,
+      'center-lazyload-fixedWidth-non-loop': 2,
+      'center-lazyload-fixedWidth-loop': 2,
+      'center-lazyload-autoWidth-non-loop': 2,
+      'center-lazyload-autoWidth-loop': 2,
       'customize': 6,
       'edgePadding-gutter': 1,
       'edgePadding': 1,
@@ -113,7 +132,7 @@
       'vertical': 6,
       'start-index': 4
       } %}
-      <li class="screenshot" style="height: {{ (row + 3 + 1)*1.6 }}em"><a href="{{ test }}.html" target="_blank"><img src="screenshot/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
+      <li class="screenshot" style="height: {{ (row + 3 + 1)*1.6 }}em"><a href="{{ test }}.html" target="_blank"><span>{{ test }}</span><img src="screenshot/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
     {% endfor %}
     </ul>
   </div>
