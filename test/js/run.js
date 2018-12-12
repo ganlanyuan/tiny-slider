@@ -8,7 +8,7 @@ for (var i in options) {
   
   var data_responsive = doc.body.getAttribute('data-responsive');
   if (doc.querySelector(item.container)) {
-    sliders[i] = tns(options[i]);
+    sliders[i] = tns(item);
 
     // call test functions
     if (initFns[i]) { initFns[i](); }

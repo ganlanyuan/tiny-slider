@@ -1190,12 +1190,15 @@ var tns = function(options) {
       // add complete class if all images are loaded/failed
       forEach(imgs, function(img) {
         var src = img.src;
+        
         if (src.indexOf('data:image') < 0) {
           addEvents(img, imgEvents);
-          img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+          img.src = '';
           img.src = src;
           addClass(img, 'loading');
-          imgCachedCheck(img);
+
+          // check image cache
+          if (img.complete) { img.naturalWidth !== 0 ? imgLoaded(img) : imgFailed(img); }
         } else if (!lazyload) {
           imgLoaded(img);
         }
@@ -1298,8 +1301,10 @@ var tns = function(options) {
     // ## BASIC STYLES
     if (CSSMQ) {
       // middle wrapper style
-      var str = middleWrapper && options.autoHeight ? getTransitionDurationStyle(options.speed) : '';
-      addCSSRule(sheet, '#' + slideId + '-mw', str, getCssRulesLength(sheet));
+      if (TRANSITIONDURATION) {
+        var str = middleWrapper && options.autoHeight ? getTransitionDurationStyle(options.speed) : '';
+        addCSSRule(sheet, '#' + slideId + '-mw', str, getCssRulesLength(sheet));
+      }
 
       // inner wrapper styles
       str = getInnerWrapperStyles(options.edgePadding, options.gutter, options.fixedWidth, options.speed, options.autoHeight);
@@ -1366,7 +1371,7 @@ var tns = function(options) {
             gutterBP = getOption('gutter', bp);
 
         // middle wrapper string
-        if (middleWrapper && getOption('autoHeight', bp) && 'speed' in opts) {
+        if (TRANSITIONDURATION && middleWrapper && getOption('autoHeight', bp) && 'speed' in opts) {
           middleWrapperStr = '#' + slideId + '-mw{' + getTransitionDurationStyle(speedBP) + '}';
         }
 
@@ -2210,15 +2215,14 @@ var tns = function(options) {
 
           addEvents(img, imgEvents);
 
+          // update src
+          img.src = getAttr(img, 'data-src');
+
           // update srcset
           var srcset = getAttr(img, 'data-srcset');
           if (srcset) { img.srcset = srcset; }
 
-          // update src
-          img.src = getAttr(img, 'data-src');
-
           addClass(img, 'loading');
-          imgCachedCheck(img);
         }
       });
     }
@@ -2238,6 +2242,7 @@ var tns = function(options) {
   }
 
   function imgFailed (img) {
+    console.log(img, img.src);
     addClass(img, 'failed');
     imgCompleted(img);
   }
@@ -2246,12 +2251,6 @@ var tns = function(options) {
     addClass(img, 'tns-complete');
     removeClass(img, 'loading');
     removeEvents(img, imgEvents);
-  }
-
-  function imgCachedCheck (img) {
-    if (img.complete) {
-      img.naturalWidth !== 0 ? imgLoaded(img) : imgFailed(img);
-    }
   }
 
   function getImageArray (start, end) {
@@ -2474,14 +2473,22 @@ var tns = function(options) {
     return fixedWidth ? (fixedWidth + gutter) * slideCountNew : slidePositions[slideCountNew];
   }
 
+  function getCenterGap (num) {
+    if (num == null) { num = index; }
+
+    var gap = edgePadding ? gutter : 0;
+    return autoWidth ? ((viewport - gap) - (slidePositions[num + 1] - slidePositions[num] - gutter))/2 :
+      fixedWidth ? (viewport - fixedWidth) / 2 :
+        (items - 1) / 2;
+  }
+
   function getRightBoundary () {
-    var gap = edgePadding ? 0 : gutter,
+    var gap = edgePadding ? gutter : 0,
         result = (viewport + gap) - getSliderWidth();
 
     if (center && !loop) {
-      result = fixedWidth ? 
-        result - (viewport - fixedWidth) / 2 :
-        result - (viewport - (slidePositions[slideCountNew] - slidePositions[slideCountNew - 1] - gap)) / 2;
+      result = fixedWidth ? - (fixedWidth + gutter) * (slideCountNew - 1) - getCenterGap() :
+        getCenterGap(slideCountNew - 1) - slidePositions[slideCountNew - 1];
     }
     if (result > 0) { result = 0; }
 
@@ -2495,17 +2502,16 @@ var tns = function(options) {
     if (horizontal && !autoWidth) {
       if (fixedWidth) {
         val = - (fixedWidth + gutter) * num;
-        if (center) { val += (viewport - fixedWidth) / 2; }
+        if (center) { val += getCenterGap(); }
       } else {
         var denominator = TRANSFORM ? slideCountNew : items;
-        if (center) { num -= (items - 1) / 2; }
+        if (center) { num -= getCenterGap(); }
         val = - num * 100 / denominator;
       }
     } else {
       val = - slidePositions[num];
       if (center && autoWidth) {
-        var gap = edgePadding ? 0 : gutter;
-        val += (viewport - (slidePositions[num + 1] - slidePositions[num] - gap)) / 2;
+        val += getCenterGap();
       }
     }
 

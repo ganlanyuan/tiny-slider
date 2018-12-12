@@ -1,9 +1,15 @@
 var screenshotPath = 'test/screenshot/',
-    baseurl = 'https://c5631e27.ngrok.io/test/',
+    baseurl = 'https://441d0a8e.ngrok.io/test/',
     timeout = 10000,
     classDone = '.test-done',
     extHtml = '.html',
     extImage = '.png';
+
+function elementPresentCallback (result, str) {
+  if (result.state && result.state === 'success') {} else {
+    console.log(str + ' failed');
+  }
+}
 
 this.features = function(browser) {
     var bn = browser.globals.browser_name;
@@ -153,9 +159,9 @@ this.features = function(browser) {
     .waitForElementPresent(classDone, timeout, 'lazyload')
     .saveScreenshot(screenshotPath + bn + '/' + 'lazyload' + extImage)
 
-    .url(baseurl + 'mouse-drag' + extHtml)
-    .waitForElementPresent(classDone, timeout, 'mouse-drag')
-    .saveScreenshot(screenshotPath + bn + '/' + 'mouse-drag' + extImage)
+    // .url(baseurl + 'mouse-drag' + extHtml)
+    // .waitForElementPresent(classDone, timeout, 'mouse-drag')
+    // .saveScreenshot(screenshotPath + bn + '/' + 'mouse-drag' + extImage)
 
     .url(baseurl + 'nested' + extHtml)
     .waitForElementPresent(classDone, timeout, 'nested')

@@ -1,6 +1,6 @@
 var body = doc.body,
     resultsDiv = doc.querySelector('.test-results'),
-    windowWidth = (doc.documentElement || doc.body.parentNode || doc.body).clientWidth,
+    windowWidth = getWindowWidth(),
     multiplyer = 100,
     edgePadding = 50,
     gutter = 10,
@@ -8,6 +8,10 @@ var body = doc.body,
     tabindex = (ua.indexOf('MSIE 9.0') > -1 || ua.indexOf('MSIE 8.0') > -1) ? 'tabIndex' : 'tabindex',
     canFireKeydown,
     navActiveClass = 'tns-nav-active';
+
+function getWindowWidth () {
+  return (doc.documentElement || doc.body.parentNode || doc.body).clientWidth;
+}
 
 doc.onkeydown = function(e) {
   e = e || window.event;
@@ -566,7 +570,7 @@ function testFixedWidthEdgePadding () {
     var innerWrapper = info.container.parentNode;
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
-      compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding);
+      compare2Nums(getWindowWidth() - innerWrapper.getBoundingClientRect().right, edgepadding);
   });
   assignDone(id);
 }
@@ -600,7 +604,7 @@ function testFixedWidthEdgePaddingGutter () {
     var innerWrapper = info.container.parentNode;
 
     return compare2Nums(innerWrapper.getBoundingClientRect().left, edgepadding) &&
-      compare2Nums(windowWidth - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
+      compare2Nums(getWindowWidth() - innerWrapper.getBoundingClientRect().right, edgepadding - gutter);
   });
   assignDone(id);
 }
@@ -849,9 +853,9 @@ function center_autoWidth (id) {
     await wait(1000);
     var nextButton = slider.getInfo().nextButton;
     await repeat(function() { nextButton.click(); }, 10);
-    await wait(500);
+    await wait(1000);
     
-    updateTest(testAfterClick, checkPositionCenter(id));
+    updateTest(testAfterClick, checkPositionCenter(id, true));
 
     assignDone(id);
   });
@@ -905,7 +909,8 @@ function check_lazyload (id) {
   });
 
   if (val && nextNotActiveSlide) {
-    val = nextNotActiveSlide.querySelector('.tns-lazy-img').src === 'data:image/svg+xml,%3Csvg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%20600%20600"%3E%3C/svg%3E';
+    var img = nextNotActiveSlide.querySelector('.tns-lazy-img');
+    val = img.src !== img.getAttribute('data-src');
   }
 
   return val;
@@ -2609,7 +2614,7 @@ function checkPositionEdgePadding (id, vertical) {
     compare2Nums(last.getBoundingClientRect()[edge2], wrapperRect[edge2] - endGap);
 }
 
-function checkPositionCenter (id) {
+function checkPositionCenter (id, note) {
   var info = sliders[id].getInfo(),
       gutter = options[id].gutter,
       wrapper = doc.querySelector('#' + id + '-mw'),
@@ -2618,7 +2623,7 @@ function checkPositionCenter (id) {
       index = info.index,
       slide = slideItems[index],
       slideRect = slide.getBoundingClientRect();
-
+  note && console.log(wrapperRect.right - slideRect.right + gutter, slideRect.left - wrapperRect.left);
   return compare2Nums(wrapperRect.right - slideRect.right + gutter, slideRect.left - wrapperRect.left);
 }
 

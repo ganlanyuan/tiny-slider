@@ -39,8 +39,7 @@
 
 {% set imgPlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3C/svg%3E" %}
 
-{% set collectionId = ["", "", "", "", "", "", "", "", "", "", "", ""
-  ] if mobile else ["993239", "1673600", "1513994", "502925", "1891993", "1103088", "548245", "539469", "end"] %}
+{% set collectionId = ["", "", "", "", "", "", "", "", "", "", "", ""] if mobile else ["993239", "1673600", "1513994", "502925", "1891993", "1103088", "548245", "539469", "end"] %}
 {% set baseurl = 'https://via.placeholder.com' if mobile else 'https://source.unsplash.com/collection/' %}
 
 {% block main %}

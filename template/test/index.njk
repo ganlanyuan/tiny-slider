@@ -121,7 +121,6 @@
       'frame6': 2,
       'gutter': 1,
       'lazyload': 2,
-      'mouse-drag': 1,
       'nested': 5,
       'non-loop': 2,
       'rewind': 2,
@@ -132,6 +131,7 @@
       'vertical': 6,
       'start-index': 4
       } %}
+      {# 'mouse-drag': 1, #}
       <li class="screenshot" style="height: {{ (row + 3 + 1)*1.6 }}em"><a href="{{ test }}.html" target="_blank"><span>{{ test }}</span><img src="screenshot/{{ browser }}/{{ test }}.png" alt="{{ test }}"></a></li>
     {% endfor %}
     </ul>
