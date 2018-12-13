@@ -465,7 +465,7 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// helper functions
+// polyfill
 if (!Object.keys) {
   Object.keys = function (object) {
     var keys = [];
