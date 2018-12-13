@@ -104,7 +104,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>&nbsp;</td>
     </tr>
     <tr>
-      <td>Center (coming in v2.9.0)</td>
+      <td>Center (v2.9.0+)</td>
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
@@ -267,7 +267,7 @@ Or import `tns` directly start from v2.9.0
 | `autoWidth` | Boolean | Default: false. <br> If `true`, the width of each slide will be its natural width as a `inline-block` box. |
 | `viewportMax` (was `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
-| `center` (coming in v2.9.0) | Boolean | Default: false. <br> Center the active slide in the viewport. |
+| `center` (v2.9.0+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. <br>For better accessibility, when a prev/next button is focused, user will be able to control the slider using left/right arrow keys.|
 | `controlsPosition` | "top" \| "bottom" | Default: "top". <br> Controls `controls` position. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
