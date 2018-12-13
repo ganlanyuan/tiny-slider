@@ -1824,7 +1824,7 @@ export var tns = function(options) {
   function getImageArray (start, end) {
     var imgs = [];
     while (start <= end) {
-      forEach(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
+      forEach(slideItems[start].querySelectorAll('img, source'), function (img) { imgs.push(img); });
       start++;
     }
 
