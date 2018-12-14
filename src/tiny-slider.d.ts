@@ -30,6 +30,11 @@ export interface CommonOptions {
      */
     autoHeight?: boolean;
     /**
+     * Sets the width of the slides to `auto`.
+     * @defaultValue false
+     */
+    autoWidth?: boolean;
+    /**
      * Controls width attribute of the slides.
      * @defaultValue false
      */
