@@ -921,7 +921,7 @@ var tns = function(options) {
           Math.floor(absIndex / items);
 
     // set active nav to the last one when reaches the right edge
-    // if (!loop && carousel && index === indexMax) { result = pages - 1; }
+    if (!loop && carousel && index === indexMax) { result = pages - 1; }
 
     return result;
   }
