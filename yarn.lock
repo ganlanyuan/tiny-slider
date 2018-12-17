@@ -802,9 +802,9 @@ color-name@^1.1.1:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
 
-commander@2.9.0:
-  version "2.9.0"
-  resolved "http://registry.npmjs.org/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
+commander@2.9.1:
+  version "2.9.1"
+  resolved "http://registry.npmjs.org/commander/-/commander-2.9.1.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
     graceful-readlink ">= 1.0.0"
 
@@ -1939,7 +1939,7 @@ mocha-nightwatch@3.2.2:
   resolved "https://registry.yarnpkg.com/mocha-nightwatch/-/mocha-nightwatch-3.2.2.tgz#91bcb9b3bde057dd7677c78125e491e58d66647c"
   dependencies:
     browser-stdout "1.3.0"
-    commander "2.9.0"
+    commander "2.9.1"
     debug "2.2.0"
     diff "1.4.0"
     escape-string-regexp "1.0.5"
