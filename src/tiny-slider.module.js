@@ -759,14 +759,11 @@ export var tns = function(options) {
       forEach(imgs, function(img) {
         var src = img.src;
         
-        if (src.indexOf('data:image') < 0) {
+        if (src && src.indexOf('data:image') < 0) {
           addEvents(img, imgEvents);
           img.src = '';
           img.src = src;
           addClass(img, 'loading');
-
-          // check image cache
-          if (img.complete) { img.naturalWidth !== 0 ? imgLoaded(img) : imgFailed(img); }
         } else if (!lazyload) {
           imgLoaded(img);
         }
@@ -1810,7 +1807,6 @@ export var tns = function(options) {
   }
 
   function imgFailed (img) {
-    console.log(img, img.src);
     addClass(img, 'failed');
     imgCompleted(img);
   }
