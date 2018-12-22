@@ -1,3 +1,5 @@
+import './helpers/Object.keys';
+import './helpers/childNode.remove';
 import { raf } from './helpers/raf.js';
 import { caf } from './helpers/caf.js';
 import { extend } from './helpers/extend.js';
@@ -32,26 +34,6 @@ import { addEvents } from './helpers/addEvents.js';
 import { removeEvents } from './helpers/removeEvents.js';
 import { Events } from './helpers/events.js';
 import { jsTransform } from './helpers/jsTransform.js';
-
-// polyfill
-if (!Object.keys) {
-  Object.keys = function (object) {
-    var keys = [];
-    for (var name in object) {
-      if (Object.prototype.hasOwnProperty.call(object, name)) {
-        keys.push(name);
-      }
-    }
-    return keys;
-  };
-}
-if(!("remove" in Element.prototype)){
-  Element.prototype.remove = function(){
-    if(this.parentNode) {
-      this.parentNode.removeChild(this);
-    }
-  };
-}
 
 export var tns = function(options) {
   options = extend({

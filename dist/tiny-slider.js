@@ -1,4 +1,26 @@
 var tns = (function (){
+// Object.keys
+if (!Object.keys) {
+  Object.keys = function(object) {
+    var keys = [];
+    for (var name in object) {
+      if (Object.prototype.hasOwnProperty.call(object, name)) {
+        keys.push(name);
+      }
+    }
+    return keys;
+  };
+}
+
+// ChildNode.remove
+if(!("remove" in Element.prototype)){
+  Element.prototype.remove = function(){
+    if(this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  };
+}
+
 var win = window;
 
 var raf = win.requestAnimationFrame
@@ -463,26 +485,6 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
       callback();
     }
   }
-}
-
-// polyfill
-if (!Object.keys) {
-  Object.keys = function (object) {
-    var keys = [];
-    for (var name in object) {
-      if (Object.prototype.hasOwnProperty.call(object, name)) {
-        keys.push(name);
-      }
-    }
-    return keys;
-  };
-}
-if(!("remove" in Element.prototype)){
-  Element.prototype.remove = function(){
-    if(this.parentNode) {
-      this.parentNode.removeChild(this);
-    }
-  };
 }
 
 var tns = function(options) {
