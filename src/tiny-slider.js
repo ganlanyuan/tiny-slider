@@ -302,8 +302,8 @@ export var tns = function(options) {
           return function() { return center && !loop ? slideCount - 1 : Math.ceil(- rightBoundary / (fixedWidth + gutter)); };
         } else if (autoWidth) {
           return function() {
-            for (var i = slideCountNew, result = i - 1; i--;) {
-              if (slidePositions[i] > - rightBoundary) { return i; }
+            for (var i = slideCountNew; i--;) {
+              if (slidePositions[i] >= - rightBoundary) { return i; }
             }
           };
         } else {
