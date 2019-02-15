@@ -29,7 +29,7 @@ If you know what's wrong or missing and willing to help :heart: :clap: :+1:, fol
 - Pull the required image with `docker pull cmcdev/web` in the command line tool.
 - Run `docker-compose up` in the command line tool after located in the cloned directory.
 - Make changes in "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and a series of tasks will automatically run to minify, compile source files to final js and CSS files.
-- Test the project with "http://localhost:3000/tests/tests.html".
+- Test the project with "http://localhost:3000/test/index.html".
 - Turn down Docker with `docker-compose down -v` following command + C (Mac).   
 
 NOTE: If you don't want to get complicated, just make changes to "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and send a pull request.
