@@ -1429,7 +1429,7 @@ export var tns = function(options) {
       // non-meduaqueries: IE8
       if (bpChanged && !CSSMQ) {
         // middle wrapper styles
-        if (autoHeight !== autoheightTem || speed !== speedTem) {
+        if (autoHeight !== autoHeightTem || speed !== options.speed) {
           update_carousel_transition_duration();
         }
 
