@@ -1875,7 +1875,7 @@ var tns = function(options) {
       updateLiveRegion();
     }
 
-    if (itemsChanged || !carousel) { updateGallerySlidePositions(); }
+    if (itemsChanged && !carousel) { updateGallerySlidePositions(); }
 
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
