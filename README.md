@@ -1,6 +1,6 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.9.1-green.svg)  
+![version](https://img.shields.io/badge/Version-2.9.2-green.svg)  
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
 [Demos](http://ganlanyuan.github.io/tiny-slider/demo)   
 [Test results](http://ganlanyuan.github.io/tiny-slider/test)
@@ -104,7 +104,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>&nbsp;</td>
     </tr>
     <tr>
-      <td>Center (v2.9.1+)</td>
+      <td>Center (v2.9.2+)</td>
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
@@ -211,8 +211,8 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 ## Usage
 #### 1. Add CSS (and IE8 polyfills if needed)
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/tiny-slider.css">
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/tiny-slider.css">
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 ```
 
 #### 2. Add markup
@@ -228,7 +228,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 #### 3. Call tns()
 Add tiny-slider.js to your page:  
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/min/tiny-slider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 
@@ -238,7 +238,7 @@ Or import `tns` via `webpack` or `rollup`:
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or import `tns` directly start from v2.9.1  
+Or import `tns` directly start from v2.9.2  
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
@@ -267,7 +267,7 @@ Or import `tns` directly start from v2.9.1
 | `autoWidth` | Boolean | Default: false. <br> If `true`, the width of each slide will be its natural width as a `inline-block` box. |
 | `viewportMax` (was `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
-| `center` (v2.9.1+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
+| `center` (v2.9.2+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. <br>For better accessibility, when a prev/next button is focused, user will be able to control the slider using left/right arrow keys.|
 | `controlsPosition` | "top" \| "bottom" | Default: "top". <br> Controls `controls` position. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
@@ -298,12 +298,12 @@ Or import `tns` directly start from v2.9.1
 | `autoHeight` | Boolean | Default: false. <br> Height of slider container changes according to each slide's height. |
 | `responsive` | Object: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| false | Default: false. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
 | `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). <br> NOTE: <br>+ Class `.tns-lazy-img` need to be set on every image you want to lazyload if option `lazyloadSelector` is not specified; <br>+ `data-src` attribute with its value of the real image `src` is requierd; <br>+ `width` attribute for every image is required for `autoWidth` slider. |
-| `lazyloadSelector` (v2.9.1+) | String | Default: `'.tns-lazy-img'`. <br> The CSS selector for lazyload images. |
+| `lazyloadSelector` (v2.9.2+) | String | Default: `'.tns-lazy-img'`. <br> The CSS selector for lazyload images. |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
 | `swipeAngle` | positive integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
-| `preventActionWhenRunning` (v2.9.1+) | Boolean | Default: false. <br> Prevent next transition while slider is transforming. |
-| `preventScrollOnTouch` (v2.9.1+) | "auto" \| "force" \| false | Default: false. <br> Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling. |
+| `preventActionWhenRunning` (v2.9.2+) | Boolean | Default: false. <br> Prevent next transition while slider is transforming. |
+| `preventScrollOnTouch` (v2.9.2+) | "auto" \| "force" \| false | Default: false. <br> Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling. |
 | `nested` | "inner" \| "outer" \| false | Default: false. <br> Difine the relationship between nested sliders. (see [demo](http://ganlanyuan.github.io/tiny-slider/demo/#nested_wrapper)) <br>Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong. |
 | `freezable` | Boolean | Default: true. <br> Indicate whether the slider will be frozen (`controls`, `nav`, `autoplay` and other functions will stop work) when all slides can be displayed in one page. |
 | `disable` | Boolean | Default: false. <br> Disable slider. |
