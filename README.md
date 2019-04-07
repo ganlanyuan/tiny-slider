@@ -235,7 +235,7 @@ Add tiny-slider.js to your page:
 Or import `tns` via `webpack` or `rollup`:
 ```javascript
 // yourScript.js
-import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
+import { tns } from "tiny-slider/src/tiny-slider"
 ```
 
 Or import `tns` directly start from v2.9.1  
