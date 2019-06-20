@@ -1420,7 +1420,7 @@ export var tns = function(options) {
     if (itemsChanged && !carousel) { updateGallerySlidePositions(); }
 
     if (!disable && !freeze) {
-      // non-meduaqueries: IE8
+      // non-mediaqueries: IE8
       if (bpChanged && !CSSMQ) {
         // middle wrapper styles
         if (autoHeight !== autoheightTem || speed !== speedTem) {
