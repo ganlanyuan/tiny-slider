@@ -357,7 +357,6 @@ export var tns = function(options) {
         'error': onImgFailed
       },
       imgsComplete,
-      liveregionCurrent,
       preventScroll = options.preventScrollOnTouch === 'force' ? true : false;
 
   // controls
@@ -966,10 +965,6 @@ export var tns = function(options) {
     // == slides ==
     updateSlideStatus();
 
-    // == live region ==
-    outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">slide <span class="current">' + getLiveRegionStr() + '</span>  of ' + slideCount + '</div>');
-    liveregionCurrent = outerWrapper.querySelector('.tns-liveregion .current');
-
     // == autoplayInit ==
     if (hasAutoplay) {
       var txt = autoplay ? 'stop' : 'start';
@@ -1420,7 +1415,6 @@ export var tns = function(options) {
     } else if (fixedWidth || autoWidth) {
       doLazyLoad(); 
       updateSlideStatus();
-      updateLiveRegion();
     }
 
     if (itemsChanged && !carousel) { updateGallerySlidePositions(); }
@@ -1670,18 +1664,6 @@ export var tns = function(options) {
     disabled = false;
   }
 
-  function updateLiveRegion () {
-    var str = getLiveRegionStr();
-    if (liveregionCurrent.innerHTML !== str) { liveregionCurrent.innerHTML = str; }
-  }
-
-  function getLiveRegionStr () {
-    var arr = getVisibleSlideRange(),
-        start = arr[0] + 1,
-        end = arr[1] + 1;
-    return start === end ? start + '' : start + ' to ' + end; 
-  }
-
   function getVisibleSlideRange (val) {
     if (val == null) { val = getContainerTransformValue(); }
     var start = index, end, rangestart, rangeend;
@@ -1835,7 +1817,6 @@ export var tns = function(options) {
   function additionalUpdates () {
     doLazyLoad(); 
     updateSlideStatus();
-    updateLiveRegion();
     updateControlsStatus();
     updateNavStatus();
   }
@@ -2706,7 +2687,7 @@ export var tns = function(options) {
   }
 
   return {
-    version: '2.9.1',
+    version: '2.9.2',
     getInfo: info,
     events: events,
     goTo: goTo,
