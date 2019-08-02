@@ -1171,8 +1171,10 @@ export var tns = function(options) {
       if (typeof el === 'object') {
         var prevEl = el.previousElementSibling ? el.previousElementSibling : false,
             parentEl = el.parentNode;
-        el.outerHTML = htmlList[i];
-        options[item] = prevEl ? prevEl.nextElementSibling : parentEl.firstElementChild;
+        if (parentEl !== null) {
+          el.outerHTML = htmlList[i];
+          options[item] = prevEl ? prevEl.nextElementSibling : parentEl.firstElementChild;
+        }
       }
     });
 
