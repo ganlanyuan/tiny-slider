@@ -133,6 +133,11 @@ export interface TinySliderSettings extends CommonOptions {
      */
     controlsContainer?: HTMLElement | Element | string | false;
     /**
+     * Controls nav position.
+     * @defaultValue "top"
+     */
+    navPosition: "top" | "bottom";
+    /**
      * The container element/selector around the dots.
      * navContainer must have at least same number of children as the slides.
      * @defaultValue false
