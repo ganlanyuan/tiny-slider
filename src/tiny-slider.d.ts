@@ -192,6 +192,18 @@ export interface TinySliderSettings extends CommonOptions {
      * Moves throughout all the slides seamlessly.
      * @defaultValue true
      */
+    nextButton?: HTMLElement | string | false;
+    /**
+     * Customized previous buttons. 
+     * This option will be ignored if controlsContainer is a Node element or a CSS selector.
+     * @defaultValue false
+     */
+    prevButton?: HTMLElement | string | false;
+    /**
+     * Customized next buttons. 
+     * This option will be ignored if controlsContainer is a Node element or a CSS selector.
+     * @defaultValue false
+     */
     loop?: boolean;
     /**
      * Moves to the opposite edge when reaching the first or last slide.
