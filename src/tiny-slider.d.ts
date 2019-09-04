@@ -45,6 +45,11 @@ export interface CommonOptions {
      */
     edgePadding?: number;
     /**
+     * Center the active slide in the viewport.
+     * @defaultValue false
+     */
+    center?: boolean;
+    /**
      * Controls the display and functionalities of controls components (prev/next buttons). If true, display the controls and add all functionalities.
      * @defaultValue true
      */
@@ -136,7 +141,7 @@ export interface TinySliderSettings extends CommonOptions {
      * Controls nav position.
      * @defaultValue "top"
      */
-    navPosition: "top" | "bottom";
+    navPosition?: "top" | "bottom";
     /**
      * The container element/selector around the dots.
      * navContainer must have at least same number of children as the slides.
@@ -144,7 +149,7 @@ export interface TinySliderSettings extends CommonOptions {
      */
     navContainer?: HTMLElement | Element | string | false;
     /**
-     * Indecate if the dots are thurbnails. If true, they will always be visible even when more than 1 slides displayed in the viewport.
+     * Indicate if the dots are thumbnails. If true, they will always be visible even when more than 1 slides displayed in the viewport.
      * @defaultValue false
      */
     navAsThumbnails?: boolean;
@@ -299,7 +304,7 @@ export interface TinySliderInstance {
     pause(): void;
 
     /**
-     * 
+     *
      */
     isOn: boolean;
 
@@ -310,7 +315,7 @@ export interface TinySliderInstance {
     updateSliderHeight(): void;
 
     /**
-     * 
+     *
      */
     refresh(): void;
 
@@ -321,10 +326,10 @@ export interface TinySliderInstance {
 
     /**
      * Rebuild the slider after destroying it.
-     * 
+     *
      * @returns a new tinyslider instance.
      */
     rebuild(): TinySliderInstance;
 }
 
-export function tns(options: TinySliderSettings): TinySliderInstance; 
+export function tns(options: TinySliderSettings): TinySliderInstance;
