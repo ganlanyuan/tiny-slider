@@ -45,6 +45,11 @@ export interface CommonOptions {
      */
     edgePadding?: number;
     /**
+     * Center the active slide in the viewport.
+     * @defaultValue false
+     */
+    center?: boolean;
+    /**
      * Controls the display and functionalities of controls components (prev/next buttons). If true, display the controls and add all functionalities.
      * @defaultValue true
      */
