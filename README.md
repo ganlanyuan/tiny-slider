@@ -277,7 +277,7 @@ Or import `tns` directly start from v2.9.2
 | `nav` | Boolean | Default: true. <br> Controls the display and functionalities of `nav` components (dots). If `true`, display the `nav` and add all functionalities. |
 | `navPosition` | "top" \| "bottom" | Default: "top". <br> Controls `nav` position. |
 | `navContainer` | Node \| String \| false | Default: false. <br> The container element/selector around the dots. <br> `navContainer` must have at least same number of children as the slides. |
-| `navAsThumbnails` | Boolean | Default: false. <br> Indecate if the dots are thurbnails. If `true`, they will always be visible even when more than 1 slides displayed in the viewport. |
+| `navAsThumbnails` | Boolean | Default: false. <br> Indicate if the dots are thurbnails. If `true`, they will always be visible even when more than 1 slides displayed in the viewport. |
 | `arrowKeys` | Boolean | Default: false. <br> Allows using arrow keys to switch slides. |
 | `speed` | positive integer | Default: 300. <br> Speed of the slide animation (in "ms"). |
 | `autoplay` | Boolean | Default: false. <br> Toggles the automatic change of slides. |
