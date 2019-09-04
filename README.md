@@ -1,8 +1,8 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.9.1-green.svg)
-Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).
-[Demos](http://ganlanyuan.github.io/tiny-slider/demo)
+![version](https://img.shields.io/badge/Version-2.9.2-green.svg)  
+Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
+[Demos](http://ganlanyuan.github.io/tiny-slider/demo)   
 [Test results](http://ganlanyuan.github.io/tiny-slider/test)
 <!-- [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)
 [Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests-mobile.html)  (running on Android Browser 4.2+)
@@ -104,7 +104,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
       <td>&nbsp;</td>
     </tr>
     <tr>
-      <td>Center (v2.9.1+)</td>
+      <td>Center (v2.9.2+)</td>
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
@@ -211,8 +211,8 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 ## Usage
 #### 1. Add CSS (and IE8 polyfills if needed)
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/tiny-slider.css">
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/tiny-slider.css">
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 ```
 
 #### 2. Add markup
@@ -228,7 +228,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 #### 3. Call tns()
 Add tiny-slider.js to your page:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.1/min/tiny-slider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 
@@ -238,7 +238,7 @@ Or import `tns` via `webpack` or `rollup`:
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or import `tns` directly start from v2.9.1
+Or import `tns` directly start from v2.9.2  
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
@@ -267,7 +267,7 @@ Or import `tns` directly start from v2.9.1
 | `autoWidth` | Boolean | Default: false. <br> If `true`, the width of each slide will be its natural width as a `inline-block` box. |
 | `viewportMax` (was `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
-| `center` (v2.9.1+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
+| `center` (v2.9.2+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. <br>For better accessibility, when a prev/next button is focused, user will be able to control the slider using left/right arrow keys.|
 | `controlsPosition` | "top" \| "bottom" | Default: "top". <br> Controls `controls` position. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
