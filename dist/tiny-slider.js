@@ -969,6 +969,7 @@ var tns = function(options) {
   }
 
   function getClientWidth (el) {
+    if (el == null) { return; }
     var div = doc.createElement('div'), rect, width;
     el.appendChild(div);
     rect = div.getBoundingClientRect();
@@ -1878,7 +1879,7 @@ var tns = function(options) {
     if (itemsChanged && !carousel) { updateGallerySlidePositions(); }
 
     if (!disable && !freeze) {
-      // non-meduaqueries: IE8
+      // non-mediaqueries: IE8
       if (bpChanged && !CSSMQ) {
         // middle wrapper styles
         if (autoHeight !== autoheightTem || speed !== speedTem) {
