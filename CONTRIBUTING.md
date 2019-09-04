@@ -15,7 +15,7 @@ Tiny-slider was strongly inspired by [Owl Carousel](https://owlcarousel2.github.
 ### Fire an issue
 We can't test Tiny-slider on every browser and device. There are always some edge cases in which tiny-slider may not run properly. Fire an issue when it doesn't work for you. This not only helps you,  also prevent others from facing the same issue.  
 **Notes for firing issues:**   
-- Before you fire an issue, make sure you update to the latest version of each main version. (e.g. v2.9.1 for version 2)   
+- Before you fire an issue, make sure you update to the latest version of each main version. (e.g. v2.9.2 for version 2)   
 - Provide the OS and browser version.
 - Provide a link or your plugin options.
 
@@ -29,7 +29,7 @@ If you know what's wrong or missing and willing to help :heart: :clap: :+1:, fol
 - Pull the required image with `docker pull cmcdev/web` in the command line tool.
 - Run `docker-compose up` in the command line tool after located in the cloned directory.
 - Make changes in "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and a series of tasks will automatically run to minify, compile source files to final js and CSS files.
-- Test the project with "http://localhost:3000/tests/tests.html".
+- Test the project with "http://localhost:3000/test/index.html".
 - Turn down Docker with `docker-compose down -v` following command + C (Mac).   
 
 NOTE: If you don't want to get complicated, just make changes to "src/tiny-slider.js", "src/tiny-slider.helper.ie8.js" or "src/tiny-slider.scss" and send a pull request.

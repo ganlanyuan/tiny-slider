@@ -517,6 +517,7 @@ export var tns = function(options) {
   }
 
   function getClientWidth (el) {
+    if (el == null) { return; }
     var div = doc.createElement('div'), rect, width;
     el.appendChild(div);
     rect = div.getBoundingClientRect();
@@ -1423,7 +1424,7 @@ export var tns = function(options) {
       updateLiveRegion();
     }
 
-    if (itemsChanged || !carousel) { updateGallerySlidePositions(); }
+    if (itemsChanged && !carousel) { updateGallerySlidePositions(); }
 
     if (!disable && !freeze) {
       // non-meduaqueries: IE8
@@ -2706,7 +2707,7 @@ export var tns = function(options) {
   }
 
   return {
-    version: '2.9.1',
+    version: '2.9.2',
     getInfo: info,
     events: events,
     goTo: goTo,
