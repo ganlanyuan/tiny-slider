@@ -1169,7 +1169,7 @@ export var tns = function(options) {
     tnsList.forEach(function(item, i) {
       var el = item === 'container' ? outerWrapper : options[item];
 
-      if (typeof el === 'object') {
+      if (typeof el === 'object' && el) {
         var prevEl = el.previousElementSibling ? el.previousElementSibling : false,
             parentEl = el.parentNode;
         el.outerHTML = htmlList[i];
