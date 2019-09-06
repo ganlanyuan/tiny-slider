@@ -1,8 +1,11 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
 ![version](https://img.shields.io/badge/Version-2.9.2-green.svg)
+
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).
+
 [Demos](http://ganlanyuan.github.io/tiny-slider/demo)
+
 [Test results](http://ganlanyuan.github.io/tiny-slider/test)
 <!-- [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/test/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)
 [Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/test/tests-mobile.html)  (running on Android Browser 4.2+)
