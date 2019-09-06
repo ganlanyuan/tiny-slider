@@ -2538,7 +2538,9 @@ export var tns = function(options) {
         if (moveDirectionExpected) { preventScroll = true; }
       }
 
-      if (preventScroll) { e.preventDefault(); }
+      if ((typeof e.cancelable !== 'boolean' || e.cancelable) && preventScroll) {
+        e.preventDefault();
+      }
     }
   }
 
