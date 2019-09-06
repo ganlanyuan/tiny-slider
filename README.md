@@ -45,7 +45,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 - Update the [`slider selectors`](https://github.com/ganlanyuan/tiny-slider/blob/master/src/tiny-slider.scss) accordingly if used in your CSS or JS.
 - Update styles related to `autoplay` button.
 
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 ## Features
 <table class="table">
@@ -206,7 +206,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 </table>
 <small>* Default</small>
 
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 ## Install
 `bower install tiny-slider` or `npm install tiny-slider`
@@ -254,7 +254,7 @@ Or import `tns` directly start from v2.9.2
   });
   </script>
 ```
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 ## Options
 
@@ -318,7 +318,7 @@ NOTE:
 Prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.
 E.g. container: document.querySelector('.my-slider')
 
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 ## Responsive options
 The following options can be redefined in `responsive` field:
@@ -367,7 +367,7 @@ The following options can be redefined in `responsive` field:
 NOTE:
 + The breakpoints behave like `(min-width: breakpoint)` in CSS, so an undefined option will be inherited from previous small breakpoints.
 + `fixedWidth` can only be changed to other positive integers. It can't be changed to negative integer, 0 or other data type.
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 ## Methods
 The slider returns a slider object with some properties and methods once it's initialized:
@@ -490,7 +490,7 @@ slider.events.on('transitionEnd', customizedFunction);
 // remove function binding
 slider.events.off('transitionEnd', customizedFunction);
 ```
-*[top↑](#tiny-slider-20)*
+*[top↑](#tiny-slider-2)*
 
 #### Fallback
 ```css
