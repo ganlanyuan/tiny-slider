@@ -2247,7 +2247,7 @@ var tns = function(options) {
   }
 
   function imgCompleted (img) {
-    addClass(img, 'tns-complete');
+    addClass(img, imgCompleteClass);
     removeClass(img, 'loading');
     removeEvents(img, imgEvents);
   }
@@ -2275,7 +2275,10 @@ var tns = function(options) {
 
     // check selected image classes otherwise
     imgs.forEach(function (img, index) {
-      if (hasClass(img, imgCompleteClass)) { imgs.splice(index, 1); }
+      if (hasClass(img, imgCompleteClass) || img.complete) {
+        imgLoaded(img);
+        imgs.splice(index, 1);
+      }
     });
 
     // execute callback function if selected images are all complete
