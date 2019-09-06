@@ -1882,9 +1882,6 @@ var tns = function(options) {
       // non-mediaqueries: IE8
       if (bpChanged && !CSSMQ) {
         // middle wrapper styles
-        if (autoHeight !== autoHeightTem || speed !== options.speed) {
-          update_carousel_transition_duration();
-        }
 
         // inner wrapper styles
         if (edgePadding !== edgePaddingTem || gutter !== gutterTem) {
