@@ -1,11 +1,11 @@
 # tiny-slider 2.0
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.9.2-green.svg)  
-Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).   
-[Demos](http://ganlanyuan.github.io/tiny-slider/demo)   
+![version](https://img.shields.io/badge/Version-2.9.2-green.svg)
+Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).
+[Demos](http://ganlanyuan.github.io/tiny-slider/demo)
 [Test results](http://ganlanyuan.github.io/tiny-slider/test)
-<!-- [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)
-[Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/tests/tests-mobile.html)  (running on Android Browser 4.2+)
+<!-- [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/test/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)
+[Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/test/tests-mobile.html)  (running on Android Browser 4.2+)
  -->
 
 *Previous versions*:
@@ -15,18 +15,18 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 **Warning**: tiny-slider works with static content and it works in the browser only. If the HTML is loaded dynamically, make sure to call `tns()` after its loading.
 
 ## Contents
-\+ [What's new](#whats-new)
-\+ [Features](#features)
-\+ [Install](#install)
-\+ [Usage](#usage)
-\+ [Options](#options)
-\+ [Responsive options](#responsive-options)
-\+ [Methods](#methods)
-\+ [Custom Events](#custom-events)
-\+ [Fallback](#fallback)
-\+ [Browser Support](#browser-support)
-\+ [Support](#support)
-\+ [License](#license)
++ [What's new](#whats-new)
++ [Features](#features)
++ [Install](#install)
++ [Usage](#usage)
++ [Options](#options)
++ [Responsive options](#responsive-options)
++ [Methods](#methods)
++ [Custom Events](#custom-events)
++ [Fallback](#fallback)
++ [Browser Support](#browser-support)
++ [Support](#support)
++ [License](#license)
 
 ## What's new
 - Using `%` instead of `px` (No more recalculation of each slide width on window resize)
@@ -238,7 +238,7 @@ Or import `tns` via `webpack` or `rollup`:
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or import `tns` directly start from v2.9.2  
+Or import `tns` directly start from v2.9.2
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
@@ -297,7 +297,7 @@ Or import `tns` directly start from v2.9.2
 | `rewind` | Boolean | Default: false. <br> Moves to the opposite edge when reaching the first or last slide. |
 | `autoHeight` | Boolean | Default: false. <br> Height of slider container changes according to each slide's height. |
 | `responsive` | Object: { <br>&emsp;breakpoint: { <br>&emsp;&emsp;key: value<br>&emsp;} <br>} \| false | Default: false. <br>Breakpoint: Integer.<br>Defines options for different viewport widths (see [Responsive Options](#responsive-options)). <br> |
-| `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/tests/#lazyload_wrapper)). <br> NOTE: <br>+ Class `.tns-lazy-img` need to be set on every image you want to lazyload if option `lazyloadSelector` is not specified; <br>+ `data-src` attribute with its value of the real image `src` is required; <br>+ `width` attribute for every image is required for `autoWidth` slider. |
+| `lazyload` | Boolean | Default: false. <br> Enables lazyloading images that are currently not viewed, thus saving bandwidth (see [demo](http://ganlanyuan.github.io/tiny-slider/demo/#lazyload_wrapper)). <br> NOTE: <br>+ Class `.tns-lazy-img` need to be set on every image you want to lazyload if option `lazyloadSelector` is not specified; <br>+ `data-src` attribute with its value of the real image `src` is required; <br>+ `width` attribute for every image is required for `autoWidth` slider. |
 | `lazyloadSelector` (v2.9.1+) | String | Default: `'.tns-lazy-img'`. <br> The CSS selector for lazyload images. |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
