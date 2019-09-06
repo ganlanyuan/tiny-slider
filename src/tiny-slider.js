@@ -1,5 +1,25 @@
-import './helpers/Object.keys';
-import './helpers/childNode.remove';
+// Object.keys
+if (!Object.keys) {
+  Object.keys = function(object) {
+    var keys = [];
+    for (var name in object) {
+      if (Object.prototype.hasOwnProperty.call(object, name)) {
+        keys.push(name);
+      }
+    }
+    return keys;
+  };
+}
+
+// ChildNode.remove
+if(!("remove" in Element.prototype)){
+  Element.prototype.remove = function(){
+    if(this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  };
+}
+
 import { raf } from './helpers/raf.js';
 import { caf } from './helpers/caf.js';
 import { extend } from './helpers/extend.js';
