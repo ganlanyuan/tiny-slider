@@ -758,25 +758,30 @@ export var tns = function(options) {
     if (hasOption('autoHeight') || autoWidth || !horizontal) {
       var imgs = container.querySelectorAll('img');
 
-      // add complete class if all images are loaded/failed
+      // add img load event listener
       forEach(imgs, function(img) {
         var src = img.src;
 
-        if (src && src.indexOf('data:image') < 0) {
-          addEvents(img, imgEvents);
-          img.src = '';
-          img.src = src;
-          addClass(img, 'loading');
-        } else if (!lazyload) {
-          imgLoaded(img);
+        if (!lazyload) {
+          // not data img
+          if (src && src.indexOf('data:image') < 0) {
+            img.src = '';
+            addEvents(img, imgEvents);
+            addClass(img, 'loading');
+
+            img.src = src;
+          // data img
+          } else {
+            imgLoaded(img);
+          }
         }
       });
 
-      // All imgs are completed
+      // set imgsComplete
       raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), function() { imgsComplete = true; }); });
 
-      // Check imgs in window only for auto height
-      if (!autoWidth && horizontal) { imgs = getImageArray(index, Math.min(index + items - 1, slideCountNew - 1)); }
+      // reset imgs for auto height: check visible imgs only
+      if (hasOption('autoHeight')) { imgs = getImageArray(index, Math.min(index + items - 1, slideCountNew - 1)); }
 
       lazyload ? initSliderTransformStyleCheck() : raf(function(){ imgsLoadedCheck(arrayFromNodeList(imgs), initSliderTransformStyleCheck); });
 
@@ -794,11 +799,13 @@ export var tns = function(options) {
     if (autoWidth) {
       // check styles application
       var num = loop ? index : slideCount - 1;
+
       (function stylesApplicationCheck() {
         slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
         initSliderTransformCore() :
         setTimeout(function(){ stylesApplicationCheck() }, 16);
       })();
+
     } else {
       initSliderTransformCore();
     }
@@ -1835,15 +1842,13 @@ export var tns = function(options) {
   }
 
   function imgsLoadedCheck (imgs, cb) {
-    // directly execute callback function if all images are complete
+    // execute callback function if all images are complete
     if (imgsComplete) { return cb(); }
 
-    // check selected image classes otherwise
+    // check image classes
     imgs.forEach(function (img, index) {
-      if (hasClass(img, imgCompleteClass) || img.complete) {
-        imgLoaded(img);
-        imgs.splice(index, 1);
-      }
+      if (!lazyload && img.complete) { imgCompleted(img); } // Check image.complete
+      if (hasClass(img, imgCompleteClass)) { imgs.splice(index, 1); }
     });
 
     // execute callback function if selected images are all complete
