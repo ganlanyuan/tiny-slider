@@ -801,7 +801,7 @@ export var tns = function(options) {
       var num = loop ? index : slideCount - 1;
 
       (function stylesApplicationCheck() {
-        slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
+        slideItems[num - 1] && slideItems[num] && slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
         initSliderTransformCore() :
         setTimeout(function(){ stylesApplicationCheck() }, 16);
       })();
