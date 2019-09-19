@@ -229,19 +229,19 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 ```
 
 #### 3. Call tns()
-Add tiny-slider.js to your page:
+Option A: Add tiny-slider.js to your page:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 
-Or import `tns` via `webpack` or `rollup`:
+Option B: Import `tns` via `webpack` or `rollup`:
 ```javascript
 // yourScript.js
 import { tns } from "./node_modules/tiny-slider/src/tiny-slider"
 ```
 
-Or import `tns` directly start from v2.9.2
+Option C: Import `tns` directly start from v2.9.2
 ```html
 <script type="module">
   import {tns} from './src/tiny-slider.js';
