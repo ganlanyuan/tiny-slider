@@ -801,9 +801,13 @@ export var tns = function(options) {
       var num = loop ? index : slideCount - 1;
 
       (function stylesApplicationCheck() {
-        slideItems[num - 1].getBoundingClientRect().right.toFixed(2) === slideItems[num].getBoundingClientRect().left.toFixed(2) ?
-        initSliderTransformCore() :
-        setTimeout(function(){ stylesApplicationCheck() }, 16);
+        var left = slideItems[num].getBoundingClientRect().left;
+        var right = slideItems[num - 1].getBoundingClientRect().right; 
+        var epsilon = 2;
+        
+        (Math.abs(left - right) <= epsilon) ?
+          initSliderTransformCore() :
+          setTimeout(function(){ stylesApplicationCheck() }, 16);
       })();
 
     } else {
