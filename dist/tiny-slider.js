@@ -2213,7 +2213,10 @@ var tns = function(options) {
 
   function doLazyLoad () {
     if (lazyload && !disable) {
-      getImageArray.apply(null, getVisibleSlideRange()).forEach(function (img) {
+      var arg = getVisibleSlideRange();
+      arg.push(lazyloadSelector);
+
+      getImageArray.apply(null, arg).forEach(function (img) {
         if (!hasClass(img, imgCompleteClass)) {
           // stop propagation transitionend event to container
           var eve = {};
@@ -2259,10 +2262,12 @@ var tns = function(options) {
     removeEvents(img, imgEvents);
   }
 
-  function getImageArray (start, end) {
+  function getImageArray (start, end, imgSelector) {
     var imgs = [];
+    if (!imgSelector) { imgSelector = 'img'; }
+
     while (start <= end) {
-      forEach(slideItems[start].querySelectorAll('img'), function (img) { imgs.push(img); });
+      forEach(slideItems[start].querySelectorAll(imgSelector), function (img) { imgs.push(img); });
       start++;
     }
 
