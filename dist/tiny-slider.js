@@ -810,7 +810,8 @@ var tns = function(options) {
       },
       imgsComplete,
       liveregionCurrent,
-      preventScroll = options.preventScrollOnTouch === 'force' ? true : false;
+      preventScroll = options.preventScrollOnTouch === 'force' ? true : false,
+      touchDragSuspended = false;
 
   // controls
   if (hasControls) {
@@ -2750,6 +2751,19 @@ var tns = function(options) {
     }
   }
 
+  // suspend reacting to touch/mouseevents
+  function suspendTouchDrag() {
+    touchDragSuspended = true;
+  }
+
+  function resumeTouchDrag() {
+    touchDragSuspended = true;
+  }
+
+  function toggleTouchDrag() {
+    touchDragSuspended = !touchDragSuspended;
+  }
+
   // on controls click
   function onControlsClick (e, dir) {
     if (running) {
@@ -2963,48 +2977,52 @@ var tns = function(options) {
   }
 
   function onPanStart (e) {
-    if (running) {
-      if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
-    }
+    if (!touchDragSuspended) {
+      if (running) {
+        if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
+      }
 
-    if (autoplay && animating) { stopAutoplayTimer(); }
+      if (autoplay && animating) { stopAutoplayTimer(); }
 
-    panStart = true;
-    if (rafIndex) {
-      caf(rafIndex);
-      rafIndex = null;
-    }
+      panStart = true;
+      if (rafIndex) {
+        caf(rafIndex);
+        rafIndex = null;
+      }
 
-    var $ = getEvent(e);
-    events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
+      var $ = getEvent(e);
+      events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
 
-    if (!isTouchEvent(e) && ['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(e))) >= 0) {
-      preventDefaultBehavior(e);
-    }
+      if (!isTouchEvent(e) && ['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(e))) >= 0) {
+        preventDefaultBehavior(e);
+      }
 
-    lastPosition.x = initPosition.x = $.clientX;
-    lastPosition.y = initPosition.y = $.clientY;
-    if (carousel) {
-      translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, ''));
-      resetDuration(container, '0s');
+      lastPosition.x = initPosition.x = $.clientX;
+      lastPosition.y = initPosition.y = $.clientY;
+      if (carousel) {
+        translateInit = parseFloat(container.style[transformAttr].replace(transformPrefix, ''));
+        resetDuration(container, '0s');
+      }
     }
   }
 
   function onPanMove (e) {
-    if (panStart) {
-      var $ = getEvent(e);
-      lastPosition.x = $.clientX;
-      lastPosition.y = $.clientY;
+    if (!touchDragSuspended) {
+      if (panStart) {
+        var $ = getEvent(e);
+        lastPosition.x = $.clientX;
+        lastPosition.y = $.clientY;
 
-      if (carousel) {
-        if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
-      } else {
-        if (moveDirectionExpected === '?') { moveDirectionExpected = getMoveDirectionExpected(); }
-        if (moveDirectionExpected) { preventScroll = true; }
-      }
+        if (carousel) {
+          if (!rafIndex) { rafIndex = raf(function(){ panUpdate(e); }); }
+        } else {
+          if (moveDirectionExpected === '?') { moveDirectionExpected = getMoveDirectionExpected(); }
+          if (moveDirectionExpected) { preventScroll = true; }
+        }
 
-      if ((typeof e.cancelable !== 'boolean' || e.cancelable) && preventScroll) {
-        e.preventDefault();
+        if ((typeof e.cancelable !== 'boolean' || e.cancelable) && preventScroll) {
+          e.preventDefault();
+        }
       }
     }
   }
@@ -3041,67 +3059,69 @@ var tns = function(options) {
   }
 
   function onPanEnd (e) {
-    if (panStart) {
-      if (rafIndex) {
-        caf(rafIndex);
-        rafIndex = null;
-      }
-      if (carousel) { resetDuration(container, ''); }
-      panStart = false;
-
-      var $ = getEvent(e);
-      lastPosition.x = $.clientX;
-      lastPosition.y = $.clientY;
-      var dist = getDist(lastPosition, initPosition);
-
-      if (Math.abs(dist)) {
-        // drag vs click
-        if (!isTouchEvent(e)) {
-          // prevent "click"
-          var target = getTarget(e);
-          addEvents(target, {'click': function preventClick (e) {
-            preventDefaultBehavior(e);
-            removeEvents(target, {'click': preventClick});
-          }});
+    if (!touchDragSuspended) {
+      if (panStart) {
+        if (rafIndex) {
+          caf(rafIndex);
+          rafIndex = null;
         }
+        if (carousel) { resetDuration(container, ''); }
+        panStart = false;
 
-        if (carousel) {
-          rafIndex = raf(function() {
-            if (horizontal && !autoWidth) {
-              var indexMoved = - dist * items / (viewport + gutter);
-              indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
-              index += indexMoved;
-            } else {
-              var moved = - (translateInit + dist);
-              if (moved <= 0) {
-                index = indexMin;
-              } else if (moved >= slidePositions[slideCountNew - 1]) {
-                index = indexMax;
+        var $ = getEvent(e);
+        lastPosition.x = $.clientX;
+        lastPosition.y = $.clientY;
+        var dist = getDist(lastPosition, initPosition);
+
+        if (Math.abs(dist)) {
+          // drag vs click
+          if (!isTouchEvent(e)) {
+            // prevent "click"
+            var target = getTarget(e);
+            addEvents(target, {'click': function preventClick (e) {
+              preventDefaultBehavior(e);
+              removeEvents(target, {'click': preventClick});
+            }});
+          }
+
+          if (carousel) {
+            rafIndex = raf(function() {
+              if (horizontal && !autoWidth) {
+                var indexMoved = - dist * items / (viewport + gutter);
+                indexMoved = dist > 0 ? Math.floor(indexMoved) : Math.ceil(indexMoved);
+                index += indexMoved;
               } else {
-                var i = 0;
-                while (i < slideCountNew && moved >= slidePositions[i]) {
-                  index = i;
-                  if (moved > slidePositions[i] && dist < 0) { index += 1; }
-                  i++;
+                var moved = - (translateInit + dist);
+                if (moved <= 0) {
+                  index = indexMin;
+                } else if (moved >= slidePositions[slideCountNew - 1]) {
+                  index = indexMax;
+                } else {
+                  var i = 0;
+                  while (i < slideCountNew && moved >= slidePositions[i]) {
+                    index = i;
+                    if (moved > slidePositions[i] && dist < 0) { index += 1; }
+                    i++;
+                  }
                 }
               }
-            }
 
-            render(e, dist);
-            events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
-          });
-        } else {
-          if (moveDirectionExpected) {
-            onControlsClick(e, dist > 0 ? -1 : 1);
+              render(e, dist);
+              events.emit(isTouchEvent(e) ? 'touchEnd' : 'dragEnd', info(e));
+            });
+          } else {
+            if (moveDirectionExpected) {
+              onControlsClick(e, dist > 0 ? -1 : 1);
+            }
           }
         }
       }
-    }
 
-    // reset
-    if (options.preventScrollOnTouch === 'auto') { preventScroll = false; }
-    if (swipeAngle) { moveDirectionExpected = '?'; }
-    if (autoplay && !animating) { setAutoplayTimer(); }
+      // reset
+      if (options.preventScrollOnTouch === 'auto') { preventScroll = false; }
+      if (swipeAngle) { moveDirectionExpected = '?'; }
+      if (autoplay && !animating) { setAutoplayTimer(); }
+    }
   }
 
   // === RESIZE FUNCTIONS === //
@@ -3170,6 +3190,7 @@ var tns = function(options) {
       sheet: sheet,
       isOn: isOn,
       event: e || {},
+      touchAndDragSuspended: touchDragSuspended,
     };
   }
 
@@ -3184,6 +3205,9 @@ var tns = function(options) {
     updateSliderHeight: updateInnerWrapperHeight,
     refresh: initSliderTransform,
     destroy: destroy,
+    suspendTouchAndDrag: suspendTouchDrag,
+    resumeTouchAndDrag: resumeTouchDrag,
+    toggleTouchDrag: toggleTouchDrag,
     rebuild: function() {
       return tns(extend(options, optionsElements));
     }
