@@ -2322,10 +2322,22 @@ export var tns = function(options) {
   // suspend reacting to touch/mouseevents
   function suspendTouchDrag() {
     touchDragSuspended = true;
+    if (nextButton) {
+      hideElement(nextButton);
+    }
+    if (prevButton) {
+      hideElement(prevButton);
+    }
   }
 
   function resumeTouchDrag() {
-    touchDragSuspended = true;
+    touchDragSuspended = false;
+    if (nextButton) {
+      showElement(nextButton);
+    }
+    if (prevButton) {
+      showElement(prevButton);
+    }
   }
 
   function toggleTouchDrag() {
