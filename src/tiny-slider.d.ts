@@ -238,6 +238,11 @@ export interface TinySliderSettings extends CommonOptions {
      */
     freezable?: boolean;
     /**
+     * Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
+     * @defaultValue "auto" \| "force" \| false
+     */
+    preventScrollOnTouch?: "auto" | "force" | false;
+    /**
      * Callback to be run on initialization.
      * @defaultValue false
      */
