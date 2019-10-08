@@ -263,7 +263,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `container` | Node \| String | Default: `'.slider'`. <br> The slider container element or selector. |
 | `mode` | "carousel" \| "gallery" | Default: "carousel". <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | "horizontal" \| "vertical" | Default: "horizontal". <br> The axis of the slider. |
-| `items` | positive number | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less than `items`, the slider won't be initialized. |
+| `items` | positive number | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less or equal than `items`, the slider won't be initialized. |
 | `gutter` | positive integer | Default: 0. <br> Space between slides (in "px"). |
 | `edgePadding` | positive integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | positive integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
