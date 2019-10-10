@@ -44,9 +44,18 @@
   },
   "browserify": {
     "transform": [
-      ["babelify", {
-        "presets": ["@babel/preset-env"]
-      }]
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
     ]
+  },
+  "dependencies": {
+    "@babel/core": "^7.6.3",
+    "gulp-uglify-es": "^1.0.4"
   }
 }

@@ -3,8 +3,13 @@
 import { getBody } from './getBody.js';
 import { setFakeBody } from './setFakeBody.js';
 import { resetFakeBody } from './resetFakeBody.js';
+import { isServer } from './isServer.js';
 
 export function percentageLayout() {
+  // In SSR if it is server side retun false
+  if(isServer)
+    return false;
+
   // check subpixel layout supporting
   var doc = document,
       body = getBody(),

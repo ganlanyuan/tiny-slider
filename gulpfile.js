@@ -11,6 +11,7 @@ const browserSync = require('browser-sync').create();
 const nunjucks = require('nunjucks');
 const path = require('path');
 const fs = require('fs');
+let uglify = require('gulp-uglify-es').default;
 
 let sourcemapsDest = 'sourcemaps';
 let libName = 'tiny-slider',
@@ -142,7 +143,7 @@ gulp.task('makeDevCopy', function() {
 gulp.task('min', ['editPro'], function () {
   return gulp.src(pathDest + '*.js')
     .pipe($.sourcemaps.init())
-    .pipe($.uglify())
+    .pipe(uglify())
     .pipe($.sourcemaps.write('../' + sourcemapsDest))
     .pipe(gulp.dest(pathDest + 'min'))
 })
