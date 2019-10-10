@@ -1,7 +1,7 @@
 
 const SERVERSIDE_WINDOW_WIDTH = 300;
 const SERVERSIDE_WINDOW_HEIGHT = 300;
-const isServer = typeof window === 'undefined'
+import { isServer } from './helpers/isServer.js';
 
 // Object.keys
 if (!Object.keys) {
@@ -17,7 +17,7 @@ if (!Object.keys) {
 }
 
 // ChildNode.remove
-if (!("remove" in Element.prototype)) {
+if (!isServer && !("remove" in Element.prototype)) {
   Element.prototype.remove = function () {
     if (this.parentNode) {
       this.parentNode.removeChild(this);
@@ -115,8 +115,8 @@ export var tns = function (options) {
     useLocalStorage: true
   }, options || {});
 
-  var doc = document,
-    win = window,
+  var doc = isServer ? null : document,
+    win = isServer ? null : window,
     KEYS = {
       ENTER: 13,
       SPACE: 32,

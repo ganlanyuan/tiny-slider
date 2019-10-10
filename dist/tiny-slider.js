@@ -1,15 +1,17 @@
 var tns = (function (){
-var win = window;
+var isServer = typeof window === 'undefined';
 
-var raf = win.requestAnimationFrame
+var win = !isServer ? window : null;
+
+var raf = !win ?  function(cb) { return cb(); } : win.requestAnimationFrame
   || win.webkitRequestAnimationFrame
   || win.mozRequestAnimationFrame
   || win.msRequestAnimationFrame
   || function(cb) { return setTimeout(cb, 16); };
 
-var win$1 = window;
+var win$1 = !isServer ? window : null;
 
-var caf = win$1.cancelAnimationFrame
+var caf = !win$1 ? function(id) { return; } : win$1.cancelAnimationFrame
   || win$1.mozCancelAnimationFrame
   || function(id){ clearTimeout(id); };
 
@@ -65,11 +67,12 @@ function getBody () {
   return body;
 }
 
-var docElement = document.documentElement;
+var docElement = isServer ? null : document.documentElement;
 
 function setFakeBody (body) {
+
   var docOverflow = '';
-  if (body.fake) {
+  if (!isServer && body.fake) {
     docOverflow = docElement.style.overflow;
     //avoid crashing IE8, if background image is used
     body.style.background = '';
@@ -82,7 +85,7 @@ function setFakeBody (body) {
 }
 
 function resetFakeBody (body, docOverflow) {
-  if (body.fake) {
+  if (!isServer && body.fake) {
     body.remove();
     docElement.style.overflow = docOverflow;
     // Trigger layout so kinetic scrolling isn't disabled in iOS6+
@@ -123,6 +126,10 @@ function calc() {
 // get subpixel support value
 
 function percentageLayout() {
+  // In SSR if it is server side retun false
+  if(isServer)
+    return false;
+
   // check subpixel layout supporting
   var doc = document,
       body = getBody(),
@@ -247,7 +254,7 @@ function forEach (arr, callback, scope) {
   }
 }
 
-var classListSupport = 'classList' in document.createElement('_');
+var classListSupport = isServer ? false:  'classList' in document.createElement('_');
 
 var hasClass = classListSupport ?
     function (el, str) { return el.classList.contains(str); } :
@@ -322,7 +329,8 @@ function showElement(el, forceHide) {
 }
 
 function isVisible(el) {
-  return window.getComputedStyle(el).display !== 'none';
+
+  return typeof window === 'undefined' ? false : window.getComputedStyle(el).display !== 'none';
 }
 
 function whichProperty(props){
@@ -351,7 +359,7 @@ function whichProperty(props){
 }
 
 function has3DTransforms(tf){
-  if (!tf) { return false; }
+  if (!tf || isServer) { return false; }
   if (!window.getComputedStyle) { return false; }
   
   var doc = document,
@@ -467,7 +475,6 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
 
 const SERVERSIDE_WINDOW_WIDTH = 300;
 const SERVERSIDE_WINDOW_HEIGHT = 300;
-const isServer = typeof window === 'undefined';
 
 // Object.keys
 if (!Object.keys) {
@@ -483,7 +490,7 @@ if (!Object.keys) {
 }
 
 // ChildNode.remove
-if (!("remove" in Element.prototype)) {
+if (!isServer && !("remove" in Element.prototype)) {
   Element.prototype.remove = function () {
     if (this.parentNode) {
       this.parentNode.removeChild(this);
@@ -546,8 +553,8 @@ var tns = function (options) {
     useLocalStorage: true
   }, options || {});
 
-  var doc = document,
-    win = window,
+  var doc = isServer ? null : document,
+    win = isServer ? null : window,
     KEYS = {
       ENTER: 13,
       SPACE: 32,

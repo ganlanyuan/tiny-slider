@@ -17,7 +17,7 @@ if (!Object.keys) {
 }
 
 // ChildNode.remove
-if (!("remove" in Element.prototype)) {
+if (!isServer && !("remove" in Element.prototype)) {
   Element.prototype.remove = function () {
     if (this.parentNode) {
       this.parentNode.removeChild(this);
