@@ -222,6 +222,11 @@ export interface TinySliderSettings extends CommonOptions {
      */
     lazyload?: boolean;
     /**
+     * The CSS selector for lazyload images.
+     * @defaultValue '.tns-lazy-img'
+     */
+    lazyloadSelector?: string;
+    /**
      * Swipe or drag will not be triggered if the angle is not inside the range when set.
      * @defaultValue 15
      */
