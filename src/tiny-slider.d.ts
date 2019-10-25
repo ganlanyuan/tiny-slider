@@ -242,6 +242,11 @@ export interface TinySliderSettings extends CommonOptions {
      * @defaultValue false
      */
     onInit?: () => void | false;
+    /**
+     * Save browser capability variables to localStorage and without detecting them everytime the slider runs if set to true.
+     * @defaultValue true
+     */
+    useLocalStorage?: boolean;
 }
 
 export interface TinySliderInfo {
