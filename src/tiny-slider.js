@@ -2328,6 +2328,9 @@ export var tns = function(options) {
     if (prevButton) {
       hideElement(prevButton);
     }
+    if (hasNav) {
+      hideElement(navContainer);
+    }
   }
 
   function resumeTouchDrag() {
@@ -2338,10 +2341,17 @@ export var tns = function(options) {
     if (prevButton) {
       showElement(prevButton);
     }
+    if (hasNav) {
+      showElement(navContainer);
+    }
   }
 
   function toggleTouchDrag() {
-    touchDragSuspended = !touchDragSuspended;
+    if (touchDragSuspended) {
+      resumeTouchDrag();
+    } else {
+      suspendTouchDrag();
+    }
   }
 
   // on controls click
