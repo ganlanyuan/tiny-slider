@@ -2322,14 +2322,36 @@ export var tns = function(options) {
   // suspend reacting to touch/mouseevents
   function suspendTouchDrag() {
     touchDragSuspended = true;
+    if (nextButton) {
+      hideElement(nextButton);
+    }
+    if (prevButton) {
+      hideElement(prevButton);
+    }
+    if (hasNav) {
+      hideElement(navContainer);
+    }
   }
 
   function resumeTouchDrag() {
     touchDragSuspended = true;
+    if (nextButton) {
+      showElement(nextButton);
+    }
+    if (prevButton) {
+      showElement(prevButton);
+    }
+    if (hasNav) {
+      showElement(navContainer);
+    }
   }
 
   function toggleTouchDrag() {
-    touchDragSuspended = !touchDragSuspended;
+    if (touchDragSuspended) {
+      resumeTouchDrag();
+    } else {
+      suspendTouchDrag();
+    }
   }
 
   // on controls click
