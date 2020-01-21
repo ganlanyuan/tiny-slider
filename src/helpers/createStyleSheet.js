@@ -1,5 +1,5 @@
 // create and append style sheet
-export function createStyleSheet (media) {
+export function createStyleSheet (media, nonce) {
   // Create the <style> tag
   var style = document.createElement("style");
   // style.setAttribute("type", "text/css");
@@ -8,6 +8,9 @@ export function createStyleSheet (media) {
   // style.setAttribute("media", "screen")
   // style.setAttribute("media", "only screen and (max-width : 1024px)")
   if (media) { style.setAttribute("media", media); }
+
+  // Add nonce attribute for Content Security Policy
+  if (nonce) { style.setAttribute("nonce", nonce); }
 
   // WebKit hack :(
   // style.appendChild(document.createTextNode(""));

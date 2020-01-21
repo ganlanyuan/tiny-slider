@@ -313,6 +313,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `startIndex` | positive integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
 | `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
+| `nonce`| String / false | Default: false. <br> Optional Nonce attribute for inline style tag to allow slider usage without `unsafe-inline Content Security Policy source. |
 
 NOTE:
 Prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.
