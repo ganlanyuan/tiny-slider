@@ -1750,6 +1750,7 @@ export var tns = function(options) {
         }
 
       } else {
+        items = Math.ceil(getOption('items'));
         if (center || edgePadding) {
           var a = items - 1;
           if (center) {
