@@ -2622,7 +2622,7 @@ export var tns = function(options) {
       lastPosition.y = $.clientY;
       var dist = getDist(lastPosition, initPosition);
 
-      if (Math.abs(dist)) {
+      if (Math.abs(dist) > 2.5) {
         // drag vs click
         if (!isTouchEvent(e)) {
           // prevent "click"
