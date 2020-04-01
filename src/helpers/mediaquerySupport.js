@@ -3,6 +3,10 @@ import { setFakeBody } from './setFakeBody.js';
 import { resetFakeBody } from './resetFakeBody.js';
 
 export function mediaquerySupport () {
+  if (window.matchMedia || window.msMatchMedia) {
+    return true;
+  }
+  
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
