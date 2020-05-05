@@ -744,7 +744,7 @@ var tns = function(options) {
           return function() { return center && !loop ? slideCount - 1 : Math.ceil(- rightBoundary / (fixedWidth + gutter)); };
         } else if (autoWidth) {
           return function() {
-            for (var i = slideCountNew; i--;) {
+            for (var i = 0; i < slideCountNew; i++) {
               if (slidePositions[i] >= - rightBoundary) { return i; }
             }
           };
