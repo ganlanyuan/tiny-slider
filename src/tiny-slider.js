@@ -107,7 +107,8 @@ export var tns = function(options) {
     preventScrollOnTouch: false,
     freezable: true,
     onInit: false,
-    useLocalStorage: true
+    useLocalStorage: true,
+    nonce: false
   }, options || {});
 
   var doc = document,
@@ -284,7 +285,7 @@ export var tns = function(options) {
       autoplayText = getOption('autoplayText'),
       autoplayHoverPause = getOption('autoplayHoverPause'),
       autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
-      sheet = createStyleSheet(),
+      sheet = createStyleSheet(null, getOption('nonce')),
       lazyload = options.lazyload,
       lazyloadSelector = options.lazyloadSelector,
       slidePositions, // collection of slide positions
@@ -1379,9 +1380,12 @@ export var tns = function(options) {
       }
     }
     if (nav !== navTem) {
-      nav ?
-        showElement(navContainer) :
-        hideElement(navContainer);
+      if (nav) {
+        showElement(navContainer);
+        updateNavVisibility();
+      } else {
+        hideElement(navContainer)
+      }
     }
     if (touch !== touchTem) {
       touch ?

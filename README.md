@@ -263,7 +263,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `container` | Node \| String | Default: `'.slider'`. <br> The slider container element or selector. |
 | `mode` | "carousel" \| "gallery" | Default: "carousel". <br> Controls animation behaviour. <br> With `carousel` everything slides to the side, while `gallery` uses fade animations and changes all slides at once. |
 | `axis` | "horizontal" \| "vertical" | Default: "horizontal". <br> The axis of the slider. |
-| `items` | positive number | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less than `items`, the slider won't be initialized. |
+| `items` | positive number | Default: 1. <br> Number of slides being displayed in the viewport. <br> If slides less or equal than `items`, the slider won't be initialized. |
 | `gutter` | positive integer | Default: 0. <br> Space between slides (in "px"). |
 | `edgePadding` | positive integer | Default: 0. <br> Space on the outside (in "px"). |
 | `fixedWidth` | positive integer \| false | Default: false. <br> Controls `width` attribute of the slides. |
@@ -313,6 +313,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `startIndex` | positive integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
 | `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
+| `nonce`| String / false | Default: false. <br> Optional Nonce attribute for inline style tag to allow slider usage without `unsafe-inline Content Security Policy source. |
 
 NOTE:
 Prior to v2.0.2, options "container", "controlsContainer", "navContainer" and "autoplayButton" still need to be DOM elements.
