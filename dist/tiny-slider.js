@@ -1239,7 +1239,7 @@ var tns = function(options) {
   }
 
   function initSliderTransformStyleCheck () {
-    if (autoWidth) {
+    if (autoWidth && slideCount > 1) {
       // check styles application
       var num = loop ? index : slideCount - 1;
 
