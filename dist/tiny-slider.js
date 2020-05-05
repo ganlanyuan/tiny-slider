@@ -1814,9 +1814,12 @@ var tns = function(options) {
       }
     }
     if (nav !== navTem) {
-      nav ?
-        showElement(navContainer) :
+      if (nav) {
+        showElement(navContainer);
+        updateNavVisibility();
+      } else {
         hideElement(navContainer);
+      }
     }
     if (touch !== touchTem) {
       touch ?

@@ -194,13 +194,13 @@ export interface TinySliderSettings extends CommonOptions {
      */
     nextButton?: HTMLElement | string | false;
     /**
-     * Customized previous buttons. 
+     * Customized previous buttons.
      * This option will be ignored if controlsContainer is a Node element or a CSS selector.
      * @defaultValue false
      */
     prevButton?: HTMLElement | string | false;
     /**
-     * Customized next buttons. 
+     * Customized next buttons.
      * This option will be ignored if controlsContainer is a Node element or a CSS selector.
      * @defaultValue false
      */
@@ -222,10 +222,25 @@ export interface TinySliderSettings extends CommonOptions {
      */
     lazyload?: boolean;
     /**
+     * The CSS selector for lazyload images.
+     * @defaultValue '.tns-lazy-img'
+     */
+    lazyloadSelector?: string;
+    /**
      * Swipe or drag will not be triggered if the angle is not inside the range when set.
      * @defaultValue 15
      */
     swipeAngle?: number | boolean;
+    /**
+     * Prevent next transition while slider is transforming. 
+     * @defaultValue false
+     */
+    preventActionWhenRunning?: boolean
+    /**
+     * Prevent page from scrolling on touchmove. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
+     * @defaultValue false
+     */
+    preventScrollOnTouch?: "auto" | "force" | false;
     /**
      * Difine the relationship between nested sliders.
      * Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong.
@@ -238,10 +253,26 @@ export interface TinySliderSettings extends CommonOptions {
      */
     freezable?: boolean;
     /**
+     * Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide 
+     * whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
+     * @defaultValue false
+     */
+    preventScrollOnTouch?: "auto" | "force" | false;
+    /**
+    * Nonce attribute for inline style tag to allow slider usage without unsafe-inline CSP Option
+    * @defaultValue false
+    */
+    nonce?: string | false;
+    /**
      * Callback to be run on initialization.
      * @defaultValue false
      */
     onInit?: () => void | false;
+    /**
+     * Save browser capability variables to localStorage and without detecting them everytime the slider runs if set to true.
+     * @defaultValue true
+     */
+    useLocalStorage?: boolean;
 }
 
 export interface TinySliderInfo {
