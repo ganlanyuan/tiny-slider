@@ -153,6 +153,10 @@ function percentageLayout() {
 }
 
 function mediaquerySupport () {
+  if (window.matchMedia || window.msMatchMedia) {
+    return true;
+  }
+  
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
@@ -181,7 +185,7 @@ function mediaquerySupport () {
 }
 
 // create and append style sheet
-function createStyleSheet (media) {
+function createStyleSheet (media, nonce) {
   // Create the <style> tag
   var style = document.createElement("style");
   // style.setAttribute("type", "text/css");
@@ -190,6 +194,9 @@ function createStyleSheet (media) {
   // style.setAttribute("media", "screen")
   // style.setAttribute("media", "only screen and (max-width : 1024px)")
   if (media) { style.setAttribute("media", media); }
+
+  // Add nonce attribute for Content Security Policy
+  if (nonce) { style.setAttribute("nonce", nonce); }
 
   // WebKit hack :(
   // style.appendChild(document.createTextNode(""));
@@ -539,7 +546,8 @@ var tns = function(options) {
     preventScrollOnTouch: false,
     freezable: true,
     onInit: false,
-    useLocalStorage: true
+    useLocalStorage: true,
+    nonce: false
   }, options || {});
 
   var doc = document,
@@ -716,7 +724,7 @@ var tns = function(options) {
       autoplayText = getOption('autoplayText'),
       autoplayHoverPause = getOption('autoplayHoverPause'),
       autoplayResetOnVisibility = getOption('autoplayResetOnVisibility'),
-      sheet = createStyleSheet(),
+      sheet = createStyleSheet(null, getOption('nonce')),
       lazyload = options.lazyload,
       lazyloadSelector = options.lazyloadSelector,
       slidePositions, // collection of slide positions
