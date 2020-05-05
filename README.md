@@ -18,7 +18,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 **Warning**: tiny-slider works with static content and it works in the browser only. If the HTML is loaded dynamically, make sure to call `tns()` after its loading.
 
 ## Install
-`bower install imp-slider` or `npm install imp-slider`
+`bower install tiny-slider` or `npm install tiny-slider`
 
 ## Contents
 + [What's new](#whats-new)
