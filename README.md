@@ -383,7 +383,10 @@ The slider returns a slider object with some properties and methods once it's in
   updateSliderHeight: updateInnerWrapperHeight(),
   refresh: initSliderTransform(),
   destroy: destroy(),
-  rebuild: rebuild()
+  rebuild: rebuild(),
+  suspendTouchAndDrag: suspendTouchAndDrag(),
+  resumeTouchAndDrag: resumeTouchAndDrag(),
+  toggleTouchDrag: toggleTouchDrag()
 }
 ```
 To get the slider information, you can either use the `getInfo()` method or subscribe to an Event. Both return an Object:
@@ -411,6 +414,7 @@ To get the slider information, you can either use the `getInfo()` method or subs
               pagesCached: pagesCached,
                     sheet: sheet,
                     event: e || {}, // event object if available
+    touchAndDragSuspended: touchAndDragSuspended // Boolean, tells you whether the slider is currently listening to movement events and if controls are shown.
 };
 ```
 
@@ -474,6 +478,24 @@ Rebuild the slider after destroy.
 ```javascript
 slider = slider.rebuild();
 // this method returns a new slider Object with the same options with the original slider
+```
+
+#### suspendTouchAndDrag
+Makes the slider stop listening to touchdrag, mousemove events. Hides controls.
+```javascript
+slider.suspendTouchAndDrag();
+```
+
+#### resumeTouchAndDrag
+Makes the slider resume listening to touchdrag, mousemove events. Shows controls if they were hidden by `suspendTouchAndDrag()`.
+```javascript
+slider.resumeTouchAndDrag();
+```
+
+#### toggleTouchAndDrag
+Toggles the above functionality.
+```javascript
+slider.toggleTouchAndDrag();
 ```
 
 ## Custom Events
