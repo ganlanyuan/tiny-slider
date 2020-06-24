@@ -2542,6 +2542,13 @@ export var tns = function(options) {
       if (preventActionWhenRunning) { return; } else { onTransitionEnd(); }
     }
 
+    var isRightMB;
+
+    if ("which" in e) isRightMB = e.which == 3; // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+    else if ("button" in e) isRightMB = e.button == 2; // IE, Opera 
+
+    if(isRightMB) return;
+
     if (autoplay && animating) { stopAutoplayTimer(); }
 
     panStart = true;
