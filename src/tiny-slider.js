@@ -184,7 +184,7 @@ export var tns = function(options) {
   });
 
   // make sure at least 1 slide
-  if (options.container.children.length < 1) {
+  if (!options.container.children || options.container.children.length < 1) {
     if (supportConsoleWarn) { console.warn('No slides found in', options.container); }
     return;
    }
