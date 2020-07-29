@@ -2110,8 +2110,10 @@ export var tns = function(options) {
   }
 
   function doContainerTransformSilent (val) {
+    events.emit('beforeContainerTransformSilent', info());
     resetDuration(container, '0s');
     doContainerTransform(val);
+    events.emit('afterContainerTransformSilent', info());
   }
 
   function doContainerTransform (val) {
