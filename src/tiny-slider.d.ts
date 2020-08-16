@@ -237,7 +237,8 @@ export interface TinySliderSettings extends CommonOptions {
      */
     preventActionWhenRunning?: boolean
     /**
-     * Prevent page from scrolling on touchmove. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
+     * Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide 
+     * whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
      * @defaultValue false
      */
     preventScrollOnTouch?: "auto" | "force" | false;
@@ -252,12 +253,7 @@ export interface TinySliderSettings extends CommonOptions {
      * @defaultValue true
      */
     freezable?: boolean;
-    /**
-     * Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide 
-     * whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
-     * @defaultValue false
-     */
-    preventScrollOnTouch?: "auto" | "force" | false;
+
     /**
     * Nonce attribute for inline style tag to allow slider usage without unsafe-inline CSP Option
     * @defaultValue false
