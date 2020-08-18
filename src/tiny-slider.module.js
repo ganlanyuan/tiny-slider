@@ -2585,6 +2585,11 @@ export var tns = function(options) {
   }
 
   function panUpdate (e) {
+
+    let easeFunction = function(t, c) {
+      return t * c - c / 2 * t * t;
+    };
+
     if (!moveDirectionExpected) {
       panStart = false;
       return;
@@ -2607,9 +2612,16 @@ export var tns = function(options) {
         x += 'px';
       } else {
         var percentageX = TRANSFORM ? dist * items * 100 / ((viewport + gutter) * slideCountNew): dist * 100 / (viewport + gutter);
+        if (x + percentageX > 0) {
+          var maxChange = 30; // TODO: figure out the right one
+          var easeTime = percentageX / maxChange;
+          percentageX = easeFunction(easeTime > 1 ? 1 : easeTime, maxChange);
+        }
+
         x += percentageX;
         x += '%';
       }
+
 
       container.style[transformAttr] = transformPrefix + x + transformPostfix;
     }
