@@ -2608,7 +2608,7 @@ export var tns = function(options) {
           
       if (!horizontal || fixedWidth || autoWidth) {
 
-        if (friction && !loop) {
+        if (friction && !loop && horizontal) {
           var moveLimit = getViewportWidth();
 
           // start of carousel:
