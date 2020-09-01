@@ -2607,26 +2607,26 @@ export var tns = function(options) {
           dist = getDist(lastPosition, initPosition);
           
       if (!horizontal || fixedWidth || autoWidth) {
-
         if (friction && !loop && horizontal) {
-          var moveLimit = getViewportWidth();
+          var panArea = getViewportWidth();
+          var moveLimit = panArea / 3 * 2;
 
           // start of carousel:
           var moveOffset = dist + x;
+          // transform normally, until edge of slider is reached:
           if (moveOffset > 0) {
-            // transform normally, until edge of slider is reached:
             dist = dist - moveOffset;
             // add friction to rest of transformation:
-            var easeTime = moveOffset / moveLimit;
+            var easeTime = moveOffset / panArea;
             dist += frictionEasing(easeTime > 1 ? 1 : easeTime, moveLimit);
           }
           // end of carousel:
           var offsetRight = moveOffset - getRightBoundary();
+          // transform normally, until edge is reached:
           if (offsetRight < 0) {
-            // transform normally, until edge is reached:
-            dist = dist + offsetRight;
+            dist = dist - offsetRight;
             // add friction to rest of transformation:
-            var easeTime = offsetRight / moveLimit;
+            var easeTime = -1 * offsetRight / panArea;
             dist += -1 * frictionEasing(easeTime > 1 ? 1 : easeTime, moveLimit);
           }
         }
@@ -2637,24 +2637,25 @@ export var tns = function(options) {
         var percentageX = TRANSFORM ? dist * items * 100 / ((getViewportWidth() + gutter) * slideCountNew): dist * 100 / (getViewportWidth() + gutter);
 
         if (friction && !loop) {
-          var moveLimit = getViewportWidth() / parseInt(window.getComputedStyle(container).getPropertyValue('width')) * 100;
+          var panArea = getViewportWidth() / parseInt(window.getComputedStyle(container).getPropertyValue('width')) * 100;
+          var moveLimit = panArea / 3 * 2;
 
           // start of carousel:
           var moveOffset = percentageX + x;
+          // transform normally, until edge of slider is reached:
           if (moveOffset > 0) {
-            // transform normally, until edge of slider is reached:
             percentageX = percentageX - moveOffset;
             // add friction to rest of transformation:
-            var easeTime = moveOffset / moveLimit;
+            var easeTime = moveOffset / panArea;
             percentageX += frictionEasing(easeTime > 1 ? 1 : easeTime, moveLimit);
           }
           // end of carousel:
-          var offsetRight = moveOffset + (100 - moveLimit);
+          var offsetRight = moveOffset + (100 - panArea);
+          // transform normally, until edge is reached:
           if (offsetRight < 0) {
-            // transform normally, until edge is reached:
-            percentageX = percentageX + offsetRight;
+            percentageX = percentageX - offsetRight;
             // add friction to rest of transformation:
-            var easeTime = offsetRight / moveLimit;
+            var easeTime = -1 * offsetRight / panArea;
             percentageX += -1 * frictionEasing(easeTime > 1 ? 1 : easeTime, moveLimit);
           }
         }
