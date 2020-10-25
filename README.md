@@ -271,6 +271,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `viewportMax` (was `fixedWidthViewportWidth`) | positive integer \| false | Default: false. <br> Maximum viewport width for `fixedWidth`/`autoWidth`. |
 | `slideBy` | positive number \| "page" | Default: 1. <br> Number of slides going on one "click". |
 | `center` (v2.9.2+) | Boolean | Default: false. <br> Center the active slide in the viewport. |
+| `centerSlideCount` | positive integer | Default: 1. <br> Number of slides in the center, to which the class `.tns-slide-center` will be added. |
 | `controls` | Boolean | Default: true. <br> Controls the display and functionalities of `controls` components (prev/next buttons). If `true`, display the `controls` and add all functionalities. <br>For better accessibility, when a prev/next button is focused, user will be able to control the slider using left/right arrow keys.|
 | `controlsPosition` | "top" \| "bottom" | Default: "top". <br> Controls `controls` position. |
 | `controlsText` | (Text \| Markup) Array | Default: ["prev", "next"]. <br> Text or markup in the prev/next buttons. |
@@ -332,6 +333,7 @@ The following options can be redefined in `responsive` field:
 `edgePadding`,
 `gutter`,
 `center`,
+`centerSlideCount`,
 `controls`,
 `controlsText`,
 `nav`,
