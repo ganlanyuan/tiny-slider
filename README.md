@@ -313,6 +313,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `startIndex` | positive integer | Default: 0. <br> The initial `index` of the slider. |
 | `onInit` | Function \| false | Default: false. <br> Callback to be run on initialization. |
 | `useLocalStorage` | Boolean | Default: true. <br> Save browser capability variables to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) and without detecting them everytime the slider runs if set to `true`. |
+| `textDirection`| "ltr" \| "rtl"  | Default: 'ltr'. <br> Determines whether the slider will work from left to right, or right to left. |
 | `nonce`| String / false | Default: false. <br> Optional Nonce attribute for inline style tag to allow slider usage without `unsafe-inline Content Security Policy source. |
 
 NOTE:
