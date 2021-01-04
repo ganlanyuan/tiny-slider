@@ -3,7 +3,7 @@ const resolve = require('rollup-plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
 
 const gulp = require('gulp');
-const packages = require('/www/package.json');
+const packages = require('./package.json');
 const $ = require('gulp-load-plugins')({
   config: packages
 });
