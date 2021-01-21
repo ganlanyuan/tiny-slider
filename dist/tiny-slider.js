@@ -984,7 +984,11 @@ var tns = function(options) {
     rect = div.getBoundingClientRect();
     width = rect.right - rect.left;
     div.remove();
-    return width || getClientWidth(el.parentNode);
+    if (width) {
+      return width;
+    } else if (null !== el.parentNode.parentNode) {
+        return getClientWidth(el.parentNode);
+    }
   }
 
   function getViewportWidth () {

@@ -547,10 +547,8 @@ export var tns = function(options) {
     div.remove();
     if (width) {
         return width;
-    } else if (el.parentNode.parentNode !== null) {
-        getClientWidth(el.parentNode);
-    } else {
-        return;
+    } else if (null !== el.parentNode.parentNode) {
+        return getClientWidth(el.parentNode);
     }
   }
 
