@@ -78,6 +78,8 @@ export var tns = function(options) {
     navPosition: 'top',
     navContainer: false,
     navAsThumbnails: false,
+    navStr: 'Carousel Page ',
+    navStrCurrent: ' (Current Slide)',
     arrowKeys: false,
     speed: 300,
     autoplay: false,
@@ -405,8 +407,8 @@ export var tns = function(options) {
         navCurrentIndex = getCurrentNavIndex(),
         navCurrentIndexCached = navCurrentIndex,
         navActiveClass = 'tns-nav-active',
-        navStr = 'Carousel Page ',
-        navStrCurrent = ' (Current Slide)';
+        navStr =  options.navStr,
+        navStrCurrent =  options.navStrCurrent;
   }
 
   // autoplay
