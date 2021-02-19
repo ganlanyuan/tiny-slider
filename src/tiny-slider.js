@@ -373,6 +373,7 @@ export var tns = function(options) {
       hasMouseDrag = hasOption('mouseDrag'),
       slideActiveClass = 'tns-slide-active',
       slideClonedClass = 'tns-slide-cloned',
+      slideCenterClass = 'tns-slide-center',
       imgCompleteClass = 'tns-complete',
       imgEvents = {
         'load': onImgLoaded,
@@ -1937,6 +1938,12 @@ export var tns = function(options) {
         if (hasAttr(item, 'aria-hidden')) {
           removeAttrs(item, ['aria-hidden', 'tabindex']);
           addClass(item, slideActiveClass);
+        }
+        // apply center class
+        if (center && i == index) {
+          addClass(item, slideCenterClass);
+        } else if (hasClass(item, slideCenterClass)) {
+          removeClass(item, slideCenterClass);
         }
       // hide slides
       } else {
