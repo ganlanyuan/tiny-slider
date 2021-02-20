@@ -1939,12 +1939,6 @@ export var tns = function(options) {
           removeAttrs(item, ['aria-hidden', 'tabindex']);
           addClass(item, slideActiveClass);
         }
-        // apply center class
-        if (center && i == index) {
-          addClass(item, slideCenterClass);
-        } else if (hasClass(item, slideCenterClass)) {
-          removeClass(item, slideCenterClass);
-        }
       // hide slides
       } else {
         if (!hasAttr(item, 'aria-hidden')) {
@@ -1954,6 +1948,13 @@ export var tns = function(options) {
           });
           removeClass(item, slideActiveClass);
         }
+      }
+
+      // apply or remove center class
+      if (i == index && center) {
+        addClass(item, slideCenterClass);
+      } else if (hasClass(item, slideCenterClass)) {
+        removeClass(item, slideCenterClass);
       }
     });
   }
