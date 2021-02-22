@@ -695,6 +695,7 @@ export var tns = function(options) {
     newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
     if (autoWidth) { newContainerClasses += ' tns-autowidth'; }
     newContainerClasses += ' tns-' + options.axis;
+    if (center) { newContainerClasses += ' tns-center'; }
     container.className += newContainerClasses;
 
     // add constrain layer for carousel
