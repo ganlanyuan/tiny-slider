@@ -812,6 +812,7 @@ var tns = function(options) {
       hasMouseDrag = hasOption('mouseDrag'),
       slideActiveClass = 'tns-slide-active',
       slideClonedClass = 'tns-slide-cloned',
+      slideCenterClass = 'tns-slide-center',
       imgCompleteClass = 'tns-complete',
       imgEvents = {
         'load': onImgLoaded,
@@ -1133,6 +1134,7 @@ var tns = function(options) {
     newContainerClasses += CALC ? ' tns-calc' : ' tns-no-calc';
     if (autoWidth) { newContainerClasses += ' tns-autowidth'; }
     newContainerClasses += ' tns-' + options.axis;
+    if (center) { newContainerClasses += ' tns-center'; }
     container.className += newContainerClasses;
 
     // add constrain layer for carousel
@@ -2386,6 +2388,13 @@ var tns = function(options) {
           });
           removeClass(item, slideActiveClass);
         }
+      }
+
+      // apply or remove center class
+      if (i == index && center) {
+        addClass(item, slideCenterClass);
+      } else if (hasClass(item, slideCenterClass)) {
+        removeClass(item, slideCenterClass);
       }
     });
   }
