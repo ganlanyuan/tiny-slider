@@ -138,6 +138,11 @@ export interface TinySliderSettings extends CommonOptions {
      */
     controlsContainer?: HTMLElement | Element | string | false;
     /**
+     * Controls controls position
+     * @defaultValue "top"
+     */
+    controlsPosition?: "top" || "bottom";
+    /**
      * Controls nav position.
      * @defaultValue "top"
      */
