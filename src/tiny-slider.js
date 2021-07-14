@@ -2759,7 +2759,7 @@ export var tns = function(options) {
     updateSliderHeight: updateInnerWrapperHeight,
     refresh: initSliderTransform,
     destroy: destroy,
-    rebuild: function() {
+       rebuild: function() {
       return tns(extend(options, optionsElements));
     }
   };
