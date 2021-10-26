@@ -96,7 +96,7 @@ function resetFakeBody(body, docOverflow) {
   }
 }
 
-// get css-calc
+// get css-calc 
 function calc() {
   var doc = document,
       body = getBody(),
