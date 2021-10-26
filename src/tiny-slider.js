@@ -2749,7 +2749,7 @@ export var tns = function(options) {
   }
 
   return {
-    version: '2.9.3',
+    version: '2.9.4',
     getInfo: info,
     events: events,
     goTo: goTo,

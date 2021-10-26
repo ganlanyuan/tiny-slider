@@ -1,6 +1,6 @@
 # Tiny Slider 2
 [![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.9.3-green.svg)
+![version](https://img.shields.io/badge/Version-2.9.4-green.svg)
 
 Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).
 
@@ -214,8 +214,8 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 ## Usage
 #### 1. Add CSS (and IE8 polyfills if needed)
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/tiny-slider.css">
-<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/min/tiny-slider.helper.ie8.js"></script><![endif]-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/tiny-slider.css">
+<!--[if (lt IE 9)]><script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/min/tiny-slider.helper.ie8.js"></script><![endif]-->
 ```
 
 #### 2. Add markup
