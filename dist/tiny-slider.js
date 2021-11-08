@@ -2,11 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var win$1 = window;
-var raf = win$1.requestAnimationFrame || win$1.webkitRequestAnimationFrame || win$1.mozRequestAnimationFrame || win$1.msRequestAnimationFrame || function (cb) {
-  return setTimeout(cb, 16);
-};
-
 var win = window;
 var caf = win.cancelAnimationFrame || win.mozCancelAnimationFrame || function (id) {
   clearTimeout(id);
@@ -96,7 +91,7 @@ function resetFakeBody(body, docOverflow) {
   }
 }
 
-// get css-calc 
+// get css-calc
 function calc() {
   var doc = document,
       body = getBody(),

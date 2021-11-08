@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  
+
   <link rel="stylesheet" href="css/prism.css">
   <link rel="stylesheet" href="../dist/tiny-slider.css">
   <link rel="stylesheet" href="css/styles.css">
@@ -23,39 +23,39 @@
 {% set sliders = [
   'base',
   'start-index',
-  'non-loop', 
-  'rewind', 
-  'center', 
-  'fixedWidth', 
-  'fixedWidth-edgePadding', 
+  'non-loop',
+  'rewind',
+  'center',
+  'fixedWidth',
+  'fixedWidth-edgePadding',
   'autoWidth',
   'autoWidth-non-loop',
   'autoWidth-lazyload',
-  'vertical', 
-  'responsive', 
+  'vertical',
+  'responsive',
   'mouse-drag',
   'mouse-drag2',
-  'gutter', 
-  'edgePadding', 
-  'arrowKeys', 
+  'gutter',
+  'edgePadding',
+  'arrowKeys',
   'autoplay',
-  'animation1', 
-  'lazyload', 
-  'customize', 
+  'animation1',
+  'lazyload',
+  'customize',
   'autoHeight',
   'nested'
 ] %}
 {# {% set sliders = ['autoWidth-non-loop'] %} #}
 
 {% set titles = [
-  "Lorem ipsum dolor sit amet, consectetur adipisicing.", 
-  "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!", 
-  "Corrupti, libero minima nihil expedita officiis? Quo.", 
+  "Lorem ipsum dolor sit amet, consectetur adipisicing.",
+  "Sunt dignissimos distinctio, veniam, tenetur aspernatur nulla!",
+  "Corrupti, libero minima nihil expedita officiis? Quo.",
   "Alias rem, ab impedit recusandae repellat tempore.", "
-  Nisi inventore quo delectus perspiciatis voluptatibus, quae.", 
-  "Nisi harum earum consectetur laudantium iusto, laboriosam.", 
-  "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.", 
-  "Omnis dolorum eum blanditiis, ratione voluptates quod.", 
+  Nisi inventore quo delectus perspiciatis voluptatibus, quae.",
+  "Nisi harum earum consectetur laudantium iusto, laboriosam.",
+  "Dolores blanditiis neque, quis vitae? Reprehenderit, aliquam.",
+  "Omnis dolorum eum blanditiis, ratione voluptates quod.",
   "Animi quis iste ex ullam, similique laboriosam.", "D
   eserunt, ipsam! Placeat ullam, nam incidunt odit!"
 ] %}
@@ -127,7 +127,7 @@
             </div>
           {% endfor %}
         {% endif %}
-        
+
       {# nested #}
       {% elif slide === 'nested' %}
         {% for i in range(1, 8) %}
@@ -149,7 +149,7 @@
           {% endif %}
         </div>
         {% endfor %}
-        
+
       {# responsive6 #}
       {% elif slide === 'responsive6' %}
         {% for i in range(1, 3) %}
@@ -197,7 +197,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    
+
     {# customize tools #}
     {% if slide === 'customize' %}
       <div class="customize-tools">
@@ -263,7 +263,7 @@
       if (classN.indexOf(' active') > 0) { pageNavContainer.className = classN.replace(' active', ''); }
     });
   }
-  
+
   var mobile = 'false',
       isTestPage = false,
       isDemoPage = true,
@@ -286,7 +286,7 @@
   window.addEventListener('resize', function() { fw = getFW(ww); });
 </script>
 
-<script src="../dist/tiny-slider.js"></script>
+<script src="../dist/min/tiny-slider.js"></script>
 <script>
 // <script type="module">
   // import { tns } from '../src/tiny-slider.js';
@@ -356,37 +356,37 @@
           items: 3
         }
       },
-    }, 
+    },
     'rewind': {
       container: '',
       items: 3,
       rewind: true,
-    }, 
+    },
     'center': {
       container: '',
       items: 2,
       center: true,
       loop: false,
-    }, 
+    },
     'slide-by-page': {
       container: '',
       items: 3,
       slideBy: 'page',
-    }, 
+    },
     'fixedWidth': {
       container: '',
       fixedWidth: fw,
-    }, 
+    },
     'fixedWidth-gutter': {
       container: '',
       gutter: gutter,
       fixedWidth: fw,
-    }, 
+    },
     'fixedWidth-edgePadding': {
       container: '',
       edgePadding: edgepadding,
       fixedWidth: fw,
-    }, 
+    },
     'fixedWidth-edgePadding-gutter': {
       container: '',
       gutter: gutter,
@@ -395,7 +395,7 @@
       slideBy: 2,
       loop: false,
       arrowKeys: true,
-    }, 
+    },
     'autoWidth': {
       autoWidth: true,
       items: 3.3,
@@ -447,7 +447,7 @@
           slideBy: 'page',
         }
       },
-    }, 
+    },
     'responsive2': {
       items: 3,
       autoplayTimeout: 350,
@@ -524,31 +524,31 @@
       autoplayTimeout: 3500,
       autoplayText: ['▶', '❚❚'],
       // autoplayButtonOutput: false,
-    }, 
+    },
     'vertical': {
       container: '',
       items: 3,
       axis: 'vertical',
-    }, 
+    },
     'vertical-gutter': {
       container: '',
       items: 3,
       axis: 'vertical',
       gutter: gutter,
-    }, 
+    },
     'vertical-edgePadding': {
       container: '',
       items: 3,
       axis: 'vertical',
       edgePadding: edgepadding,
-    }, 
+    },
     'vertical-edgePadding-gutter': {
       container: '',
       items: 3,
       axis: 'vertical',
       gutter: gutter,
       edgePadding: edgepadding,
-    }, 
+    },
     'animation1': {
       container: '',
       mode: 'gallery',
@@ -606,7 +606,7 @@
     item.container = '#' + i;
     item.swipeAngle = false;
     if (!item.speed) { item.speed = speed; }
-    
+
     if (doc.querySelector(item.container)) {
       sliders[i] = tns(options[i]);
 
