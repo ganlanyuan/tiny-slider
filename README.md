@@ -304,6 +304,7 @@ Option C: Import `tns` directly start from v2.8.2
 | `lazyloadSelector` (v2.9.1+) | String | Default: `'.tns-lazy-img'`. <br> The CSS selector for lazyload images. |
 | `touch` | Boolean | Default: true. <br> Activates input detection for touch devices. |
 | `mouseDrag` | Boolean | Default: false. <br> Changing slides by dragging them. |
+| `friction` | Boolean | Default: true. <br> Adds friction to non-looping slider when dragging all the way to the left/right (horizontal sliders only). |
 | `swipeAngle` | positive integer \| Boolean | Default: 15. <br> Swipe or drag will not be triggered if the angle is not inside the range when set. |
 | `preventActionWhenRunning` (v2.9.1+) | Boolean | Default: false. <br> Prevent next transition while slider is transforming. |
 | `preventScrollOnTouch` (v2.9.1+) | "auto" \| "force" \| false | Default: false. <br> Prevent page from scrolling on `touchmove`. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling. |
