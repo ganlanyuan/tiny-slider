@@ -231,7 +231,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 #### 3. Call tns()
 Option A: Add tiny-slider.js to your page:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.2/min/tiny-slider.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/min/tiny-slider.js"></script>
 <!-- NOTE: prior to v2.2.1 tiny-slider.js need to be in <body> -->
 ```
 
