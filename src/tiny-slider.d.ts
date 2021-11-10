@@ -50,6 +50,11 @@ export interface CommonOptions {
      */
     center?: boolean;
     /**
+     * Number of slides in the center, to which the class `.tns-slide-center` will be added.
+     * @defaultValue 1
+     */
+    centerSlideCount?: number;
+    /**
      * Controls the display and functionalities of controls components (prev/next buttons). If true, display the controls and add all functionalities.
      * @defaultValue true
      */
