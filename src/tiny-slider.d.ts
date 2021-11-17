@@ -189,8 +189,9 @@ export interface TinySliderSettings extends CommonOptions {
      */
     animateDelay?: number | false;
     /**
-     * Moves throughout all the slides seamlessly.
-     * @defaultValue true
+     * Customized next buttons.
+     * This option will be ignored if controlsContainer is a Node element or a CSS selector.
+     * @defaultValue false
      */
     nextButton?: HTMLElement | string | false;
     /**
@@ -200,9 +201,8 @@ export interface TinySliderSettings extends CommonOptions {
      */
     prevButton?: HTMLElement | string | false;
     /**
-     * Customized next buttons.
-     * This option will be ignored if controlsContainer is a Node element or a CSS selector.
-     * @defaultValue false
+     * Moves throughout all the slides seamlessly.
+     * @defaultValue true
      */
     loop?: boolean;
     /**
