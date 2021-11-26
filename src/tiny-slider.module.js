@@ -1806,6 +1806,10 @@ export var tns = function(options) {
           // update srcset
           var srcset = getAttr(img, 'data-srcset');
           if (srcset) { img.srcset = srcset; }
+          
+          // update sizes
+          var sizes = getAttr(img, 'data-sizes');
+          if (sizes) { img.sizes = sizes; }
 
           addClass(img, 'loading');
         }
