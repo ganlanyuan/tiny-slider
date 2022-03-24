@@ -121,7 +121,7 @@ $perpage: 3;
     overflow: hidden;
   }
   &-ct {
-    width: (100% * $count / $perpage);
+    width: math.div(100% * $count, $perpage);
     width: -webkit-calc(100% * #{$count} / #{$perpage});
     width: -moz-calc(100% * #{$count} / #{$perpage});
     width: calc(100% * #{$count} / #{$perpage});
@@ -133,7 +133,7 @@ $perpage: 3;
       clear: both;
     }
     > div {
-      width: (100% / $count);
+      width: math.div(100%, $count);
       width: -webkit-calc(100% / #{$count});
       width: -moz-calc(100% / #{$count});
       width: calc(100% / #{$count});
