@@ -15,7 +15,7 @@ Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.gi
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
 [v0](https://github.com/ganlanyuan/tiny-slider/tree/v0)
 
-**Warning**: tiny-slider works with static content and it works in the browser only. If the HTML is loaded dynamically, make sure to call `tns()` after its loading.
+**Warning**: tiny-slider works with static content and it works in the browser only. If the HTML is loaded dynamically, make sure to call `tns()` after it's loaded.
 
 ## Contents
 + [What's new](#whats-new)
