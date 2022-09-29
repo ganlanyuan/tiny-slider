@@ -235,12 +235,7 @@ export interface TinySliderSettings extends CommonOptions {
      * Prevent next transition while slider is transforming. 
      * @defaultValue false
      */
-    preventActionWhenRunning?: boolean
-    /**
-     * Prevent page from scrolling on touchmove. If set to "auto", the slider will first check if the touch direction matches the slider axis, then decide whether prevent the page scrolling or not. If set to "force", the slider will always prevent the page scrolling.
-     * @defaultValue false
-     */
-    preventScrollOnTouch?: "auto" | "force" | false;
+    preventActionWhenRunning?: boolean;
     /**
      * Difine the relationship between nested sliders.
      * Make sure you run the inner slider first, otherwise the height of the inner slider container will be wrong.
