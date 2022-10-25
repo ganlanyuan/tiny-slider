@@ -283,6 +283,7 @@ export interface TinySliderInfo {
     hasControls: boolean;
     index: number;
     indexCached: number;
+    displayIndex: number;
     items: number;
     navContainer?: HTMLElement;
     navCurrentIndex?: number;
