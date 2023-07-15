@@ -2,8 +2,19 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var win = window;
-var caf = win.cancelAnimationFrame || win.mozCancelAnimationFrame || function (id) {
+var isServer = typeof window === 'undefined';
+
+var win$1 = !isServer ? window : null;
+var raf = !win$1 ? function (cb) {
+  return cb();
+} : win$1.requestAnimationFrame || win$1.webkitRequestAnimationFrame || win$1.mozRequestAnimationFrame || win$1.msRequestAnimationFrame || function (cb) {
+  return setTimeout(cb, 16);
+};
+
+var win = !isServer ? window : null;
+var caf = !win ? function (id) {
+  return;
+} : win.cancelAnimationFrame || win.mozCancelAnimationFrame || function (id) {
   clearTimeout(id);
 };
 
@@ -64,12 +75,12 @@ function getBody() {
   return body;
 }
 
-var docElement = document.documentElement;
+var docElement = isServer ? null : document.documentElement;
 
 function setFakeBody(body) {
   var docOverflow = '';
 
-  if (body.fake) {
+  if (!isServer && body.fake) {
     docOverflow = docElement.style.overflow; //avoid crashing IE8, if background image is used
 
     body.style.background = ''; //Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
@@ -82,7 +93,7 @@ function setFakeBody(body) {
 }
 
 function resetFakeBody(body, docOverflow) {
-  if (body.fake) {
+  if (!isServer && body.fake) {
     body.remove();
     docElement.style.overflow = docOverflow; // Trigger layout so kinetic scrolling isn't disabled in iOS6+
     // eslint-disable-next-line
@@ -91,7 +102,7 @@ function resetFakeBody(body, docOverflow) {
   }
 }
 
-// get css-calc
+// get css-calc 
 function calc() {
   var doc = document,
       body = getBody(),
@@ -122,7 +133,12 @@ function calc() {
 
 // get subpixel support value
 function percentageLayout() {
-  // check subpixel layout supporting
+  // Fallback for SSR
+  if (!isServer) {
+    return false;
+  } // check subpixel layout supporting
+
+
   var doc = document,
       body = getBody(),
       docOverflow = setFakeBody(body),
@@ -240,7 +256,7 @@ function forEach(arr, callback, scope) {
   }
 }
 
-var classListSupport = ('classList' in document.createElement('_'));
+var classListSupport = isServer ? false : 'classList' in document.createElement('_');
 
 var hasClass = classListSupport ? function (el, str) {
   return el.classList.contains(str);
@@ -330,7 +346,7 @@ function showElement(el, forceHide) {
 }
 
 function isVisible(el) {
-  return window.getComputedStyle(el).display !== 'none';
+  return isServer ? false : window.getComputedStyle(el).display !== 'none';
 }
 
 function whichProperty(props) {
@@ -361,7 +377,7 @@ function whichProperty(props) {
 }
 
 function has3DTransforms(tf) {
-  if (!tf) {
+  if (!tf || isServer) {
     return false;
   }
 
@@ -482,7 +498,8 @@ function jsTransform(element, attr, prefix, postfix, to, duration, callback) {
   }
 }
 
-// Object.keys
+const SERVERSIDE_WINDOW_WIDTH = 300;
+
 if (!Object.keys) {
   Object.keys = function (object) {
     var keys = [];
@@ -498,7 +515,7 @@ if (!Object.keys) {
 } // ChildNode.remove
 
 
-if (!("remove" in Element.prototype)) {
+if (!isServer && !("remove" in Element.prototype)) {
   Element.prototype.remove = function () {
     if (this.parentNode) {
       this.parentNode.removeChild(this);
@@ -560,8 +577,8 @@ var tns = function (options) {
     useLocalStorage: true,
     nonce: false
   }, options || {});
-  var doc = document,
-      win = window,
+  var doc = isServer ? null : document,
+      win = isServer ? null : window,
       KEYS = {
     ENTER: 13,
     SPACE: 32,
@@ -569,7 +586,7 @@ var tns = function (options) {
     RIGHT: 39
   },
       tnsStorage = {},
-      localStorageAccess = options.useLocalStorage;
+      localStorageAccess = isServer ? false : options.useLocalStorage;
 
   if (localStorageAccess) {
     // check browser version and local storage access
@@ -622,23 +639,27 @@ var tns = function (options) {
   var supportConsoleWarn = win.console && typeof win.console.warn === "function",
       tnsList = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'],
       optionsElements = {};
-  tnsList.forEach(function (item) {
-    if (typeof options[item] === 'string') {
-      var str = options[item],
-          el = doc.querySelector(str);
-      optionsElements[item] = str;
 
-      if (el && el.nodeName) {
-        options[item] = el;
-      } else {
-        if (supportConsoleWarn) {
-          console.warn('Can\'t find', options[item]);
+  if (!isServer) {
+    tnsList.forEach(function (item) {
+      if (typeof options[item] === 'string') {
+        var str = options[item],
+            el = doc.querySelector(str);
+        optionsElements[item] = str;
+
+        if (el && el.nodeName) {
+          options[item] = el;
+        } else {
+          if (supportConsoleWarn) {
+            console.warn('Can\'t find', options[item]);
+          }
+
+          return;
         }
-
-        return;
       }
-    }
-  }); // make sure at least 1 slide
+    });
+  } // make sure at least 1 slide
+
 
   if (options.container.children.length < 1) {
     if (supportConsoleWarn) {
@@ -1036,7 +1057,7 @@ var tns = function (options) {
   }
 
   function getWindowWidth() {
-    return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
+    return isServer ? SERVERSIDE_WINDOW_WIDTH : win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
   }
 
   function getInsertPosition(pos) {
@@ -1403,7 +1424,7 @@ var tns = function (options) {
     // Resource: https://docs.google.com/spreadsheets/d/147up245wwTXeQYve3BRSAD4oVcvQmuGsFteJOeA5xNQ/edit?usp=sharing
 
 
-    if (horizontal) {
+    if (horizontal && !isServer) {
       if (PERCENTAGELAYOUT || autoWidth) {
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
@@ -1728,9 +1749,11 @@ var tns = function (options) {
         events.emit('innerLoaded', info());
       });
     } else if (responsive || fixedWidth || autoWidth || autoHeight || !horizontal) {
-      addEvents(win, {
-        'resize': onResize
-      });
+      if (!isServer) {
+        addEvents(win, {
+          'resize': onResize
+        });
+      }
     }
 
     if (autoHeight) {

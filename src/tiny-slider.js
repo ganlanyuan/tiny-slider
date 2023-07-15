@@ -1,3 +1,8 @@
+import { isServer } from './helpers/isServer';
+
+const SERVERSIDE_WINDOW_WIDTH = 300;
+const SERVERSIDE_WINDOW_HEIGHT = 300;
+
 // Object.keys
 if (!Object.keys) {
   Object.keys = function(object) {
@@ -12,7 +17,7 @@ if (!Object.keys) {
 }
 
 // ChildNode.remove
-if(!("remove" in Element.prototype)){
+if(!isServer && !("remove" in Element.prototype)){
   Element.prototype.remove = function(){
     if(this.parentNode) {
       this.parentNode.removeChild(this);
@@ -111,8 +116,8 @@ export var tns = function(options) {
     nonce: false
   }, options || {});
 
-  var doc = document,
-      win = window,
+  var doc = isServer ? null : document,
+      win = isServer ? null : window,
       KEYS = {
         ENTER: 13,
         SPACE: 32,
@@ -120,7 +125,7 @@ export var tns = function(options) {
         RIGHT: 39
       },
       tnsStorage = {},
-      localStorageAccess = options.useLocalStorage;
+      localStorageAccess = isServer ? false : options.useLocalStorage;
 
   if (localStorageAccess) {
     // check browser version and local storage access
@@ -168,20 +173,22 @@ export var tns = function(options) {
       tnsList = ['container', 'controlsContainer', 'prevButton', 'nextButton', 'navContainer', 'autoplayButton'],
       optionsElements = {};
 
-  tnsList.forEach(function(item) {
-    if (typeof options[item] === 'string') {
-      var str = options[item],
-          el = doc.querySelector(str);
-      optionsElements[item] = str;
+  if (!isServer) {
+    tnsList.forEach(function(item) {
+      if (typeof options[item] === 'string') {
+        var str = options[item],
+            el = doc.querySelector(str);
+        optionsElements[item] = str;
 
-      if (el && el.nodeName) {
-        options[item] = el;
-      } else {
-        if (supportConsoleWarn) { console.warn('Can\'t find', options[item]); }
-        return;
+        if (el && el.nodeName) {
+          options[item] = el;
+        } else {
+          if (supportConsoleWarn) { console.warn('Can\'t find', options[item]); }
+          return;
+        }
       }
-    }
-  });
+    });
+  }
 
   // make sure at least 1 slide
   if (options.container.children.length < 1) {
@@ -531,7 +538,7 @@ export var tns = function(options) {
   }
 
   function getWindowWidth () {
-    return win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
+    return isServer ? SERVERSIDE_WINDOW_WIDTH : win.innerWidth || doc.documentElement.clientWidth || doc.body.clientWidth;
   }
 
   function getInsertPosition (pos) {
@@ -868,7 +875,7 @@ export var tns = function(options) {
     //         margin-left: ~
 
     // Resource: https://docs.google.com/spreadsheets/d/147up245wwTXeQYve3BRSAD4oVcvQmuGsFteJOeA5xNQ/edit?usp=sharing
-    if (horizontal) {
+    if (horizontal && !isServer) {
       if (PERCENTAGELAYOUT || autoWidth) {
         addCSSRule(sheet, '#' + slideId + ' > .tns-item', 'font-size:' + win.getComputedStyle(slideItems[0]).fontSize + ';', getCssRulesLength(sheet));
         addCSSRule(sheet, '#' + slideId, 'font-size:0;', getCssRulesLength(sheet));
@@ -1151,7 +1158,9 @@ export var tns = function(options) {
         events.emit('innerLoaded', info());
       });
     } else if (responsive || fixedWidth || autoWidth || autoHeight || !horizontal) {
-      addEvents(win, {'resize': onResize});
+      if (!isServer) {
+        addEvents(win, {'resize': onResize});
+      }
     }
 
     if (autoHeight) {
