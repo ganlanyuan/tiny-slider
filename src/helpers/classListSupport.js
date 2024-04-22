@@ -1,1 +1,3 @@
-export var classListSupport = 'classList' in document.createElement('_');
+import { classListSupport } from './dom.js';
+
+export { classListSupport };

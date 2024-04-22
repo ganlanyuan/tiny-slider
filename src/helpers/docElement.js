@@ -1,1 +1,2 @@
-export var docElement = document.documentElement;
+import { docElement } from './dom.js';
+export { docElement }

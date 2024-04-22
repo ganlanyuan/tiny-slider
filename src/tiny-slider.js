@@ -20,6 +20,7 @@ if(!("remove" in Element.prototype)){
   };
 }
 
+import { win, doc, initDOM } from './helpers/dom.js';
 import { raf } from './helpers/raf.js';
 import { caf } from './helpers/caf.js';
 import { extend } from './helpers/extend.js';
@@ -111,9 +112,10 @@ export var tns = function(options) {
     nonce: false
   }, options || {});
 
-  var doc = document,
-      win = window,
-      KEYS = {
+  // initialize DOM objects - delayed so SSR frameworks can use module
+  initDOM();
+
+  var KEYS = {
         ENTER: 13,
         SPACE: 32,
         LEFT: 37,

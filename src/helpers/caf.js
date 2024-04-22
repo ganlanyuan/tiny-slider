@@ -1,4 +1,4 @@
-var win = window;
+import { win } from './dom.js';
 
 export var caf = win.cancelAnimationFrame
   || win.mozCancelAnimationFrame
