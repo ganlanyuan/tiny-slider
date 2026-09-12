@@ -22,7 +22,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === '/login' && session) {
+  // Someone already signed in has no use for the sign-in or sign-up pages.
+  if ((pathname === '/login' || pathname === '/signup') && session) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';
@@ -33,5 +34,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  // Invitation links are deliberately left out: a signed-in user may still need
+  // to open one, and the page itself explains what to do about it.
+  matcher: ['/dashboard/:path*', '/login', '/signup'],
 };

@@ -20,10 +20,11 @@ import {
 import { LineItemEditor, type LineItem, type PickableProduct } from '@/components/dashboard/line-items';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiPost, qs } from '@/lib/client';
 import type { SafeUser } from '@/lib/types';
-import { formatDate, money, number as fmtNumber, todayIso } from '@/lib/utils';
+import { formatDate, number as fmtNumber, todayIso } from '@/lib/utils';
 
 interface AssignmentRow {
   id: string;
@@ -54,6 +55,7 @@ interface MeResponse {
 }
 
 export default function AssignmentsPage() {
+  const { money } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [srFilter, setSrFilter] = useState('');
   const [creating, setCreating] = useState(false);
@@ -93,7 +95,7 @@ export default function AssignmentsPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="এসআর চালান"
+        title="Challans"
         subtitle="Stock handed from the store to a sales rep."
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -346,7 +348,7 @@ function ChallanModal({
       onClose={onClose}
       wide
       title="Issue a challan"
-      subtitle="এসআর কে মাল দিন"
+      subtitle="Load a rep\u2019s van from store stock"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -470,7 +472,7 @@ function ReturnModal({
       onClose={onClose}
       wide
       title="Take stock back from a rep"
-      subtitle="ফেরত নেওয়া মাল"
+      subtitle="Unsold or damaged goods coming back"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

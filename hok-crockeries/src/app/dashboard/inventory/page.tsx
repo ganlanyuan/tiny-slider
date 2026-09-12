@@ -20,9 +20,10 @@ import {
 import { LineItemEditor, type LineItem, type PickableProduct } from '@/components/dashboard/line-items';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiPost, qs } from '@/lib/client';
-import { formatDate, money, number as fmtNumber, todayIso } from '@/lib/utils';
+import { formatDate, number as fmtNumber, todayIso } from '@/lib/utils';
 
 interface EntryItem {
   productId: string;
@@ -60,6 +61,7 @@ interface MeResponse {
 }
 
 export default function InventoryPage() {
+  const { money } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export default function InventoryPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="স্টোরে মাল গ্রহণ"
+        title="Store intake"
         subtitle="Goods received into the central store."
         action={
           <div className="flex items-center gap-2">
@@ -297,6 +299,7 @@ function ReceiveModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { money } = useWorkspace();
   const [supplier, setSupplier] = useState('');
   const [invoiceNo, setInvoiceNo] = useState('');
   const [date, setDate] = useState(todayIso());
@@ -348,7 +351,7 @@ function ReceiveModal({
       onClose={onClose}
       wide
       title="Receive stock into the store"
-      subtitle="স্টোরে নতুন মাল ঢোকান"
+      subtitle="Record a supplier delivery"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

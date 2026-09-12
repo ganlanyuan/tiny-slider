@@ -5,13 +5,17 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
-const BDT = new Intl.NumberFormat('en-BD', { maximumFractionDigits: 2 });
+const GROUPED = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
 
-/** ৳ 12,500 — the taka sign with grouped digits. */
+/**
+ * Currency is a per-workspace setting, so every formatter takes the symbol as
+ * an argument. Components read it from `useWorkspace()` rather than hardcoding
+ * one, which is what lets two tenants run in ৳ and $ side by side.
+ */
 export function money(value: number | undefined | null, currency = '৳'): string {
   if (value === undefined || value === null || Number.isNaN(value)) return '—';
   const sign = value < 0 ? '-' : '';
-  return `${sign}${currency}${BDT.format(Math.abs(value))}`;
+  return `${sign}${currency}${GROUPED.format(Math.abs(value))}`;
 }
 
 /** Compact form for dashboard tiles: ৳1.2L, ৳45.0K. */
@@ -22,12 +26,12 @@ export function moneyShort(value: number | undefined | null, currency = '৳'): 
   if (abs >= 10_000_000) return `${sign}${currency}${(abs / 10_000_000).toFixed(2)}Cr`;
   if (abs >= 100_000) return `${sign}${currency}${(abs / 100_000).toFixed(2)}L`;
   if (abs >= 1_000) return `${sign}${currency}${(abs / 1_000).toFixed(1)}K`;
-  return `${sign}${currency}${BDT.format(abs)}`;
+  return `${sign}${currency}${GROUPED.format(abs)}`;
 }
 
 export function number(value: number | undefined | null): string {
   if (value === undefined || value === null || Number.isNaN(value)) return '—';
-  return BDT.format(value);
+  return GROUPED.format(value);
 }
 
 export function percent(value: number | undefined | null, digits = 1): string {
@@ -35,14 +39,14 @@ export function percent(value: number | undefined | null, digits = 1): string {
   return `${value.toFixed(digits)}%`;
 }
 
-export function formatDate(iso: string | undefined): string {
+export function formatDate(iso: string | undefined | null): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export function formatDateTime(iso: string | undefined): string {
+export function formatDateTime(iso: string | undefined | null): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
@@ -61,7 +65,7 @@ export function formatMonth(month: string): string {
   return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
-export function relativeTime(iso: string | undefined): string {
+export function relativeTime(iso: string | undefined | null): string {
   if (!iso) return '—';
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '—';

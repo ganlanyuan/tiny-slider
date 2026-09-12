@@ -5,7 +5,8 @@ import { motion, useInView, useMotionValue, useSpring, useTransform } from 'fram
 import { useEffect, useRef } from 'react';
 import { ArrowDownRight, ArrowUpRight, Lock } from 'lucide-react';
 
-import { cn, money, moneyShort, number as fmtNumber } from '@/lib/utils';
+import { useWorkspace } from '@/components/workspace';
+import { cn, number as fmtNumber } from '@/lib/utils';
 
 /** Counts a number up when it scrolls into view. Respects reduced motion. */
 function AnimatedValue({
@@ -60,7 +61,8 @@ export function StatCard({
   label: string;
   sublabel?: string;
   value: number | string;
-  /** `money` groups with ৳, `short` abbreviates to K/L/Cr, `count` is plain. */
+  /** `money` groups in full, `short` abbreviates to K/L/Cr, `count` is plain.
+   *  Currency comes from the workspace, never a hardcoded symbol. */
   kind?: 'money' | 'short' | 'count' | 'text';
   suffix?: string;
   icon?: ReactNode;
@@ -72,6 +74,8 @@ export function StatCard({
   compact?: boolean;
   className?: string;
 }) {
+  const { money, moneyShort } = useWorkspace();
+
   const format = (n: number): string => {
     if (kind === 'money') return money(n);
     if (kind === 'short') return moneyShort(n);
@@ -161,6 +165,7 @@ export function MeterRow({
   tone?: StatTone;
   valueLabel?: string;
 }) {
+  const { money } = useWorkspace();
   const pct = total > 0 ? Math.min(100, (value / total) * 100) : 0;
   const bar: Record<StatTone, string> = {
     brand: 'bg-brand-500',

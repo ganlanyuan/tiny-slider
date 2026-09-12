@@ -20,10 +20,11 @@ import {
 } from '@/components/ui';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiPost, qs } from '@/lib/client';
 import { PAYMENT_METHODS, ROLE_LABEL, type PaymentMethod, type Role } from '@/lib/types';
-import { avatarTone, cn, formatDate, formatMonth, initials, money, percent } from '@/lib/utils';
+import { avatarTone, cn, formatDate, formatMonth, initials, percent } from '@/lib/utils';
 
 interface RosterRow {
   userId: string;
@@ -58,18 +59,15 @@ interface SalariesResponse {
   roster: RosterRow[];
   month: string;
   total: number;
-}
-
-interface MeResponse {
-  capabilities: string[];
+  budget: number;
 }
 
 export default function SalaryPage() {
+  const { money, can } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [paying, setPaying] = useState<RosterRow | null>(null);
 
-  const me = useResource<MeResponse>('/api/auth/me');
-  const canPay = me.data?.capabilities.includes('salary.manage') ?? false;
+  const canPay = can('salary.manage');
 
   const { data, error, initial, reload } = useResource<SalariesResponse>(
     `/api/salaries${qs({ month })}`,
@@ -78,12 +76,12 @@ export default function SalaryPage() {
   const roster = data?.roster ?? [];
   const payments = data?.payments ?? [];
   const outstanding = roster.filter((r) => !r.paid);
-  const budget = roster.reduce((n, r) => n + r.base + r.suggestedCommission, 0);
+  const budget = data?.budget ?? 0;
 
   return (
     <PageTransition>
       <SectionTitle
-        title="বেতন ও কমিশন"
+        title="Payroll"
         subtitle={`Payroll for ${formatMonth(month)}.`}
         action={<MonthPicker value={month} onChange={setMonth} />}
       />
@@ -132,7 +130,7 @@ export default function SalaryPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{row.name}</p>
                     <p className="truncate text-xs muted">
-                      {ROLE_LABEL[row.role].en}
+                      {ROLE_LABEL[row.role]}
                       {row.area ? ` · ${row.area}` : ''}
                     </p>
                   </div>
@@ -255,6 +253,7 @@ function PayModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { money } = useWorkspace();
   const [base, setBase] = useState(0);
   const [commission, setCommission] = useState(0);
   const [bonus, setBonus] = useState(0);

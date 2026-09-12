@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 import { Logo, Wordmark } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useWorkspace } from '@/components/workspace';
 import { navForRole, SECTION_ORDER } from '@/lib/nav';
 import { apiPost } from '@/lib/client';
 import { ROLE_LABEL, type SafeUser } from '@/lib/types';
@@ -23,7 +24,7 @@ function RoleBadge({ user }: { user: SafeUser }) {
         : user.role === 'SR'
           ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300'
           : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300';
-  return <span className={cn('chip', tone)}>{ROLE_LABEL[user.role].bn}</span>;
+  return <span className={cn('chip', tone)}>{ROLE_LABEL[user.role]}</span>;
 }
 
 function NavList({ user, onNavigate }: { user: SafeUser; onNavigate?: () => void }) {
@@ -72,9 +73,6 @@ function NavList({ user, onNavigate }: { user: SafeUser; onNavigate?: () => void
                         className="shrink-0"
                       />
                       <span className="truncate">{item.label}</span>
-                      <span className="ml-auto hidden text-[0.7rem] muted sm:block">
-                        {item.labelBn}
-                      </span>
                     </Link>
                   </li>
                 );
@@ -117,7 +115,7 @@ function UserPanel({ user }: { user: SafeUser }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{user.name}</p>
-          <p className="truncate text-xs muted">{ROLE_LABEL[user.role].en}</p>
+          <p className="truncate text-xs muted">{ROLE_LABEL[user.role]}</p>
         </div>
         <button
           type="button"
@@ -133,13 +131,8 @@ function UserPanel({ user }: { user: SafeUser }) {
   );
 }
 
-export function DashboardShell({
-  user,
-  children,
-}: {
-  user: SafeUser;
-  children: React.ReactNode;
-}) {
+export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const { user, org } = useWorkspace();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -157,15 +150,15 @@ export function DashboardShell({
       {/* ------------------------------------------------- desktop sidebar */}
       <aside className="surface sticky top-0 hidden h-dvh flex-col border-r lg:flex">
         <div className="flex h-16 items-center px-5">
-          <Link href="/" className="transition hover:opacity-80">
-            <Wordmark compact />
+          <Link href="/dashboard" className="min-w-0 transition hover:opacity-80">
+            <Wordmark compact name={org.name} />
           </Link>
         </div>
         <NavList user={user} />
         {user.role === 'ADMIN' ? (
           <div className="mx-3 mb-3 rounded-xl bg-brand-50 px-3 py-2.5 text-xs leading-relaxed text-brand-800 dark:bg-brand-500/10 dark:text-brand-200">
             <ShieldCheck size={14} className="mb-1" />
-            You are the owner. Purchase prices and profit are visible only to you.
+            You are the owner. Purchase cost and profit are visible only to you.
           </div>
         ) : null}
         <UserPanel user={user} />
@@ -190,7 +183,7 @@ export function DashboardShell({
               transition={{ type: 'spring', stiffness: 340, damping: 34 }}
             >
               <div className="flex h-16 items-center justify-between px-4">
-                <Wordmark compact />
+                <Wordmark compact name={org.name} />
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}

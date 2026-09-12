@@ -1,4 +1,10 @@
-import type { Product, PublicProduct, Role } from './types';
+import type { Role } from './types';
+
+/** The shape any product-like payload must have for cost stripping to apply. */
+export interface CostBearing {
+  costPrice?: number;
+  [key: string]: unknown;
+}
 
 /**
  * Capability list. Keeping permissions as named capabilities (rather than
@@ -91,15 +97,21 @@ export function canAny(role: Role | undefined, capabilities: Capability[]): bool
 /**
  * Strip the owner's purchase price unless the viewer is allowed to see it.
  * Every route that returns a product must pass it through here — an SR or a
- * dealer must never receive `costPrice`, not even as a hidden field.
+ * dealer must never receive `costPrice`, not even as a hidden field set to zero.
  */
-export function visibleProduct(product: Product, role: Role | undefined): PublicProduct {
+export function visibleProduct<T extends CostBearing>(
+  product: T,
+  role: Role | undefined,
+): Omit<T, 'costPrice'> & { costPrice?: number } {
   if (can(role, 'cost.view')) return product;
   const { costPrice: _costPrice, ...rest } = product;
   return rest;
 }
 
-export function visibleProducts(products: Product[], role: Role | undefined): PublicProduct[] {
+export function visibleProducts<T extends CostBearing>(
+  products: T[],
+  role: Role | undefined,
+): (Omit<T, 'costPrice'> & { costPrice?: number })[] {
   return products.map((p) => visibleProduct(p, role));
 }
 

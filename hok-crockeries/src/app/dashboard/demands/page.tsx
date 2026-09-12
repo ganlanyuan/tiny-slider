@@ -96,7 +96,7 @@ export default function DemandsPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="মার্কেট ডিমান্ড"
+        title="Demand"
         subtitle={
           isSr
             ? 'Ask the office for the stock your shops are waiting on.'
@@ -430,7 +430,7 @@ function DemandModal({
       onClose={onClose}
       wide
       title="Raise a demand"
-      subtitle="মার্কেটে যা লাগবে"
+      subtitle="Ask the office for stock you need"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

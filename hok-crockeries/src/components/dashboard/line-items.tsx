@@ -4,7 +4,8 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Plus, Search, Trash2 } from 'lucide-react';
 
-import { money, number as fmtNumber } from '@/lib/utils';
+import { useWorkspace } from '@/components/workspace';
+import { number as fmtNumber } from '@/lib/utils';
 
 export interface PickableProduct {
   id: string;
@@ -52,6 +53,7 @@ export function LineItemEditor({
   enforceAvailable?: boolean;
   availableLabel?: string;
 }) {
+  const { money } = useWorkspace();
   const [search, setSearch] = useState('');
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 

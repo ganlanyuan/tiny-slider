@@ -35,10 +35,17 @@ import {
 } from '@/components/ui';
 import { PageTransition } from '@/components/motion/reveal';
 import { ImportPanel } from './import-panel';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiDelete, apiPatch, apiPost, qs } from '@/lib/client';
-import type { Category } from '@/lib/types';
-import { downloadBlob, money, number as fmtNumber, toCsv } from '@/lib/utils';
+import { downloadBlob, number as fmtNumber, toCsv } from '@/lib/utils';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+}
 
 interface ProductRow {
   id: string;
@@ -50,7 +57,7 @@ interface ProductRow {
   costPrice?: number;
   srPrice: number;
   marketPrice: number;
-  stock: number;
+  inStore: number;
   withSrs: number;
   sold: number;
   lowStockThreshold: number;
@@ -64,11 +71,6 @@ interface ProductsResponse {
   products: ProductRow[];
   categories: Category[];
   total: number;
-}
-
-interface MeResponse {
-  user: { role: string } | null;
-  capabilities: string[];
 }
 
 const BLANK = {
@@ -86,6 +88,7 @@ const BLANK = {
 };
 
 export default function ProductsPage() {
+  const { money, can, showCost: canSeeCost } = useWorkspace();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [stockFilter, setStockFilter] = useState('');
@@ -95,10 +98,8 @@ export default function ProductsPage() {
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
 
-  const me = useResource<MeResponse>('/api/auth/me');
-  const canManage = me.data?.capabilities.includes('product.manage') ?? false;
-  const canImport = me.data?.capabilities.includes('product.import') ?? false;
-  const canSeeCost = me.data?.capabilities.includes('cost.view') ?? false;
+  const canManage = can('product.manage');
+  const canImport = can('product.import');
 
   const query = qs({
     q: search,
@@ -118,11 +119,11 @@ export default function ProductsPage() {
   const summary = useMemo(
     () => ({
       count: products.length,
-      inStore: products.reduce((n, p) => n + p.stock, 0),
+      inStore: products.reduce((n, p) => n + p.inStore, 0),
       withSrs: products.reduce((n, p) => n + p.withSrs, 0),
-      lowStock: products.filter((p) => p.stock > 0 && p.stock <= p.lowStockThreshold).length,
-      outOfStock: products.filter((p) => p.stock <= 0).length,
-      valueAtSr: products.reduce((n, p) => n + (p.stock + p.withSrs) * p.srPrice, 0),
+      lowStock: products.filter((p) => p.inStore > 0 && p.inStore <= p.lowStockThreshold).length,
+      outOfStock: products.filter((p) => p.inStore <= 0).length,
+      valueAtSr: products.reduce((n, p) => n + (p.inStore + p.withSrs) * p.srPrice, 0),
     }),
     [products],
   );
@@ -139,7 +140,7 @@ export default function ProductsPage() {
       ...(canSeeCost ? { costPrice: p.costPrice ?? 0 } : {}),
       srPrice: p.srPrice,
       marketPrice: p.marketPrice,
-      stock: p.stock,
+      stock: p.inStore,
       lowStockThreshold: p.lowStockThreshold,
       brand: p.brand ?? '',
       description: p.description ?? '',
@@ -157,7 +158,7 @@ export default function ProductsPage() {
       ...(canSeeCost ? { costPrice: p.costPrice ?? 0 } : {}),
       srPrice: p.srPrice,
       marketPrice: p.marketPrice,
-      inStore: p.stock,
+      inStore: p.inStore,
       withSrs: p.withSrs,
       sold: p.sold,
     }));
@@ -170,7 +171,7 @@ export default function ProductsPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="পণ্য তালিকা"
+        title="Products"
         subtitle="Catalogue, prices and live stock position."
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -375,7 +376,7 @@ export default function ProductsPage() {
                   <td className="tabular text-right font-medium">{money(p.srPrice)}</td>
                   <td className="tabular text-right muted">{money(p.marketPrice)}</td>
                   <td className="text-right">
-                    <StockPill stock={p.stock} threshold={p.lowStockThreshold} unit={p.unit} />
+                    <StockPill stock={p.inStore} threshold={p.lowStockThreshold} unit={p.unit} />
                   </td>
                   <td className="tabular text-right muted">{fmtNumber(p.withSrs)}</td>
                   <td className="tabular text-right muted">{fmtNumber(p.sold)}</td>
@@ -431,7 +432,7 @@ export default function ProductsPage() {
                 <Row label="Market" value={money(p.marketPrice)} muted />
               </dl>
               <div className="mt-3 flex items-center justify-between border-t pt-3">
-                <StockPill stock={p.stock} threshold={p.lowStockThreshold} unit={p.unit} />
+                <StockPill stock={p.inStore} threshold={p.lowStockThreshold} unit={p.unit} />
                 <span className="text-xs muted">{fmtNumber(p.withSrs)} with SRs</span>
               </div>
             </motion.div>
@@ -675,7 +676,7 @@ function ProductModal({
           label="Bangla name"
           value={form.nameBn}
           onChange={(e) => set({ nameBn: e.target.value })}
-          placeholder="ডিনার প্লেট ১০ ইঞ্চি"
+          placeholder="Monno"
         />
         <Input
           label="SKU / code"

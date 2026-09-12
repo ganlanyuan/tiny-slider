@@ -21,20 +21,31 @@ import {
 import { MeterRow } from '@/components/ui/stat';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiDelete, apiPost, qs } from '@/lib/client';
-import { EXPENSE_CATEGORIES, EXPENSE_LABEL, type Expense, type ExpenseCategory } from '@/lib/types';
-import { formatDate, money, todayIso } from '@/lib/utils';
+import {
+  EXPENSE_LABEL,
+  MANUAL_EXPENSE_CATEGORIES,
+  type ExpenseCategory,
+} from '@/lib/types';
+import { formatDate, todayIso } from '@/lib/utils';
+
+interface Expense {
+  id: string;
+  date: string;
+  category: ExpenseCategory;
+  amount: number;
+  title: string;
+  note: string | null;
+  refType: 'STOCK_ENTRY' | 'SALARY' | 'MANUAL' | null;
+}
 
 interface ExpensesResponse {
   expenses: Expense[];
   showCost: boolean;
   total: number;
   byCategory: { category: ExpenseCategory; amount: number }[];
-}
-
-interface MeResponse {
-  capabilities: string[];
 }
 
 const TONES: Record<string, 'brand' | 'violet' | 'amber' | 'green' | 'rose' | 'slate'> = {
@@ -50,12 +61,12 @@ const TONES: Record<string, 'brand' | 'violet' | 'amber' | 'green' | 'rose' | 's
 };
 
 export default function ExpensesPage() {
+  const { money, can } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [category, setCategory] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const me = useResource<MeResponse>('/api/auth/me');
-  const canManage = me.data?.capabilities.includes('expense.manage') ?? false;
+  const canManage = can('expense.manage');
 
   const { data, error, initial, reload } = useResource<ExpensesResponse>(
     `/api/expenses${qs({ month, category })}`,
@@ -78,7 +89,7 @@ export default function ExpensesPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="খরচের হিসাব"
+        title="Expenses"
         subtitle="Everything the business spent, month by month."
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -141,7 +152,7 @@ export default function ExpensesPage() {
                       </td>
                       <td>
                         <Badge tone={TONES[e.category] ?? 'slate'}>
-                          {EXPENSE_LABEL[e.category].en}
+                          {EXPENSE_LABEL[e.category]}
                         </Badge>
                       </td>
                       <td className="tabular text-right font-medium">{money(e.amount)}</td>
@@ -183,7 +194,7 @@ export default function ExpensesPage() {
               {(data?.byCategory ?? []).map((c) => (
                 <MeterRow
                   key={c.category}
-                  label={EXPENSE_LABEL[c.category].en}
+                  label={EXPENSE_LABEL[c.category]}
                   value={c.amount}
                   total={total}
                   tone={TONES[c.category] === 'slate' ? 'slate' : TONES[c.category]}
@@ -202,9 +213,12 @@ export default function ExpensesPage() {
               onChange={(e) => setCategory(e.target.value)}
             >
               <option value="">All categories</option>
-              {EXPENSE_CATEGORIES.filter((c) => showCost || c !== 'PRODUCT').map((c) => (
+              {(showCost
+                ? ['PRODUCT' as const, ...MANUAL_EXPENSE_CATEGORIES, 'SALARY' as const]
+                : [...MANUAL_EXPENSE_CATEGORIES, 'SALARY' as const]
+              ).map((c) => (
                 <option key={c} value={c}>
-                  {EXPENSE_LABEL[c].en} — {EXPENSE_LABEL[c].bn}
+                  {EXPENSE_LABEL[c]}
                 </option>
               ))}
             </Select>
@@ -235,6 +249,7 @@ function ExpenseModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { money } = useWorkspace();
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('TRANSPORT');
   const [amount, setAmount] = useState(0);
@@ -269,7 +284,7 @@ function ExpenseModal({
       open={open}
       onClose={onClose}
       title="Add an expense"
-      subtitle="আনুষঙ্গিক খরচ"
+      subtitle="Transport, rent, utilities and sundries"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -295,9 +310,9 @@ function ExpenseModal({
             value={category}
             onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
           >
-            {EXPENSE_CATEGORIES.filter((c) => c !== 'PRODUCT' && c !== 'SALARY').map((c) => (
+            {MANUAL_EXPENSE_CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {EXPENSE_LABEL[c].en} — {EXPENSE_LABEL[c].bn}
+                {EXPENSE_LABEL[c]}
               </option>
             ))}
           </Select>

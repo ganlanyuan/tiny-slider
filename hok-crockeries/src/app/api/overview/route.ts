@@ -1,144 +1,240 @@
+import { and, desc, eq, ne, sql } from 'drizzle-orm';
+
 import { ok, route } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { readDb } from '@/lib/db';
-import {
-  currentMonth,
-  financeSummary,
-  monthlyTrend,
-  productStockLedger,
-  round2,
-  srAccount,
-  topProducts,
-} from '@/lib/analytics';
-import { can } from '@/lib/permissions';
+import { requireAuth } from '@/lib/auth';
+import { auditLogs, categories, demandItems, demands, products, sales, users } from '@/db/schema';
+import { srAccount, srAccounts } from '@/db/queries/accounts';
+import { financeSummary, monthlyTrend, productPerformance } from '@/db/queries/finance';
+import { productStockLedger } from '@/db/queries/stock';
+import { currentMonth, isValidMonth, round2 } from '@/lib/money';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * The dashboard overview. Shape depends on the viewer's role: the owner sees
- * cost and profit, a manager sees the same operation without cost, an SR sees
- * only their own book, and a dealer sees the catalogue position.
+ * The dashboard payload, shaped by role.
+ *
+ * An owner sees cost and profit, a manager sees the same operation without
+ * them, a rep sees only their own book, and a dealer sees the catalogue
+ * position. Nothing a role may not see is computed, let alone serialised.
  */
 export const GET = route(async (request: Request) => {
-  const user = await requireUser();
-  const url = new URL(request.url);
-  const month = url.searchParams.get('month') || currentMonth();
-  const showCost = can(user.role, 'cost.view');
+  const { db, orgId, user, role, showCost, org } = await requireAuth();
+  const requested = new URL(request.url).searchParams.get('month');
+  const month = isValidMonth(requested) ? requested : currentMonth();
 
-  const db = await readDb();
-  const ledger = productStockLedger(db);
+  const ledger = await productStockLedger(db, orgId);
+  const catalogue = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      unit: products.unit,
+      srPrice: products.srPrice,
+      lowStockThreshold: products.lowStockThreshold,
+      active: products.active,
+    })
+    .from(products)
+    .where(eq(products.orgId, orgId));
 
+  const activeProducts = catalogue.filter((p) => p.active);
   const stock = {
-    skus: db.products.filter((p) => p.active).length,
+    skus: activeProducts.length,
     unitsInStore: [...ledger.values()].reduce((n, r) => n + Math.max(0, r.inStore), 0),
     unitsWithSrs: [...ledger.values()].reduce((n, r) => n + Math.max(0, r.withSrs), 0),
     unitsReceived: [...ledger.values()].reduce((n, r) => n + r.received, 0),
     unitsSold: [...ledger.values()].reduce((n, r) => n + r.sold, 0),
-    lowStock: db.products.filter((p) => {
+    lowStock: activeProducts.filter((p) => {
       const inStore = ledger.get(p.id)?.inStore ?? 0;
-      return p.active && inStore > 0 && inStore <= p.lowStockThreshold;
+      return inStore > 0 && inStore <= p.lowStockThreshold;
     }).length,
-    outOfStock: db.products.filter((p) => p.active && (ledger.get(p.id)?.inStore ?? 0) <= 0).length,
-    /** Retail value of everything still on hand, at SR rate. */
+    outOfStock: activeProducts.filter((p) => (ledger.get(p.id)?.inStore ?? 0) <= 0).length,
     valueAtSrRate: round2(
-      db.products.reduce((n, p) => n + Math.max(0, ledger.get(p.id)?.onHand ?? 0) * p.srPrice, 0),
+      catalogue.reduce((n, p) => n + Math.max(0, ledger.get(p.id)?.onHand ?? 0) * p.srPrice, 0),
     ),
   };
 
   /* ------------------------------------------------------------ SR view */
-  if (user.role === 'SR') {
-    const account = srAccount(db, user.id, month);
-    const lifetime = srAccount(db, user.id);
-    const myDemands = db.demands.filter((d) => d.srId === user.id);
+  if (role === 'SR') {
+    const [monthAccount, lifetime, top, recent, myDemands] = await Promise.all([
+      srAccount(db, orgId, user.id, month),
+      srAccount(db, orgId, user.id),
+      productPerformance(db, orgId, { month, includeCost: false, limit: 5, srId: user.id }),
+      db
+        .select({
+          id: sales.id,
+          invoiceNo: sales.invoiceNo,
+          date: sales.date,
+          shopName: sales.shopName,
+          total: sales.total,
+          paid: sales.paid,
+          status: sales.status,
+        })
+        .from(sales)
+        .where(and(eq(sales.orgId, orgId), eq(sales.srId, user.id)))
+        .orderBy(desc(sales.date), desc(sales.createdAt))
+        .limit(6),
+      db
+        .select({ status: demands.status })
+        .from(demands)
+        .where(and(eq(demands.orgId, orgId), eq(demands.srId, user.id))),
+    ]);
+
+    const monthSales = await db
+      .select({ status: sales.status })
+      .from(sales)
+      .where(
+        sql`${and(eq(sales.orgId, orgId), eq(sales.srId, user.id))}
+            AND to_char(${sales.date} AT TIME ZONE 'UTC', 'YYYY-MM') = ${month}`,
+      );
+
     return ok({
-      role: user.role,
+      role,
       month,
       showCost: false,
-      account,
+      currency: org.currency,
+      account: monthAccount,
       lifetime,
       demands: {
         pending: myDemands.filter((d) => d.status === 'PENDING').length,
         approved: myDemands.filter((d) => d.status === 'APPROVED').length,
       },
       sales: {
-        invoices: account.invoices,
-        delivered: db.sales.filter(
-          (s) => s.srId === user.id && s.status === 'DELIVERED' && s.date.startsWith(month),
-        ).length,
-        pending: db.sales.filter(
-          (s) => s.srId === user.id && s.status === 'PENDING' && s.date.startsWith(month),
-        ).length,
+        invoices: monthAccount?.invoices ?? 0,
+        delivered: monthSales.filter((s) => s.status === 'DELIVERED').length,
+        pending: monthSales.filter((s) => s.status === 'PENDING').length,
       },
-      // Scoped to this rep — the panel is labelled "your top sellers", and a
-      // rep has no business seeing the whole company's movement.
-      topProducts: topProducts(db, { month, limit: 5, srId: user.id }).map((t) => ({
-        id: t.product.id,
-        name: t.product.name,
+      topProducts: top.map((t) => ({
+        id: t.productId,
+        name: t.name,
         qty: t.qty,
-        value: t.value,
+        value: t.revenue,
       })),
-      recentSales: db.sales
-        .filter((s) => s.srId === user.id)
-        .sort((a, b) => b.date.localeCompare(a.date))
-        .slice(0, 6),
+      recentSales: recent.map((s) => ({
+        ...s,
+        date: s.date.toISOString(),
+        due: round2(s.total - s.paid),
+      })),
     });
   }
 
   /* -------------------------------------------------------- dealer view */
-  if (user.role === 'DEALER') {
+  if (role === 'DEALER') {
+    const [top, categoryRows] = await Promise.all([
+      productPerformance(db, orgId, { month, includeCost: false, limit: 8 }),
+      db.select({ id: categories.id }).from(categories).where(eq(categories.orgId, orgId)),
+    ]);
+    const priceOf = new Map(
+      (
+        await db
+          .select({ id: products.id, marketPrice: products.marketPrice })
+          .from(products)
+          .where(eq(products.orgId, orgId))
+      ).map((p) => [p.id, p.marketPrice]),
+    );
+
     return ok({
-      role: user.role,
+      role,
       month,
       showCost: false,
+      currency: org.currency,
       stock: {
         skus: stock.skus,
         unitsInStore: stock.unitsInStore,
         lowStock: stock.lowStock,
         outOfStock: stock.outOfStock,
       },
-      topProducts: topProducts(db, { month, limit: 8 }).map((t) => ({
-        id: t.product.id,
-        name: t.product.name,
+      categories: categoryRows.length,
+      topProducts: top.map((t) => ({
+        id: t.productId,
+        name: t.name,
         qty: t.qty,
-        marketPrice: t.product.marketPrice,
+        marketPrice: priceOf.get(t.productId) ?? 0,
       })),
-      categories: db.categories.length,
     });
   }
 
   /* ------------------------------------------------- owner / manager view */
-  const finance = financeSummary(db, { month, includeCost: showCost });
-  const allTime = financeSummary(db, { includeCost: showCost });
-  const srs = db.users.filter((u) => u.role === 'SR' && u.active);
+  // A brand-new workspace has nothing to chart, so the dashboard shows a setup
+  // checklist instead. Each step is derived from real data, not a stored flag,
+  // so it stays accurate even if someone starts in the middle.
+  const setup = {
+    dismissed: Boolean(org.onboardedAt),
+    hasProducts: activeProducts.length > 0,
+    hasTeam: false,
+    hasStock: stock.unitsReceived > 0,
+    hasChallan: stock.unitsWithSrs > 0 || stock.unitsSold > 0,
+    hasSales: stock.unitsSold > 0,
+  };
 
-  const srBoard = srs
-    .map((u) => {
-      const m = srAccount(db, u.id, month);
-      const life = srAccount(db, u.id);
-      return {
-        id: u.id,
-        name: u.name,
-        area: u.area,
-        invoices: m.invoices,
-        soldValue: m.soldValue,
-        collected: m.collected,
-        deposited: m.deposited,
-        /** Cash still with the SR is a running position, not a monthly one. */
-        cashInHand: life.cashInHand,
-        marketDue: life.marketDue,
-        unitsInHand: life.unitsInHand,
-        stockValueInHand: life.stockValueInHand,
-        lastSaleAt: life.lastSaleAt,
-      };
-    })
-    .sort((a, b) => b.soldValue - a.soldValue);
+  const [finance, allTime, trend, accounts, top, activity] = await Promise.all([
+    financeSummary(db, orgId, { month, includeCost: showCost }),
+    financeSummary(db, orgId, { includeCost: showCost }),
+    monthlyTrend(db, orgId, 6, showCost),
+    srAccounts(db, orgId, { month }),
+    productPerformance(db, orgId, { month, includeCost: showCost, limit: 6 }),
+    db
+      .select()
+      .from(auditLogs)
+      .where(eq(auditLogs.orgId, orgId))
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(8),
+  ]);
 
-  const pendingDemands = db.demands.filter((d) => d.status === 'PENDING');
+  const [{ teamCount }] = await db
+    .select({ teamCount: sql<number>`COUNT(*)`.mapWith(Number) })
+    .from(users)
+    .where(and(eq(users.orgId, orgId), ne(users.role, 'ADMIN')));
+  setup.hasTeam = teamCount > 0;
+
+  const pendingDemands = await db
+    .select({ id: demands.id, productId: demandItems.productId, qty: demandItems.qty })
+    .from(demands)
+    .innerJoin(demandItems, eq(demandItems.demandId, demands.id))
+    .where(and(eq(demands.orgId, orgId), eq(demands.status, 'PENDING')));
+
+  const unfillable = new Set(
+    pendingDemands
+      .filter((d) => d.qty > (ledger.get(d.productId)?.inStore ?? 0))
+      .map((d) => d.id),
+  );
+
+  const monthSales = await db
+    .select({ status: sales.status })
+    .from(sales)
+    .where(
+      sql`${eq(sales.orgId, orgId)}
+          AND to_char(${sales.date} AT TIME ZONE 'UTC', 'YYYY-MM') = ${month}`,
+    );
+
+  const staff = await db.execute(sql`
+    SELECT role, COUNT(*)::int AS count, COALESCE(SUM(monthly_salary), 0) AS salary
+    FROM users WHERE org_id = ${orgId} AND active = true GROUP BY role
+  `);
+  const staffList = (Array.isArray(staff) ? staff : ((staff as { rows?: unknown[] }).rows ?? [])) as {
+    role: string;
+    count: number;
+    salary: string | number;
+  }[];
+  const countFor = (r: string) => staffList.find((s) => s.role === r)?.count ?? 0;
+  const salaryBudget = round2(
+    staffList
+      .filter((s) => s.role === 'SR' || s.role === 'MANAGER')
+      .reduce((n, s) => n + Number(s.salary), 0),
+  );
+
+  const paidThisMonth = await db.execute(sql`
+    SELECT COALESCE(SUM(total), 0) AS paid
+    FROM salary_payments WHERE org_id = ${orgId} AND month = ${month}
+  `);
+  const paidRow = (
+    Array.isArray(paidThisMonth) ? paidThisMonth : ((paidThisMonth as { rows?: unknown[] }).rows ?? [])
+  )[0] as { paid: string | number } | undefined;
 
   return ok({
-    role: user.role,
+    role,
     month,
     showCost,
+    currency: org.currency,
+    setup,
     finance,
     allTime: {
       revenue: allTime.revenue,
@@ -148,42 +244,31 @@ export const GET = route(async (request: Request) => {
       ...(showCost ? { netProfit: allTime.netProfit, stockCostValue: allTime.stockCostValue } : {}),
     },
     stock,
-    trend: monthlyTrend(db, 6, showCost),
-    srBoard,
+    trend,
+    srBoard: accounts.filter((a) => a.active),
     staff: {
-      sr: srs.length,
-      manager: db.users.filter((u) => u.role === 'MANAGER' && u.active).length,
-      dealer: db.users.filter((u) => u.role === 'DEALER' && u.active).length,
-      salaryBudget: round2(
-        db.users
-          .filter((u) => u.active && (u.role === 'SR' || u.role === 'MANAGER'))
-          .reduce((n, u) => n + u.monthlySalary, 0),
-      ),
-      paidThisMonth: round2(
-        db.salaries.filter((s) => s.month === month).reduce((n, s) => n + s.total, 0),
-      ),
+      sr: countFor('SR'),
+      manager: countFor('MANAGER'),
+      dealer: countFor('DEALER'),
+      salaryBudget,
+      paidThisMonth: round2(Number(paidRow?.paid ?? 0)),
     },
     demands: {
-      pending: pendingDemands.length,
-      /** Requests the store cannot fill right now — the real restock signal. */
-      unfillable: pendingDemands.filter((d) =>
-        d.items.some((i) => i.qty > (ledger.get(i.productId)?.inStore ?? 0)),
-      ).length,
+      pending: new Set(pendingDemands.map((d) => d.id)).size,
+      unfillable: unfillable.size,
     },
     deliveries: {
-      delivered: db.sales.filter((s) => s.status === 'DELIVERED' && s.date.startsWith(month)).length,
-      pending: db.sales.filter((s) => s.status === 'PENDING' && s.date.startsWith(month)).length,
-      cancelled: db.sales.filter((s) => s.status === 'CANCELLED' && s.date.startsWith(month)).length,
+      delivered: monthSales.filter((s) => s.status === 'DELIVERED').length,
+      pending: monthSales.filter((s) => s.status === 'PENDING').length,
+      cancelled: monthSales.filter((s) => s.status === 'CANCELLED').length,
     },
-    topProducts: topProducts(db, { month, limit: 6 }).map((t) => ({
-      id: t.product.id,
-      name: t.product.name,
+    topProducts: top.map((t) => ({
+      id: t.productId,
+      name: t.name,
       qty: t.qty,
-      value: t.value,
-      ...(showCost ? { costPrice: t.product.costPrice } : {}),
+      value: t.revenue,
     })),
-    lowStockItems: db.products
-      .filter((p) => p.active && (ledger.get(p.id)?.inStore ?? 0) <= p.lowStockThreshold)
+    lowStockItems: activeProducts
       .map((p) => ({
         id: p.id,
         name: p.name,
@@ -191,8 +276,9 @@ export const GET = route(async (request: Request) => {
         inStore: ledger.get(p.id)?.inStore ?? 0,
         threshold: p.lowStockThreshold,
       }))
+      .filter((p) => p.inStore <= p.threshold)
       .sort((a, b) => a.inStore - b.inStore)
       .slice(0, 8),
-    activity: db.auditLogs.slice(0, 8),
+    activity: activity.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })),
   });
 });

@@ -1,8 +1,12 @@
+import { and, desc, eq, sql } from 'drizzle-orm';
+
 import { fail, ok, parseJson, route } from '@/lib/api';
 import { hashPassword, requireCapability, toSafeUser } from '@/lib/auth';
-import { readDb, writeDb } from '@/lib/db';
+import { deposits, sales, users } from '@/db/schema';
+import { srAccount } from '@/db/queries/accounts';
+import { srHoldings } from '@/db/queries/stock';
 import { logAction } from '@/lib/audit';
-import { srAccount, srStockLedger } from '@/lib/analytics';
+import { round2 } from '@/lib/money';
 import { userUpdateSchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
@@ -10,103 +14,125 @@ export const dynamic = 'force-dynamic';
 type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = route(async (_request: Request, ctx: Ctx) => {
-  await requireCapability('user.view');
+  const { db, orgId } = await requireCapability('user.view');
   const { id } = await ctx.params;
-  const db = await readDb();
-  const user = db.users.find((u) => u.id === id);
-  if (!user) return fail('User not found.', 404);
 
-  const products = new Map(db.products.map((p) => [p.id, p]));
-  const holdings =
-    user.role === 'SR'
-      ? [...srStockLedger(db, id)]
-          .filter(([, qty]) => qty > 0)
-          .map(([productId, qty]) => {
-            const product = products.get(productId);
-            return {
-              productId,
-              name: product?.name ?? 'Removed product',
-              unit: product?.unit ?? 'pcs',
-              qty,
-              srPrice: product?.srPrice ?? 0,
-              value: qty * (product?.srPrice ?? 0),
-            };
-          })
-          .sort((a, b) => b.value - a.value)
-      : [];
+  const [row] = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)))
+    .limit(1);
+  if (!row) return fail('Team member not found.', 404);
+
+  const isSr = row.role === 'SR';
+  const [account, holdings, recentSales, recentDeposits] = await Promise.all([
+    isSr ? srAccount(db, orgId, id) : Promise.resolve(null),
+    isSr ? srHoldings(db, orgId, id) : Promise.resolve([]),
+    db
+      .select({
+        id: sales.id,
+        invoiceNo: sales.invoiceNo,
+        date: sales.date,
+        shopName: sales.shopName,
+        total: sales.total,
+        paid: sales.paid,
+        status: sales.status,
+      })
+      .from(sales)
+      .where(and(eq(sales.orgId, orgId), eq(sales.srId, id)))
+      .orderBy(desc(sales.date))
+      .limit(10),
+    db
+      .select({
+        id: deposits.id,
+        amount: deposits.amount,
+        date: deposits.date,
+        method: deposits.method,
+        reference: deposits.reference,
+      })
+      .from(deposits)
+      .where(and(eq(deposits.orgId, orgId), eq(deposits.srId, id)))
+      .orderBy(desc(deposits.date))
+      .limit(10),
+  ]);
 
   return ok({
-    user: toSafeUser(user),
-    account: user.role === 'SR' ? srAccount(db, id) : null,
+    user: toSafeUser(row),
+    account: account ?? null,
     holdings,
-    recentSales: db.sales
-      .filter((s) => s.srId === id)
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 10),
-    recentDeposits: db.deposits
-      .filter((d) => d.srId === id)
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 10),
+    recentSales: recentSales.map((s) => ({
+      ...s,
+      date: s.date.toISOString(),
+      due: round2(s.total - s.paid),
+    })),
+    recentDeposits: recentDeposits.map((d) => ({ ...d, date: d.date.toISOString() })),
   });
 });
 
 export const PATCH = route(async (request: Request, ctx: Ctx) => {
-  const actor = await requireCapability('user.manage');
+  const { db, orgId, user: actor } = await requireCapability('user.manage');
   const { id } = await ctx.params;
   const patch = userUpdateSchema.parse(await parseJson(request));
-  const passwordHash = patch.password ? await hashPassword(patch.password) : undefined;
 
-  const result = await writeDb((db) => {
-    const user = db.users.find((u) => u.id === id);
-    if (!user) return { ok: false, error: 'User not found.', status: 404 } as const;
+  const [target] = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)))
+    .limit(1);
+  if (!target) return fail('Team member not found.', 404);
 
-    // The business must never be left without an owner who can sign in.
-    const isLastAdmin =
-      user.role === 'ADMIN' && db.users.filter((u) => u.role === 'ADMIN' && u.active).length === 1;
-    if (isLastAdmin && (patch.active === false || (patch.role && patch.role !== 'ADMIN'))) {
-      return {
-        ok: false,
-        error: 'This is the only active owner account. Promote another owner first.',
-        status: 409,
-      } as const;
+  // The workspace must never be left without an owner who can sign in.
+  if (target.role === 'ADMIN' && (patch.active === false || (patch.role && patch.role !== 'ADMIN'))) {
+    const [{ owners }] = await db
+      .select({ owners: sql<number>`COUNT(*)`.mapWith(Number) })
+      .from(users)
+      .where(and(eq(users.orgId, orgId), eq(users.role, 'ADMIN'), eq(users.active, true)));
+    if (owners <= 1) {
+      return fail('This is the only active owner account. Promote another owner first.', 409);
     }
+  }
 
-    const { password: _password, ...rest } = patch;
-    Object.assign(user, rest, { updatedAt: new Date().toISOString() });
-    if (passwordHash) user.passwordHash = passwordHash;
-    if (rest.email === '') user.email = undefined;
+  const { password, ...rest } = patch;
+  const [updated] = await db
+    .update(users)
+    .set({
+      ...rest,
+      ...(password ? { passwordHash: await hashPassword(password) } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id))
+    .returning();
 
-    logAction(db, actor, 'user.update', 'user', id, {
-      fields: Object.keys(patch),
-      name: user.name,
-    });
-    return { ok: true, user: toSafeUser(user) } as const;
+  await logAction(db, actor, 'user.update', 'user', id, {
+    fields: Object.keys(patch),
+    name: updated.name,
   });
-
-  if (!result.ok) return fail(result.error, result.status);
-  return ok({ user: result.user });
+  return ok({ user: toSafeUser(updated) });
 });
 
 export const DELETE = route(async (_request: Request, ctx: Ctx) => {
-  const actor = await requireCapability('user.manage');
+  const { db, orgId, user: actor } = await requireCapability('user.manage');
   const { id } = await ctx.params;
 
-  const result = await writeDb((db) => {
-    const user = db.users.find((u) => u.id === id);
-    if (!user) return { ok: false, error: 'User not found.', status: 404 } as const;
-    if (user.id === actor.id) {
-      return { ok: false, error: 'You cannot deactivate your own account.', status: 409 } as const;
-    }
-    if (user.role === 'ADMIN' && db.users.filter((u) => u.role === 'ADMIN' && u.active).length === 1) {
-      return { ok: false, error: 'This is the only active owner account.', status: 409 } as const;
-    }
-    // Deactivate rather than delete — an SR's invoices and deposits must survive.
-    user.active = false;
-    user.updatedAt = new Date().toISOString();
-    logAction(db, actor, 'user.deactivate', 'user', id, { name: user.name });
-    return { ok: true } as const;
-  });
+  if (id === actor.id) return fail('You cannot deactivate your own account.', 409);
 
-  if (!result.ok) return fail(result.error, result.status);
+  const [target] = await db
+    .select({ id: users.id, name: users.name, role: users.role })
+    .from(users)
+    .where(and(eq(users.id, id), eq(users.orgId, orgId)))
+    .limit(1);
+  if (!target) return fail('Team member not found.', 404);
+
+  if (target.role === 'ADMIN') {
+    const [{ owners }] = await db
+      .select({ owners: sql<number>`COUNT(*)`.mapWith(Number) })
+      .from(users)
+      .where(and(eq(users.orgId, orgId), eq(users.role, 'ADMIN'), eq(users.active, true)));
+    if (owners <= 1) return fail('This is the only active owner account.', 409);
+  }
+
+  // Deactivate rather than delete — a rep's invoices and deposits must survive.
+  await db.update(users).set({ active: false, updatedAt: new Date() }).where(eq(users.id, id));
+  await logAction(db, actor, 'user.deactivate', 'user', id, { name: target.name });
   return ok({ deactivated: true });
 });

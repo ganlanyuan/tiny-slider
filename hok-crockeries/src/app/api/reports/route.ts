@@ -1,112 +1,84 @@
+import { and, desc, eq, sql } from 'drizzle-orm';
+
 import { ok, route } from '@/lib/api';
 import { requireCapability } from '@/lib/auth';
-import { readDb } from '@/lib/db';
-import {
-  currentMonth,
-  financeSummary,
-  monthlyTrend,
-  productStockLedger,
-  round2,
-  srAccount,
-  topProducts,
-} from '@/lib/analytics';
+import { expenses, salaryPayments, stockEntries, stockEntryItems, users } from '@/db/schema';
+import { srAccounts } from '@/db/queries/accounts';
+import { financeSummary, monthlyTrend, productPerformance } from '@/db/queries/finance';
+import { commissionOn, currentMonth, isValidMonth, round2 } from '@/lib/money';
 import { can } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const user = await requireCapability('report.view');
-  const url = new URL(request.url);
-  const month = url.searchParams.get('month') || currentMonth();
-  const showCost = can(user.role, 'report.profit');
+  const { db, orgId, role, org } = await requireCapability('report.view');
+  const requested = new URL(request.url).searchParams.get('month');
+  const month = isValidMonth(requested) ? requested : currentMonth();
+  const showCost = can(role, 'report.profit');
 
-  const db = await readDb();
-  const ledger = productStockLedger(db);
-  const summary = financeSummary(db, { month, includeCost: showCost });
+  const monthFilter = (column: string) =>
+    sql.raw(`to_char(${column} AT TIME ZONE 'UTC', 'YYYY-MM') = '${month}'`);
 
-  // Per-product performance for the month.
-  const perProduct = new Map<string, { qty: number; revenue: number; cost: number }>();
-  for (const sale of db.sales) {
-    if (sale.status === 'CANCELLED' || !sale.date.startsWith(month)) continue;
-    for (const item of sale.items) {
-      const row = perProduct.get(item.productId) ?? { qty: 0, revenue: 0, cost: 0 };
-      const product = db.products.find((p) => p.id === item.productId);
-      row.qty += item.qty;
-      row.revenue += item.qty * item.rate;
-      row.cost += item.qty * (product?.costPrice ?? 0);
-      perProduct.set(item.productId, row);
-    }
-  }
+  const [summary, trend, productRows, accounts, staff, expenseRows, salaries] = await Promise.all([
+    financeSummary(db, orgId, { month, includeCost: showCost }),
+    monthlyTrend(db, orgId, 12, showCost),
+    productPerformance(db, orgId, { month, includeCost: showCost }),
+    srAccounts(db, orgId, { month }),
+    db.select().from(users).where(and(eq(users.orgId, orgId), eq(users.role, 'SR'))),
+    db
+      .select()
+      .from(expenses)
+      .where(
+        sql`${eq(expenses.orgId, orgId)} AND ${monthFilter('date')}
+            ${showCost ? sql.raw('') : sql.raw(`AND category <> 'PRODUCT'`)}`,
+      )
+      .orderBy(desc(expenses.amount)),
+    db
+      .select({
+        id: salaryPayments.id,
+        userName: users.name,
+        month: salaryPayments.month,
+        total: salaryPayments.total,
+        paidAt: salaryPayments.paidAt,
+      })
+      .from(salaryPayments)
+      .innerJoin(users, eq(users.id, salaryPayments.userId))
+      .where(and(eq(salaryPayments.orgId, orgId), eq(salaryPayments.month, month))),
+  ]);
 
-  const productRows = [...perProduct.entries()]
-    .map(([productId, row]) => {
-      const product = db.products.find((p) => p.id === productId);
-      return {
-        productId,
-        name: product?.name ?? 'Removed product',
-        sku: product?.sku ?? '—',
-        unit: product?.unit ?? 'pcs',
-        qty: row.qty,
-        revenue: round2(row.revenue),
-        inStore: ledger.get(productId)?.inStore ?? 0,
-        withSrs: ledger.get(productId)?.withSrs ?? 0,
-        ...(showCost
-          ? { cost: round2(row.cost), profit: round2(row.revenue - row.cost) }
-          : {}),
-      };
-    })
-    .sort((a, b) => b.revenue - a.revenue);
+  const rateOf = new Map(staff.map((u) => [u.id, u.commissionRate]));
+  const srRows = accounts.map((a) => ({
+    ...a,
+    commission: commissionOn(a.soldValue, rateOf.get(a.srId) ?? 0),
+  }));
 
-  const srRows = db.users
-    .filter((u) => u.role === 'SR')
-    .map((u) => {
-      const m = srAccount(db, u.id, month);
-      const life = srAccount(db, u.id);
-      return {
-        id: u.id,
-        name: u.name,
-        area: u.area,
-        active: u.active,
-        invoices: m.invoices,
-        soldValue: m.soldValue,
-        collected: m.collected,
-        deposited: m.deposited,
-        cashInHand: life.cashInHand,
-        marketDue: life.marketDue,
-        stockValueInHand: life.stockValueInHand,
-        commission: round2((m.soldValue * u.commissionRate) / 100),
-      };
-    })
-    .sort((a, b) => b.soldValue - a.soldValue);
-
-  const purchases = db.stockEntries.filter((e) => e.date.startsWith(month));
+  // Purchase volume is safe to show; its value is not.
+  const purchases = await db.execute(sql`
+    SELECT COUNT(DISTINCT e.id)::int AS count,
+           COALESCE(SUM(i.qty), 0)::int AS units,
+           COALESCE(SUM(e.total), 0) AS value
+    FROM ${stockEntries} e
+    LEFT JOIN ${stockEntryItems} i ON i.entry_id = e.id
+    WHERE e.org_id = ${orgId} AND ${monthFilter('e.date')}
+  `);
+  const purchaseRow = (
+    Array.isArray(purchases) ? purchases : ((purchases as { rows?: unknown[] }).rows ?? [])
+  )[0] as { count: number; units: number; value: string | number } | undefined;
 
   return ok({
     month,
     showCost,
+    currency: org.currency,
     summary,
-    trend: monthlyTrend(db, 12, showCost),
+    trend,
     products: productRows,
     srs: srRows,
-    topProducts: topProducts(db, { month, limit: 10 }).map((t) => ({
-      id: t.product.id,
-      name: t.product.name,
-      qty: t.qty,
-      value: t.value,
-    })),
     purchases: {
-      count: purchases.length,
-      units: purchases.reduce((n, e) => n + e.items.reduce((m, i) => m + i.qty, 0), 0),
-      ...(showCost ? { value: round2(purchases.reduce((n, e) => n + e.total, 0)) } : {}),
+      count: Number(purchaseRow?.count ?? 0),
+      units: Number(purchaseRow?.units ?? 0),
+      ...(showCost ? { value: round2(Number(purchaseRow?.value ?? 0)) } : {}),
     },
-    expenses: db.expenses
-      .filter((e) => e.date.startsWith(month))
-      .sort((a, b) => b.amount - a.amount),
-    salaries: db.salaries
-      .filter((s) => s.month === month)
-      .map((s) => ({
-        ...s,
-        userName: db.users.find((u) => u.id === s.userId)?.name ?? 'Removed staff',
-      })),
+    expenses: expenseRows.map((e) => ({ ...e, date: e.date.toISOString() })),
+    salaries: salaries.map((s) => ({ ...s, paidAt: s.paidAt.toISOString() })),
   });
 });

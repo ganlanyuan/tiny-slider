@@ -32,10 +32,11 @@ import {
 import { LineItemEditor, type LineItem, type PickableProduct } from '@/components/dashboard/line-items';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiPatch, apiPost, qs } from '@/lib/client';
 import type { SafeUser, SaleStatus } from '@/lib/types';
-import { formatDate, money, number as fmtNumber, todayIso } from '@/lib/utils';
+import { formatDate, number as fmtNumber, todayIso } from '@/lib/utils';
 
 interface SaleRow {
   id: string;
@@ -92,6 +93,7 @@ const STATUS_TONE: Record<SaleStatus, 'green' | 'amber' | 'rose'> = {
 };
 
 export default function SalesPage() {
+  const { money } = useWorkspace();
   const params = useSearchParams();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [status, setStatus] = useState(params.get('status') ?? '');
@@ -118,7 +120,7 @@ export default function SalesPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="বিক্রয়"
+        title="Sales"
         subtitle={
           data?.scope === 'own'
             ? 'Your invoices from the market.'
@@ -288,6 +290,7 @@ function SaleCard({
   onToggle: () => void;
   onChanged: () => void;
 }) {
+  const { money } = useWorkspace();
   const [busy, setBusy] = useState(false);
   const [payment, setPayment] = useState(sale.paid);
 
@@ -486,6 +489,7 @@ function SaleModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { money } = useWorkspace();
   const isSr = currentUser?.role === 'SR';
   const [srId, setSrId] = useState(isSr ? (currentUser?.id ?? '') : '');
   const [date, setDate] = useState(todayIso());
@@ -566,7 +570,7 @@ function SaleModal({
       onClose={onClose}
       wide
       title="Record a sale"
-      subtitle="নতুন বিক্রয়"
+      subtitle="Invoice a shop from van stock"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

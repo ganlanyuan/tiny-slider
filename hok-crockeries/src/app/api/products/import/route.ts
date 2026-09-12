@@ -1,10 +1,13 @@
+import { eq, sql } from 'drizzle-orm';
+
 import { ok, parseJson, route } from '@/lib/api';
 import { requireCapability } from '@/lib/auth';
-import { newId, writeDb } from '@/lib/db';
+import { categories, products } from '@/db/schema';
+import type { Database } from '@/db/client';
+import { withTransaction, type Tx } from '@/db/tx';
 import { logAction } from '@/lib/audit';
 import { productImportSchema } from '@/lib/validation';
 import { slugify } from '@/lib/utils';
-import type { Category, Product } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,120 +20,155 @@ interface RowOutcome {
 }
 
 /**
- * Bulk-load a price list. Runs the whole batch inside one `writeDb` call so an
- * import either lands completely or not at all, and supports `dryRun` so the UI
- * can show a preview before anything is committed.
+ * Bulk-load a price list.
+ *
+ * The whole batch runs inside one transaction, so an import either lands
+ * completely or not at all. `dryRun` does the same work and then rolls back,
+ * which is what lets the preview show real outcomes — matched SKUs, categories
+ * that would be created — instead of a guess.
  */
 export const POST = route(async (request: Request) => {
-  const user = await requireCapability('product.import');
+  const { db, orgId, user, role } = await requireCapability('product.import');
   const { rows, mode, dryRun } = productImportSchema.parse(await parseJson(request));
 
-  const outcome = await writeDb((db) => {
-    const results: RowOutcome[] = [];
-    // Snapshot so a dry run never leaves anything behind.
-    const products: Product[] = dryRun ? db.products.map((p) => ({ ...p })) : db.products;
-    const categories: Category[] = dryRun ? db.categories.map((c) => ({ ...c })) : db.categories;
-    const now = new Date().toISOString();
-    const categoryCountBefore = categories.length;
+  class Rollback extends Error {
+    constructor(readonly payload: unknown) {
+      super('dry run');
+    }
+  }
 
-    const findCategory = (label: string | undefined): string => {
-      const name = (label ?? 'Uncategorised').trim() || 'Uncategorised';
-      const slug = slugify(name);
-      const existing = categories.find((c) => c.slug === slug || c.id === label);
-      if (existing) return existing.id;
-      const category: Category = { id: newId('cat'), name, slug, createdAt: now };
-      categories.push(category);
-      return category.id;
+  const run = async (tx: Tx) => {
+    const results: RowOutcome[] = [];
+    const existing = await (tx as Database)
+      .select({ id: products.id, sku: products.sku, name: products.name })
+      .from(products)
+      .where(eq(products.orgId, orgId));
+
+    const bySku = new Map(existing.map((p) => [p.sku.toLowerCase(), p]));
+    const byName = new Map(existing.map((p) => [p.name.toLowerCase(), p]));
+
+    const categoryRows = await (tx as Database)
+      .select({ id: categories.id, slug: categories.slug })
+      .from(categories)
+      .where(eq(categories.orgId, orgId));
+    const categoryBySlug = new Map(categoryRows.map((c) => [c.slug, c.id]));
+    let categoriesCreated = 0;
+
+    const resolveCategory = async (label?: string): Promise<string | null> => {
+      if (!label) return null;
+      const slug = slugify(label);
+      const found = categoryBySlug.get(slug);
+      if (found) return found;
+      const [created] = await (tx as Database)
+        .insert(categories)
+        .values({ orgId, name: label.trim(), slug })
+        .returning({ id: categories.id });
+      categoryBySlug.set(slug, created.id);
+      categoriesCreated += 1;
+      return created.id;
     };
 
+    const takenSkus = new Set(existing.map((p) => p.sku.toLowerCase()));
     const skuFor = (row: (typeof rows)[number], index: number): string => {
       if (row.sku) return row.sku;
-      const base = slugify(row.name).toUpperCase().slice(0, 14).replace(/-/g, '');
-      let candidate = base || `ITEM${index + 1}`;
+      // Derive a stable code from the name when the file has no SKU column.
+      const base = slugify(row.name).toUpperCase().replace(/-/g, '').slice(0, 14) || `ITEM${index + 1}`;
+      let candidate = base;
       let n = 1;
-      while (products.some((p) => p.sku.toLowerCase() === candidate.toLowerCase())) {
+      while (takenSkus.has(candidate.toLowerCase())) {
         candidate = `${base}-${n}`;
         n += 1;
       }
       return candidate;
     };
 
-    rows.forEach((row, index) => {
+    for (const [index, row] of rows.entries()) {
       const sku = skuFor(row, index);
-      const existing = products.find(
-        (p) =>
-          p.sku.toLowerCase() === sku.toLowerCase() ||
-          p.name.toLowerCase() === row.name.toLowerCase(),
-      );
+      const match = bySku.get(sku.toLowerCase()) ?? byName.get(row.name.toLowerCase());
 
-      if (existing && mode === 'insert') {
+      if (match && mode === 'insert') {
         results.push({
           row: index + 1,
           name: row.name,
-          sku,
+          sku: match.sku,
           action: 'skip',
           reason: 'Already exists and the import is set to insert-only.',
         });
-        return;
+        continue;
       }
 
-      const categoryId = row.categoryId ?? findCategory(row.category);
+      const categoryId =
+        row.categoryId ?? (row.category ? await resolveCategory(row.category) : null);
 
-      if (existing) {
-        // Only overwrite what the file actually supplied; blanks keep the old value.
-        if (row.nameBn !== undefined) existing.nameBn = row.nameBn;
-        if (row.unit !== undefined) existing.unit = row.unit;
-        if (row.costPrice !== undefined) existing.costPrice = row.costPrice;
-        if (row.srPrice !== undefined) existing.srPrice = row.srPrice;
-        if (row.marketPrice !== undefined) existing.marketPrice = row.marketPrice;
-        if (row.lowStockThreshold !== undefined) existing.lowStockThreshold = row.lowStockThreshold;
-        if (row.imageUrl !== undefined) existing.imageUrl = row.imageUrl;
-        if (row.description !== undefined) existing.description = row.description;
-        if (row.brand !== undefined) existing.brand = row.brand;
-        if (row.category || row.categoryId) existing.categoryId = categoryId;
-        existing.active = true;
-        existing.updatedAt = now;
-        results.push({ row: index + 1, name: row.name, sku: existing.sku, action: 'update' });
-        return;
+      if (match) {
+        // Only overwrite what the file actually supplied; blank cells keep the
+        // value the product already has.
+        const patch: Record<string, unknown> = { updatedAt: new Date(), active: true };
+        if (row.unit !== undefined) patch.unit = row.unit;
+        if (row.srPrice !== undefined) patch.srPrice = row.srPrice;
+        if (row.marketPrice !== undefined) patch.marketPrice = row.marketPrice;
+        if (row.lowStockThreshold !== undefined) patch.lowStockThreshold = row.lowStockThreshold;
+        if (row.imageUrl !== undefined) patch.imageUrl = row.imageUrl;
+        if (row.description !== undefined) patch.description = row.description;
+        if (row.brand !== undefined) patch.brand = row.brand;
+        if (categoryId) patch.categoryId = categoryId;
+        // A cost column in an uploaded file is only honoured for the owner.
+        if (row.costPrice !== undefined && role === 'ADMIN') patch.costPrice = row.costPrice;
+
+        await (tx as Database).update(products).set(patch).where(eq(products.id, match.id));
+        results.push({ row: index + 1, name: row.name, sku: match.sku, action: 'update' });
+        continue;
       }
 
-      products.push({
-        id: newId('prd'),
-        sku,
-        name: row.name,
-        nameBn: row.nameBn,
-        categoryId,
-        unit: row.unit ?? 'pcs',
-        costPrice: row.costPrice ?? 0,
-        srPrice: row.srPrice ?? 0,
-        marketPrice: row.marketPrice ?? row.srPrice ?? 0,
-        // Opening stock from a price list is informational; real stock arrives
-        // through a purchase entry, which is what the ledger counts.
-        stock: row.stock ?? 0,
-        lowStockThreshold: row.lowStockThreshold ?? db.settings.lowStockThreshold,
-        imageUrl: row.imageUrl,
-        description: row.description,
-        brand: row.brand,
-        active: true,
-        createdAt: now,
-        updatedAt: now,
-      });
-      results.push({ row: index + 1, name: row.name, sku, action: 'create' });
-    });
+      takenSkus.add(sku.toLowerCase());
+      const [created] = await (tx as Database)
+        .insert(products)
+        .values({
+          orgId,
+          sku,
+          name: row.name,
+          categoryId,
+          unit: row.unit ?? 'pcs',
+          costPrice: role === 'ADMIN' ? (row.costPrice ?? 0) : 0,
+          srPrice: row.srPrice ?? 0,
+          marketPrice: row.marketPrice ?? row.srPrice ?? 0,
+          lowStockThreshold: row.lowStockThreshold ?? 10,
+          imageUrl: row.imageUrl,
+          description: row.description,
+          brand: row.brand,
+        })
+        .returning({ id: products.id, sku: products.sku, name: products.name });
+
+      bySku.set(created.sku.toLowerCase(), created);
+      byName.set(created.name.toLowerCase(), created);
+      results.push({ row: index + 1, name: row.name, sku: created.sku, action: 'create' });
+    }
 
     const summary = {
       created: results.filter((r) => r.action === 'create').length,
       updated: results.filter((r) => r.action === 'update').length,
       skipped: results.filter((r) => r.action === 'skip').length,
-      newCategories: categories.length - categoryCountBefore,
+      newCategories: categoriesCreated,
     };
 
-    if (!dryRun) {
-      logAction(db, user, 'product.import', 'product', undefined, { ...summary, mode });
+    const payload = { results, summary, dryRun };
+
+    if (dryRun) {
+      // Undo everything: the preview must leave the catalogue untouched.
+      throw new Rollback(payload);
     }
+    return payload;
+  };
 
-    return { results, summary, dryRun };
-  });
-
-  return ok(outcome);
+  try {
+    const payload = await withTransaction(db, run);
+    await logAction(db, user, 'product.import', 'product', undefined, {
+      ...payload.summary,
+      mode,
+    });
+    return ok(payload);
+  } catch (err) {
+    if (err instanceof Rollback) return ok(err.payload);
+    throw err;
+  }
 });

@@ -21,10 +21,11 @@ import {
 } from '@/components/ui';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { apiPost, qs } from '@/lib/client';
 import { PAYMENT_METHODS, type PaymentMethod, type SafeUser } from '@/lib/types';
-import { avatarTone, cn, formatDate, initials, money, todayIso } from '@/lib/utils';
+import { avatarTone, cn, formatDate, initials, todayIso } from '@/lib/utils';
 
 interface DepositRow {
   id: string;
@@ -63,6 +64,7 @@ interface MeResponse {
 }
 
 export default function DepositsPage() {
+  const { money } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [srFilter, setSrFilter] = useState('');
   const [creating, setCreating] = useState(false);
@@ -89,7 +91,7 @@ export default function DepositsPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="জমা ও হিসাব"
+        title="Deposits"
         subtitle={
           isSr
             ? 'What you have handed over, and what is still with you.'
@@ -328,6 +330,7 @@ function DepositModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { money } = useWorkspace();
   const [srId, setSrId] = useState('');
   const [amount, setAmount] = useState(0);
   const [date, setDate] = useState(todayIso());
@@ -367,7 +370,7 @@ function DepositModal({
       open={open}
       onClose={onClose}
       title="Record a deposit"
-      subtitle="এসআর এর জমা"
+      subtitle="Cash handed back to the office"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>

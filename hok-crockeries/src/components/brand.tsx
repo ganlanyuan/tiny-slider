@@ -30,22 +30,30 @@ export function Logo({ className, size = 36 }: { className?: string; size?: numb
   );
 }
 
+/**
+ * The product wordmark. Inside a workspace, pass the organisation's own name so
+ * the sidebar reads as the customer's business rather than the platform's.
+ */
 export function Wordmark({
   className,
   compact,
+  name,
+  sub,
 }: {
   className?: string;
   compact?: boolean;
+  name?: string;
+  sub?: string;
 }) {
   return (
-    <span className={cn('flex items-center gap-2.5', className)}>
+    <span className={cn('flex min-w-0 items-center gap-2.5', className)}>
       <Logo size={compact ? 32 : 38} />
-      <span className="leading-tight">
-        <span className="block font-display text-[0.95rem] font-semibold tracking-tight">
-          হক ক্রোকারিজ
+      <span className="min-w-0 leading-tight">
+        <span className="block truncate font-display text-[0.95rem] font-semibold tracking-tight">
+          {name ?? 'Hok Crockeries'}
         </span>
-        <span className="block text-[0.68rem] uppercase tracking-[0.18em] muted">
-          Hok Crockeries
+        <span className="block truncate text-[0.68rem] uppercase tracking-[0.18em] muted">
+          {sub ?? (name ? 'Workspace' : 'Distribution OS')}
         </span>
       </span>
     </span>

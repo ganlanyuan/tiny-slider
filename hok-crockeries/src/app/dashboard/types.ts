@@ -1,7 +1,8 @@
 /** Response shapes returned by `/api/overview`, one per role family. */
 
-import type { AuditLog, ExpenseCategory, Sale } from '@/lib/types';
-import type { TrendPoint } from '@/components/dashboard/charts';
+import type { SetupState } from '@/components/dashboard/setup-checklist';
+import type { TrendPoint } from '@/db/queries/finance';
+import type { ExpenseCategory, SaleStatus } from '@/lib/types';
 
 export interface FinanceBlock {
   month?: string;
@@ -15,6 +16,7 @@ export interface FinanceBlock {
   salaryExpense: number;
   otherExpense: number;
   expenseByCategory: { category: ExpenseCategory; amount: number }[];
+  invoices: number;
   costOfGoodsSold?: number;
   grossProfit?: number;
   netProfit?: number;
@@ -34,9 +36,10 @@ export interface StockBlock {
 }
 
 export interface SrBoardRow {
-  id: string;
+  srId: string;
   name: string;
-  area?: string;
+  area: string | null;
+  active: boolean;
   invoices: number;
   soldValue: number;
   collected: number;
@@ -45,13 +48,35 @@ export interface SrBoardRow {
   marketDue: number;
   unitsInHand: number;
   stockValueInHand: number;
-  lastSaleAt?: string;
+  lastSaleAt: string | null;
+  lastDepositAt: string | null;
+}
+
+export interface AuditEntry {
+  id: string;
+  userName: string;
+  action: string;
+  entity: string;
+  createdAt: string;
+}
+
+export interface RecentSale {
+  id: string;
+  invoiceNo: string;
+  date: string;
+  shopName: string;
+  total: number;
+  paid: number;
+  due: number;
+  status: SaleStatus;
 }
 
 export interface OfficeOverview {
   role: 'ADMIN' | 'MANAGER';
   month: string;
   showCost: boolean;
+  currency: string;
+  setup: SetupState;
   finance: FinanceBlock;
   allTime: {
     revenue: number;
@@ -73,46 +98,32 @@ export interface OfficeOverview {
   };
   demands: { pending: number; unfillable: number };
   deliveries: { delivered: number; pending: number; cancelled: number };
-  topProducts: { id: string; name: string; qty: number; value: number; costPrice?: number }[];
+  topProducts: { id: string; name: string; qty: number; value: number }[];
   lowStockItems: { id: string; name: string; unit: string; inStore: number; threshold: number }[];
-  activity: AuditLog[];
+  activity: AuditEntry[];
 }
 
 export interface SrOverview {
   role: 'SR';
   month: string;
   showCost: false;
-  account: {
-    soldValue: number;
-    collected: number;
-    marketDue: number;
-    deposited: number;
-    cashInHand: number;
-    invoices: number;
-    unitsInHand: number;
-    stockValueInHand: number;
-    assignedValue: number;
-  };
-  lifetime: {
-    soldValue: number;
-    cashInHand: number;
-    marketDue: number;
-    unitsInHand: number;
-    stockValueInHand: number;
-  };
+  currency: string;
+  account: SrBoardRow | undefined;
+  lifetime: SrBoardRow | undefined;
   demands: { pending: number; approved: number };
   sales: { invoices: number; delivered: number; pending: number };
   topProducts: { id: string; name: string; qty: number; value: number }[];
-  recentSales: Sale[];
+  recentSales: RecentSale[];
 }
 
 export interface DealerOverview {
   role: 'DEALER';
   month: string;
   showCost: false;
+  currency: string;
   stock: Pick<StockBlock, 'skus' | 'unitsInStore' | 'lowStock' | 'outOfStock'>;
-  topProducts: { id: string; name: string; qty: number; marketPrice: number }[];
   categories: number;
+  topProducts: { id: string; name: string; qty: number; marketPrice: number }[];
 }
 
 export type Overview = OfficeOverview | SrOverview | DealerOverview;

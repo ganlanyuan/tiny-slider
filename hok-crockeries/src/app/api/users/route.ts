@@ -1,78 +1,116 @@
+import { and, asc, eq, sql } from 'drizzle-orm';
+import { randomBytes } from 'node:crypto';
+
 import { fail, ok, parseJson, route } from '@/lib/api';
-import { hashPassword, requireCapability, toSafeUser } from '@/lib/auth';
-import { newId, readDb, writeDb } from '@/lib/db';
+import { findUserByEmail, requireCapability, toSafeUser } from '@/lib/auth';
+import { invitations, users } from '@/db/schema';
+import { srAccounts } from '@/db/queries/accounts';
 import { logAction } from '@/lib/audit';
-import { srAccount } from '@/lib/analytics';
 import { can } from '@/lib/permissions';
-import { userCreateSchema } from '@/lib/validation';
-import type { User } from '@/lib/types';
+import { inviteSchema } from '@/lib/validation';
+import type { Role } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
+const INVITE_TTL_DAYS = 14;
+
 export const GET = route(async (request: Request) => {
-  const user = await requireCapability('user.view');
+  const { db, orgId, role } = await requireCapability('user.view');
   const url = new URL(request.url);
   const roleFilter = url.searchParams.get('role') ?? '';
   const month = url.searchParams.get('month') ?? '';
 
-  const db = await readDb();
-  const users = db.users
-    .filter((u) => !roleFilter || u.role === roleFilter)
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((u) => {
-      const safe = toSafeUser(u);
-      if (u.role !== 'SR') return { ...safe, account: null };
-      return { ...safe, account: srAccount(db, u.id, month || undefined) };
-    });
+  const filters = [eq(users.orgId, orgId)];
+  if (roleFilter) filters.push(eq(users.role, roleFilter as Role));
+
+  const [rows, accounts] = await Promise.all([
+    db.select().from(users).where(and(...filters)).orderBy(asc(users.name)),
+    srAccounts(db, orgId, { month: month || undefined }),
+  ]);
+
+  const accountBySr = new Map(accounts.map((a) => [a.srId, a]));
+  const all = await db
+    .select({ role: users.role, active: users.active })
+    .from(users)
+    .where(eq(users.orgId, orgId));
 
   return ok({
-    users,
-    canManage: can(user.role, 'user.manage'),
+    users: rows.map((u) => ({
+      ...toSafeUser(u),
+      account: u.role === 'SR' ? (accountBySr.get(u.id) ?? null) : null,
+    })),
+    canManage: can(role, 'user.manage'),
     counts: {
-      total: db.users.length,
-      active: db.users.filter((u) => u.active).length,
-      sr: db.users.filter((u) => u.role === 'SR').length,
-      dealer: db.users.filter((u) => u.role === 'DEALER').length,
+      total: all.length,
+      active: all.filter((u) => u.active).length,
+      sr: all.filter((u) => u.role === 'SR').length,
+      manager: all.filter((u) => u.role === 'MANAGER').length,
+      dealer: all.filter((u) => u.role === 'DEALER').length,
     },
   });
 });
 
+/**
+ * Invite someone to the workspace.
+ *
+ * No password is set here. The invitee follows a single-use link and chooses
+ * their own, which means an owner never handles anyone else's credentials.
+ */
 export const POST = route(async (request: Request) => {
-  const actor = await requireCapability('user.manage');
-  const input = userCreateSchema.parse(await parseJson(request));
-  const passwordHash = await hashPassword(input.password);
+  const { db, orgId, user } = await requireCapability('user.manage');
+  const input = inviteSchema.parse(await parseJson(request));
 
-  const result = await writeDb((db) => {
-    const phone = input.phone.toLowerCase();
-    if (db.users.some((u) => u.phone.toLowerCase() === phone)) {
-      return { ok: false, error: 'That phone number is already registered.' } as const;
-    }
-    if (input.email && db.users.some((u) => (u.email ?? '').toLowerCase() === input.email!.toLowerCase())) {
-      return { ok: false, error: 'That email is already registered.' } as const;
-    }
+  if (await findUserByEmail(db, input.email)) {
+    return fail('Someone with that email already has an account.', 409);
+  }
 
-    const now = new Date().toISOString();
-    const user: User = {
-      id: newId('usr'),
-      name: input.name,
-      phone: input.phone,
-      email: input.email || undefined,
-      passwordHash,
+  // Re-inviting the same address replaces the previous pending invitation
+  // rather than leaving two live links to the same seat.
+  await db
+    .update(invitations)
+    .set({ revokedAt: new Date() })
+    .where(
+      and(
+        eq(invitations.orgId, orgId),
+        sql`lower(${invitations.email}) = ${input.email}`,
+        sql`${invitations.acceptedAt} IS NULL`,
+        sql`${invitations.revokedAt} IS NULL`,
+      ),
+    );
+
+  const [invite] = await db
+    .insert(invitations)
+    .values({
+      orgId,
+      email: input.email,
+      name: input.name ?? '',
       role: input.role,
-      active: true,
       area: input.area,
       monthlySalary: input.monthlySalary,
       commissionRate: input.commissionRate,
-      joinedAt: input.joinedAt ?? now,
-      note: input.note,
-      createdAt: now,
-      updatedAt: now,
-    };
-    db.users.push(user);
-    logAction(db, actor, 'user.create', 'user', user.id, { role: user.role, name: user.name });
-    return { ok: true, user: toSafeUser(user) } as const;
+      token: randomBytes(32).toString('base64url'),
+      invitedBy: user.id,
+      expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
+    })
+    .returning();
+
+  await logAction(db, user, 'team.invite', 'invitation', invite.id, {
+    email: invite.email,
+    role: invite.role,
   });
 
-  if (!result.ok) return fail(result.error, 409);
-  return ok({ user: result.user }, { status: 201 });
+  return ok(
+    {
+      invitation: {
+        id: invite.id,
+        email: invite.email,
+        role: invite.role,
+        expiresAt: invite.expiresAt.toISOString(),
+      },
+      // The caller turns this into a shareable link. There is no mail server in
+      // this app, so the owner passes the link on however they normally would.
+      token: invite.token,
+    },
+    { status: 201 },
+  );
 });

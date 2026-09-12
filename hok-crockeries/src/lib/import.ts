@@ -12,7 +12,6 @@ export type RawRow = Record<string, unknown>;
 const FIELD_ALIASES: Record<string, string[]> = {
   sku: ['sku', 'code', 'productcode', 'itemcode', 'id', 'barcode', 'কোড'],
   name: ['name', 'productname', 'product', 'item', 'itemname', 'title', 'পণ্য', 'পণ্যেরনাম', 'নাম'],
-  nameBn: ['namebn', 'banglaname', 'bnname', 'bangla', 'বাংলানাম'],
   category: ['category', 'categoryname', 'type', 'group', 'ক্যাটাগরি', 'বিভাগ'],
   categoryId: ['categoryid'],
   unit: ['unit', 'uom', 'measure', 'একক'],
@@ -28,7 +27,6 @@ const FIELD_ALIASES: Record<string, string[]> = {
     'marketprice', 'market', 'mrp', 'retail', 'retailprice', 'maxprice',
     'বাজারমূল্য', 'খুচরামূল্য',
   ],
-  stock: ['stock', 'qty', 'quantity', 'opening', 'openingstock', 'available', 'স্টক', 'পরিমাণ'],
   lowStockThreshold: ['lowstockthreshold', 'reorder', 'reorderlevel', 'minstock', 'minimum'],
   imageUrl: ['imageurl', 'image', 'photo', 'img', 'picture', 'ছবি'],
   description: ['description', 'details', 'note', 'remarks', 'বিবরণ'],
@@ -79,9 +77,7 @@ export function mapRow(row: RawRow): RawRow {
     const canonical = CANONICAL_BY_ALIAS.get(normaliseKey(key));
     if (!canonical) continue;
     if (value === null || value === undefined || value === '') continue;
-    if (
-      ['costPrice', 'srPrice', 'marketPrice', 'stock', 'lowStockThreshold'].includes(canonical)
-    ) {
+    if (['costPrice', 'srPrice', 'marketPrice', 'lowStockThreshold'].includes(canonical)) {
       const n = parseNumberLike(value);
       if (n !== undefined) out[canonical] = n;
     } else {

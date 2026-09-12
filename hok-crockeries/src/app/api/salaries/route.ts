@@ -1,41 +1,63 @@
+import { and, desc, eq, inArray, or } from 'drizzle-orm';
+
 import { fail, ok, parseJson, route } from '@/lib/api';
 import { requireCapability } from '@/lib/auth';
-import { newId, readDb, writeDb } from '@/lib/db';
+import type { Database } from '@/db/client';
+import { expenses, salaryPayments, users } from '@/db/schema';
+import { srAccounts } from '@/db/queries/accounts';
+import { withTransaction } from '@/db/tx';
 import { logAction } from '@/lib/audit';
-import { round2, salaryTotal, srAccount } from '@/lib/analytics';
+import { commissionOn, currentMonth, isValidMonth, round2, salaryTotal, toBusinessDate } from '@/lib/money';
 import { salarySchema } from '@/lib/validation';
-import type { Expense, SalaryPayment } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  await requireCapability('salary.view');
-  const url = new URL(request.url);
-  const month = url.searchParams.get('month') ?? '';
+  const { db, orgId } = await requireCapability('salary.view');
+  const requested = new URL(request.url).searchParams.get('month');
+  const month = isValidMonth(requested) ? requested : currentMonth();
 
-  const db = await readDb();
-  const byId = new Map(db.users.map((u) => [u.id, u]));
+  const [payments, staff, accounts] = await Promise.all([
+    db
+      .select({
+        id: salaryPayments.id,
+        userId: salaryPayments.userId,
+        userName: users.name,
+        role: users.role,
+        month: salaryPayments.month,
+        base: salaryPayments.base,
+        commission: salaryPayments.commission,
+        bonus: salaryPayments.bonus,
+        deduction: salaryPayments.deduction,
+        total: salaryPayments.total,
+        paidAt: salaryPayments.paidAt,
+        method: salaryPayments.method,
+        note: salaryPayments.note,
+      })
+      .from(salaryPayments)
+      .innerJoin(users, eq(users.id, salaryPayments.userId))
+      .where(and(eq(salaryPayments.orgId, orgId), eq(salaryPayments.month, month)))
+      .orderBy(desc(salaryPayments.paidAt)),
+    db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.orgId, orgId),
+          eq(users.active, true),
+          or(eq(users.role, 'SR'), eq(users.role, 'MANAGER'))!,
+        ),
+      ),
+    srAccounts(db, orgId, { month }),
+  ]);
 
-  const payments = db.salaries
-    .filter((s) => !month || s.month === month)
-    .sort((a, b) => b.month.localeCompare(a.month) || b.paidAt.localeCompare(a.paidAt))
-    .map((s) => ({
-      ...s,
-      userName: byId.get(s.userId)?.name ?? 'Removed staff',
-      role: byId.get(s.userId)?.role ?? 'SR',
-    }));
+  const soldBySr = new Map(accounts.map((a) => [a.srId, a.soldValue]));
+  const paidIds = new Set(payments.map((p) => p.userId));
 
-  // Payroll preview: everyone on the books, what they are owed this month, and
-  // whether it has already gone out.
-  const targetMonth = month || new Date().toISOString().slice(0, 7);
-  const paidThisMonth = new Set(
-    db.salaries.filter((s) => s.month === targetMonth).map((s) => s.userId),
-  );
-  const roster = db.users
-    .filter((u) => u.active && (u.role === 'SR' || u.role === 'MANAGER'))
+  // Payroll preview: who is owed what this month, and whether it has gone out.
+  const roster = staff
     .map((u) => {
-      const account = u.role === 'SR' ? srAccount(db, u.id, targetMonth) : null;
-      const soldValue = account?.soldValue ?? 0;
+      const soldValue = soldBySr.get(u.id) ?? 0;
       return {
         userId: u.id,
         name: u.name,
@@ -44,77 +66,84 @@ export const GET = route(async (request: Request) => {
         base: u.monthlySalary,
         commissionRate: u.commissionRate,
         soldValue,
-        suggestedCommission: round2((soldValue * u.commissionRate) / 100),
-        paid: paidThisMonth.has(u.id),
+        suggestedCommission: commissionOn(soldValue, u.commissionRate),
+        paid: paidIds.has(u.id),
       };
-    });
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return ok({
-    payments,
+    month,
+    payments: payments.map((p) => ({ ...p, paidAt: p.paidAt.toISOString() })),
     roster,
-    month: targetMonth,
     total: round2(payments.reduce((n, p) => n + p.total, 0)),
+    budget: round2(roster.reduce((n, r) => n + r.base + r.suggestedCommission, 0)),
   });
 });
 
+/**
+ * Pay one person for one month.
+ *
+ * The payment and the expense line it creates share a transaction, and a unique
+ * index on (user, month) makes a double payment impossible even if two managers
+ * click at the same moment.
+ */
 export const POST = route(async (request: Request) => {
-  const user = await requireCapability('salary.manage');
+  const { db, orgId, user } = await requireCapability('salary.manage');
   const input = salarySchema.parse(await parseJson(request));
 
-  const result = await writeDb((db) => {
-    const staff = db.users.find((u) => u.id === input.userId);
-    if (!staff) return { ok: false, error: 'That staff member does not exist.' } as const;
-    if (db.salaries.some((s) => s.userId === input.userId && s.month === input.month)) {
-      return {
-        ok: false,
-        error: `${staff.name} has already been paid for ${input.month}.`,
-      } as const;
-    }
+  const [staff] = await db
+    .select({ id: users.id, name: users.name })
+    .from(users)
+    .where(and(eq(users.id, input.userId), eq(users.orgId, orgId)))
+    .limit(1);
+  if (!staff) return fail('That staff member does not exist.', 422);
 
-    const total = salaryTotal(input);
-    if (total <= 0) return { ok: false, error: 'The net payable must be greater than zero.' } as const;
+  const total = salaryTotal(input);
+  if (total <= 0) return fail('The net payable must be greater than zero.', 422);
 
-    const now = new Date().toISOString();
-    const payment: SalaryPayment = {
-      id: newId('sal'),
-      userId: input.userId,
-      month: input.month,
-      base: input.base,
-      commission: input.commission,
-      bonus: input.bonus,
-      deduction: input.deduction,
-      total,
-      paidAt: input.paidAt ?? now,
-      method: input.method,
-      note: input.note,
-      paidBy: user.id,
-      createdAt: now,
-    };
-    db.salaries.push(payment);
+  const paidAt = input.paidAt ? toBusinessDate(input.paidAt) : new Date();
 
-    // Payroll hits the books the moment it is paid.
-    const expense: Expense = {
-      id: newId('exp'),
-      date: payment.paidAt,
+  const payment = await withTransaction(db, async (tx) => {
+    const database = tx as Database;
+    const [created] = await database
+      .insert(salaryPayments)
+      .values({
+        orgId,
+        userId: input.userId,
+        month: input.month,
+        base: input.base,
+        commission: input.commission,
+        bonus: input.bonus,
+        deduction: input.deduction,
+        total,
+        paidAt,
+        method: input.method,
+        note: input.note,
+        paidBy: user.id,
+      })
+      .returning();
+
+    await database.insert(expenses).values({
+      orgId,
+      date: paidAt,
       category: 'SALARY',
       amount: total,
       title: `Salary — ${staff.name} (${input.month})`,
       note: input.note,
       refType: 'SALARY',
-      refId: payment.id,
+      refId: created.id,
       createdBy: user.id,
-      createdAt: now,
-    };
-    db.expenses.push(expense);
-
-    logAction(db, user, 'salary.pay', 'salary', payment.id, {
-      staff: staff.name,
-      month: payment.month,
-      total,
     });
-    return { ok: true, payment } as const;
+
+    return created;
   });
 
-  if (!result.ok) return fail(result.error, 409);
-  return ok({ payment: result.payment }, { status: 201 });
+  await logAction(db, user, 'salary.pay', 'salary', payment.id, {
+    staff: staff.name,
+    month: payment.month,
+    total,
+  });
+
+  return ok({ payment: { ...payment, paidAt: payment.paidAt.toISOString() } }, { status: 201 });
 });

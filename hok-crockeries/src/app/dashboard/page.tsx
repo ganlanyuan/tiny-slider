@@ -29,24 +29,26 @@ import { Card, CardHeader, EmptyState, ErrorState, SectionTitle } from '@/compon
 import { MeterRow, StatCard } from '@/components/ui/stat';
 import { ExpenseDonut, SrBarChart, TrendChart } from '@/components/dashboard/charts';
 import { MonthPicker } from '@/components/dashboard/month-picker';
+import { SetupChecklist } from '@/components/dashboard/setup-checklist';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
+import { currentMonth } from '@/lib/money';
 import { EXPENSE_LABEL } from '@/lib/types';
-import { formatMonth, money, moneyShort, number as fmtNumber, relativeTime } from '@/lib/utils';
+import { formatMonth, number as fmtNumber, relativeTime } from '@/lib/utils';
 import type { DealerOverview, OfficeOverview, Overview, SrOverview } from './types';
 
-function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7);
-}
-
 export default function OverviewPage() {
+  const { user } = useWorkspace();
   const [month, setMonth] = useState(currentMonth());
   const { data, error, initial, reload } = useResource<Overview>(`/api/overview?month=${month}`);
+
+  const greeting = user.name.split(' ')[0];
 
   return (
     <PageTransition>
       <SectionTitle
-        title="ওভারভিউ"
+        title={`Hello, ${greeting}`}
         subtitle={`Everything that moved in ${formatMonth(month)}.`}
         action={<MonthPicker value={month} onChange={setMonth} />}
       />
@@ -87,16 +89,19 @@ function DashboardSkeleton() {
 /* ------------------------------------------------------- owner / manager */
 
 function OfficeDashboard({ data }: { data: OfficeOverview }) {
+  const { money, moneyShort } = useWorkspace();
   const { finance, stock, staff, showCost } = data;
   const isOwner = data.role === 'ADMIN';
 
   return (
     <div className="space-y-5">
+      <SetupChecklist setup={data.setup} />
+
       {/* headline money */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Revenue this month"
-          sublabel="মাসের বিক্রয়"
+          sublabel="Invoiced this month"
           value={finance.revenue}
           icon={<TrendingUp size={18} strokeWidth={1.7} />}
           tone="brand"
@@ -104,7 +109,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
         />
         <StatCard
           label={showCost ? 'Total expense' : 'Running costs'}
-          sublabel={showCost ? 'মোট খরচ' : 'আনুষঙ্গিক খরচ'}
+          sublabel={showCost ? 'Booked this month' : 'Excludes product purchases'}
           value={finance.totalExpense}
           icon={<Receipt size={18} strokeWidth={1.7} />}
           tone="amber"
@@ -116,7 +121,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
         />
         <StatCard
           label={isOwner ? 'Net profit' : 'Net profit'}
-          sublabel={isOwner ? 'নীট লাভ' : 'Owner only'}
+          sublabel={isOwner ? 'After cost and running expenses' : 'Owner only'}
           value={finance.netProfit ?? 0}
           locked={!showCost}
           icon={<PiggyBank size={18} strokeWidth={1.7} />}
@@ -125,7 +130,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
         />
         <StatCard
           label="Cash with SRs"
-          sublabel="এসআর এর কাছে টাকা"
+          sublabel="Collected but not yet deposited"
           value={finance.cashWithSrs}
           icon={<Wallet size={18} strokeWidth={1.7} />}
           tone={finance.cashWithSrs > 0 ? 'rose' : 'slate'}
@@ -137,7 +142,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Units in store"
-          sublabel="স্টোরে আছে"
+          sublabel="Available to hand out"
           value={stock.unitsInStore}
           kind="count"
           icon={<Warehouse size={18} strokeWidth={1.7} />}
@@ -147,7 +152,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
         />
         <StatCard
           label="Units with SRs"
-          sublabel="এসআর এর কাছে"
+          sublabel="Loaded in rep vans"
           value={stock.unitsWithSrs}
           kind="count"
           icon={<Truck size={18} strokeWidth={1.7} />}
@@ -171,7 +176,7 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
         />
         <StatCard
           label="Needs attention"
-          sublabel="স্টক সতর্কতা"
+          sublabel="Low or out of stock"
           value={stock.lowStock + stock.outOfStock}
           kind="count"
           icon={<AlertTriangle size={18} strokeWidth={1.7} />}
@@ -200,12 +205,12 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
           />
           <ExpenseDonut
             data={finance.expenseByCategory.map((e) => ({
-              name: EXPENSE_LABEL[e.category].en,
+              name: EXPENSE_LABEL[e.category],
               value: e.amount,
             }))}
           />
           <div className="mt-4 space-y-3 border-t pt-4">
-            {/* A ৳0 "product purchase" row would read as "nothing was spent",
+            {/* A zero "product purchase" row would read as "nothing was spent",
                 when in fact the figure is simply not this viewer's to see. */}
             {showCost ? (
               <MeterRow
@@ -283,13 +288,26 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
               </Link>
             }
           />
-          <SrBarChart
-            data={data.srBoard.slice(0, 6).map((s) => ({
-              name: s.name.split(' ')[0],
-              soldValue: s.soldValue,
-              collected: s.collected,
-            }))}
-          />
+          {data.srBoard.length === 0 ? (
+            <EmptyState
+              icon={<Users size={22} strokeWidth={1.5} />}
+              title="No sales reps yet"
+              description="Invite a rep, load their van with a challan, and their performance shows up here."
+              action={
+                <Link href="/dashboard/team" className="btn-ghost text-sm">
+                  Invite a rep
+                </Link>
+              }
+            />
+          ) : (
+            <SrBarChart
+              data={data.srBoard.slice(0, 6).map((s) => ({
+                name: s.name.split(' ')[0],
+                soldValue: s.soldValue,
+                collected: s.collected,
+              }))}
+            />
+          )}
           {data.srBoard.length > 0 ? (
             <div className="table-wrap mt-4">
               <table className="table">
@@ -304,10 +322,10 @@ function OfficeDashboard({ data }: { data: OfficeOverview }) {
                 </thead>
                 <tbody>
                   {data.srBoard.map((sr) => (
-                    <tr key={sr.id}>
+                    <tr key={sr.srId}>
                       <td>
                         <Link
-                          href={`/dashboard/team/${sr.id}`}
+                          href={`/dashboard/team/${sr.srId}`}
                           className="font-medium hover:text-brand-600"
                         >
                           {sr.name}
@@ -543,15 +561,30 @@ function OpRow({
 
 /* ------------------------------------------------------------------- SR */
 
+const EMPTY_SR_ACCOUNT = {
+  soldValue: 0,
+  collected: 0,
+  marketDue: 0,
+  deposited: 0,
+  cashInHand: 0,
+  invoices: 0,
+  unitsInHand: 0,
+  stockValueInHand: 0,
+};
+
 function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
-  const { account, lifetime } = data;
+  const { money } = useWorkspace();
+  // A rep who has not traded yet has no account row at all — show zeros
+  // rather than blank tiles.
+  const account = data.account ?? EMPTY_SR_ACCOUNT;
+  const lifetime = data.lifetime ?? EMPTY_SR_ACCOUNT;
 
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Sold this month"
-          sublabel="এ মাসে বিক্রি"
+          sublabel="Your invoices this month"
           value={account.soldValue}
           icon={<ShoppingCart size={18} strokeWidth={1.7} />}
           tone="brand"
@@ -559,7 +592,7 @@ function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
         />
         <StatCard
           label="Cash you collected"
-          sublabel="আদায়"
+          sublabel="Taken from shops"
           value={account.collected}
           icon={<HandCoins size={18} strokeWidth={1.7} />}
           tone="green"
@@ -567,14 +600,14 @@ function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
         />
         <StatCard
           label="Deposited to office"
-          sublabel="জমা দিয়েছেন"
+          sublabel="Handed to the office"
           value={account.deposited}
           icon={<Banknote size={18} strokeWidth={1.7} />}
           tone="violet"
         />
         <StatCard
           label="Cash still with you"
-          sublabel="আপনার হাতে"
+          sublabel="Still to deposit"
           value={lifetime.cashInHand}
           icon={<Wallet size={18} strokeWidth={1.7} />}
           tone={lifetime.cashInHand > 0 ? 'rose' : 'slate'}
@@ -586,7 +619,7 @@ function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
         <Card>
           <CardHeader
             title="Stock in your van"
-            subtitle="আপনার কাছে যা আছে"
+            subtitle="What you are carrying now"
             icon={<Truck size={18} strokeWidth={1.7} />}
           />
           <p className="tabular font-display text-3xl font-semibold">
@@ -657,7 +690,7 @@ function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
       <Card>
         <CardHeader
           title="Recent invoices"
-          subtitle="আপনার সাম্প্রতিক বিক্রয়"
+          subtitle="Your latest invoices"
           icon={<Receipt size={18} strokeWidth={1.7} />}
           action={
             <Link href="/dashboard/sales" className="text-sm font-medium text-brand-600 hover:underline">
@@ -716,6 +749,7 @@ function SrDashboard({ data, month }: { data: SrOverview; month: string }) {
 /* --------------------------------------------------------------- dealer */
 
 function DealerDashboard({ data }: { data: DealerOverview }) {
+  const { money } = useWorkspace();
   return (
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

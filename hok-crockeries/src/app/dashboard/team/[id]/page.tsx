@@ -25,9 +25,29 @@ import {
 } from '@/components/ui';
 import { StatCard } from '@/components/ui/stat';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
-import { ROLE_LABEL, type Deposit, type Role, type Sale, type SafeUser } from '@/lib/types';
-import { avatarTone, cn, formatDate, initials, money, number as fmtNumber, percent } from '@/lib/utils';
+import { ROLE_LABEL, type PaymentMethod, type Role, type SaleStatus, type SafeUser } from '@/lib/types';
+
+interface RecentSale {
+  id: string;
+  invoiceNo: string;
+  date: string;
+  shopName: string;
+  total: number;
+  paid: number;
+  due: number;
+  status: SaleStatus;
+}
+
+interface RecentDeposit {
+  id: string;
+  amount: number;
+  date: string;
+  method: PaymentMethod;
+  reference: string | null;
+}
+import { avatarTone, cn, formatDate, initials, number as fmtNumber, percent } from '@/lib/utils';
 
 interface MemberResponse {
   user: SafeUser;
@@ -52,8 +72,8 @@ interface MemberResponse {
     srPrice: number;
     value: number;
   }[];
-  recentSales: Sale[];
-  recentDeposits: Deposit[];
+  recentSales: RecentSale[];
+  recentDeposits: RecentDeposit[];
 }
 
 const ROLE_TONE: Record<Role, 'brand' | 'violet' | 'green' | 'amber'> = {
@@ -64,6 +84,7 @@ const ROLE_TONE: Record<Role, 'brand' | 'violet' | 'green' | 'amber'> = {
 };
 
 export default function MemberPage({ params }: { params: Promise<{ id: string }> }) {
+  const { money } = useWorkspace();
   const { id } = use(params);
   const { data, error, initial, reload } = useResource<MemberResponse>(`/api/users/${id}`);
 
@@ -116,7 +137,7 @@ export default function MemberPage({ params }: { params: Promise<{ id: string }>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-xl font-semibold tracking-tight">{user.name}</h1>
-              <Badge tone={ROLE_TONE[user.role]}>{ROLE_LABEL[user.role].en}</Badge>
+              <Badge tone={ROLE_TONE[user.role]}>{ROLE_LABEL[user.role]}</Badge>
               {!user.active ? <Badge tone="rose">Deactivated</Badge> : null}
             </div>
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm muted">

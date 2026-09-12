@@ -21,18 +21,19 @@ import type { Role } from './types';
 export interface NavItem {
   href: string;
   label: string;
-  labelBn: string;
+  /** One-line hint shown in the mobile drawer and tooltips. */
+  hint: string;
   icon: LucideIcon;
   /** Shown when the viewer holds at least one of these capabilities. */
   requires: Capability[];
-  section: 'Overview' | 'Operations' | 'Money' | 'Admin';
+  section: 'Overview' | 'Operations' | 'Money' | 'Workspace';
 }
 
 export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard',
     label: 'Overview',
-    labelBn: 'ওভারভিউ',
+    hint: 'Everything that moved this month',
     icon: LayoutDashboard,
     requires: ['product.view'],
     section: 'Overview',
@@ -40,7 +41,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/products',
     label: 'Products',
-    labelBn: 'পণ্য',
+    hint: 'Catalogue, prices and live stock',
     icon: Boxes,
     requires: ['product.view'],
     section: 'Operations',
@@ -48,15 +49,15 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/inventory',
     label: 'Store intake',
-    labelBn: 'স্টোরে মাল',
+    hint: 'Goods received from suppliers',
     icon: PackagePlus,
     requires: ['inventory.view'],
     section: 'Operations',
   },
   {
     href: '/dashboard/assignments',
-    label: 'SR challan',
-    labelBn: 'এসআর চালান',
+    label: 'Challans',
+    hint: 'Stock handed to sales reps',
     icon: Truck,
     requires: ['assignment.view'],
     section: 'Operations',
@@ -64,7 +65,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/sales',
     label: 'Sales',
-    labelBn: 'বিক্রয়',
+    hint: 'Invoices, payment and delivery',
     icon: ShoppingCart,
     requires: ['sale.view.all', 'sale.view.own'],
     section: 'Operations',
@@ -72,7 +73,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/demands',
     label: 'Demand',
-    labelBn: 'ডিমান্ড',
+    hint: 'What the field is asking for',
     icon: ClipboardList,
     requires: ['demand.view', 'demand.create'],
     section: 'Operations',
@@ -80,7 +81,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/deposits',
     label: 'Deposits',
-    labelBn: 'জমা',
+    hint: 'Cash coming back from the field',
     icon: Wallet,
     requires: ['deposit.view.all', 'deposit.view.own'],
     section: 'Money',
@@ -88,7 +89,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/expenses',
     label: 'Expenses',
-    labelBn: 'খরচ',
+    hint: 'Transport, rent, utilities',
     icon: Receipt,
     requires: ['expense.view'],
     section: 'Money',
@@ -96,7 +97,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/salary',
     label: 'Payroll',
-    labelBn: 'বেতন',
+    hint: 'Salary and commission',
     icon: Banknote,
     requires: ['salary.view'],
     section: 'Money',
@@ -104,7 +105,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/reports',
     label: 'Reports',
-    labelBn: 'রিপোর্ট',
+    hint: 'Per-product and per-rep performance',
     icon: BarChart3,
     requires: ['report.view'],
     section: 'Money',
@@ -112,18 +113,18 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: '/dashboard/team',
     label: 'Team',
-    labelBn: 'টিম',
+    hint: 'Invite reps, managers and dealers',
     icon: Users,
     requires: ['user.view'],
-    section: 'Admin',
+    section: 'Workspace',
   },
   {
     href: '/dashboard/settings',
     label: 'Settings',
-    labelBn: 'সেটিংস',
+    hint: 'Business details and preferences',
     icon: Settings,
     requires: ['settings.manage'],
-    section: 'Admin',
+    section: 'Workspace',
   },
 ];
 
@@ -131,4 +132,4 @@ export function navForRole(role: Role): NavItem[] {
   return NAV_ITEMS.filter((item) => canAny(role, item.requires));
 }
 
-export const SECTION_ORDER = ['Overview', 'Operations', 'Money', 'Admin'] as const;
+export const SECTION_ORDER = ['Overview', 'Operations', 'Money', 'Workspace'] as const;

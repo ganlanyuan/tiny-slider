@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { Badge, Button, Modal, Select, Textarea } from '@/components/ui';
 import { apiPost } from '@/lib/client';
 import { parseProductFile, RECOGNISED_COLUMNS, type RawRow } from '@/lib/import';
-import { money } from '@/lib/utils';
+import { useWorkspace } from '@/components/workspace';
 
 interface RowOutcome {
   row: number;
@@ -35,8 +35,7 @@ interface ImportResult {
 const SAMPLE = `[
   {
     "sku": "HC-2001",
-    "name": "Dinner Plate 10\\"",
-    "nameBn": "ডিনার প্লেট ১০ ইঞ্চি",
+    "name": "Dinner Plate 10 inch",
     "category": "Plates & Bowls",
     "unit": "dozen",
     "costPrice": 540,
@@ -69,6 +68,7 @@ export function ImportPanel({
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const { money } = useWorkspace();
 
   const reset = () => {
     setText('');
@@ -360,10 +360,10 @@ export function ImportPanel({
                 Which columns are recognised?
               </summary>
               <p className="mt-3 leading-relaxed muted">
-                Column names are matched loosely, in English or Bangla — spaces, underscores and
-                case are ignored. For example <code>Purchase Price</code>, <code>cost</code> and{' '}
-                <code>ক্রয়মূল্য</code> all map to the purchase price. Bengali digits are converted
-                automatically.
+                Column names are matched loosely — spaces, underscores and case are ignored, so
+                <code> Purchase Price</code>, <code>cost</code> and <code>buying price</code> all
+                map to the same field. Bengali column headers and Bengali digits are understood
+                too, along with currency prefixes like <code>Tk. 1,250.50</code>.
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {RECOGNISED_COLUMNS.map((c) => (

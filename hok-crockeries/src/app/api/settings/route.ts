@@ -1,28 +1,36 @@
+import { eq } from 'drizzle-orm';
+
 import { ok, parseJson, route } from '@/lib/api';
-import { requireCapability, requireUser } from '@/lib/auth';
-import { readDb, writeDb } from '@/lib/db';
+import { requireAuth, requireCapability, toOrgSummary } from '@/lib/auth';
+import { organizations } from '@/db/schema';
 import { logAction } from '@/lib/audit';
-import { settingsSchema } from '@/lib/validation';
+import { organizationSchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async () => {
-  await requireUser();
-  const db = await readDb();
-  return ok({ settings: db.settings });
+  const { org } = await requireAuth();
+  return ok({ organization: org });
 });
 
+/** Update the workspace. Everything here is per-organisation, nothing global. */
 export const PATCH = route(async (request: Request) => {
-  const user = await requireCapability('settings.manage');
-  const input = settingsSchema.partial().parse(await parseJson(request));
+  const { db, orgId, user } = await requireCapability('settings.manage');
+  const input = organizationSchema.parse(await parseJson(request));
+  const { onboarded, ...fields } = input;
 
-  const settings = await writeDb((db) => {
-    Object.assign(db.settings, input, { updatedAt: new Date().toISOString() });
-    logAction(db, user, 'settings.update', 'settings', undefined, {
-      fields: Object.keys(input),
-    });
-    return db.settings;
+  const [updated] = await db
+    .update(organizations)
+    .set({
+      ...fields,
+      ...(onboarded === true ? { onboardedAt: new Date() } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(organizations.id, orgId))
+    .returning();
+
+  await logAction(db, user, 'settings.update', 'organization', orgId, {
+    fields: Object.keys(input),
   });
-
-  return ok({ settings });
+  return ok({ organization: toOrgSummary(updated) });
 });

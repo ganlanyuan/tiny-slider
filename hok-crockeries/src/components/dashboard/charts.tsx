@@ -16,7 +16,8 @@ import {
   YAxis,
 } from 'recharts';
 
-import { formatMonth, money, moneyShort } from '@/lib/utils';
+import { useWorkspace } from '@/components/workspace';
+import { formatMonth } from '@/lib/utils';
 
 const PALETTE = [
   '#0c88eb',
@@ -41,6 +42,7 @@ function ChartTooltip({
   payload?: { name?: string; value?: number; color?: string }[];
   label?: string | number;
 }) {
+  const { money } = useWorkspace();
   if (!active || !payload?.length) return null;
   return (
     <div className="surface rounded-xl border px-3 py-2 text-xs shadow-lift">
@@ -73,6 +75,7 @@ export interface TrendPoint {
 
 /** Revenue against expense (and profit for the owner) over recent months. */
 export function TrendChart({ data, showProfit }: { data: TrendPoint[]; showProfit?: boolean }) {
+  const { moneyShort } = useWorkspace();
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -184,6 +187,7 @@ export function SrBarChart({
 }: {
   data: { name: string; soldValue: number; collected: number }[];
 }) {
+  const { moneyShort } = useWorkspace();
   if (data.length === 0) {
     return <div className="grid h-56 place-items-center text-sm muted">No sales this month.</div>;
   }

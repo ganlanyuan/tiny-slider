@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { AlertCircle, Eye, EyeOff, LogIn, Phone } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button, Input } from '@/components/ui';
@@ -15,13 +15,13 @@ export function LoginForm() {
   const params = useSearchParams();
   const next = params.get('next') || '/dashboard';
 
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  // Until React has hydrated, a click would submit the form natively and put
-  // the password in the URL as a query string. Keep submit disabled till then.
+  // Until React hydrates, a click would submit the form natively and put the
+  // password in the URL as a query string. Keep submit disabled until then.
   const [ready, setReady] = useState(false);
 
   useEffect(() => setReady(true), []);
@@ -32,14 +32,12 @@ export function LoginForm() {
     setBusy(true);
     setError(null);
     try {
-      const { user } = await apiPost<{ user: SafeUser }>('/api/auth/login', { phone, password });
-      toast.success(`স্বাগতম, ${user.name}`);
-      // A full navigation, so the server components pick up the new cookie.
+      const { user } = await apiPost<{ user: SafeUser }>('/api/auth/login', { email, password });
+      toast.success(`Welcome back, ${user.name.split(' ')[0]}`);
       router.replace(next);
       router.refresh();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Could not sign in.';
-      setError(message);
+      setError(err instanceof Error ? err.message : 'Could not sign in.');
       setBusy(false);
     }
   }
@@ -47,13 +45,13 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-4">
       <Input
-        label="Phone or email"
-        name="phone"
+        label="Email"
+        name="email"
+        type="email"
         autoComplete="username"
-        inputMode="text"
-        placeholder="01700000000"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
+        placeholder="you@company.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         required
         autoFocus
       />
@@ -101,11 +99,6 @@ export function LoginForm() {
       >
         Sign in
       </Button>
-
-      <p className="flex items-center justify-center gap-1.5 pt-1 text-xs muted">
-        <Phone size={13} />
-        Accounts are created by the owner — there is no public sign-up.
-      </p>
     </form>
   );
 }

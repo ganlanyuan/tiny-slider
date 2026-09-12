@@ -26,18 +26,20 @@ import { StatCard } from '@/components/ui/stat';
 import { TrendChart } from '@/components/dashboard/charts';
 import { MonthPicker } from '@/components/dashboard/month-picker';
 import { PageTransition } from '@/components/motion/reveal';
+import { useWorkspace } from '@/components/workspace';
 import { useResource } from '@/hooks/useResource';
 import { qs } from '@/lib/client';
-import { EXPENSE_LABEL, type Expense, type ExpenseCategory } from '@/lib/types';
-import {
-  downloadBlob,
-  formatMonth,
-  money,
-  number as fmtNumber,
-  percent,
-  toCsv,
-} from '@/lib/utils';
+import { EXPENSE_LABEL, type ExpenseCategory } from '@/lib/types';
+import { downloadBlob, formatMonth, number as fmtNumber, percent, toCsv } from '@/lib/utils';
 import type { TrendPoint } from '@/components/dashboard/charts';
+
+interface ExpenseLine {
+  id: string;
+  date: string;
+  category: ExpenseCategory;
+  amount: number;
+  title: string;
+}
 
 interface ProductRow {
   productId: string;
@@ -53,7 +55,7 @@ interface ProductRow {
 }
 
 interface SrRow {
-  id: string;
+  srId: string;
   name: string;
   area?: string;
   active: boolean;
@@ -91,11 +93,12 @@ interface ReportsResponse {
   products: ProductRow[];
   srs: SrRow[];
   purchases: { count: number; units: number; value?: number };
-  expenses: Expense[];
+  expenses: ExpenseLine[];
   salaries: { id: string; userName: string; month: string; total: number }[];
 }
 
 export default function ReportsPage() {
+  const { money } = useWorkspace();
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const { data, error, initial, reload } = useResource<ReportsResponse>(
     `/api/reports${qs({ month })}`,
@@ -127,7 +130,7 @@ export default function ReportsPage() {
   return (
     <PageTransition>
       <SectionTitle
-        title="রিপোর্ট"
+        title="Reports"
         subtitle={`Full picture for ${formatMonth(month)}.`}
         action={
           <div className="no-print flex flex-wrap items-center gap-2">
@@ -162,7 +165,7 @@ export default function ReportsPage() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
               label="Revenue"
-              sublabel="মোট বিক্রয়"
+              sublabel="Invoiced this month"
               value={summary.revenue}
               icon={<TrendingUp size={18} strokeWidth={1.7} />}
               tone="brand"
@@ -170,14 +173,14 @@ export default function ReportsPage() {
             />
             <StatCard
               label="Expenses"
-              sublabel="মোট খরচ"
+              sublabel="Booked this month"
               value={summary.totalExpense}
               icon={<Wallet size={18} strokeWidth={1.7} />}
               tone="amber"
             />
             <StatCard
               label="Net profit"
-              sublabel={showCost ? 'নীট লাভ' : 'Owner only'}
+              sublabel={showCost ? 'After cost and running expenses' : 'Owner only'}
               value={summary.netProfit ?? 0}
               locked={!showCost}
               icon={<BarChart3 size={18} strokeWidth={1.7} />}
@@ -186,7 +189,7 @@ export default function ReportsPage() {
             />
             <StatCard
               label="Outstanding"
-              sublabel="বাকি ও এসআর হাতে"
+              sublabel="Market dues plus rep float"
               value={summary.marketDue + summary.cashWithSrs}
               icon={<Users size={18} strokeWidth={1.7} />}
               tone="rose"
@@ -263,7 +266,7 @@ export default function ReportsPage() {
                   </thead>
                   <tbody>
                     {data.srs.map((sr) => (
-                      <tr key={sr.id} className={sr.active ? '' : 'opacity-55'}>
+                      <tr key={sr.srId} className={sr.active ? '' : 'opacity-55'}>
                         <td>
                           <p className="truncate font-medium">{sr.name}</p>
                           <p className="truncate text-xs muted">{sr.area || 'No area set'}</p>
@@ -363,7 +366,7 @@ export default function ReportsPage() {
                     <li key={e.id} className="flex items-center justify-between gap-3 py-2.5">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{e.title}</p>
-                        <p className="text-xs muted">{EXPENSE_LABEL[e.category].en}</p>
+                        <p className="text-xs muted">{EXPENSE_LABEL[e.category]}</p>
                       </div>
                       <span className="tabular shrink-0 text-sm">{money(e.amount)}</span>
                     </li>

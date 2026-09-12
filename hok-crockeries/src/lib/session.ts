@@ -6,9 +6,12 @@ export const SESSION_COOKIE = 'hok_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 export interface SessionPayload {
+  /** User id. */
   sub: string;
-  name: string;
+  /** Organisation the session belongs to — every query is scoped by it. */
+  org: string;
   role: Role;
+  name: string;
 }
 
 function secretKey(): Uint8Array {
@@ -22,7 +25,7 @@ function secretKey(): Uint8Array {
 }
 
 export async function signSession(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ name: payload.name, role: payload.role })
+  return new SignJWT({ org: payload.org, role: payload.role, name: payload.name })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(payload.sub)
     .setIssuedAt()
@@ -34,11 +37,12 @@ export async function verifySession(token: string | undefined): Promise<SessionP
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secretKey());
-    if (typeof payload.sub !== 'string') return null;
+    if (typeof payload.sub !== 'string' || typeof payload.org !== 'string') return null;
     return {
       sub: payload.sub,
-      name: String(payload.name ?? ''),
+      org: payload.org,
       role: payload.role as Role,
+      name: String(payload.name ?? ''),
     };
   } catch {
     return null;

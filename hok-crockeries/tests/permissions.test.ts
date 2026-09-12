@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { can, ROLE_CAPABILITIES, stripCostFields, visibleProduct, visibleProducts } from '../src/lib/permissions';
-import { ROLES, type Product, type Role } from '../src/lib/types';
+import { ROLES, type Role } from '../src/lib/types';
 
-const product: Product = {
+const product = {
   id: 'p1', sku: 'P1', name: 'Plate', categoryId: 'c1', unit: 'pcs',
-  costPrice: 10, srPrice: 25, marketPrice: 32, stock: 4, lowStockThreshold: 5,
-  active: true, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
+  costPrice: 10, srPrice: 25, marketPrice: 32, inStore: 4, lowStockThreshold: 5,
+  active: true,
 };
 
 test('only the owner holds cost.view', () => {

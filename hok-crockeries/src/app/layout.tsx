@@ -17,7 +17,7 @@ const sora = Sora({
   display: 'swap',
 });
 
-// Bangla face, so ‘হক ক্রোকারিজ’ renders properly everywhere.
+// Bengali face, so a workspace named in Bangla still renders correctly.
 const hind = Hind_Siliguri({
   subsets: ['bengali', 'latin'],
   weight: ['400', '500', '600', '700'],
@@ -27,12 +27,18 @@ const hind = Hind_Siliguri({
 
 export const metadata: Metadata = {
   title: {
-    default: 'হক ক্রোকারিজ — Hok Crockeries',
+    default: 'Hok Crockeries — distribution, inventory and accounts',
     template: '%s · Hok Crockeries',
   },
   description:
-    'Distribution, inventory, SR sales and accounts for Hok Crockeries — stock in, stock out, market demand, deposits and payroll in one place.',
-  keywords: ['crockery', 'distribution', 'inventory', 'SR management', 'Bangladesh', 'হক ক্রোকারিজ'],
+    'Run a wholesale distribution business on one ledger: stock in, stock out to sales reps, market sales, deposits, expenses and payroll.',
+  keywords: [
+    'distribution software',
+    'inventory management',
+    'sales rep management',
+    'wholesale accounting',
+    'crockery',
+  ],
   applicationName: 'Hok Crockeries',
 };
 
@@ -47,7 +53,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="bn" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Applied before paint so a dark-mode reload never flashes white. */}
         <script

@@ -1,83 +1,120 @@
-import { ok, parseJson, route, fail } from '@/lib/api';
+import { and, asc, eq, ilike, or, sql } from 'drizzle-orm';
+
+import { ok, parseJson, route } from '@/lib/api';
 import { requireCapability } from '@/lib/auth';
-import { newId, writeDb, readDb } from '@/lib/db';
+import { categories, products } from '@/db/schema';
+import { productStockLedger } from '@/db/queries/stock';
 import { logAction } from '@/lib/audit';
-import { productStockLedger } from '@/lib/analytics';
-import { visibleProducts } from '@/lib/permissions';
+import { visibleProduct } from '@/lib/permissions';
 import { productSchema } from '@/lib/validation';
-import { slugify } from '@/lib/utils';
-import type { Product } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const user = await requireCapability('product.view');
+  const { db, orgId, role, showCost } = await requireCapability('product.view');
   const url = new URL(request.url);
-  const search = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+  const search = (url.searchParams.get('q') ?? '').trim();
   const categoryId = url.searchParams.get('category') ?? '';
   const stockFilter = url.searchParams.get('stock') ?? '';
   const includeInactive = url.searchParams.get('includeInactive') === '1';
 
-  const db = await readDb();
-  const ledger = productStockLedger(db);
-
-  let products: Product[] = db.products;
-  if (!includeInactive) products = products.filter((p) => p.active);
-  if (categoryId) products = products.filter((p) => p.categoryId === categoryId);
+  const filters = [eq(products.orgId, orgId)];
+  if (!includeInactive) filters.push(eq(products.active, true));
+  if (categoryId) filters.push(eq(products.categoryId, categoryId));
   if (search) {
-    products = products.filter((p) =>
-      [p.name, p.nameBn, p.sku, p.brand, p.description]
-        .filter(Boolean)
-        .some((f) => String(f).toLowerCase().includes(search)),
+    const term = `%${search}%`;
+    filters.push(
+      or(
+        ilike(products.name, term),
+        ilike(products.sku, term),
+        ilike(products.brand, term),
+        ilike(products.description, term),
+      )!,
     );
   }
+
+  const [rows, categoryRows, ledger] = await Promise.all([
+    db
+      .select({
+        id: products.id,
+        sku: products.sku,
+        name: products.name,
+        categoryId: products.categoryId,
+        unit: products.unit,
+        costPrice: products.costPrice,
+        srPrice: products.srPrice,
+        marketPrice: products.marketPrice,
+        lowStockThreshold: products.lowStockThreshold,
+        imageUrl: products.imageUrl,
+        description: products.description,
+        brand: products.brand,
+        active: products.active,
+        updatedAt: products.updatedAt,
+      })
+      .from(products)
+      .where(and(...filters))
+      .orderBy(asc(products.name)),
+    db
+      .select()
+      .from(categories)
+      .where(eq(categories.orgId, orgId))
+      .orderBy(asc(categories.name)),
+    productStockLedger(db, orgId),
+  ]);
+
+  let list = rows.map((p) => {
+    const stock = ledger.get(p.id);
+    return {
+      // Cost is removed here, before the row ever reaches a response body.
+      ...visibleProduct(p, role),
+      inStore: stock?.inStore ?? 0,
+      withSrs: stock?.withSrs ?? 0,
+      sold: stock?.sold ?? 0,
+      updatedAt: p.updatedAt.toISOString(),
+    };
+  });
+
   if (stockFilter === 'low') {
-    products = products.filter((p) => {
-      const inStore = ledger.get(p.id)?.inStore ?? 0;
-      return inStore > 0 && inStore <= p.lowStockThreshold;
-    });
+    list = list.filter((p) => p.inStore > 0 && p.inStore <= p.lowStockThreshold);
   } else if (stockFilter === 'out') {
-    products = products.filter((p) => (ledger.get(p.id)?.inStore ?? 0) <= 0);
+    list = list.filter((p) => p.inStore <= 0);
   }
 
-  const rows = visibleProducts(products, user.role).map((p) => ({
-    ...p,
-    // `stock` on the record is a convenience mirror; the ledger is authoritative.
-    stock: ledger.get(p.id)?.inStore ?? 0,
-    withSrs: ledger.get(p.id)?.withSrs ?? 0,
-    sold: ledger.get(p.id)?.sold ?? 0,
-  }));
-
-  return ok({ products: rows, categories: db.categories, total: rows.length });
+  return ok({
+    products: list,
+    categories: categoryRows.map((c) => ({ id: c.id, name: c.name, slug: c.slug, icon: c.icon })),
+    total: list.length,
+    showCost,
+  });
 });
 
 export const POST = route(async (request: Request) => {
-  const user = await requireCapability('product.manage');
+  const { db, orgId, user, role } = await requireCapability('product.manage');
   const input = productSchema.parse(await parseJson(request));
 
-  const created = await writeDb((db) => {
-    if (db.products.some((p) => p.sku.toLowerCase() === input.sku.toLowerCase())) {
-      return null;
-    }
-    if (!db.categories.some((c) => c.id === input.categoryId)) {
-      // Accept a category name too, creating it on the fly.
-      const name = input.categoryId;
-      const category = {
-        id: newId('cat'),
-        name,
-        slug: slugify(name),
-        createdAt: new Date().toISOString(),
-      };
-      db.categories.push(category);
-      input.categoryId = category.id;
-    }
-    const now = new Date().toISOString();
-    const product: Product = { id: newId('prd'), ...input, createdAt: now, updatedAt: now };
-    db.products.push(product);
-    logAction(db, user, 'product.create', 'product', product.id, { sku: product.sku });
-    return product;
-  });
+  // Only the owner may set a purchase price. Dropping it here means a manager
+  // cannot write a cost even by crafting the request by hand.
+  const costPrice = role === 'ADMIN' ? input.costPrice : 0;
 
-  if (!created) return fail('A product with that SKU already exists.', 409);
-  return ok({ product: created }, { status: 201 });
+  const [created] = await db
+    .insert(products)
+    .values({
+      orgId,
+      sku: input.sku,
+      name: input.name,
+      categoryId: input.categoryId || null,
+      unit: input.unit,
+      costPrice,
+      srPrice: input.srPrice,
+      marketPrice: input.marketPrice,
+      lowStockThreshold: input.lowStockThreshold,
+      imageUrl: input.imageUrl,
+      description: input.description,
+      brand: input.brand,
+      active: input.active,
+    })
+    .returning();
+
+  await logAction(db, user, 'product.create', 'product', created.id, { sku: created.sku });
+  return ok({ product: visibleProduct(created, role) }, { status: 201 });
 });

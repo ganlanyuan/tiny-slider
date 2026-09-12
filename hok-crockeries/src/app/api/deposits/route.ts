@@ -1,88 +1,110 @@
+import { and, desc, eq, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
+
 import { fail, ok, parseJson, route } from '@/lib/api';
-import { requireUser } from '@/lib/auth';
-import { newId, readDb, writeDb } from '@/lib/db';
+import { requireAnyCapability } from '@/lib/auth';
+import { deposits, users } from '@/db/schema';
+import { srAccount, srAccounts } from '@/db/queries/accounts';
 import { logAction } from '@/lib/audit';
-import { srAccount } from '@/lib/analytics';
+import { round2, toBusinessDate } from '@/lib/money';
 import { can } from '@/lib/permissions';
 import { depositSchema } from '@/lib/validation';
-import type { Deposit } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const user = await requireUser();
-  if (!can(user.role, 'deposit.view.all') && !can(user.role, 'deposit.view.own')) {
-    return fail('Your role does not allow this action.', 403);
-  }
-
+  const { db, orgId, user, role } = await requireAnyCapability([
+    'deposit.view.all',
+    'deposit.view.own',
+  ]);
   const url = new URL(request.url);
   const month = url.searchParams.get('month') ?? '';
-  const srFilter = can(user.role, 'deposit.view.all') ? (url.searchParams.get('sr') ?? '') : user.id;
+  const viewsAll = can(role, 'deposit.view.all');
+  const srFilter = viewsAll ? (url.searchParams.get('sr') ?? '') : user.id;
 
-  const db = await readDb();
-  const names = new Map(db.users.map((u) => [u.id, u.name]));
+  const receiver = alias(users, 'receiver');
+  const filters = [eq(deposits.orgId, orgId)];
+  if (srFilter) filters.push(eq(deposits.srId, srFilter));
+  const monthFilter = month
+    ? sql`AND to_char(${deposits.date} AT TIME ZONE 'UTC', 'YYYY-MM') = ${month}`
+    : sql``;
 
-  const deposits = db.deposits
-    .filter((d) => (!srFilter || d.srId === srFilter) && (!month || d.date.startsWith(month)))
-    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
-    .map((d) => ({
-      ...d,
-      srName: names.get(d.srId) ?? 'Unknown SR',
-      receivedByName: names.get(d.receivedBy) ?? '—',
-    }));
+  const rows = await db
+    .select({
+      id: deposits.id,
+      srId: deposits.srId,
+      srName: users.name,
+      amount: deposits.amount,
+      date: deposits.date,
+      method: deposits.method,
+      reference: deposits.reference,
+      note: deposits.note,
+      receivedByName: receiver.name,
+    })
+    .from(deposits)
+    .innerJoin(users, eq(users.id, deposits.srId))
+    .leftJoin(receiver, eq(receiver.id, deposits.receivedBy))
+    .where(sql`${and(...filters)} ${monthFilter}`)
+    .orderBy(desc(deposits.date), desc(deposits.createdAt))
+    .limit(500);
 
-  // Every SR the viewer is allowed to see, with their running cash position.
-  const srIds = can(user.role, 'deposit.view.all')
-    ? db.users.filter((u) => u.role === 'SR').map((u) => u.id)
-    : [user.id];
-  const accounts = srIds.map((id) => ({
-    ...srAccount(db, id),
-    name: names.get(id) ?? 'Unknown SR',
-  }));
+  // Every rep the viewer is allowed to see, with their running cash position.
+  const accounts = await srAccounts(db, orgId, {
+    month: month || undefined,
+    srId: viewsAll ? undefined : user.id,
+  });
 
   return ok({
-    deposits,
+    deposits: rows.map((r) => ({
+      ...r,
+      date: r.date.toISOString(),
+      receivedByName: r.receivedByName ?? '—',
+    })),
     accounts,
     totals: {
-      deposited: deposits.reduce((n, d) => n + d.amount, 0),
-      count: deposits.length,
+      deposited: round2(rows.reduce((n, d) => n + d.amount, 0)),
+      count: rows.length,
     },
   });
 });
 
 export const POST = route(async (request: Request) => {
-  const user = await requireUser();
-  const isReceiver = can(user.role, 'deposit.receive');
-  if (!isReceiver && !can(user.role, 'deposit.create')) {
-    return fail('Your role does not allow this action.', 403);
-  }
+  const { db, orgId, user, role } = await requireAnyCapability(['deposit.receive', 'deposit.create']);
   const input = depositSchema.parse(await parseJson(request));
-  const srId = user.role === 'SR' ? user.id : (input.srId ?? '');
+  // A rep can only ever deposit against themselves, whatever the body says.
+  const srId = role === 'SR' ? user.id : (input.srId ?? '');
 
-  const result = await writeDb((db) => {
-    const sr = db.users.find((u) => u.id === srId);
-    if (!sr) return { ok: false, error: 'Pick the SR this money came from.' } as const;
+  const [rep] = await db
+    .select({ id: users.id, name: users.name, role: users.role })
+    .from(users)
+    .where(and(eq(users.id, srId), eq(users.orgId, orgId)))
+    .limit(1);
+  if (!rep || rep.role !== 'SR') return fail('Pick the sales rep this money came from.', 422);
 
-    const deposit: Deposit = {
-      id: newId('dep'),
+  const [created] = await db
+    .insert(deposits)
+    .values({
+      orgId,
       srId,
       amount: input.amount,
-      date: input.date,
+      date: toBusinessDate(input.date),
       method: input.method,
       reference: input.reference,
       note: input.note,
       receivedBy: user.id,
-      createdAt: new Date().toISOString(),
-    };
-    db.deposits.push(deposit);
-    logAction(db, user, 'deposit.record', 'deposit', deposit.id, {
-      sr: sr.name,
-      amount: deposit.amount,
-    });
-    // Report the SR's position after the deposit so the UI can show it at once.
-    return { ok: true, deposit, account: srAccount(db, srId) } as const;
+    })
+    .returning();
+
+  await logAction(db, user, 'deposit.record', 'deposit', created.id, {
+    sr: rep.name,
+    amount: created.amount,
   });
 
-  if (!result.ok) return fail(result.error, 422);
-  return ok({ deposit: result.deposit, account: result.account }, { status: 201 });
+  return ok(
+    {
+      deposit: { ...created, date: created.date.toISOString() },
+      account: await srAccount(db, orgId, srId),
+    },
+    { status: 201 },
+  );
 });

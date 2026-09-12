@@ -8,5 +8,8 @@ build/
 *.log
 .DS_Store
 next-env.d.ts
-.data/
 tsconfig.tsbuildinfo
+.vercel/
+
+# Local embedded database and any scratch data
+.data/

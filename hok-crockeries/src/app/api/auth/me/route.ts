@@ -1,11 +1,15 @@
 import { ok, route } from '@/lib/api';
-import { getCurrentUser } from '@/lib/auth';
-import { ROLE_CAPABILITIES } from '@/lib/permissions';
+import { capabilitiesFor, getAuthContext } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+/** Who am I, what workspace am I in, and what am I allowed to do. */
 export const GET = route(async () => {
-  const user = await getCurrentUser();
-  if (!user) return ok({ user: null, capabilities: [] });
-  return ok({ user, capabilities: ROLE_CAPABILITIES[user.role] });
+  const ctx = await getAuthContext();
+  if (!ctx) return ok({ user: null, org: null, capabilities: [] });
+  return ok({
+    user: ctx.user,
+    org: ctx.org,
+    capabilities: capabilitiesFor(ctx.role),
+  });
 });
