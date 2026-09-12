@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', 'Hind Siliguri', system-ui, sans-serif;
+    --font-display: 'Sora', 'Hind Siliguri', system-ui, sans-serif;
+
+    --surface: 248 250 252;
+    --surface-raised: 255 255 255;
+    --border-subtle: 226 232 240;
+    --text-strong: 15 23 42;
+    --text-muted: 100 116 139;
+  }
+
+  .dark {
+    --surface: 12 16 24;
+    --surface-raised: 21 27 38;
+    --border-subtle: 39 48 64;
+    --text-strong: 241 245 249;
+    --text-muted: 148 163 184;
+  }
+
+  * {
+    border-color: rgb(var(--border-subtle));
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: rgb(var(--surface));
+    color: rgb(var(--text-strong));
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numbers in tables should line up column to column. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: rgb(12 136 235 / 0.18);
+  }
+}
+
+@layer components {
+  .surface {
+    background-color: rgb(var(--surface-raised));
+  }
+
+  .muted {
+    color: rgb(var(--text-muted));
+  }
+
+  .card {
+    @apply surface rounded-2xl border shadow-soft;
+  }
+
+  .field {
+    @apply surface w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none transition
+           placeholder:text-ink-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/10
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium muted;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium
+           transition active:scale-[.98] disabled:pointer-events-none disabled:opacity-55;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-glow hover:bg-brand-700;
+  }
+
+  .btn-ghost {
+    @apply btn surface border hover:bg-ink-50 dark:hover:bg-white/5;
+  }
+
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  /* Sticky, scroll-safe table shell used across every list page. */
+  .table-wrap {
+    @apply w-full overflow-x-auto rounded-2xl border surface;
+  }
+
+  .table {
+    @apply w-full min-w-[640px] text-left text-sm;
+  }
+
+  .table thead th {
+    @apply sticky top-0 z-10 whitespace-nowrap border-b bg-ink-50/80 px-4 py-3 text-xs font-semibold
+           uppercase tracking-wide muted backdrop-blur dark:bg-white/5;
+  }
+
+  .table tbody td {
+    @apply border-b px-4 py-3 align-middle;
+  }
+
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table tbody tr {
+    @apply transition hover:bg-brand-50/50 dark:hover:bg-white/5;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-ink-100 dark:bg-white/5;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r
+           from-transparent via-white/60 to-transparent dark:via-white/10;
+  }
+}
+
+@layer utilities {
+  .grain {
+    background-image: radial-gradient(rgb(0 0 0 / 0.035) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-200 dark:bg-white/10;
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  }
+}
