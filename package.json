@@ -8,7 +8,6 @@
     "test": "test"
   },
   "scripts": {
-    "ngrok": "~/ngrok http 3000",
     "start": "nodemon --watch test/js/tests-async.js --exec npm run compile",
     "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js",
     "build": "rollup --config rollup.config.js",
