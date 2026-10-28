@@ -1,14 +1,13 @@
 {
-  "name": "tiny-slider",
-  "version": "2.9.4",
-  "description": "Vanilla javascript slider for all purposes, inspired by Owl Carousel.",
+  "name": "tiny-slider-bw",
+  "version": "1.0.0",
+  "description": "Vanilla javascript slider for all purposes, inspired by Owl Carousel, updated by Blackwells",
   "main": "dist/tiny-slider.js",
   "types": "src/tiny-slider.d.ts",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "ngrok": "~/ngrok http 3000",
     "start": "nodemon --watch test/js/tests-async.js --exec npm run compile",
     "compile": "npx babel test/js/tests-async.js -o test/js/tests-async-es5.js",
     "build": "rollup --config rollup.config.js",
@@ -24,21 +23,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ganlanyuan/tiny-slider.git"
+    "url": "git+https://github.com/blackwelllearning/tiny-slider.git"
   },
   "files": [
     "dist",
     "src"
   ],
   "keywords": [],
-  "author": "ganlanyuan <ganlanyuan@gmail.com>",
+  "author": "ganlanyuan <ganlanyuan@gmail.com>, Blackwells <Blackwells.co.uk>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ganlanyuan/tiny-slider/issues"
   },
   "browserslist": "> 0.25%, not dead",
-  "homepage": "https://github.com/ganlanyuan/tiny-slider#readme",
+  "homepage": "https://github.com/blackwelllearning/tiny-slider",
   "devDependencies": {
+    "@types/babel__core":"^7.1.9",
+    "chromedriver": "142.0.3",
+    "geckodriver": "6.1.0",
     "@babel/cli": "^7.14.8",
     "@babel/core": "^7.15.0",
     "@babel/polyfill": "^7.12.1",
@@ -47,6 +49,6 @@
     "@rollup/plugin-commonjs": "^20.0.0",
     "nightwatch": "^1.7.11",
     "nodemon": "^2.0.3",
-    "rollup": "^2.56.3"
+    "rollup": "4.53.3"
   }
 }

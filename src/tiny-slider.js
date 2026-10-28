@@ -11,6 +11,7 @@ if (!Object.keys) {
   };
 }
 
+
 // ChildNode.remove
 if(!("remove" in Element.prototype)){
   Element.prototype.remove = function(){
@@ -722,10 +723,10 @@ export var tns = function(options) {
       addClass(item, 'tns-item');
       if (!item.id) { item.id = slideId + '-item' + i; }
       if (!carousel && animateNormal) { addClass(item, animateNormal); }
-      setAttrs(item, {
-        'aria-hidden': 'true',
-        'tabindex': '-1'
-      });
+      // setAttrs(item, {
+      //   'aria-hidden': 'true',
+      //   'tabindex': '-1'
+      // });
     });
 
     // ## clone slides
@@ -1033,7 +1034,6 @@ export var tns = function(options) {
       // customized nav
       // will not hide the navs in case they're thumbnails
       if (navContainer) {
-        setAttrs(navContainer, {'aria-label': 'Carousel Pagination'});
         navItems = navContainer.children;
         forEach(navItems, function(item, i) {
           setAttrs(item, {
@@ -1052,7 +1052,7 @@ export var tns = function(options) {
           // hide nav items by default
           navHtml += '<button type="button" data-nav="' + i +'" tabindex="-1" aria-controls="' + slideId + '" ' + hiddenStr + ' aria-label="' + navStr + (i + 1) +'"></button>';
         }
-        navHtml = '<div class="tns-nav" aria-label="Carousel Pagination">' + navHtml + '</div>';
+        navHtml = '<div class="tns-nav">' + navHtml + '</div>';
         outerWrapper.insertAdjacentHTML(getInsertPosition(options.navPosition), navHtml);
 
         navContainer = outerWrapper.querySelector('.tns-nav');
@@ -1086,7 +1086,7 @@ export var tns = function(options) {
     // == controlsInit ==
     if (hasControls) {
       if (!controlsContainer && (!prevButton || !nextButton)) {
-        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" aria-label="Carousel Navigation" tabindex="0"><button type="button" data-controls="prev" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[0] + '</button><button type="button" data-controls="next" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[1] + '</button></div>');
+        outerWrapper.insertAdjacentHTML(getInsertPosition(options.controlsPosition), '<div class="tns-controls" tabindex="0"><button type="button" data-controls="prev" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[0] + '</button><button type="button" data-controls="next" tabindex="-1" aria-controls="' + slideId +'">' + controlsText[1] + '</button></div>');
 
         controlsContainer = outerWrapper.querySelector('.tns-controls');
       }
@@ -1098,7 +1098,6 @@ export var tns = function(options) {
 
       if (options.controlsContainer) {
         setAttrs(controlsContainer, {
-          'aria-label': 'Carousel Navigation',
           'tabindex': '0'
         });
       }
@@ -1941,10 +1940,10 @@ export var tns = function(options) {
       // hide slides
       } else {
         if (!hasAttr(item, 'aria-hidden')) {
-          setAttrs(item, {
-            'aria-hidden': 'true',
-            'tabindex': '-1'
-          });
+          // setAttrs(item, {
+          //   'aria-hidden': 'true',
+          //   'tabindex': '-1'
+          // });
           removeClass(item, slideActiveClass);
         }
       }

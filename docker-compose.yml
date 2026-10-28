@@ -1,15 +1,15 @@
-version: '2'
+version: '3'
 
 services:
   web:
-    image: cmcdev/web:2.7.3
+    image: node:22-bookworm-slim
     ports:
       - 3000:3000
       # - 3001:3001
     volumes:
       - .:/www/web/
-    working_dir: /www/web
+    command: sh -c "tail -f /dev/null"
+    working_dir: /www/web/
     container_name: tiny-slider
-    entrypoint: sh /www/start.sh
     stdin_open: true
     tty: true

@@ -1,15 +1,28 @@
-# Tiny Slider 2
-[![](https://data.jsdelivr.com/v1/package/npm/tiny-slider/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider)
-![version](https://img.shields.io/badge/Version-2.9.4-green.svg)
+# Tiny Slider 2 BW 
+[![](https://data.jsdelivr.com/v1/package/npm/tiny-slider-bw/badge?style=rounded)](https://www.jsdelivr.com/package/npm/tiny-slider-bw)
+![version](https://img.shields.io/badge/Version-1.0.0-green.svg)
 
-Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/).
+Tiny slider for all purposes, inspired by [Owl Carousel](https://owlcarousel2.github.io/OwlCarousel2/), updated by Blackwells.
+
+**IMPORTANT**
+This package and repository is maintained by Blackwells.
+
+We have no intention of fullfilling or fixing any of the current issues and PR's from the originating repository unless they are a problem for us. If this happens we will update this repository with relevant fixes. 
+
+If you have issues with this repository, you have them with the original repository. Follow the guides for reporting issues there. We have no intention of fixing anything that doesn't effect our sites. 
+
+This verison was created to fix an issue we raised regarding UK and EU Accessibility Laws ensuring websites comply to WCAG 2.1 AA standards or higher. 
+
+At the time of our release the original 'ganlanyuan' links for demos and such stil worked. We are not responsible for their content or maintenance.
+
+If like us, you need an issue fixed or a PR merged, make a fork and release your own version of this amazing tool. We do however, suggest you fork from here so any site you use this on will be accessible. 
+
+Everything after this last sentance, other than our changes, package name and updates to dependencies has remained as original content.
+**END**
 
 [Demos](http://ganlanyuan.github.io/tiny-slider/demo)
 
 [Test results](http://ganlanyuan.github.io/tiny-slider/test)
-<!-- [Tests for desktop browsers](http://ganlanyuan.github.io/tiny-slider/test/tests.html) (running on Firefox 12+, Chrome 15+, Safari 5.1+, Opera 12.1+, IE9+)
-[Tests for mobile browsers](http://ganlanyuan.github.io/tiny-slider/test/tests-mobile.html)  (running on Android Browser 4.2+)
- -->
 
 *Previous versions*:
 [v1](https://github.com/ganlanyuan/tiny-slider/tree/v1),
