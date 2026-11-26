@@ -2521,6 +2521,16 @@ export var tns = function(options) {
     e = e || win.event;
     return isTouchEvent(e) ? e.changedTouches[0] : e;
   }
+
+  // true when el is an <a> or <img>, or is inside one (<a><h3></h3></a>): the browser starts its native drag on those
+  function isInsideLinkOrImage (el) {
+    while (el && el !== container) {
+      if (['img', 'a'].indexOf(getLowerCaseNodeName(el)) >= 0) { return true; }
+      el = el.parentNode;
+    }
+    return false;
+  }
+
   function getTarget (e) {
     return e.target || win.event.srcElement;
   }
@@ -2553,7 +2563,7 @@ export var tns = function(options) {
     var $ = getEvent(e);
     events.emit(isTouchEvent(e) ? 'touchStart' : 'dragStart', info(e));
 
-    if (!isTouchEvent(e) && ['img', 'a'].indexOf(getLowerCaseNodeName(getTarget(e))) >= 0) {
+    if (!isTouchEvent(e) && isInsideLinkOrImage(getTarget(e))) {
       preventDefaultBehavior(e);
     }
 
@@ -2633,11 +2643,13 @@ export var tns = function(options) {
         // drag vs click
         if (!isTouchEvent(e)) {
           // prevent "click"
-          var target = getTarget(e);
-          addEvents(target, {'click': function preventClick (e) {
-            preventDefaultBehavior(e);
-            removeEvents(target, {'click': preventClick});
-          }});
+          // The click is fired on the closest common ancestor of the mousedown and mouseup targets, which is
+          // not always the mouseup target, and it is not fired at all when the button is released elsewhere.
+          // So catch it on the window and drop the listener on the next tick, so it can't be left behind
+          // to cancel a later click.
+          var preventClick = function (e) { preventDefaultBehavior(e); };
+          win.addEventListener('click', preventClick, true);
+          setTimeout(function () { win.removeEventListener('click', preventClick, true); }, 0);
         }
 
         if (carousel) {
